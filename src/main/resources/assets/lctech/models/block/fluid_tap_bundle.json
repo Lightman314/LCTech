@@ -1,0 +1,159 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "lightmanscurrency:block/block",
+	"textures": {
+		"particle": "lctech:blocks/fluid_tap_bundle",
+		"main": "lctech:blocks/fluid_tap_bundle",
+		"tap": "lctech:blocks/tap"
+	},
+	"elements": [
+		{
+			"name": "TankBottom",
+			"from": [0, 0, 0],
+			"to": [16, 0.1, 16],
+			"faces": {
+				"up": {"uv": [8, 8, 16, 16], "texture": "#main"},
+				"down": {"uv": [8, 8, 16, 16], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankTop",
+			"from": [0, 15.9, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"up": {"uv": [0, 8, 8, 16], "texture": "#main"},
+				"down": {"uv": [0, 8, 8, 16], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankSouth",
+			"from": [0, 0, 15.9],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 8, 8], "texture": "#main"},
+				"south": {"uv": [0, 0, 8, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankNorth",
+			"from": [0, 0, 0],
+			"to": [16, 16, 0.01],
+			"faces": {
+				"north": {"uv": [8, 0, 16, 8], "texture": "#main"},
+				"south": {"uv": [8, 0, 16, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankWest",
+			"from": [0, 0, 0],
+			"to": [0.1, 16, 16],
+			"faces": {
+				"east": {"uv": [8, 0, 16, 8], "texture": "#main"},
+				"west": {"uv": [8, 0, 16, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankEast",
+			"from": [15.9, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"east": {"uv": [8, 0, 16, 8], "texture": "#main"},
+				"west": {"uv": [8, 0, 16, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankSplit1",
+			"from": [8, 0, 0],
+			"to": [8, 16, 16],
+			"faces": {
+				"east": {"uv": [8, 0, 16, 8], "texture": "#main"},
+				"west": {"uv": [8, 0, 16, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "TankSplit2",
+			"from": [0, 0, 8],
+			"to": [16, 16, 8],
+			"faces": {
+				"north": {"uv": [8, 0, 16, 8], "texture": "#main"},
+				"south": {"uv": [8, 0, 16, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "Tap1",
+			"from": [3, 6, 16],
+			"to": [5, 8, 20],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 2], "texture": "#tap"},
+				"east": {"uv": [2, 2, 6, 4], "texture": "#tap"},
+				"south": {"uv": [0, 2, 2, 4], "texture": "#tap"},
+				"west": {"uv": [2, 0, 6, 2], "texture": "#tap"},
+				"up": {"uv": [6, 0, 8, 4], "texture": "#tap"},
+				"down": {"uv": [8, 0, 10, 4], "texture": "#tap"}
+			}
+		},
+		{
+			"name": "Tap2",
+			"from": [3, 4, 18],
+			"to": [5, 6, 20],
+			"faces": {
+				"north": {"uv": [0, 4, 2, 6], "texture": "#tap"},
+				"east": {"uv": [10, 2, 12, 4], "texture": "#tap"},
+				"south": {"uv": [2, 4, 4, 6], "texture": "#tap"},
+				"west": {"uv": [10, 0, 12, 2], "texture": "#tap"},
+				"down": {"uv": [4, 4, 6, 6], "texture": "#tap"}
+			}
+		},
+		{
+			"name": "Knob",
+			"from": [4, 8, 17],
+			"to": [7, 9, 18],
+			"faces": {
+				"north": {"uv": [0, 6, 3, 7], "texture": "#tap"},
+				"east": {"uv": [7, 6, 8, 7], "texture": "#tap"},
+				"south": {"uv": [0, 7, 3, 8], "texture": "#tap"},
+				"west": {"uv": [6, 6, 7, 7], "texture": "#tap"},
+				"up": {"uv": [3, 6, 6, 7], "texture": "#tap"},
+				"down": {"uv": [3, 7, 6, 8], "texture": "#tap"}
+			}
+		},
+		{
+			"name": "Tap1",
+			"from": [11, 6, 16],
+			"to": [13, 8, 20],
+			"faces": {
+				"north": {"uv": [0, 0, 2, 2], "texture": "#tap"},
+				"east": {"uv": [2, 2, 6, 4], "texture": "#tap"},
+				"south": {"uv": [0, 2, 2, 4], "texture": "#tap"},
+				"west": {"uv": [2, 0, 6, 2], "texture": "#tap"},
+				"up": {"uv": [6, 0, 8, 4], "texture": "#tap"},
+				"down": {"uv": [8, 0, 10, 4], "texture": "#tap"}
+			}
+		},
+		{
+			"name": "Tap2",
+			"from": [11, 4, 18],
+			"to": [13, 6, 20],
+			"faces": {
+				"north": {"uv": [0, 4, 2, 6], "texture": "#tap"},
+				"east": {"uv": [10, 2, 12, 4], "texture": "#tap"},
+				"south": {"uv": [2, 4, 4, 6], "texture": "#tap"},
+				"west": {"uv": [10, 0, 12, 2], "texture": "#tap"},
+				"down": {"uv": [4, 4, 6, 6], "texture": "#tap"}
+			}
+		},
+		{
+			"name": "Knob",
+			"from": [12, 8, 17],
+			"to": [15, 9, 18],
+			"faces": {
+				"north": {"uv": [0, 6, 3, 7], "texture": "#tap"},
+				"east": {"uv": [7, 6, 8, 7], "texture": "#tap"},
+				"south": {"uv": [0, 7, 3, 8], "texture": "#tap"},
+				"west": {"uv": [6, 6, 7, 7], "texture": "#tap"},
+				"up": {"uv": [3, 6, 6, 7], "texture": "#tap"},
+				"down": {"uv": [3, 7, 6, 8], "texture": "#tap"}
+			}
+		}
+	]
+}

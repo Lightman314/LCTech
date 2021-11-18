@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "lctech:block/fluid_tap_bundle",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "lctech:block/fluid_tap_bundle",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "lctech:block/fluid_tap_bundle",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "lctech:block/fluid_tap_bundle",
+            "y": 270
+        }
+    }
+}

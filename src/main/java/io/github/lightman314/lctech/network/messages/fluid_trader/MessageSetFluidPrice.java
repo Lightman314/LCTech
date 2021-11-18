@@ -1,0 +1,86 @@
+package io.github.lightman314.lctech.network.messages.fluid_trader;
+
+import java.util.function.Supplier;
+
+import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
+import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
+import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.network.NetworkEvent.Context;
+
+public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
+	
+	BlockPos pos;
+	int tradeIndex;
+	CoinValue price;
+	boolean isFree;
+	FluidTradeType tradeType;
+	boolean canDrain;
+	boolean canFill;
+	
+	public MessageSetFluidPrice() {};
+	
+	public MessageSetFluidPrice(BlockPos pos, int tradeIndex, CoinValue price, boolean isFree, FluidTradeType tradeType, boolean canDrain, boolean canFill)
+	{
+		this.pos = pos;
+		this.tradeIndex = tradeIndex;
+		this.price = price;
+		this.isFree = isFree;
+		this.tradeType = tradeType;
+		this.canDrain = canDrain;
+		this.canFill = canFill;
+	}
+	
+	@Override
+	public MessageSetFluidPrice decode(PacketBuffer buffer) {
+		return new MessageSetFluidPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readBoolean(), buffer.readBoolean());
+	}
+
+	@Override
+	public void encode(MessageSetFluidPrice message, PacketBuffer buffer) {
+		buffer.writeBlockPos(message.pos);
+		buffer.writeInt(message.tradeIndex);
+		buffer.writeCompoundTag(message.price.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
+		buffer.writeBoolean(message.isFree);
+		buffer.writeString(message.tradeType.name());
+		buffer.writeBoolean(message.canDrain);
+		buffer.writeBoolean(message.canFill);
+		
+	}
+
+	@Override
+	public void handle(MessageSetFluidPrice message, Supplier<Context> source) {
+		source.get().enqueueWork(() ->{
+			PlayerEntity player = source.get().getSender();
+			if(player != null)
+			{
+				TileEntity tileEntity = player.world.getTileEntity(message.pos);
+				if(tileEntity instanceof FluidTraderTileEntity)
+				{
+					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)tileEntity;
+					FluidTradeData trade = traderEntity.getTrade(message.tradeIndex);
+					
+					trade.setCost(message.price);
+					trade.setFree(message.isFree);
+					trade.setTradeType(message.tradeType);
+					trade.setDrainable(message.canDrain);
+					trade.setFillable(message.canFill);
+					
+					CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
+					TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));
+				}
+			}
+		});
+		source.get().setPacketHandled(true);
+	}
+
+	
+	
+}
