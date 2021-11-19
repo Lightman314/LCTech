@@ -8,10 +8,12 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.util.PlayerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -38,20 +40,6 @@ public class TradeFluidHandler implements IFluidHandler{
 	private final int getTradeCount(){ return this.getTrader().getTradeCount(); }
 	private final FluidTradeData getTrade(int tradeIndex) { return this.getTrader().getTrade(tradeIndex); }
 	private final void markTradesDirty() { this.getTrader().markTradesDirty(); }
-	/**
-	 * Places the given item in the players inventory, or spawns it in the world should their inventory be full.
-	 */
-	private final void givePlayerItem(PlayerEntity player, ItemStack item)
-	{
-		if(!player.inventory.addItemStackToInventory(item))
-		{
-			if(!player.world.isRemote)
-			{
-				ItemEntity entity = new ItemEntity(player.world, player.getPosX(), player.getPosY(), player.getPosZ(), item);
-				player.world.addEntity(entity);
-			}
-		}
-	}
 	
 	public TradeFluidHandler(Supplier<IFluidTrader> traderSource) {
 		this.traderSource = traderSource;
@@ -243,7 +231,7 @@ public class TradeFluidHandler implements IFluidHandler{
 								{
 									player.inventory.setItemStack(heldStack);
 									player.inventory.markDirty();
-									this.givePlayerItem(player, emptyBucket);
+									PlayerUtil.givePlayerItem(player, emptyBucket);
 								}
 							}
 						}
@@ -276,7 +264,7 @@ public class TradeFluidHandler implements IFluidHandler{
 								{
 									player.inventory.setItemStack(heldStack);
 									player.inventory.markDirty();
-									this.givePlayerItem(player, newBucket);
+									PlayerUtil.givePlayerItem(player, newBucket);
 								}
 							}
 							
@@ -377,9 +365,13 @@ public class TradeFluidHandler implements IFluidHandler{
 		public void markTradesDirty() { }
 
 		@Override
-		public TradeFluidHandler getFluidHandler() {
-			return null;
-		}
+		public IInventory getUpgradeInventory() { return new Inventory(5); }
+		
+		@Override
+		public void reapplyUpgrades() { }
+		
+		@Override
+		public TradeFluidHandler getFluidHandler() { return null; }
 
 		@Override
 		public boolean drainCapable() { return false; }

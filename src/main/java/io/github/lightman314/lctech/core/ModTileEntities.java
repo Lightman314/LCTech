@@ -22,6 +22,9 @@ public class ModTileEntities {
 	//Fluid Trader
 	public static final TileEntityType<FluidTraderTileEntity> FLUID_TRADER = buildType("fluid_trader", TileEntityType.Builder.create(FluidTraderTileEntity::new, ModBlocks.FLUID_TAP.block, ModBlocks.FLUID_TAP_BUNDLE.block));
 	
+	//Universal Fluid Trader
+	public static final TileEntityType<UniversalFluidTraderTileEntity> UNIVERSAL_FLUID_TRADER = buildType("universal_fluid_trader", TileEntityType.Builder.create(UniversalFluidTraderTileEntity::new, ModBlocks.FLUID_SERVER_SML.block));
+	
 	private static <T extends TileEntity> TileEntityType<T> buildType(String id, TileEntityType.Builder<T> builder)
 	{
 		TileEntityType<T> type = builder.build(null);

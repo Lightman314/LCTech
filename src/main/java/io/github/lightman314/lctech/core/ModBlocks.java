@@ -65,6 +65,40 @@ public class ModBlocks {
 			.sound(SoundType.GLASS)
 			));
 	
+	//Universal Fluid Traders
+	public static final BlockItemPair FLUID_SERVER_SML = register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
+			2,
+			Block.Properties.create(Material.IRON)
+			.harvestTool(ToolType.PICKAXE)
+			.notSolid()
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
+	public static final BlockItemPair FLUID_SERVER_MED = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
+			4,
+			Block.Properties.create(Material.IRON)
+			.harvestTool(ToolType.PICKAXE)
+			.notSolid()
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	public static final BlockItemPair FLUID_SERVER_LRG = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
+			6,
+			Block.Properties.create(Material.IRON)
+			.harvestTool(ToolType.PICKAXE)
+			.notSolid()
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	public static final BlockItemPair FLUID_SERVER_XLRG = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
+			8,
+			Block.Properties.create(Material.IRON)
+			.harvestTool(ToolType.PICKAXE)
+			.notSolid()
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
 	
 	private static BlockItemPair register(String name, ItemGroup itemGroup, Block block) { return register(name, BlockItemType.NORMAL, itemGroup, block); }
 	

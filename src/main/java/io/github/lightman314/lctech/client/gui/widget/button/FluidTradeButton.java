@@ -194,7 +194,7 @@ public class FluidTradeButton extends Button{
 		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY))
 		{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
-			screen.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canDrain() ? "enabled" : "disabled")).mergeStyle(Style.EMPTY.setColor(Color.fromInt(trade.canDrain() ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);
+			screen.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFill() ? "enabled" : "disabled")).mergeStyle(Style.EMPTY.setColor(Color.fromInt(trade.canFill() ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);
 		}
 		return 0;
 	}

@@ -11,7 +11,7 @@ public class FluidTraderContainerCR extends FluidTraderContainer implements ITra
 	public CashRegisterTileEntity cashRegister;
 	
 	public FluidTraderContainerCR(int windowId, PlayerInventory inventory, FluidTraderTileEntity tileEntity, CashRegisterTileEntity cashRegister) {
-		super(ModContainers.FLUID_TRADER, windowId, inventory, tileEntity);
+		super(ModContainers.FLUID_TRADER_CR, windowId, inventory, tileEntity);
 		this.cashRegister = cashRegister;
 	}
 	

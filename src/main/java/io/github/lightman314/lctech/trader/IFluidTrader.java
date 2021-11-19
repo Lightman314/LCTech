@@ -4,14 +4,18 @@ import java.util.List;
 
 import io.github.lightman314.lctech.tileentities.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.trader.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
 
-public interface IFluidTrader extends ITrader{
+public interface IFluidTrader extends ITrader, IUpgradeable{
 
 	public FluidTradeData getTrade(int tradeIndex);
 	public List<FluidTradeData> getAllTrades();
 	public void markTradesDirty();
+	public IInventory getUpgradeInventory();
+	public void reapplyUpgrades();
 	public TradeFluidHandler getFluidHandler();
 	public boolean drainCapable();
 	public void openTradeMenu(PlayerEntity player);

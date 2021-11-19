@@ -33,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.block.Block;
@@ -40,6 +41,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
@@ -61,13 +64,16 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	public static final int TRADE_LIMIT = 8;
 	
 	int tradeCount = 1;
-	int tankCapacity = FluidTradeData.DEFAULT_TANK_CAPACITY;
 	
 	final TradeFluidHandler fluidHandler = new TradeFluidHandler(() -> this);
 	
 	FluidShopLogger logger = new FluidShopLogger();
 	
 	List<FluidTradeData> trades;
+	
+	IInventory upgradeInventory = new Inventory(5);
+	public IInventory getUpgradeInventory() { return this.upgradeInventory; }
+	public void reapplyUpgrades() { this.trades.forEach(trade -> trade.applyUpgrades(this, this.upgradeInventory)); }
 	
 	List<TradeRule> tradeRules = Lists.newArrayList();
 	
@@ -79,7 +85,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	public FluidTraderTileEntity()
 	{
 		super(ModTileEntities.FLUID_TRADER);
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, this.tankCapacity);
+		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	
 	/**
@@ -90,7 +96,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	protected FluidTraderTileEntity(TileEntityType<?> type)
 	{
 		super(type);
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, this.tankCapacity);
+		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	
 	/**
@@ -102,20 +108,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	{
 		super(type);
 		this.tradeCount = tradeCount;
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, this.tankCapacity);
-	}
-	
-	/**
-	 * Default Fluid Trader Entity (for children):
-	 * Trade Count: @param tradeCount (up to 8)
-	 * Tank Capacity: @param tankCapacity
-	 */
-	protected FluidTraderTileEntity(TileEntityType<?> type, int tradeCount, int tankCapacity)
-	{
-		super(type);
-		this.tradeCount = tradeCount;
-		this.tankCapacity = tankCapacity;
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, this.tankCapacity);
+		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	
 	/**
@@ -127,20 +120,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	{
 		this();
 		this.tradeCount = tradeCount;
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, this.tankCapacity);
-	}
-	
-	/**
-	 * Default Fluid Trader Entity:
-	 * Trade Count: @param tradeCount (up to 8)
-	 * Tank Capacity: @param tankCapacity
-	 */
-	public FluidTraderTileEntity(int tradeCount, int tankCapacity)
-	{
-		this();
-		this.tradeCount = tradeCount;
-		this.tankCapacity = tankCapacity;
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, this.tankCapacity);
+		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	
 	public int getTradeCount()
@@ -196,7 +176,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 			return;
 		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
 		List<FluidTradeData> oldTrades = this.trades;
-		this.trades = FluidTradeData.listOfSize(this.tradeCount, FluidTankTileEntity.DEFAULT_CAPACITY);
+		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 		//Write the old trade data into the array
 		for(int i = 0; i < oldTrades.size() && i < this.trades.size(); i++)
 		{
@@ -212,6 +192,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		writePermissions(compound);
 		writeTradeMetadata(compound);
 		writeTrades(compound);
+		writeUpgradeInventory(compound);
 		writeRules(compound);
 		writeLogger(compound);
 		
@@ -228,13 +209,18 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	protected CompoundNBT writeTradeMetadata(CompoundNBT compound)
 	{
 		compound.putInt("TradeCount", this.tradeCount);
-		compound.putInt("TankCapacity", this.tankCapacity);
 		return compound;
 	}
 	
 	public CompoundNBT writeTrades(CompoundNBT compound)
 	{
 		FluidTradeData.WriteNBTList(this.trades, compound);
+		return compound;
+	}
+	
+	public CompoundNBT writeUpgradeInventory(CompoundNBT compound)
+	{
+		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
 		return compound;
 	}
 	
@@ -258,10 +244,12 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		
 		if(compound.contains("TradeCount", Constants.NBT.TAG_INT))
 			this.tradeCount = compound.getInt("TradeCount");
-		if(compound.contains("TankCapacity", Constants.NBT.TAG_INT))
-			this.tankCapacity = compound.getInt("TankCapacity");
+		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
-			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, this.tankCapacity, compound);
+			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
+		
+		if(compound.contains("UpgradeInventory",Constants.NBT.TAG_LIST))
+			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 			
 		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
@@ -434,6 +422,12 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 			if(!trade.getTankContents().isEmpty())
 				Block.spawnAsEntity(world, pos, FluidShardItem.GetFluidShard(trade.getTankContents()));
 		});
+		//Dump the upgrade items if present
+		for(int i = 0; i < this.upgradeInventory.getSizeInventory(); i++)
+		{
+			if(!this.upgradeInventory.getStackInSlot(i).isEmpty())
+				Block.spawnAsEntity(world, pos, this.upgradeInventory.getStackInSlot(i));
+		}
 	}
 	
 	@Override

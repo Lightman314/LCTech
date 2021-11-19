@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -44,7 +48,7 @@ public class FluidTradeData extends TradeData{
 	public int getDrainableAmount() { return tank.getAmount() - this.pendingDrain; }
 	public boolean validTankContents() { return this.tank.isEmpty() || this.tank.isFluidEqual(this.product); }
 	public void setTankContents(FluidStack tank) { this.tank = tank.copy(); }
-	public double getTankFillPercent() { return (double)tank.getAmount() / (double)this.tankCapacity; }
+	public double getTankFillPercent() { return MathUtil.clamp((double)tank.getAmount() / (double)this.getTankCapacity(), 0d, 1d); }
 	
 	FluidStack product = FluidStack.EMPTY;
 	public FluidStack getProduct() { return product.copy(); }
@@ -72,7 +76,6 @@ public class FluidTradeData extends TradeData{
 	public int getPendingDrain() { return this.pendingDrain; }
 	public void shrinkPendingDrain(int amount) { this.pendingDrain -= amount; if(this.pendingDrain < 0) this.pendingDrain = 0; }
 	
-	
 	FluidTradeType tradeType = FluidTradeType.SALE;
 	public FluidTradeType getTradeType() { return this.tradeType; }
 	public void setTradeType(FluidTradeType type) { this.tradeType = type; }
@@ -81,19 +84,26 @@ public class FluidTradeData extends TradeData{
 	
 	int tankCapacity = DEFAULT_TANK_CAPACITY;
 	public int getTankCapacity() { return this.tankCapacity; }
-	public int getTankSpace() { return this.tankCapacity - this.tank.getAmount(); }
+	public void applyUpgrades(IFluidTrader trader, IInventory upgradeInventory)
+	{
+		this.tankCapacity = DEFAULT_TANK_CAPACITY;
+		for(int i = 0; i < upgradeInventory.getSizeInventory(); i++)
+		{
+			ItemStack stack = upgradeInventory.getStackInSlot(i);
+			if(stack.getItem() instanceof UpgradeItem)
+			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
+				if(upgradeItem.getUpgradeType().allowedForMachine(trader) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+					this.tankCapacity += upgradeItem.getUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+			}
+		}
+	}
+	
+	public int getTankSpace() { return this.getTankCapacity() - this.tank.getAmount(); }
 	
 	public ItemStack getFilledBucket() { return FluidUtil.getFilledBucket(this.product);}
 	
-	public FluidTradeData()
-	{
-		
-	}
-	
-	public FluidTradeData(int tankCapacity)
-	{
-		this.tankCapacity = tankCapacity;
-	}
+	public FluidTradeData() { }
 	
 	public boolean hasStock(IFluidTrader trader, CoinValue price) { return this.getStock(trader, price) > 0; }
 	public int getStock(IFluidTrader trader, CoinValue cost)
@@ -255,6 +265,7 @@ public class FluidTradeData extends TradeData{
 		CompoundNBT compound = super.getAsNBT();
 		
 		compound.put("Tank", this.tank.writeToNBT(new CompoundNBT()));
+		compound.putInt("Capacity", this.tankCapacity);
 		compound.put("Trade", this.product.writeToNBT(new CompoundNBT()));
 		compound.putBoolean("CanDrain", this.canDrain);
 		compound.putBoolean("CanFill", this.canFill);
@@ -270,6 +281,8 @@ public class FluidTradeData extends TradeData{
 		super.loadFromNBT(compound);
 		//Load the tank
 		this.tank = FluidStack.loadFluidStackFromNBT(compound.getCompound("Tank"));
+		//Load the tank capacity
+		this.tankCapacity = compound.getInt("Capacity");
 		//Load the product
 		this.product = FluidStack.loadFluidStackFromNBT(compound.getCompound("Trade"));
 		//Load whether it can be drained
@@ -294,12 +307,12 @@ public class FluidTradeData extends TradeData{
 		return value;
 	}
 	
-	public static List<FluidTradeData> listOfSize(int tradeCount, int tankCapacity)
+	public static List<FluidTradeData> listOfSize(int tradeCount)
 	{
 		List<FluidTradeData> list = new ArrayList<>();
 		while(list.size() < tradeCount)
 		{
-			list.add(new FluidTradeData(tankCapacity));
+			list.add(new FluidTradeData());
 		}
 		return list;
 	}
@@ -321,14 +334,14 @@ public class FluidTradeData extends TradeData{
 		return compound;
 	}
 	
-	public static List<FluidTradeData> LoadNBTList(int tradeCount, int tankCapacity, CompoundNBT compound)
+	public static List<FluidTradeData> LoadNBTList(int tradeCount, CompoundNBT compound)
 	{
-		return LoadNBTList(tradeCount, tankCapacity, compound, ItemTradeData.DEFAULT_KEY);
+		return LoadNBTList(tradeCount, compound, ItemTradeData.DEFAULT_KEY);
 	}
 	
-	public static List<FluidTradeData> LoadNBTList(int tradeCount, int tankCapacity, CompoundNBT compound, String tag)
+	public static List<FluidTradeData> LoadNBTList(int tradeCount, CompoundNBT compound, String tag)
 	{
-		List<FluidTradeData> tradeData = listOfSize(tradeCount, tankCapacity);
+		List<FluidTradeData> tradeData = listOfSize(tradeCount);
 		
 		if(!compound.contains(tag))
 			return tradeData;

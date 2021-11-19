@@ -28,6 +28,9 @@ public class ClientProxy extends CommonProxy{
 		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
 		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_CR, FluidTraderScreenCR::new);
 		ScreenManager.registerFactory(ModContainers.FLUID_EDIT, FluidEditScreen::new);
+		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
+		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
+		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
 		
 		//Register Tile Entity Renderers
 		ClientRegistry.bindTileEntityRenderer(ModTileEntities.FLUID_TRADER, FluidTraderTileEntityRenderer::new);

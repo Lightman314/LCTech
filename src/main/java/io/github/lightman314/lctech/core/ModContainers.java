@@ -41,6 +41,20 @@ public class ModContainers {
 		return new FluidEditContainer(windowId, playerInventory, () -> tileEntity, data.readInt());
 	});
 	
+	public static final ContainerType<UniversalFluidTraderContainer> UNIVERSAL_FLUID_TRADER = register("universal_fluid_trader", (IContainerFactory<UniversalFluidTraderContainer>)(windowId, playerInventory, data)->{
+		return new UniversalFluidTraderContainer(windowId, playerInventory, data.readUniqueId());
+	});
+	
+	public static final ContainerType<UniversalFluidTraderStorageContainer> UNIVERSAL_FLUID_TRADER_STORAGE = register("universal_fluid_trader_storage", (IContainerFactory<UniversalFluidTraderStorageContainer>)(windowId, playerInventory, data)->{
+		return new UniversalFluidTraderStorageContainer(windowId, playerInventory, data.readUniqueId());
+	});
+	
+	public static final ContainerType<UniversalFluidEditContainer> UNIVERSAL_FLUID_EDIT = register("universal_fluid_edit", (IContainerFactory<UniversalFluidEditContainer>)(windowId, playerInventory, data) ->{
+		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
+		
+		return new UniversalFluidEditContainer(windowId, playerInventory, () -> tileEntity, data.readInt());
+	});
+	
 	private static <T extends Container> ContainerType<T> register(String key, ContainerType.IFactory<T> factory)
 	{
 		ContainerType<T> type = new ContainerType<>(factory);
