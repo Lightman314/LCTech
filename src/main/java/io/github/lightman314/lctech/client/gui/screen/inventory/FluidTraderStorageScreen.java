@@ -214,7 +214,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		if(this.container.isOwner())
 		{
 			
-			this.buttonAllies = this.addButton(new IconButton(this.guiLeft + traderOffset + 100, this.guiTop - 20, this::PressAllyButton, GUI_TEXTURE, 176 + 32, 16));
+			this.buttonAllies = this.addButton(new IconButton(this.guiLeft + traderOffset + 60, this.guiTop - 20, this::PressAllyButton, GUI_TEXTURE, 176 + 32, 16));
 			
 			this.allyTextInput = this.addListener(new TextFieldWidget(this.font, this.guiLeft + this.xSize / 2 - 176 / 2 + 10, this.guiTop + 9, 176 - 20, 20, new StringTextComponent("")));
 			this.allyTextInput.setMaxStringLength(32);

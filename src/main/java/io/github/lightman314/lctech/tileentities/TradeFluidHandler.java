@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.PlayerUtil;
@@ -31,15 +32,18 @@ public class TradeFluidHandler implements IFluidHandler{
 	public final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> this);
 	
 	final Supplier<IFluidTrader> traderSource;
+	private boolean isServer = true;
+	public void flagAsClient() { this.isServer = false; }
 	
 	private final IFluidTrader getTrader() {
 		if(this.traderSource.get() != null)
 			return this.traderSource.get();
+		LCTech.LOGGER.warn("Issue getting the IFluidTrader for use by the TradeFluidHandler. Returning a null trader.");
 		return new NullTrader();
 	}
 	private final int getTradeCount(){ return this.getTrader().getTradeCount(); }
 	private final FluidTradeData getTrade(int tradeIndex) { return this.getTrader().getTrade(tradeIndex); }
-	private final void markTradesDirty() { this.getTrader().markTradesDirty(); }
+	private final void markTradesDirty() {	if(isServer) this.getTrader().markTradesDirty(); }
 	
 	public TradeFluidHandler(Supplier<IFluidTrader> traderSource) {
 		this.traderSource = traderSource;

@@ -13,6 +13,7 @@ import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidPrice;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidPrice2;
+import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
@@ -76,7 +77,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	
 	public static final Consumer<TradePriceData> SAVEDATA_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(traderData.getTraderID(), data.tradeIndex, data.cost, data.isFree, data.type, data.canFill)); }
 	public static final Consumer<PlayerEntity> OPENSTORAGE_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(traderData.getTraderID())); }
-	public static final Consumer<List<TradeRule>> UPDATETRADERULES_UNIVERSAL(UniversalTraderData traderData, int tradeIndex) { return null; } //TODO
+	public static final Consumer<List<TradeRule>> UPDATETRADERULES_UNIVERSAL(UniversalTraderData traderData, int tradeIndex) { return (newRules) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules2(traderData.getTraderID(), newRules, tradeIndex)); }
 	
 	public TradeFluidPriceScreen(Supplier<IFluidTrader> trader, int tradeIndex, PlayerEntity player, 
 			Consumer<TradePriceData> saveData, Consumer<PlayerEntity> openStorage, Consumer<List<TradeRule>> updateTradeRules) {
@@ -114,6 +115,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, GUI_TEXTURE, this.xSize, 0));
 		
 		this.buttonToggleDrainable = this.addButton(new PlainButton(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleDrainButton, GUI_TEXTURE, this.xSize, 16));
+		this.buttonToggleDrainable.visible = this.trader.get().drainCapable();
 		this.buttonToggleFillable = this.addButton(new PlainButton(guiLeft + 95, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleFillButton, GUI_TEXTURE, this.xSize + 20, 16));
 		
 		tick();
@@ -153,7 +155,8 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		
 		//Render the Drainable & Fillable text
-		this.font.func_243248_b(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drainable").setStyle(Style.EMPTY.setColor(Color.fromInt(this.localDrainable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR))), startX + 18, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
+		if(this.trader.get().drainCapable())
+			this.font.func_243248_b(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drainable").setStyle(Style.EMPTY.setColor(Color.fromInt(this.localDrainable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR))), startX + 18, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
 		this.font.func_243248_b(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fillable").setStyle(Style.EMPTY.setColor(Color.fromInt(this.localFillable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR))), startX + 106, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
 		
 		if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))

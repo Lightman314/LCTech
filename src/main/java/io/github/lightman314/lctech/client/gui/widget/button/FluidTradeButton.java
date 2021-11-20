@@ -104,7 +104,8 @@ public class FluidTradeButton extends Button{
 		//Draw Button BG
 		screen.blit(matrixStack, x, y, xOffset, yOffset, WIDTH, HEIGHT);
 		//Draw drain & fill icons
-		screen.blit(matrixStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrain() ? 0 : 10, HEIGHT * 3,  10, 10);
+		if(trader.drainCapable())
+			screen.blit(matrixStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrain() ? 0 : 10, HEIGHT * 3,  10, 10);
 		if(showFillState)
 			screen.blit(matrixStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFill() ? 20 : 30, HEIGHT * 3, 10, 10);
 		
@@ -113,18 +114,19 @@ public class FluidTradeButton extends Button{
 		List<ITextComponent> denialText = Lists.newArrayList();
 		boolean hasDiscount = false;
 		boolean isValid = forceActive ? true : trade.isValid();
-		boolean hasStock = forceActive ? true : false;
-		boolean hasSpace = forceActive ? true : trade.hasSpace();
+		boolean hasStock = forceActive ? true : trade.hasStock(trader, null) || trader.isCreative();
+		boolean hasSpace = forceActive ? true : trade.hasSpace() || trader.isCreative();
 		boolean canAfford = forceActive ? true : false;
 		CoinValue cost = trade.getCost();
 		if(!forceActive && container != null)
 		{
-			//Has Stock
-			hasStock = trade.hasStock(trader, container.TradeCostEvent(trade).getCostResult());
+			
 			//Discount Check
 			TradeCostEvent event = container.TradeCostEvent(trade);
 			cost = event.getCostResult();
 			hasDiscount = event.getCostMultiplier() != 1d;
+			//Has Stock
+			hasStock = trade.hasStock(trader, cost) || trader.isCreative();
 			//Permission
 			hasPermission = container.PermissionToTrade(tradeIndex, denialText);
 			//CanAfford
@@ -186,7 +188,7 @@ public class FluidTradeButton extends Button{
 			}
 			return -1;
 		}
-		else if(isMouseOverIcon(0, x, y, mouseX, mouseY))
+		else if(isMouseOverIcon(0, x, y, mouseX, mouseY) && trader.drainCapable())
 		{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
 			screen.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrain() ? "enabled" : "disabled")).mergeStyle(Style.EMPTY.setColor(Color.fromInt(trade.canDrain() ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);

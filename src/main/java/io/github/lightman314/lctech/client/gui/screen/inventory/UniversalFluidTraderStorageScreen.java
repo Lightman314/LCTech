@@ -14,7 +14,7 @@ import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderDat
 import io.github.lightman314.lctech.container.UniversalFluidTraderStorageContainer;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidTradeTankInteraction;
-import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
+import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeProduct2;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
@@ -127,7 +127,7 @@ public class UniversalFluidTraderStorageScreen extends ContainerScreen<Universal
 		if(this.container.isOwner())
 		{
 			
-			this.buttonAllies = this.addButton(new IconButton(this.guiLeft + traderOffset + 100, this.guiTop - 20, this::PressAllyButton, GUI_TEXTURE, 176 + 32, 16));
+			this.buttonAllies = this.addButton(new IconButton(this.guiLeft + traderOffset + 60, this.guiTop - 20, this::PressAllyButton, GUI_TEXTURE, 176 + 32, 16));
 			
 			this.allyTextInput = this.addListener(new TextFieldWidget(this.font, this.guiLeft + this.xSize / 2 - 176 / 2 + 10, this.guiTop + 9, 176 - 20, 20, new StringTextComponent("")));
 			this.allyTextInput.setMaxStringLength(32);
@@ -330,7 +330,7 @@ public class UniversalFluidTraderStorageScreen extends ContainerScreen<Universal
 				{
 					//If held item is empty, set the product to empty
 					trade.setProduct(FluidStack.EMPTY);
-					LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct(this.container.getData().getPos(), i, FluidStack.EMPTY));
+					LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct2(this.container.getData().getTraderID(), i, FluidStack.EMPTY));
 					return true;
 				}
 				else
@@ -340,7 +340,7 @@ public class UniversalFluidTraderStorageScreen extends ContainerScreen<Universal
 					AtomicBoolean consume = new AtomicBoolean(false);
 					FluidUtil.getFluidContained(heldItem).ifPresent(fluid->{
 						trade.setProduct(fluid);
-						LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct(this.container.getData().getPos(), index, fluid));
+						LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct2(this.container.getData().getTraderID(), index, fluid));
 						consume.set(true);
 					});
 					if(consume.get())

@@ -60,7 +60,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public static final int VERSION = 0;
 	
-	public TradeFluidHandler fluidHandler = new TradeFluidHandler(() -> this);
+	public final TradeFluidHandler fluidHandler = new TradeFluidHandler(() -> this);
 	
 	int tradeCount = 1;
 	List<FluidTradeData> trades = null;

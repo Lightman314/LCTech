@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    " t ",
+    "txt",
+    " i "
+  ],
+  "key": {
+    "x": {
+      "item": "lctech:fluid_tap"
+    },
+    "t": {
+      "item": "lctech:iron_tank"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "lctech:fluid_tap_bundle"
+  }
+}

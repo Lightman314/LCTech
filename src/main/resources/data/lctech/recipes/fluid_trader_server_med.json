@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "fluid_trader_server",
+  "pattern":[
+    "txt"
+  ],
+  "key": {
+    "x": {
+      "item": "lctech:fluid_trader_server_sml"
+    },
+    "t": {
+      "item": "lctech:iron_tank"
+    }
+  },
+  "result": {
+    "item": "lctech:fluid_trader_server_med"
+  }
+}

@@ -39,6 +39,7 @@ public class LCTechPacketHandler {
 		 
 		 //Universal Fluid Traders
 		 register(MessageSetFluidTradeRules2.class, new MessageSetFluidTradeRules2());
+		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
 		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
 		 
 		 

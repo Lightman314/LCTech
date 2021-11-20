@@ -143,31 +143,33 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
 	public void addTrade() {
+		if(this.world.isRemote)
+			return;
 		if(this.tradeCount >= TRADE_LIMIT)
 			return;
 		this.overrideTradeCount(this.tradeCount + 1);
-		forceReOpen();
+		this.forceReOpen();
 	}
 	
 	public void removeTrade() {
+		if(this.world.isRemote)
+			return;
 		if(this.tradeCount <= 1)
 			return;
 		this.overrideTradeCount(this.tradeCount - 1);
-		forceReOpen();
+		this.forceReOpen();
 	}
 	
 	private void forceReOpen() {
-		this.getUsers().forEach(player ->{
-			if(player.openContainer instanceof FluidTraderContainerCR)
-			{
-				CashRegisterTileEntity cashRegister = ((FluidTraderContainerCR)player.openContainer).cashRegister;
-				this.openCashRegisterTradeMenu(player, cashRegister);
-			}
+		for(PlayerEntity player : this.getUsers())
+		{
+			if(player.openContainer instanceof FluidTraderStorageContainer)
+				this.openStorageMenu(player);
+			else if(player.openContainer instanceof FluidTraderContainerCR)
+				this.openCashRegisterTradeMenu(player, ((FluidTraderContainerCR)player.openContainer).cashRegister);
 			else if(player.openContainer instanceof FluidTraderContainer)
 				this.openTradeMenu(player);
-			else if(player.openContainer instanceof FluidTraderStorageContainer)
-				this.openStorageMenu(player);
-		});
+		}
 	}
 	
 	public void overrideTradeCount(int newTradeCount)
@@ -182,7 +184,12 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		{
 			this.trades.set(i, oldTrades.get(i));
 		}
-		this.markTradesDirty();
+		//Send an update to the client
+		if(!this.world.isRemote)
+		{
+			CompoundNBT compound = this.writeTrades(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+		}
 	}
 	
 	@Override
@@ -190,7 +197,6 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	{
 		
 		writePermissions(compound);
-		writeTradeMetadata(compound);
 		writeTrades(compound);
 		writeUpgradeInventory(compound);
 		writeRules(compound);
@@ -206,14 +212,9 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		return compound;
 	}
 	
-	protected CompoundNBT writeTradeMetadata(CompoundNBT compound)
-	{
-		compound.putInt("TradeCount", this.tradeCount);
-		return compound;
-	}
-	
 	public CompoundNBT writeTrades(CompoundNBT compound)
 	{
+		compound.putInt("TradeCount", this.tradeCount);
 		FluidTradeData.WriteNBTList(this.trades, compound);
 		return compound;
 	}
@@ -554,6 +555,10 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
     @Nonnull
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
     {
+		//Check for client flag
+		if(this.world.isRemote)
+			this.fluidHandler.flagAsClient();
+		
 		//Return the fluid handler capability
 		if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
 			return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, this.fluidHandler.holder);

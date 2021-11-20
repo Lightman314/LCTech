@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "fluid_trader_server",
+  "pattern":[
+    "iii",
+    "txt",
+    "iei"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "e": {
+      "item": "minecraft:ender_eye"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "t": {
+      "item": "lctech:iron_tank"
+    }
+  },
+  "result": {
+    "item": "lctech:fluid_trader_server_sml"
+  }
+}

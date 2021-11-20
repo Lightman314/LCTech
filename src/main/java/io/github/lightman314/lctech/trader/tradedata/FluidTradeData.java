@@ -108,6 +108,8 @@ public class FluidTradeData extends TradeData{
 	public boolean hasStock(IFluidTrader trader, CoinValue price) { return this.getStock(trader, price) > 0; }
 	public int getStock(IFluidTrader trader, CoinValue cost)
 	{
+		if(cost == null)
+			cost = this.cost;
 		if(this.product.isEmpty())
 			return 0;
 		
@@ -124,7 +126,7 @@ public class FluidTradeData extends TradeData{
 			//How many payments the trader can make
 			if(this.isFree)
 				return 1;
-			if(this.cost.getRawValue() == 0)
+			if(cost.getRawValue() == 0)
 				return 0;
 			long coinValue = trader.getStoredMoney().getRawValue();
 			long price = cost.getRawValue();

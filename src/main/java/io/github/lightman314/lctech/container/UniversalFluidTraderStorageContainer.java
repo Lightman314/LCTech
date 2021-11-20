@@ -87,6 +87,9 @@ public class UniversalFluidTraderStorageContainer extends UniversalContainer imp
 	 */
 	public void PlayerTankInteraction(int tradeIndex)
 	{
+		if(this.player.world.isRemote) //Flag the fluid handler as client to block marking the data as dirty.
+			this.getData().getFluidHandler().flagAsClient();
+		
 		this.getData().getFluidHandler().OnPlayerInteraction(this.player, tradeIndex);
 	}
 	
@@ -168,7 +171,8 @@ public class UniversalFluidTraderStorageContainer extends UniversalContainer imp
 	private void OnUpgradeSlotChanged()
 	{
 		this.getData().reapplyUpgrades();
-		this.getData().markTradesDirty();
+		if(this.isServer())
+			this.getData().markTradesDirty();
 	}
 	
 	public void openFluidEditScreenForTrade(int tradeIndex)

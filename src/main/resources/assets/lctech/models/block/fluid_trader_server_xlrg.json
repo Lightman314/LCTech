@@ -2,8 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"particle": "lctech:blocks/fluid_trader_server_extra",
-		"main": "lctech:blocks/fluid_trader_server_extra"
+		"main": "lctech:blocks/fluid_trader_server",
+		"particle": "lctech:blocks/fluid_trader_server"
 	},
 	"elements": [
 		{

@@ -63,28 +63,30 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		
 		this.player = inventory.player;
 		
+		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(this.getData());
+		
 		//Coin Slots
 		for(int x = 0; x < coinSlots.getSizeInventory(); x++)
 		{
-			this.addSlot(new CoinSlot(coinSlots, x, 8 + (x + 4) * 18, getCoinSlotHeight()));
+			this.addSlot(new CoinSlot(coinSlots, x, 8 + (x + 4) * 18 + inventoryOffset, getCoinSlotHeight()));
 		}
 		
 		//Bucket Slot
-		this.addSlot(new FluidInputSlot(bucketInventory, 0, 8, getCoinSlotHeight()));
+		this.addSlot(new FluidInputSlot(bucketInventory, 0, 8 + inventoryOffset, getCoinSlotHeight()));
 		
 		//Player Inventory
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)
 			{
-				this.addSlot(new Slot(inventory, x + y * 9 + 9, 8 + x * 18, getPlayerInventoryStartHeight() + y * 18));
+				this.addSlot(new Slot(inventory, x + y * 9 + 9, 8 + x * 18 + inventoryOffset, getPlayerInventoryStartHeight() + y * 18));
 			}
 		}
 		
 		//Player Hotbar
 		for(int x = 0; x < 9; x++)
 		{
-			this.addSlot(new Slot(inventory, x , 8 + x * 18, getPlayerInventoryStartHeight() + 58));
+			this.addSlot(new Slot(inventory, x , 8 + x * 18 + inventoryOffset, getPlayerInventoryStartHeight() + 58));
 		}
 		
 	}
@@ -241,6 +243,13 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 	
 	public void ExecuteTrade(int tradeIndex)
 	{
+		
+		if(this.getData() == null)
+		{
+			this.player.closeScreen();
+			return;
+		}
+		
 		FluidTradeData trade = getData().getTrade(tradeIndex);
 		//Abort if the trade is null
 		if(trade == null)
@@ -252,15 +261,19 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		//Abort if the trade is not valid
 		if(!trade.isValid())
 		{
-			LCTech.LOGGER.error("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
+			LCTech.LOGGER.warn("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
 			return;
 		}
+		
+		//Check if the player is allowed to do the trade
+		if(!PermissionToTrade(tradeIndex, null))
+			return;
 		
 		//Get the cost of the trade
 		CoinValue price = this.TradeCostEvent(trade).getCostResult();
 		
 		//Abort if not enough fluid in the tank
-		if(!trade.hasStock(this.getData(), price))
+		if(!trade.hasStock(this.getData(), price) && !this.getData().isCreative())
 		{
 			LCTech.LOGGER.debug("Not enough fluid to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
@@ -277,8 +290,6 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 			LCTech.LOGGER.debug("The fluids cannot be properly transfered for the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
 		}
-		
-		
 		
 		if(trade.isSale())
 		{
@@ -308,6 +319,10 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 			
 		}
 		
+		//Log the successful trade
+		this.getData().getLogger().AddLog(player, trade, price, this.getData().isCreative());
+		this.getData().markLoggerDirty();
+		
 		//Transfer Fluids
 		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.getData().isCreative());
 		this.bucketInventory.setInventorySlotContents(0, newBucket);
@@ -332,7 +347,8 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		this.getData().beforeTrade(event);
 		trade.beforeTrade(event);
 		MinecraftForge.EVENT_BUS.post(event);
-		event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
+		if(denialOutput != null)
+			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
 		return !event.isCanceled();
 	}
 
