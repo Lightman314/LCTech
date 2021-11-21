@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    " g ",
+    "gbg",
+    " g "
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:bucket"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "item": "lctech:fluid_capacity_upgrade_1"
+  }
+}
