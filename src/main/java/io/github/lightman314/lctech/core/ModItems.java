@@ -26,6 +26,8 @@ public class ModItems {
 	public static final Item FLUID_CAPACITY_UPGRADE_1 = register("fluid_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, FluidAttributes.BUCKET_VOLUME * 10, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
 	public static final Item FLUID_CAPACITY_UPGRADE_2 = register("fluid_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, FluidAttributes.BUCKET_VOLUME * 25, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
 	
+	
+	
 	private static Item register(String name, Item item)
 	{
 		item.setRegistryName(name);

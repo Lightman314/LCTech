@@ -15,7 +15,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class ClientEvents {
+public class ClientModEvents {
 
 	@SubscribeEvent
 	public void onModelBakeEvent(ModelBakeEvent event)

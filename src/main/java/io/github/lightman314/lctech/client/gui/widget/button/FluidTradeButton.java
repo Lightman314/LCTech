@@ -15,7 +15,7 @@ import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
-import io.github.lightman314.lightmanscurrency.client.gui.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;

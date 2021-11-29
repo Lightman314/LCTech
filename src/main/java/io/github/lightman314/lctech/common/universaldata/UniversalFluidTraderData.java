@@ -19,7 +19,6 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
@@ -28,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -56,7 +56,6 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public static final int TRADELIMIT = FluidTraderTileEntity.TRADE_LIMIT;
 	
 	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
-	public static final Deserializer DESERIALIZER = new Deserializer();
 	
 	public static final int VERSION = 0;
 	
@@ -73,29 +72,68 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	List<TradeRule> tradeRules = Lists.newArrayList();
 	
+	public UniversalFluidTraderData() {}
+	
 	public UniversalFluidTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount) {
 		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADELIMIT);
 		this.trades = FluidTradeData.listOfSize(tradeCount);
 	}
 	
-	public UniversalFluidTraderData(CompoundNBT compound) {
-		
-		super(compound);
-		
+	@Override
+	public void read(CompoundNBT compound)
+	{
 		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
 		
-		this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
+			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
 		
-		this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
+		if(compound.contains("UpgradeInventory", Constants.NBT.TAG_LIST))
+			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 		
 		this.logger.read(compound);
 		
-		this.tradeRules = TradeRule.readRules(compound);
+		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+			this.tradeRules = TradeRule.readRules(compound);
 		
-		this.readVersion(compound);
+		super.read(compound);
+	}
+	
+	@Override
+	public CompoundNBT write(CompoundNBT compound)
+	{
+		this.writeTrades(compound);
+		this.writeUpgrades(compound);
+		this.writeLogger(compound);
+		this.writeRules(compound);
 		
+		return super.write(compound);
+	}
+	
+	protected final CompoundNBT writeTrades(CompoundNBT compound)
+	{
+		compound.putInt("TradeLimit", this.trades.size());
+		FluidTradeData.WriteNBTList(this.trades, compound);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeUpgrades(CompoundNBT compound)
+	{
+		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeLogger(CompoundNBT compound)
+	{
+		this.logger.write(compound);
+		return compound;
+	}
+	
+	protected final CompoundNBT writeRules(CompoundNBT compound)
+	{
+		TradeRule.writeRules(compound, this.tradeRules);
+		return compound;
 	}
 	
 	@Override
@@ -133,7 +171,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		{
 			this.trades.set(i, oldTrades.get(i));
 		}
-		this.markDirty();
+		this.markTradesDirty();
 	}
 	
 	public FluidTradeData getTrade(int tradeIndex) {
@@ -151,7 +189,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		return this.trades;
 	}
 	
-	public void markTradesDirty() { this.markDirty(); }
+	public void markTradesDirty() { this.markDirty(this::writeTrades); }
 
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
@@ -159,21 +197,10 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public void clearLogger() { this.logger.clear(); this.markLoggerDirty(); }
 	
-	public void markLoggerDirty() { this.markDirty(); }
+	public void markLoggerDirty() { this.markDirty(this::writeLogger); }
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound) {
-		
-		compound.putInt("TradeLimit", this.trades.size());
-		FluidTradeData.WriteNBTList(this.trades, compound);
-		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
-		this.logger.write(compound);
-		TradeRule.writeRules(compound, this.tradeRules);
-		
-		return super.write(compound);
-	}
-	
-	public ResourceLocation getDeserializerType() { return TYPE; }
+	public ResourceLocation getTraderType() { return TYPE; }
 	
 	@Override
 	public ITextComponent getDefaultName() {
@@ -197,7 +224,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		INamedContainerProvider provider = getFluidEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
-			LCTech.LOGGER.error("No fluid edit container provider was given for the trader of type " + this.getDeserializerType().toString());
+			LCTech.LOGGER.error("No fluid edit container provider was given for the trader of type " + this.getTraderType().toString());
 			return;
 		}
 		if(!(player instanceof ServerPlayerEntity))
@@ -206,14 +233,6 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 			return;
 		}
 		NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
-	}
-	
-	private static class Deserializer implements IUniversalDataDeserializer<UniversalFluidTraderData>
-	{
-		@Override
-		public UniversalFluidTraderData deserialize(CompoundNBT compound) {
-			return new UniversalFluidTraderData(compound);
-		}
 	}
 	
 	private static class TraderProvider implements INamedContainerProvider {
@@ -256,6 +275,8 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		@Override
 		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
 	}
+	
+	
 	
 	@Override
 	public ResourceLocation IconLocation() { return new ResourceLocation(LCTech.MODID, "textures/gui/universal_trader_icons.png"); }
@@ -314,7 +335,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public void clearRules() { this.tradeRules.clear(); }
 
 	@Override
-	public void markRulesDirty() { this.markDirty(); }
+	public void markRulesDirty() { this.markDirty(this::writeRules); }
 	
 	public ITradeRuleScreenHandler GetRuleScreenHandler() { return new TradeRuleScreenHandler(this.getTraderID()); }
 	

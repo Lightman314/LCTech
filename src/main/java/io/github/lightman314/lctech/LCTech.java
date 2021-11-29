@@ -11,11 +11,11 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.lightman314.lctech.client.ClientEvents;
+import io.github.lightman314.lctech.client.ClientModEvents;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.IUniversalDataDeserializer;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("lctech")
@@ -38,7 +38,7 @@ public class LCTech
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
         //Register the model event on client
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterClientEvent());
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> new RegisterClientModEvent());
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -57,7 +57,7 @@ public class LCTech
         LCTechPacketHandler.init();
         
         //Register the universal data deserializer
-        IUniversalDataDeserializer.RegisterDeserializer(UniversalFluidTraderData.TYPE, UniversalFluidTraderData.DESERIALIZER);
+        TradingOffice.RegisterDataType(UniversalFluidTraderData.TYPE, UniversalFluidTraderData::new);
         
     }
 
@@ -65,14 +65,14 @@ public class LCTech
         PROXY.setupClient();
     }
     
-    private static class RegisterClientEvent implements DistExecutor.SafeRunnable
+    private static class RegisterClientModEvent implements DistExecutor.SafeRunnable
     {
 
 		private static final long serialVersionUID = 225646674509735485L;
 
 		@Override
 		public void run() {
-			FMLJavaModLoadingContext.get().getModEventBus().register(new ClientEvents());
+			FMLJavaModLoadingContext.get().getModEventBus().register(new ClientModEvents());
 		}
 		
     }

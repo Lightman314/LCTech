@@ -25,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveAlly;
@@ -160,8 +159,6 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		{
 			FluidTradeButton.renderFluidTradeButton(matrix, screen, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, null, false, true, true);
 		}
-		
-		CoinSlot.drawEmptyCoinSlots(screen, container, matrix, startX, startY);
 		
 	}
 	

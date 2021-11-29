@@ -12,7 +12,6 @@ import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.FluidTraderContainer;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
@@ -113,8 +112,6 @@ public class FluidTraderScreen extends ContainerScreen<FluidTraderContainer>{
 		
 		//Draw the bottom (player inventory/coin slots)
 		screen.blit(matrix, startX + FluidTraderUtil.getInventoryDisplayOffset(trader), startY + FluidTraderUtil.getTradeDisplayHeight(trader), 0, 111, 176, 133);
-		
-		CoinSlot.drawEmptyCoinSlots(screen, container, matrix, startX, startY);
 	}
 	
 	@Override
