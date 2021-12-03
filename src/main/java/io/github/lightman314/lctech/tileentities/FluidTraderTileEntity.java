@@ -80,7 +80,6 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	/**
 	 * Default Fluid Trader Entity:
 	 * Trade Count: 1
-	 * Tank Capacity: 10-buckets per trade (Default defines in FluidTradeData.DEFAULT_TANK_CAPACITY
 	 */
 	public FluidTraderTileEntity()
 	{
@@ -91,7 +90,6 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	/**
 	 * Default Fluid Trader Entity (for children):
 	 * Trade Count: 1
-	 * Tank Capacity: 10-buckets per trade (Default defines in FluidTradeData.DEFAULT_TANK_CAPACITY
 	 */
 	protected FluidTraderTileEntity(TileEntityType<?> type)
 	{
@@ -102,24 +100,22 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	/**
 	 * Default Fluid Trader Entity (for children):
 	 * Trade Count: @param tradeCount (up to 8)
-	 * Tank Capacity: 10-buckets per trade (Default defines in FluidTradeData.DEFAULT_TANK_CAPACITY
 	 */
 	protected FluidTraderTileEntity(TileEntityType<?> type, int tradeCount)
 	{
 		super(type);
-		this.tradeCount = tradeCount;
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	
 	/**
 	 * Default Fluid Trader Entity:
 	 * Trade Count: @param tradeCount (up to 8)
-	 * Tank Capacity: 10-buckets per trade (Default defines in FluidTradeData.DEFAULT_TANK_CAPACITY
 	 */
 	public FluidTraderTileEntity(int tradeCount)
 	{
 		this();
-		this.tradeCount = tradeCount;
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	

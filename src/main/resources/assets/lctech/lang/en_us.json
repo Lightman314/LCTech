@@ -18,6 +18,7 @@
     "gui.lctech.fluidtrade.tooltip.purchase": "§6Purchasing §r%s",
     "gui.lctech.fluidtrade.tooltip.quantity": "%1$s Bucket(s) (%2$smB)",
     "gui.lctech.fluid_edit.title": "Fluid Select",
+    "gui.lctech.fluidtrade.pending_drain": "Waiting to drain %smB of fluid.",
     
     "tooltip.lctech.fluid_tank.capacity": "Holds up to %smB",
     "tooltip.lctech.trader.fluid_edit": "Click to Set Fluid",

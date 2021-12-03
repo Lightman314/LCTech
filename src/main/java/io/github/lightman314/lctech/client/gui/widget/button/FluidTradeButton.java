@@ -266,7 +266,12 @@ public class FluidTradeButton extends Button{
 			//Fluid Name
 			tooltips.add(FluidFormatUtil.getFluidName(trade.getTankContents()));
 			//'amount'/'capacity'mB
-			tooltips.add(new StringTextComponent(TextFormatting.GRAY.toString() + trade.getTankContents().getAmount() + "/" + trade.getTankCapacity() + "mB"));
+			tooltips.add(new StringTextComponent(TextFormatting.GRAY.toString() + trade.getTankContents().getAmount() + "mB/" + trade.getTankCapacity() + "mB"));
+			//Pending drain
+			if(trade.hasPendingDrain())
+			{
+				tooltips.add(new TranslationTextComponent("gui.lctech.fluidtrade.pending_drain", trade.getPendingDrain()));
+			}
 			if(storageMode)
 				tooltips.add(new TranslationTextComponent("tooltip.lctech.trader.fluid.fill_tank"));
 		}
