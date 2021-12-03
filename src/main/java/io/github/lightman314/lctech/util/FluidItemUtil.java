@@ -20,14 +20,13 @@ public class FluidItemUtil {
 			return fluidItem;
 		//If the fluid has no bucket, return a fluid shard containing the fluid
 		FluidStack tempStack = fluidStack.copy();
-		tempStack.setAmount(Integer.MAX_VALUE);
+		tempStack.setAmount(FluidAttributes.BUCKET_VOLUME);
 		return FluidShardItem.GetFluidShard(tempStack);
 	}
 	
 	public static ItemStack getFluidDispayItem(Fluid fluid)
 	{
 		return getFluidDisplayItem(new FluidStack(fluid, FluidAttributes.BUCKET_VOLUME));
-		
 	}
 	
 }

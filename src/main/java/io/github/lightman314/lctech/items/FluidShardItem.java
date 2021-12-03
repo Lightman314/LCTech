@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
 import io.github.lightman314.lctech.core.ModItems;
+import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
@@ -70,7 +71,7 @@ public class FluidShardItem extends Item{
 		FluidStack fluid = GetFluid(stack);
 		if(!fluid.isEmpty())
 		{
-			tooltip.add(fluid.getDisplayName());
+			tooltip.add(FluidFormatUtil.getFluidName(fluid));
 			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "mB"));
 		}
 	}

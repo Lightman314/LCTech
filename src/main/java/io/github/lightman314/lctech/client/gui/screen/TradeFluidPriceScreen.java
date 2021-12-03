@@ -54,9 +54,13 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	Supplier<FluidTradeData> trade;
 	int tradeIndex;
 	FluidTradeType localDirection;
+	int localQuantity;
 	
 	Button buttonSetSell;
 	Button buttonSetPurchase;
+	
+	Button buttonAddBucket;
+	Button buttonRemoveBucket;
 	
 	PlainButton buttonToggleDrainable;
 	boolean localDrainable;
@@ -71,11 +75,11 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	final Consumer<PlayerEntity> openStorage;
 	final Consumer<List<TradeRule>> updateTradeRules;
 	
-	public static final Consumer<TradePriceData> SAVEDATA_TILEENTITY(TileEntity tileEntity) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice(tileEntity.getPos(), data.tradeIndex, data.cost, data.isFree, data.type, data.canDrain, data.canFill)); }
+	public static final Consumer<TradePriceData> SAVEDATA_TILEENTITY(TileEntity tileEntity) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice(tileEntity.getPos(), data.tradeIndex, data.cost, data.isFree, data.type, data.quantity, data.canDrain, data.canFill)); }
 	public static final Consumer<PlayerEntity> OPENSTORAGE_TILEENTITY(TileEntity tileEntity) { return (player) -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(tileEntity.getPos())); }
 	public static final Consumer<List<TradeRule>> UPDATETRADERULES_TILEENTITY(TileEntity tileEntity, int tradeIndex) { return (newRules) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(tileEntity.getPos(), newRules, tradeIndex)); }
 	
-	public static final Consumer<TradePriceData> SAVEDATA_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(traderData.getTraderID(), data.tradeIndex, data.cost, data.isFree, data.type, data.canFill)); }
+	public static final Consumer<TradePriceData> SAVEDATA_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(traderData.getTraderID(), data.tradeIndex, data.cost, data.isFree, data.type, data.quantity, data.canFill)); }
 	public static final Consumer<PlayerEntity> OPENSTORAGE_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(traderData.getTraderID())); }
 	public static final Consumer<List<TradeRule>> UPDATETRADERULES_UNIVERSAL(UniversalTraderData traderData, int tradeIndex) { return (newRules) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules2(traderData.getTraderID(), newRules, tradeIndex)); }
 	
@@ -91,6 +95,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.localDirection = localTrade.getTradeType();
 		this.localDrainable = localTrade.canDrain();
 		this.localFillable = localTrade.canFill();
+		this.localQuantity = localTrade.getBucketQuantity();
 		
 		//Save various functions
 		this.saveData = saveData;
@@ -108,6 +113,9 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		
 		this.buttonSetSell = this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 6, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.sale"), this::SetTradeType));
 		this.buttonSetPurchase = this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 6, 50, 21, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.purchase"), this::SetTradeType));
+		
+		this.buttonAddBucket = this.addButton(new IconButton(guiLeft + 59, guiTop + CoinValueInput.HEIGHT + 6, this::PressQuantityButton, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonRemoveBucket = this.addButton(new IconButton(guiLeft + 98, guiTop + CoinValueInput.HEIGHT + 6, this::PressQuantityButton, GUI_TEXTURE, this.xSize + 32, 0));
 		
 		this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.save"), this::PressSaveButton));
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
@@ -130,6 +138,9 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 
 		this.buttonToggleDrainable.setResource(GUI_TEXTURE, this.xSize + (this.localDrainable ? 0 : 10), 16);
 		this.buttonToggleFillable.setResource(GUI_TEXTURE, this.xSize + (this.localFillable ? 20 : 30), 16);
+		
+		this.buttonAddBucket.active = this.localQuantity < FluidTradeData.MAX_BUCKET_QUANTITY;
+		this.buttonRemoveBucket.active = this.localQuantity > 1;
 		
 		super.tick();
 		this.priceInput.tick();
@@ -159,12 +170,22 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 			this.font.func_243248_b(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drainable").setStyle(Style.EMPTY.setColor(Color.fromInt(this.localDrainable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR))), startX + 18, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
 		this.font.func_243248_b(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fillable").setStyle(Style.EMPTY.setColor(Color.fromInt(this.localFillable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR))), startX + 106, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
 		
+		//Render the local quantity text
+		String quantityText = this.localQuantity + "B";
+		int textWidth = this.font.getStringWidth(quantityText);
+		this.font.drawString(matrixStack, quantityText, startX + 1 + (176 / 2) - (textWidth / 2), startY + CoinValueInput.HEIGHT + 12, 0xFFFFFF);
+		
+		//Mouse over for buttons
 		if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
 		else if(this.buttonToggleDrainable.isMouseOver(mouseX, mouseY))
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drainable.wordy"), mouseX, mouseY);
 		else if(this.buttonToggleFillable.isMouseOver(mouseX, mouseY))
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fillable.wordy"), mouseX, mouseY);
+		else if(this.buttonAddBucket.isMouseOver(mouseX, mouseY))
+			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid.add_bucket"), mouseX, mouseY);
+		else if(this.buttonRemoveBucket.isMouseOver(mouseX, mouseY))
+			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid.remove_bucket"), mouseX, mouseY);
 	}
 	
 	private void SetTradeType(Button button)
@@ -183,7 +204,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void SaveChanges(boolean isFree)
 	{
-		this.saveData.accept(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), isFree, this.localDirection, this.localDrainable, this.localFillable));
+		this.saveData.accept(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), isFree, this.localDirection, this.localQuantity, this.localDrainable, this.localFillable));
 	}
 	
 	private void PressFreeButton(Button button)
@@ -205,6 +226,16 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	private void PressToggleFillButton(Button button)
 	{
 		this.localFillable = !this.localFillable;
+	}
+	
+	private void PressQuantityButton(Button button)
+	{
+		int deltaQuantity = button == this.buttonAddBucket ? 1 : -1;
+		if(deltaQuantity < 0 && this.localQuantity <= 1)
+			return;
+		else if(deltaQuantity > 1 && this.localQuantity >= FluidTradeData.MAX_BUCKET_QUANTITY)
+			return;
+		this.localQuantity += deltaQuantity;
 	}
 	
 	@Override
@@ -272,15 +303,17 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		public final CoinValue cost;
 		public final boolean isFree;
 		public final FluidTradeType type;
+		public final int quantity;
 		public final boolean canDrain;
 		public final boolean canFill;
 		
-		public TradePriceData(int tradeIndex, CoinValue cost, boolean isFree, FluidTradeType type, boolean canDrain, boolean canFill)
+		public TradePriceData(int tradeIndex, CoinValue cost, boolean isFree, FluidTradeType type, int quantity, boolean canDrain, boolean canFill)
 		{
 			this.tradeIndex = tradeIndex;
 			this.cost = isFree ? CoinValue.EMPTY : cost;
 			this.isFree = isFree;
 			this.type = type;
+			this.quantity = quantity;
 			this.canDrain = canDrain;
 			this.canFill = canFill;
 		}

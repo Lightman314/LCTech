@@ -36,12 +36,13 @@ public class LCTechPacketHandler {
 		 register(MessageFluidEditOpen.class, new MessageFluidEditOpen());
 		 register(MessageFluidEditClose.class, new MessageFluidEditClose());
 		 register(MessageFluidEditSet.class, new MessageFluidEditSet());
+		 register(MessageToggleFluidIcon.class, new MessageToggleFluidIcon());
 		 
 		 //Universal Fluid Traders
 		 register(MessageSetFluidTradeRules2.class, new MessageSetFluidTradeRules2());
 		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
 		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
-		 
+		 register(MessageToggleFluidIcon2.class, new MessageToggleFluidIcon2());
 		 
 	}
 	

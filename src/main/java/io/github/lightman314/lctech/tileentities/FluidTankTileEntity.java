@@ -180,8 +180,11 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 	@Override
 	public void markDirty()
 	{
-		TileEntityUtil.sendUpdatePacket(this);
-		super.markDirty();
+		if(!this.world.isRemote)
+		{
+			TileEntityUtil.sendUpdatePacket(this);
+			super.markDirty();
+		}
 	}
 	
 	@Override

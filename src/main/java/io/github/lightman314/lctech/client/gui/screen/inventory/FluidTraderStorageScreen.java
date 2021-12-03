@@ -15,6 +15,7 @@ import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidTradeTankInteraction;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
+import io.github.lightman314.lctech.network.messages.fluid_trader.MessageToggleFluidIcon;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
@@ -440,6 +441,14 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 					this.container.PlayerTankInteraction(i);
 					LCTechPacketHandler.instance.sendToServer(new MessageFluidTradeTankInteraction(i));
 					return true;
+				}
+			}
+			//Interact with the drain/fill buttons
+			for(int icon = 0; icon <= 1; icon++)
+			{
+				if(FluidTradeButton.isMouseOverIcon(icon, buttonX, buttonY, (int)mouseX, (int)mouseY))
+				{
+					LCTechPacketHandler.instance.sendToServer(new MessageToggleFluidIcon(this.container.tileEntity.getPos(), i, icon));
 				}
 			}
 		}

@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.trader.tradedata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.items.UpgradeItem;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.BucketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -24,6 +24,7 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 public class FluidTradeData extends TradeData{
 	
@@ -40,7 +41,8 @@ public class FluidTradeData extends TradeData{
 		return length;
 	}
 	
-	public static final int DEFAULT_TANK_CAPACITY = FluidAttributes.BUCKET_VOLUME * 10;
+	public static final int MAX_BUCKET_QUANTITY = 10;
+	public static final int DEFAULT_TANK_CAPACITY = FluidAttributes.BUCKET_VOLUME * MAX_BUCKET_QUANTITY;
 	
 	//Tank is stored locally, as each fluid-type being sold is stored independently
 	FluidStack tank = FluidStack.EMPTY;
@@ -57,18 +59,35 @@ public class FluidTradeData extends TradeData{
 		if(this.product.getFluid() != Fluids.EMPTY)
 			this.product.setAmount(FluidAttributes.BUCKET_VOLUME);
 	}
+	private FluidStack productOfQuantity()
+	{
+		FluidStack stack = this.product.copy();
+		if(!stack.isEmpty())
+			stack.setAmount(this.getQuantity());
+		return stack;
+	}
+	
+	int bucketQuantity = 1;
+	public int getQuantity() { return this.bucketQuantity * FluidAttributes.BUCKET_VOLUME; }
+	public int getBucketQuantity() { return this.bucketQuantity; }
+	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, DEFAULT_TANK_CAPACITY / FluidAttributes.BUCKET_VOLUME); }
+	
+	public boolean canFillTank(FluidStack fluid)
+	{
+		return (this.product.isEmpty() && this.tank.isEmpty()) || ((this.tank.isEmpty() || this.tank.isFluidEqual(fluid)) && this.product.isFluidEqual(fluid));
+	}
 	
 	boolean canDrain = false;
 	public boolean canDrain() { return this.canDrain; }
 	public void setDrainable(boolean value) { this.canDrain = value; }
 	boolean canFill = false;
-	public boolean canFill() { return canFill; }
+	public boolean canFill() { return this.canFill; }
 	public void setFillable(boolean value) { this.canFill = value; }
 	public boolean canFill(FluidStack fluid)
 	{
 		if(!canFill || fluid.isEmpty())
 			return false;
-		return (this.tank.containsFluid(this.product) || this.tank.isEmpty()) && this.product.isFluidEqual(fluid);
+		return (this.tank.isFluidEqual(this.product) || this.tank.isEmpty()) && this.product.isFluidEqual(fluid);
 	}
 	
 	int pendingDrain = 0;
@@ -94,7 +113,7 @@ public class FluidTradeData extends TradeData{
 			{
 				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(upgradeItem.getUpgradeType().allowedForMachine(trader) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
-					this.tankCapacity += upgradeItem.getUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+					this.tankCapacity += upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
 			}
 		}
 	}
@@ -118,7 +137,7 @@ public class FluidTradeData extends TradeData{
 			if(this.tank.isFluidEqual(this.product))
 			{
 				//How many buckets the tank holds
-				return this.tank.getAmount() / FluidAttributes.BUCKET_VOLUME;
+				return this.tank.getAmount() / this.getQuantity();
 			}
 		}
 		else if(this.isPurchase())
@@ -137,7 +156,7 @@ public class FluidTradeData extends TradeData{
 	public boolean hasSpace()
 	{
 		if(this.isPurchase())
-			return this.getTankSpace() >= FluidAttributes.BUCKET_VOLUME;
+			return this.getTankSpace() >= this.getQuantity();
 		return true;
 	}
 	
@@ -152,36 +171,41 @@ public class FluidTradeData extends TradeData{
 	{
 		if(!this.isValid())
 			return false;
+		if(this.product.isEmpty())
+			return false;
 		if(this.isSale())
 		{
-			if(!this.tank.isFluidEqual(this.product) || this.tank.getAmount() < FluidAttributes.BUCKET_VOLUME)
+			if(!this.tank.isFluidEqual(this.product) || this.tank.getAmount() < this.getQuantity())
 				return false;
+			if(this.canDrain)
+				return true;
 			//Check the bucket stack for a fluid handler that can hold 1 bucket of product
 			if(!bucketStack.isEmpty())
 			{
 				if(bucketStack.getItem() == Items.BUCKET)
-					return !this.getFilledBucket().isEmpty();
+					return !this.getFilledBucket().isEmpty() && this.bucketQuantity == 1;
 				AtomicBoolean passes = new AtomicBoolean(false);
 				FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-					if(fluidHandler.fill(this.product, FluidAction.SIMULATE) == this.product.getAmount())
+					if(fluidHandler.fill(this.productOfQuantity(), FluidAction.SIMULATE) == this.getQuantity())
 						passes.set(true);
+					
 				});
 				if(passes.get())
 					return true;
 			}
-			if(this.canDrain)
-				return true;
 		}
 		else if(this.isPurchase())
 		{
+			if(bucketStack.isEmpty())
+				return false;
 			//Check if the bucket stack can have 1 bucket of the product extracted
 			if(this.tank.isEmpty() || this.tank.isFluidEqual(this.product))
 			{
-				if(this.getFilledBucket().getItem() == bucketStack.getItem())
+				if(this.getFilledBucket().getItem() == bucketStack.getItem() && this.bucketQuantity == 1)
 					return true;
 				AtomicBoolean passes = new AtomicBoolean(false);
 				FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-					if(fluidHandler.drain(this.product, FluidAction.SIMULATE).getAmount() == this.product.getAmount())
+					if(fluidHandler.drain(this.productOfQuantity(), FluidAction.SIMULATE).getAmount() == this.getQuantity())
 						passes.set(true);
 				});
 				if(passes.get())
@@ -201,7 +225,7 @@ public class FluidTradeData extends TradeData{
 			
 		if(this.isSale())
 		{
-			if(bucketStack.getItem() == Items.BUCKET)
+			if(bucketStack.getItem() == Items.BUCKET && this.bucketQuantity == 1)
 			{
 				//Drain the fluid from the tank
 				if(!isCreative)
@@ -211,7 +235,7 @@ public class FluidTradeData extends TradeData{
 			AtomicBoolean drained = new AtomicBoolean(false);
 			FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
 				//Add the fluid to the fluid handler
-				int fillAmount = fluidHandler.fill(this.getProduct(), FluidAction.EXECUTE);
+				int fillAmount = fluidHandler.fill(this.productOfQuantity(), FluidAction.EXECUTE);
 				//Drain the fluid from the tank
 				if(!isCreative)
 					this.tank.shrink(fillAmount);
@@ -220,39 +244,43 @@ public class FluidTradeData extends TradeData{
 			if(!drained.get())
 			{
 				//Set a pending drain
-				this.pendingDrain += FluidAttributes.BUCKET_VOLUME;
+				this.pendingDrain += this.getQuantity();
 			}
 			return bucketStack;
 		}
 		else if(this.isPurchase())
 		{
-			if(bucketStack.getItem() instanceof BucketItem)
-			{
-				//Fill the tank
-				if(!isCreative)
-				{
-					if(this.tank.isEmpty())
-						this.tank = this.getProduct().copy();
-					else
-						this.tank.grow(FluidAttributes.BUCKET_VOLUME);
-				}
-				return new ItemStack(Items.BUCKET);
-			}
+			
 			//Remove the bucket from the bucketStack
+			AtomicReference<ItemStack> returnStack = new AtomicReference<ItemStack>(bucketStack);
 			FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-				//Remove the fluid from the fluid handler
-				FluidStack drainStack = fluidHandler.drain(this.getProduct(), FluidAction.EXECUTE);
-				//Add the fluid to the tank
-				if(!isCreative)
+				if(fluidHandler instanceof FluidBucketWrapper && this.bucketQuantity == 1)
 				{
-					if(this.tank.isEmpty())
-						this.tank = drainStack;
-					else
-						this.tank.grow(drainStack.getAmount());
+					//Fill the tank
+					if(!isCreative)
+					{
+						if(this.tank.isEmpty())
+							this.tank = this.getProduct().copy();
+						else
+							this.tank.grow(FluidAttributes.BUCKET_VOLUME);
+					}
+					returnStack.set(new ItemStack(Items.BUCKET));
 				}
-					
+				else
+				{
+					//Remove the fluid from the fluid handler
+					FluidStack drainStack = fluidHandler.drain(this.productOfQuantity(), FluidAction.EXECUTE);
+					//Add the fluid to the tank
+					if(!isCreative)
+					{
+						if(this.tank.isEmpty())
+							this.tank = drainStack;
+						else
+							this.tank.grow(drainStack.getAmount());
+					}
+				}
 			});
-			return bucketStack;
+			return returnStack.get();
 		}
 		else
 		{
@@ -269,6 +297,7 @@ public class FluidTradeData extends TradeData{
 		compound.put("Tank", this.tank.writeToNBT(new CompoundNBT()));
 		compound.putInt("Capacity", this.tankCapacity);
 		compound.put("Trade", this.product.writeToNBT(new CompoundNBT()));
+		compound.putInt("Quantity", this.bucketQuantity);
 		compound.putBoolean("CanDrain", this.canDrain);
 		compound.putBoolean("CanFill", this.canFill);
 		compound.putInt("PendingDrain", this.pendingDrain);
@@ -287,6 +316,9 @@ public class FluidTradeData extends TradeData{
 		this.tankCapacity = compound.getInt("Capacity");
 		//Load the product
 		this.product = FluidStack.loadFluidStackFromNBT(compound.getCompound("Trade"));
+		//Load the quantity
+		if(compound.contains("Quantity", Constants.NBT.TAG_INT))
+			this.bucketQuantity = compound.getInt("Quantity");
 		//Load whether it can be drained
 		this.canDrain = compound.getBoolean("CanDrain");
 		//Load whether it can be filled

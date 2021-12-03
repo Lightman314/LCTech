@@ -95,17 +95,17 @@ public class FluidRenderUtil {
 	
 	public static void drawFluidInWorld(FluidStack tank, World world, BlockPos pos, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, FluidRenderData renderData, int light)
 	{
-		drawFluidInWorld(tank, world, pos, matrixStack, renderTypeBuffer, renderData.x, renderData.y, renderData.z, renderData.width, renderData.getHeight(), renderData.depth, light, renderData.sides);
+		drawFluidInWorld(tank, world, pos, matrixStack, renderTypeBuffer, renderData.x, renderData.y, renderData.z, renderData.width, renderData.height, renderData.depth, renderData.getHeight(), light, renderData.sides);
 	}
 	
-	public static void drawFluidInWorld(FluidStack tank, World world, BlockPos pos, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, float x, float y, float z, float width, float height, float depth, int light, FluidSides sides)
+	public static void drawFluidInWorld(FluidStack tank, World world, BlockPos pos, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, float x, float y, float z, float width, float top, float depth, float height, int light, FluidSides sides)
 	{
 		
 		if(tank.isEmpty())
 			return;
 		
 		TextureAtlasSprite sprite = ForgeHooksClient.getFluidSprites(world,  pos,  tank.getFluid().getDefaultState())[0];
-		int waterColor = tank.getFluid().getAttributes().getColor(world, pos);
+		int waterColor = tank.getFluid().getAttributes().getColor(tank);
 		float red = (float)(waterColor >> 16 & 255) / 255.0f;
 		float green = (float)(waterColor >> 8 & 255) / 255.0f;
 		float blue = (float)(waterColor & 255) / 255.0f;
@@ -118,25 +118,32 @@ public class FluidRenderUtil {
 		float y2 = y + height;
 		float z2 = z + depth;
 		
+		if(tank.getFluid().getAttributes().isLighterThanAir())
+		{
+			//Change y cords to match the inverted rendering
+			y2 = top;
+			y = y2 - height;
+		}
+		
 		IVertexBuilder buffer = renderTypeBuffer.getBuffer(RenderType.getTranslucent());
 		Matrix4f matrix = matrixStack.getLast().getMatrix();
 		
 		//left side
 		if(sides.test(Direction.WEST))
 		{
-			buffer.pos(matrix, x2, y, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y2, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y2, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y, z).color(red, green, blue, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y, z).color(red, green, blue, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y2, z).color(red, green, blue, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y2, z).color(red, green, blue, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		//right side
 		if(sides.test(Direction.EAST))
 		{
-			buffer.pos(matrix, x, y, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y2, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y2, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y, z2).color(red, green, blue, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y, z2).color(red, green, blue, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y2, z2).color(red, green, blue, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y2, z2).color(red, green, blue, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		maxU = Math.min(minU + (sprite.getMaxU() - minU), sprite.getMaxU());
@@ -144,19 +151,19 @@ public class FluidRenderUtil {
 		//south side
 		if(sides.test(Direction.SOUTH))
 		{
-			buffer.pos(matrix, x2, y, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y2, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y2, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y, z2).color(red, green, blue, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y, z).color(red, green, blue, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y2, z).color(red, green, blue, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y2, z2).color(red, green, blue, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		//north side
 		if(sides.test(Direction.NORTH))
 		{
-			buffer.pos(matrix, x, y, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y2, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y2, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y, z).color(red, green, blue, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y, z2).color(red, green, blue, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y2, z2).color(red, green, blue, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y2, z).color(red, green, blue, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		maxV = Math.min(minV + (sprite.getMaxV() - minV), sprite.getMaxV());
@@ -164,10 +171,19 @@ public class FluidRenderUtil {
 		//top side
 		if(sides.test(Direction.UP))
 		{
-			buffer.pos(matrix, x, y2, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x, y2, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y2, z2).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
-			buffer.pos(matrix, x2, y2, z).color(red - 0.25f, green - 0.25f, blue - 0.25f, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y2, z).color(red, green, blue, 1f).tex(maxU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x, y2, z2).color(red, green, blue, 1f).tex(minU, minV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y2, z2).color(red, green, blue, 1f).tex(minU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y2, z).color(red, green, blue, 1f).tex(maxU, maxV).lightmap(light).normal(0f, 1f, 0f).endVertex();
+		}
+		
+		//top side
+		if(sides.test(Direction.DOWN))
+		{
+			buffer.pos(matrix, x2, y, z).color(red, green, blue, 1f).tex(maxU, minV).lightmap(light).normal(0f, -1f, 0f).endVertex();
+			buffer.pos(matrix, x2, y, z2).color(red, green, blue, 1f).tex(minU, minV).lightmap(light).normal(0f, -1f, 0f).endVertex();
+			buffer.pos(matrix, x, y, z2).color(red, green, blue, 1f).tex(minU, maxV).lightmap(light).normal(0f, -1f, 0f).endVertex();
+			buffer.pos(matrix, x, y, z).color(red, green, blue, 1f).tex(maxU, maxV).lightmap(light).normal(0f, -1f, 0f).endVertex();
 		}
 		
 	}
@@ -181,7 +197,7 @@ public class FluidRenderUtil {
 		//Get sprite
 		TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(tank.getFluid().getAttributes().getStillTexture());
 		//Get color
-		int fluidColor = tank.getFluid().getAttributes().getColor();
+		int fluidColor = tank.getFluid().getAttributes().getColor(tank);
 		if(fluidColor != 0xFFFFFFFF)
 		{
 			int red = fluidColor >> 16 & 255;
@@ -193,25 +209,35 @@ public class FluidRenderUtil {
 		double fillPercent = MathUtil.clamp((double)tank.getAmount() / (double)capacity, 0d, 1d);
 		renderData.setFillPercent((float)fillPercent);
 		
+		boolean inverted = tank.getFluid().getAttributes().isLighterThanAir();
+		
 		final int ITEM_RENDER_LAYER0 = 0;
 		
 		List<BakedQuad> returnList = Lists.newArrayList();
 		
 		final int color = fluidColor;
 		renderData.sides.forEach(face ->{
-			BakedQuad faceQuad = createBakedQuadForFace(renderData, ITEM_RENDER_LAYER0, color, sprite, face);
+			BakedQuad faceQuad = createBakedQuadForFace(renderData, ITEM_RENDER_LAYER0, color, sprite, face, inverted);
 			returnList.add(faceQuad);
 		});
 		
 		return returnList;
 	}
 	
-	private static BakedQuad createBakedQuadForFace(FluidRenderData data, int itemRenderLayer, int fluidColor, TextureAtlasSprite texture, Direction face)
+	private static BakedQuad createBakedQuadForFace(FluidRenderData data, int itemRenderLayer, int fluidColor, TextureAtlasSprite texture, Direction face, boolean inverted)
 	{
 		float x1, x2, x3, x4;
 		float y1, y2, y3, y4;
 		float z1, z2, z3, z4;
 		int packednormal;
+		
+		float bottom = data.y;
+		float top = bottom + data.getHeight();
+		if(inverted)
+		{
+			top = data.y + data.height;
+			bottom = top - data.getHeight();
+		}
 		
 		switch(face) {
 		case UP:
@@ -219,41 +245,41 @@ public class FluidRenderUtil {
 			x3 = x4 = data.x;
 			z1 = z4 = data.z + data.depth;
 			z2 = z3 = data.z;
-			y1 = y2 = y3 = y4 = data.y + data.getHeight();
+			y1 = y2 = y3 = y4 = top;
 			break;
 		case DOWN:
 			x1 = x2 = data.x + data.width;
 			x3 = x4 = data.x;
 			z1 = z4 = data.z;
 			z2 = z3 = data.z + data.depth;
-			y1 = y2 = y3 = y4 = data.y;
+			y1 = y2 = y3 = y4 = bottom;
 			break;
 		case WEST:
 			z1 = z2 = data.z + data.depth;
 			z3 = z4 = data.z;
-			y1 = y4 = data.y;
-			y2 = y3 = data.y + data.getHeight();
+			y1 = y4 = bottom;
+			y2 = y3 = top;
 			x1 = x2 = x3 = x4 = data.x;
 			break;
 		case EAST:
 			z1 = z2 = data.z;
 			z3 = z4 = data.z + data.depth;
-			y1 = y4 = data.y;
-			y2 = y3 = data.y + data.getHeight();
+			y1 = y4 = bottom;
+			y2 = y3 = top;
 			x1 = x2 = x3 = x4 = data.x + data.width;
 			break;
 		case NORTH:
 			x1 = x2 = data.x;
 			x3 = x4 = data.x + data.width;
-			y1 = y4 = data.y;
-			y2 = y3 = data.y + data.getHeight();
+			y1 = y4 = bottom;
+			y2 = y3 = top;
 			z1 = z2 = z3 = z4 = data.z;
 			break;
 		case SOUTH:
 			x1 = x2 = data.x + data.width;
 			x3 = x4 = data.x;
-			y1 = y4 = data.y;
-			y2 = y3 = data.y + data.getHeight();
+			y1 = y4 = bottom;
+			y2 = y3 = top;
 			z1 = z2 = z3 = z4 = data.z + data.depth;
 			break;
 			default:
@@ -331,7 +357,7 @@ public class FluidRenderUtil {
 	public static class FluidSides
 	{
 		
-		private static final List<Direction> BLACKLISTED_SIDES = ImmutableList.of(Direction.DOWN);
+		private static final List<Direction> BLACKLISTED_SIDES = ImmutableList.of();
 		
 		public static final FluidSides ALL = new FluidSides(Direction.values());
 		public static FluidSides Create(Direction... sides) { return new FluidSides(sides); }
@@ -390,6 +416,11 @@ public class FluidRenderUtil {
 			this.height = height;
 			this.depth = depth;
 			this.sides = sides;
+		}
+		
+		public static FluidRenderData CreateFluidRender(float x, float y, float z, float width, float height, float depth)
+		{
+			return CreateFluidRender(x, y, z, width, height, depth, FluidSides.ALL);
 		}
 		
 		public static FluidRenderData CreateFluidRender(float x, float y, float z, float width, float height, float depth, FluidSides sides)

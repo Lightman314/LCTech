@@ -2,11 +2,18 @@ package io.github.lightman314.lctech.trader.upgrades;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.annotation.Nullable;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lctech.LCTech;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
@@ -21,6 +28,7 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 	
 	protected abstract List<String> getDataTags();
 	protected abstract Object defaultTagValue(String tag);
+	public List<ITextComponent> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 	
 	@Override
@@ -52,13 +60,15 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 	{
 		public UpgradeType getUpgradeType();
 		public default boolean upgradeAllowedForMachine(IUpgradeable machine) { return getUpgradeType().allowedForMachine(machine); }
-		public UpgradeData getUpgradeData();
+		public UpgradeData getDefaultUpgradeData();
 	}
 	
 	public static class UpgradeData
 	{
 		
 		private final Map<String,Object> data = Maps.newHashMap();
+		
+		public Set<String> getKeys() { return data.keySet(); }
 		
 		public UpgradeData(UpgradeType upgrade)
 		{
@@ -97,6 +107,35 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 				return (Float)value;
 			return 0f;
 		}
+		
+		public void read(CompoundNBT compound)
+		{
+			
+		}
+		
+		public CompoundNBT writeToNBT() { return writeToNBT(null); }
+		
+		public CompoundNBT writeToNBT(@Nullable UpgradeType source)
+		{
+			Map<String,Object> modifiedEntries = source == null ? this.data : getModifiedEntries(this,source);
+			CompoundNBT compound = new CompoundNBT();
+			modifiedEntries.forEach((key,value) ->{
+				
+			});
+			return compound;
+		}
+		
+		public static Map<String,Object> getModifiedEntries(UpgradeData queryData, UpgradeType source)
+		{
+			Map<String,Object> modifiedEntries = Maps.newHashMap();
+			source.getDefaultData().data.forEach((key, value) -> {
+				if(queryData.data.containsKey(key) && !Objects.equal(queryData.data.get(key), value))
+						modifiedEntries.put(key, value);
+			});
+			return modifiedEntries;
+		}
+		
+		
 		
 	}
 	

@@ -7,12 +7,15 @@ import com.google.common.base.Function;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.models.items.FluidShardModel;
 import io.github.lightman314.lctech.client.models.items.FluidTankModel;
+import io.github.lightman314.lctech.container.slots.FluidInputSlot;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientModEvents {
@@ -39,6 +42,15 @@ public class ClientModEvents {
 			//LCTech.LOGGER.info("Replacing the Fluid Tank item model.");
 			IBakedModel customModel = modelGenerator.apply(existingModel);
 			modelRegistry.put(itemModelResourceLocation, customModel);
+		}
+	}
+	
+	@SubscribeEvent
+	public void stitchTextures(TextureStitchEvent.Pre event)
+	{
+		if(event.getMap().getTextureLocation() == PlayerContainer.LOCATION_BLOCKS_TEXTURE) {
+			//Add bucket slot backgrounds
+			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
 		}
 	}
 	

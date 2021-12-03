@@ -1,6 +1,6 @@
 {
 	"credit": "Made with Blockbench",
-    "parent": "lightmanscurrency:block/block",
+	"parent": "lightmanscurrency:block/block",
 	"textures": {
 		"particle": "#side"
 	},
@@ -8,7 +8,7 @@
 		{
 			"name": "Bottom",
 			"from": [0, 0, 0],
-			"to": [16, 0, 16],
+			"to": [16, 1, 16],
 			"faces": {
 				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
 				"down": {"uv": [0, 0, 16, 16], "texture": "#top"}
@@ -16,7 +16,7 @@
 		},
 		{
 			"name": "Top",
-			"from": [0, 16, 0],
+			"from": [0, 15, 0],
 			"to": [16, 16, 16],
 			"faces": {
 				"up": {"uv": [0, 0, 16, 16], "texture": "#top"},
@@ -26,7 +26,7 @@
 		{
 			"name": "West",
 			"from": [0, 0, 0],
-			"to": [0, 16, 16],
+			"to": [1, 16, 16],
 			"faces": {
 				"east": {"uv": [0, 0, 16, 16], "texture": "#side"},
 				"west": {"uv": [0, 0, 16, 16], "texture": "#side"}
@@ -34,7 +34,7 @@
 		},
 		{
 			"name": "East",
-			"from": [16, 0, 0],
+			"from": [15, 0, 0],
 			"to": [16, 16, 16],
 			"faces": {
 				"east": {"uv": [0, 0, 16, 16], "texture": "#side"},
@@ -44,7 +44,7 @@
 		{
 			"name": "North",
 			"from": [0, 0, 0],
-			"to": [16, 16, 0],
+			"to": [16, 16, 1],
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "texture": "#side"},
 				"south": {"uv": [0, 0, 16, 16], "texture": "#side"}
@@ -52,7 +52,7 @@
 		},
 		{
 			"name": "South",
-			"from": [0, 0, 16],
+			"from": [0, 0, 15],
 			"to": [16, 16, 16],
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "texture": "#side"},

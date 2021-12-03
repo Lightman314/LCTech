@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.blocks;
 
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
 import net.minecraft.block.Block;
@@ -23,7 +22,7 @@ import net.minecraft.world.World;
 public class FluidTankBlock extends Block implements IFluidTankBlock{
 
 	public static final VoxelShape SHAPE = makeCuboidShape(0d, 0d, 0d, 16d, 16d, 16d);
-	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(0.01f, 0.01f, 0.01f, 15.98f, 15.98f, 15.98f, FluidSides.ALL);
+	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 14f, 15.98f);
 	
 	private final VoxelShape shape;
 	

@@ -14,6 +14,7 @@ import io.github.lightman314.lctech.client.gui.widget.button.interfaces.IFluidTr
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
@@ -38,7 +39,7 @@ public class FluidTradeButton extends Button{
 	public static final ResourceLocation TRADE_TEXTURES = new ResourceLocation(LCTech.MODID, "textures/gui/container/fluid_trader_buttons.png");
 	
 	public static final int WIDTH = 63;
-	public static final int HEIGHT = 79;
+	public static final int HEIGHT = 54;
 	
 	public static final float TEXTPOS_X = WIDTH - 19;
 	public static final float TEXTPOS_Y = 5f;
@@ -49,7 +50,7 @@ public class FluidTradeButton extends Button{
 	public static final int TANKPOS_X = 3;
 	public static final int TANKPOS_Y = 19;
 	public static final int TANK_SIZE_X = 45;
-	public static final int TANK_SIZE_Y = 57;
+	public static final int TANK_SIZE_Y = 32;
 	
 	public static final int ICONPOS_X = 51;
 	public static final int PRICEBUTTON_Y = 18;
@@ -88,7 +89,7 @@ public class FluidTradeButton extends Button{
 	
 	//No inverted input as fluid trade buttons are also the input method.
 	@SuppressWarnings("deprecation")
-	public static void renderFluidTradeButton(MatrixStack matrixStack, Screen screen, FontRenderer font, int x, int y, int tradeIndex, IFluidTrader trader, @Nullable IFluidTradeButtonContainer container, boolean hovered, boolean forceActive, boolean showFillState)
+	public static void renderFluidTradeButton(MatrixStack matrixStack, Screen screen, FontRenderer font, int x, int y, int tradeIndex, IFluidTrader trader, @Nullable IFluidTradeButtonContainer container, boolean hovered, boolean forceActive, boolean storageMode)
 	{
 		FluidTradeData trade = trader.getTrade(tradeIndex);
 		Minecraft.getInstance().getTextureManager().bindTexture(TRADE_TEXTURES);
@@ -105,9 +106,9 @@ public class FluidTradeButton extends Button{
 		screen.blit(matrixStack, x, y, xOffset, yOffset, WIDTH, HEIGHT);
 		//Draw drain & fill icons
 		if(trader.drainCapable())
-			screen.blit(matrixStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrain() ? 0 : 10, HEIGHT * 3,  10, 10);
-		if(showFillState)
-			screen.blit(matrixStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFill() ? 20 : 30, HEIGHT * 3, 10, 10);
+			screen.blit(matrixStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrain() ? 0 : 10, HEIGHT * 4,  10, 10);
+		if(storageMode)
+			screen.blit(matrixStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFill() ? 20 : 30, HEIGHT * 4, 10, 10);
 		
 		//Collect data
 		boolean hasPermission = forceActive ? true : false;
@@ -130,7 +131,8 @@ public class FluidTradeButton extends Button{
 			//Permission
 			hasPermission = container.PermissionToTrade(tradeIndex, denialText);
 			//CanAfford
-			canAfford = canAfford(trade,container);
+			canAfford = canAfford(trade,container) && trade.canTransferFluids(container.getBucketItem());
+			
 		}
 		//Render the trade text
 		//Run the Item Trade Button variant of get trade text/color as no significant changes have been made
@@ -142,7 +144,8 @@ public class FluidTradeButton extends Button{
 		//Render the fluid product as a bucket
 		//Render an empty bucket if the product is empty
 		ItemStack bucketStack = FluidItemUtil.getFluidDisplayItem(trade.getProduct());
-		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y, false);
+		bucketStack.setCount(trade.getBucketQuantity());
+		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y, true);
 		//Render the fluid tank
 		if(!trade.getTankContents().isEmpty())
 		{
@@ -232,7 +235,9 @@ public class FluidTradeButton extends Button{
 		List<ITextComponent> tooltips = Lists.newArrayList();
 		
 		//Fluid Name
-		tooltips.add(new TranslationTextComponent("gui.lctech.fluidtrade.tooltip." + trade.getTradeType().name().toLowerCase(), product.getDisplayName()));
+		tooltips.add(new TranslationTextComponent("gui.lctech.fluidtrade.tooltip." + trade.getTradeType().name().toLowerCase(), FluidFormatUtil.getFluidName(product, TextFormatting.GOLD)));
+		//Quantity
+		tooltips.add(new TranslationTextComponent("gui.lctech.fluidtrade.tooltip.quantity", trade.getBucketQuantity(), trade.getQuantity()).mergeStyle(TextFormatting.GOLD));
 		//Stock
 		CoinValue price = trade.getCost();
 		if(container != null)
@@ -259,11 +264,11 @@ public class FluidTradeButton extends Button{
 		else
 		{
 			//Fluid Name
-			tooltips.add(trade.getTankContents().getDisplayName());
+			tooltips.add(FluidFormatUtil.getFluidName(trade.getTankContents()));
 			//'amount'/'capacity'mB
 			tooltips.add(new StringTextComponent(TextFormatting.GRAY.toString() + trade.getTankContents().getAmount() + "/" + trade.getTankCapacity() + "mB"));
 			if(storageMode)
-				tooltips.add(new TranslationTextComponent("tooltip.lctech.trader.fill_tank"));
+				tooltips.add(new TranslationTextComponent("tooltip.lctech.trader.fluid.fill_tank"));
 		}
 		return tooltips;
 		

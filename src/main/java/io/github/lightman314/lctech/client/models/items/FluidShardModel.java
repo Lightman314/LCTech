@@ -8,7 +8,6 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidShardItem;
-import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -22,6 +21,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidShardModel implements IBakedModel {
@@ -101,7 +101,7 @@ public class FluidShardModel implements IBakedModel {
 		public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity)
 		{
 			FluidStack tank = FluidStack.EMPTY;
-			int capacity = FluidTankTileEntity.DEFAULT_CAPACITY;
+			int capacity = FluidAttributes.BUCKET_VOLUME;
 			FluidRenderData renderData = FluidShardItem.RENDER_DATA;
 			if(stack != null)
 			{

@@ -24,23 +24,25 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 	FluidTradeType tradeType;
 	boolean canDrain;
 	boolean canFill;
+	int bucketCount;
 	
 	public MessageSetFluidPrice() {};
 	
-	public MessageSetFluidPrice(BlockPos pos, int tradeIndex, CoinValue price, boolean isFree, FluidTradeType tradeType, boolean canDrain, boolean canFill)
+	public MessageSetFluidPrice(BlockPos pos, int tradeIndex, CoinValue price, boolean isFree, FluidTradeType tradeType, int bucketCount, boolean canDrain, boolean canFill)
 	{
 		this.pos = pos;
 		this.tradeIndex = tradeIndex;
 		this.price = price;
 		this.isFree = isFree;
 		this.tradeType = tradeType;
+		this.bucketCount = bucketCount;
 		this.canDrain = canDrain;
 		this.canFill = canFill;
 	}
 	
 	@Override
 	public MessageSetFluidPrice decode(PacketBuffer buffer) {
-		return new MessageSetFluidPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readBoolean(), buffer.readBoolean());
+		return new MessageSetFluidPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readInt(), buffer.readBoolean(), buffer.readBoolean());
 	}
 
 	@Override
@@ -50,6 +52,7 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 		buffer.writeCompoundTag(message.price.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
 		buffer.writeBoolean(message.isFree);
 		buffer.writeString(message.tradeType.name());
+		buffer.writeInt(message.bucketCount);
 		buffer.writeBoolean(message.canDrain);
 		buffer.writeBoolean(message.canFill);
 		
@@ -70,6 +73,7 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 					trade.setCost(message.price);
 					trade.setFree(message.isFree);
 					trade.setTradeType(message.tradeType);
+					trade.setBucketQuantity(message.bucketCount);
 					trade.setDrainable(message.canDrain);
 					trade.setFillable(message.canFill);
 					

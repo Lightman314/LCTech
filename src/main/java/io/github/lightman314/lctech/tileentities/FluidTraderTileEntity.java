@@ -378,7 +378,9 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	
 	@Override
 	public void tick() {
-		
+		//Recalculate the drainable tank to fix the issue with the create pump...
+		//Like seriously, I had to stay up til 2 in the morning for this bs...
+		this.fluidHandler.resetDrainableTank();
 	}
 
 	@Override
@@ -490,6 +492,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	@Override
 	public void clearLogger() {
 		this.logger.clear();
+		this.markLoggerDirty();
 	}
 
 	@Override
@@ -505,7 +508,6 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 			CompoundNBT compound = writeLogger(new CompoundNBT());
 			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
-		
 	}
 	
 	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new TraderScreenHandler(this); }

@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
+import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -60,9 +61,9 @@ public class FluidTankItem extends BlockItem{
 		FluidStack fluid = GetFluid(stack);
 		if(!fluid.isEmpty())
 		{
-			tooltip.add(fluid.getDisplayName());
+			tooltip.add(FluidFormatUtil.getFluidName(fluid));
 			int capacity = GetCapacity(stack);
-			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "/" + capacity + "mB"));
+			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "mB / " + capacity + "mB"));
 		}
 		else
 		{

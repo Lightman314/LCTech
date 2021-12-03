@@ -63,7 +63,7 @@ public class FluidTraderScreenCR extends ContainerScreen<FluidTraderContainerCR>
 	{
 		
 		FluidTraderScreen.drawTraderForeground(matrix, this.font, this.container.tileEntity, this.ySize,
-				this.container.tileEntity.getTitle(),
+				new TranslationTextComponent("gui.lightmanscurrency.trading.title", this.container.tileEntity.getName(), new TranslationTextComponent("gui.lightmanscurrency.trading.list", this.container.getThisIndex() + 1, this.container.getTotalCount())),
 				this.playerInventory.getDisplayName(),
 				new TranslationTextComponent("tooltip.lightmanscurrency.credit",MoneyUtil.getStringOfValue(this.container.GetCoinValue())));
 		

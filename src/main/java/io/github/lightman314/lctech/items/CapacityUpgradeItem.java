@@ -8,7 +8,8 @@ public class CapacityUpgradeItem extends UpgradeItem{
 
 	private final int upgradeAmount;
 	
-	public CapacityUpgradeItem(CapacityUpgrade upgradeType, int upgradeAmount, Properties properties) {
+	public CapacityUpgradeItem(CapacityUpgrade upgradeType, int upgradeAmount, Properties properties)
+	{
 		super(upgradeType, properties);
 		this.upgradeAmount = MathUtil.clamp(upgradeAmount, 1, Integer.MAX_VALUE);
 	}
@@ -17,5 +18,5 @@ public class CapacityUpgradeItem extends UpgradeItem{
 	public void fillUpgradeData(UpgradeData data) {
 		data.setValue(CapacityUpgrade.CAPACITY, this.upgradeAmount);
 	}
-
+	
 }

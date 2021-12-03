@@ -7,17 +7,23 @@
     "block.lctech.fluid_trader_server_med": "Medium Fluid Trading Server",
     "block.lctech.fluid_trader_server_lrg": "Large Fluid Trading Server",
     "block.lctech.fluid_trader_server_xlrg": "Extra Large Fluid Trading Server",
+    
     "item.lctech.fluid_shard": "Fluid Shard",
     "item.lctech.fluid_capacity_upgrade_1": "Fluid Capacity Upgrade (Iron)",
     "item.lctech.fluid_capacity_upgrade_2": "Fluid Capacity Upgrade (Gold)",
+    
     "gui.lctech.nofluid": "No Fluid",
     "gui.lctech.universaltrader.fluid": "Fluid Trader",
     "gui.lctech.fluidtrade.tooltip.sale": "§6Selling §r%s",
     "gui.lctech.fluidtrade.tooltip.purchase": "§6Purchasing §r%s",
-    "gui.lctech.fluid_edit.title": "Fluid Selection",
+    "gui.lctech.fluidtrade.tooltip.quantity": "%1$s Bucket(s) (%2$smB)",
+    "gui.lctech.fluid_edit.title": "Fluid Select",
+    
     "tooltip.lctech.fluid_tank.capacity": "Holds up to %smB",
     "tooltip.lctech.trader.fluid_edit": "Click to Set Fluid",
-    "tooltip.lctech.trader.fill_tank": "Click with fluid container to fill/empty.",
+    "tooltip.lctech.trader.fluid.fill_tank": "Click with fluid container to fill/empty.",
+    "tooltip.lctech.trader.fluid.add_bucket": "Increase fluid amount sold by 1B (1000mB)",
+    "tooltip.lctech.trader.fluid.remove_bucket": "Decrease fluid amount sold by 1B (1000mB)",
     "tooltip.lctech.trader.fluid_settings.drainable": "Drainable",
     "tooltip.lctech.trader.fluid_settings.drainable.wordy": "While drainable, customers can drain purchased fluids\nvia a pump or some other fluid draining source.\n\nIf this is a purchase, all tank contents can be\ndrained via pump.",
     "tooltip.lctech.trader.fluid_settings.fillable": "Fillable",
@@ -25,5 +31,10 @@
     "tooltip.lctech.trader.fluid_settings.drain.enabled": "External Draining is ENABLED",
     "tooltip.lctech.trader.fluid_settings.drain.disabled": "External Draining is DISABLED",
     "tooltip.lctech.trader.fluid_settings.fill.enabled": "External Filling is ENABLED",
-    "tooltip.lctech.trader.fluid_settings.fill.disabled": "External Filling is DISABLED"
+    "tooltip.lctech.trader.fluid_settings.fill.disabled": "External Filling is DISABLED",
+    
+    "tooltip.lctech.upgrade.fluid_capacity":"Increases tank capacity by %smB",
+    
+    "log.shoplog.fluid.format": "%1$s%2$s %3$s %4$s for %5$s",
+    "log.shoplog.fluid.fluidformat": "%1$smB of %2$s"
 }
