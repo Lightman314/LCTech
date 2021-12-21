@@ -136,7 +136,7 @@ public class FluidTradeButton extends Button{
 		}
 		//Render the trade text
 		//Run the Item Trade Button variant of get trade text/color as no significant changes have been made
-		String tradeText = ItemTradeButton.getTradeText(cost, trade.isFree(), isValid, hasStock, hasSpace, hasPermission);
+		String tradeText = ItemTradeButton.getTradeText(cost, trade.getCost().isFree(), isValid, hasStock, hasSpace, hasPermission);
 		int textColor = ItemTradeButton.getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, hasDiscount);
 		int stringLength = font.getStringWidth(tradeText);
 		font.drawString(matrixStack, tradeText, x + TEXTPOS_X - stringLength, y + TEXTPOS_Y, textColor);
@@ -290,7 +290,7 @@ public class FluidTradeButton extends Button{
 	{
 		if(trade.isSale())
 		{
-			if(trade.isFree())
+			if(trade.getCost().isFree())
 				return true;
 			else
 				return container.GetCoinValue() >= trade.getCost().getRawValue();

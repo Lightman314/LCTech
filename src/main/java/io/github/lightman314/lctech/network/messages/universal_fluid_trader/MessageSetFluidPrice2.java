@@ -19,19 +19,17 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	UUID traderID;
 	int tradeIndex;
 	CoinValue price;
-	boolean isFree;
 	FluidTradeType tradeType;
 	int quantity;
 	boolean canFill;
 	
 	public MessageSetFluidPrice2() {};
 	
-	public MessageSetFluidPrice2(UUID traderID, int tradeIndex, CoinValue price, boolean isFree, FluidTradeType tradeType, int quantity, boolean canFill)
+	public MessageSetFluidPrice2(UUID traderID, int tradeIndex, CoinValue price, FluidTradeType tradeType, int quantity, boolean canFill)
 	{
 		this.traderID = traderID;
 		this.tradeIndex = tradeIndex;
 		this.price = price;
-		this.isFree = isFree;
 		this.tradeType = tradeType;
 		this.quantity = quantity;
 		this.canFill = canFill;
@@ -39,7 +37,7 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	
 	@Override
 	public MessageSetFluidPrice2 decode(PacketBuffer buffer) {
-		return new MessageSetFluidPrice2(buffer.readUniqueId(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), buffer.readBoolean(), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readInt(), buffer.readBoolean());
+		return new MessageSetFluidPrice2(buffer.readUniqueId(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readInt(), buffer.readBoolean());
 	}
 
 	@Override
@@ -47,7 +45,6 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 		buffer.writeUniqueId(message.traderID);
 		buffer.writeInt(message.tradeIndex);
 		buffer.writeCompoundTag(message.price.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
-		buffer.writeBoolean(message.isFree);
 		buffer.writeString(message.tradeType.name());
 		buffer.writeInt(message.quantity);
 		buffer.writeBoolean(message.canFill);
@@ -64,7 +61,6 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 				FluidTradeData trade = fluidTrader.getTrade(message.tradeIndex);
 				
 				trade.setCost(message.price);
-				trade.setFree(message.isFree);
 				trade.setTradeType(message.tradeType);
 				trade.setBucketQuantity(message.quantity);
 				trade.setDrainable(false);

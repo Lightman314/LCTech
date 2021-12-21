@@ -143,7 +143,7 @@ public class FluidTradeData extends TradeData{
 		else if(this.isPurchase())
 		{
 			//How many payments the trader can make
-			if(this.isFree)
+			if(this.cost.isFree())
 				return 1;
 			if(cost.getRawValue() == 0)
 				return 0;
