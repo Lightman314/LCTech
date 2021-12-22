@@ -1,0 +1,44 @@
+{
+    "language.name": "Deutsch",
+    "language.region": "Deutschland",
+    "language.code": "de_de",
+    "block.lctech.fluid_tap": "Flüssigkeitshahn",
+    "block.lctech.fluid_tap_bundle": "Flüssigkeitshahn Bündel",
+    "block.lctech.iron_tank": "Eisentank",
+    "block.lctech.gold_tank": "Goldtank",
+    "block.lctech.fluid_trader_server_sml": "Kleiner Flüssigkeitshändler",
+    "block.lctech.fluid_trader_server_med": "Mittlerer Flüssigkeitshändler",
+    "block.lctech.fluid_trader_server_lrg": "Large Flüssigkeitshändler",
+    "block.lctech.fluid_trader_server_xlrg": "Extra Großer Flüssigkeitshändler",
+
+    "item.lctech.fluid_shard": "Flüssigkeitsscherbe",
+    "item.lctech.fluid_capacity_upgrade_1": "Flüssigkeits-Kapazitäts-Upgrade (Eisen)",
+    "item.lctech.fluid_capacity_upgrade_2": "Flüssigkeits-Kapazitäts-Upgrade (Gold)",
+
+    "gui.lctech.nofluid": "Keine Flüssigkeit",
+    "gui.lctech.universaltrader.fluid": "Flüssigkeits-Handelsblock",
+    "gui.lctech.fluidtrade.tooltip.sale": "§6Verkauf §r%s",
+    "gui.lctech.fluidtrade.tooltip.purchase": "§6Einkauf §r%s",
+    "gui.lctech.fluidtrade.tooltip.quantity": "%1$s Eimer (%2$smB)",
+    "gui.lctech.fluid_edit.title": "Flüssigkeit auswählen",
+    "gui.lctech.fluidtrade.pending_drain": "Warte darauf %smB der Flüssigkeit zu entleeren.",
+
+    "tooltip.lctech.fluid_tank.capacity": "Fasst bis zu %smB",
+    "tooltip.lctech.trader.fluid_edit": "Klicke um Flüssigkeit festzulegen",
+    "tooltip.lctech.trader.fluid.fill_tank": "Klicke mit einemFlüssigkeitsbehälter um ihn aufzufüllen/zu entleeren.",
+    "tooltip.lctech.trader.fluid.add_bucket": "Erhöhe die Menge an Flüssigkeit um 1B (1000mB)",
+    "tooltip.lctech.trader.fluid.remove_bucket": "Verringere die Menge an Flüssigkeit um 1B (1000mB)",
+    "tooltip.lctech.trader.fluid_settings.drainable": "Entleerbar",
+    "tooltip.lctech.trader.fluid_settings.drainable.wordy": "Während er entleerbar ist, können Kunden die gekauften Flüssigkeiten\nmit einer Pumpe oder einem anderen Flüssigkeits-Entleerungs-Quelle entleeren.\n\nSollte das hier ein Kauf sein, können alle Tanks\nmit einer Pumpe entleert werden.",
+    "tooltip.lctech.trader.fluid_settings.fillable": "Befüllbar",
+    "tooltip.lctech.trader.fluid_settings.fillable.wordy": "Während er befüllbar ist, können Flüssigkeiten in diesen Handelsblock gepumpt werden,\num den Bestand aufzufüllen.\n\nFunktioniert nicht mit Einkäufen.",
+    "tooltip.lctech.trader.fluid_settings.drain.enabled": "Externes entleeren ist AKTIVIERT",
+    "tooltip.lctech.trader.fluid_settings.drain.disabled": "Externes entleeren ist DEAKTIVIERT",
+    "tooltip.lctech.trader.fluid_settings.fill.enabled": "Externes befüllen ist AKTIVIERT",
+    "tooltip.lctech.trader.fluid_settings.fill.disabled": "Externes befüllen ist DEAKTIVIERT",
+
+    "tooltip.lctech.upgrade.fluid_capacity":"Erhöht Tankkapazität um %smB",
+
+    "log.shoplog.fluid.format": "%1$s%2$s %3$s %4$s für %5$s",
+    "log.shoplog.fluid.fluidformat": "%1$smB von %2$s"
+}
