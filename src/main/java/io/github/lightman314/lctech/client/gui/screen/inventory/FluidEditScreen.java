@@ -6,26 +6,26 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.container.FluidEditContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
-public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
+public class FluidEditScreen extends AbstractContainerScreen<FluidEditContainer>{
 	
 	public static final ResourceLocation GUI_TEXTURE = ItemEditScreen.GUI_TEXTURE;
 	
-	private TextFieldWidget searchField;
+	private EditBox searchField;
 	
 	Button buttonPageLeft;
 	Button buttonPageRight;
@@ -36,92 +36,88 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 	
 	List<Button> tradePriceButtons = Lists.newArrayList();
 	
-	public FluidEditScreen(FluidEditContainer container, PlayerInventory inventory, ITextComponent title) {
+	public FluidEditScreen(FluidEditContainer container, Inventory inventory, Component title) {
 		super(container, inventory, title);
-		this.xSize = 176;
-		this.ySize = 156;
+		this.width = 176;
+		this.height = 156;
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
+	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
-		RenderSystem.color4f(1f, 1f, 1f, 1f);
-		minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		int startX = (this.width - xSize) / 2;
-		int startY = (this.height - ySize) / 2;
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		int startX = (this.width - width) / 2;
+		int startY = (this.height - height) / 2;
 		
 		//Render the BG
-		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
+		this.blit(poseStack, startX, startY, 0, 0, this.width, this.height);
 		
 		//Render the fake trade button
-		FluidTradeButton.renderFluidTradeButton(matrix, this, font, startX, startY - FluidTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), null, false, true, false);
+		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, startX, startY - FluidTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), null, false, true, false);
 		
 	}
 	
 	@Override
-	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
-		this.font.drawString(matrix, new TranslationTextComponent("gui.lctech.fluid_edit.title").getString(), 8.0f, 6.0f, 0x404040);
+		this.font.draw(poseStack, new TranslatableComponent("gui.lctech.fluid_edit.title").getString(), 8.0f, 6.0f, 0x404040);
 	}
 	
 	protected void init() {
 		super.init();
 		
 		//Initialize the search field
-		this.searchField = new TextFieldWidget(this.font, guiLeft + 81, guiTop + 6, 79, 9, new TranslationTextComponent("gui.lightmanscurrency.item_edit.search"));
-		this.searchField.setEnableBackgroundDrawing(false);
-		this.searchField.setMaxStringLength(32);
+		this.searchField = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 81, this.topPos + 6, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
+		this.searchField.setBordered(false);
+		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
-		this.children.add(this.searchField);
 		
 		//Initialize thie buttons
 		//Page Buttons
-		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize, 0));
-		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, GUI_TEXTURE, this.width, 0));
+		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.width, this.topPos, this::PressPageButton, GUI_TEXTURE, this.width + 16, 0));
 		
 		//Close Button
-		this.addButton(new Button(this.guiLeft + 7, this.guiTop + 129, 162, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));
+		this.addRenderableWidget(new Button(this.leftPos + 7, this.topPos + 129, 162, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));
 		
 	}
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
-		this.renderBackground(matrixStack);
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-		this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
+		this.renderBackground(poseStack);
+		super.render(poseStack, mouseX, mouseY, partialTicks);
+		this.renderTooltip(poseStack, mouseX, mouseY);
 		
-		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
-		
-		FluidTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - FluidTradeButton.HEIGHT, mouseX, mouseY, null, true);
+		FluidTradeButton.tryRenderTooltip(poseStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - FluidTradeButton.HEIGHT, mouseX, mouseY, null, true);
 		
 	}
 	
 	@Override
-	public void tick()
+	public void containerTick()
 	{
 		
 		this.searchField.tick();
 		
-		this.buttonPageLeft.active = this.container.getPage() > 0;
-		this.buttonPageRight.active = this.container.getPage() < this.container.maxPage();
+		this.buttonPageLeft.active = this.menu.getPage() > 0;
+		this.buttonPageRight.active = this.menu.getPage() < this.menu.maxPage();
 		
 		if(!firstTick) {
 			firstTick = true;
-			this.container.refreshPage();
+			this.menu.refreshPage();
 		}
 	}
 	
 	@Override
 	public boolean charTyped(char c, int code)
 	{
-		String s = this.searchField.getText();
+		String s = this.searchField.getValue();
 		if(this.searchField.charTyped(c, code))
 		{
-			if(!Objects.equals(s, this.searchField.getText()))
+			if(!Objects.equals(s, this.searchField.getValue()))
 			{
-				container.modifySearch(this.searchField.getText());
+				menu.modifySearch(this.searchField.getValue());
 			}
 			return true;
 		}
@@ -131,16 +127,16 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 	@Override
 	public boolean keyPressed(int key, int scanCode, int mods)
 	{
-		String s = this.searchField.getText();
+		String s = this.searchField.getValue();
 		if(this.searchField.keyPressed(key, scanCode, mods))
 		{
-			if(!Objects.equals(s,  this.searchField.getText()))
+			if(!Objects.equals(s,  this.searchField.getValue()))
 			{
-				container.modifySearch(this.searchField.getText());
+				menu.modifySearch(this.searchField.getValue());
 			}
 			return true;
 		}
-		return this.searchField.isFocused() && this.searchField.getVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+		return this.searchField.isFocused() && this.searchField.visible && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
 	}
 	
 	private void PressPageButton(Button button)
@@ -149,12 +145,12 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 		if(button == this.buttonPageLeft)
 			direction = -1;
 		
-		container.modifyPage(direction);
+		menu.modifyPage(direction);
 	}
 	
 	private void PressCloseButton(Button button)
 	{
-		this.container.openTraderStorage();
+		this.menu.openTraderStorage();
 	}
 	
 

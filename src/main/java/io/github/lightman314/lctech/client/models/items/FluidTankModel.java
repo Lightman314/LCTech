@@ -11,29 +11,29 @@ import io.github.lightman314.lctech.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTankModel implements IBakedModel {
+public class FluidTankModel implements BakedModel {
 	
-	IBakedModel baseFluidTankModel;
-	ItemOverrideList fluidTankItemOverrideList = new FluidTankItemOverrideList();
+	BakedModel baseFluidTankModel;
+	ItemOverrides fluidTankItemOverrideList = new FluidTankItemOverrideList();
 	
-	public FluidTankModel(IBakedModel baseFluidTankModel)
+	public FluidTankModel(BakedModel baseFluidTankModel)
 	{
 		this.baseFluidTankModel = baseFluidTankModel;
 	}
@@ -47,14 +47,14 @@ public class FluidTankModel implements IBakedModel {
 	}
 	
 	@Override
-	public ItemOverrideList getOverrides()
+	public ItemOverrides getOverrides()
 	{
 		return this.fluidTankItemOverrideList;
 	}
 	
 	@Override
-	public boolean isAmbientOcclusion() {
-		return this.baseFluidTankModel.isAmbientOcclusion();
+	public boolean useAmbientOcclusion() {
+		return this.baseFluidTankModel.useAmbientOcclusion();
 	}
 	
 	@Override
@@ -63,25 +63,25 @@ public class FluidTankModel implements IBakedModel {
 	}
 	
 	@Override
-	public boolean isSideLit() {
-		return this.baseFluidTankModel.isSideLit();
+	public boolean usesBlockLight() {
+		return this.baseFluidTankModel.usesBlockLight();
 	}
 	
 	@Override
-	public boolean isBuiltInRenderer() {
-		return this.baseFluidTankModel.isBuiltInRenderer();
-	}
-	
-	@Override
-	@SuppressWarnings("deprecation")
-	public TextureAtlasSprite getParticleTexture() {
-		return this.baseFluidTankModel.getParticleTexture();
+	public boolean isCustomRenderer() {
+		return this.baseFluidTankModel.isCustomRenderer();
 	}
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public ItemCameraTransforms getItemCameraTransforms() {
-		return this.baseFluidTankModel.getItemCameraTransforms();
+	public TextureAtlasSprite getParticleIcon() {
+		return this.baseFluidTankModel.getParticleIcon();
+	}
+	
+	@Override
+	@SuppressWarnings("deprecation")
+	public ItemTransforms getTransforms() {
+		return this.baseFluidTankModel.getTransforms();
 	}
 	
 	@Override
@@ -92,17 +92,17 @@ public class FluidTankModel implements IBakedModel {
 	
 	@Override
 	@Nonnull
-	public IModelData getModelData(@Nonnull IBlockDisplayReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData)
+	public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData)
 	{
 		throw new AssertionError("FluidTankModel::getModelData should never be called");
 	}
 	
-	public class FluidTankItemOverrideList extends ItemOverrideList{
+	public class FluidTankItemOverrideList extends ItemOverrides{
 
 		public FluidTankItemOverrideList() { super(); }
 		
 		@Override
-		public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity)
+		public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
 			FluidStack tank = FluidStack.EMPTY;
 			int capacity = FluidTankTileEntity.DEFAULT_CAPACITY;
@@ -120,7 +120,7 @@ public class FluidTankModel implements IBakedModel {
 					}
 				}
 			}
-			return new FluidTankFinalizedModel(originalModel, tank, capacity, renderData);
+			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
 		}
 		
 	}

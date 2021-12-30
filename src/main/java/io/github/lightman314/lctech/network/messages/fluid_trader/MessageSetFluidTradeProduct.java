@@ -4,13 +4,13 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetFluidTradeProduct implements IMessage<MessageSetFluidTradeProduct>{
 	
@@ -28,12 +28,12 @@ public class MessageSetFluidTradeProduct implements IMessage<MessageSetFluidTrad
 	}
 	
 	@Override
-	public MessageSetFluidTradeProduct decode(PacketBuffer buffer) {
+	public MessageSetFluidTradeProduct decode(FriendlyByteBuf buffer) {
 		return new MessageSetFluidTradeProduct(buffer.readBlockPos(), buffer.readInt(), FluidStack.readFromPacket(buffer));
 	}
 
 	@Override
-	public void encode(MessageSetFluidTradeProduct message, PacketBuffer buffer) {
+	public void encode(MessageSetFluidTradeProduct message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
 		buffer.writeInt(message.tradeIndex);
 		message.fluid.writeToPacket(buffer);
@@ -42,13 +42,13 @@ public class MessageSetFluidTradeProduct implements IMessage<MessageSetFluidTrad
 	@Override
 	public void handle(MessageSetFluidTradeProduct message, Supplier<Context> source) {
 		source.get().enqueueWork(() ->{
-			PlayerEntity player = source.get().getSender();
+			Player player = source.get().getSender();
 			if(player != null)
 			{
-				TileEntity tileEntity = player.world.getTileEntity(message.pos);
-				if(tileEntity instanceof FluidTraderTileEntity)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity instanceof FluidTraderTileEntity)
 				{
-					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)tileEntity;
+					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)blockEntity;
 					FluidTradeData trade = traderEntity.getTrade(message.tradeIndex);
 					trade.setProduct(message.fluid);
 					traderEntity.markTradesDirty();

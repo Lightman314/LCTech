@@ -2,28 +2,28 @@ package io.github.lightman314.lctech.util;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.item.Rarity;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Rarity;
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidFormatUtil {
 
-	public static ITextComponent getFluidName(FluidStack fluid)
+	public static Component getFluidName(FluidStack fluid)
 	{
 		return getFluidName(fluid, null);
 	}
 	
-	public static ITextComponent getFluidName(FluidStack fluid, @Nullable TextFormatting colorOverride)
+	public static Component getFluidName(FluidStack fluid, @Nullable ChatFormatting colorOverride)
 	{
-		IFormattableTextComponent component = new TranslationTextComponent(fluid.getTranslationKey()).mergeStyle(fluid.getFluid().getAttributes().getRarity(fluid).color);
+		MutableComponent component = new TranslatableComponent(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).color);
 		Rarity rarity = fluid.getFluid().getAttributes().getRarity(fluid);
 		if(colorOverride != null && rarity == Rarity.COMMON)
-			component.mergeStyle(colorOverride);
+			component.withStyle(colorOverride);
 		else
-			component.mergeStyle(rarity.color);
+			component.withStyle(rarity.color);
 		return component;
 	}
 	

@@ -8,7 +8,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.items.*;
 import io.github.lightman314.lctech.trader.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -20,11 +20,11 @@ public class ModItems {
 	private static final List<Item> ITEMS = Lists.newArrayList();
 	
 	//Fluid Shard
-	public static final Item FLUID_SHARD = register("fluid_shard", new FluidShardItem(new Item.Properties().maxStackSize(1)));
+	public static final Item FLUID_SHARD = register("fluid_shard", new FluidShardItem(new Item.Properties().stacksTo(1)));
 	
 	//Fluid Upgrades
-	public static final Item FLUID_CAPACITY_UPGRADE_1 = register("fluid_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, FluidAttributes.BUCKET_VOLUME * 10, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item FLUID_CAPACITY_UPGRADE_2 = register("fluid_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, FluidAttributes.BUCKET_VOLUME * 25, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item FLUID_CAPACITY_UPGRADE_1 = register("fluid_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, FluidAttributes.BUCKET_VOLUME * 10, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item FLUID_CAPACITY_UPGRADE_2 = register("fluid_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, FluidAttributes.BUCKET_VOLUME * 25, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 	
 	private static Item register(String name, Item item)
 	{

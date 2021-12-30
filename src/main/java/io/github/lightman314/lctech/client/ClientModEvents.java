@@ -10,10 +10,10 @@ import io.github.lightman314.lctech.client.models.items.FluidTankModel;
 import io.github.lightman314.lctech.container.slots.FluidInputSlot;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.items.FluidTankItem;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,16 +31,16 @@ public class ClientModEvents {
 		});
 	}
 	
-	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ResourceLocation, IBakedModel> modelRegistry, Function<IBakedModel,IBakedModel> modelGenerator)
+	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ResourceLocation, BakedModel> modelRegistry, Function<BakedModel,BakedModel> modelGenerator)
 	{
-		IBakedModel existingModel = modelRegistry.get(itemModelResourceLocation);
+		BakedModel existingModel = modelRegistry.get(itemModelResourceLocation);
 		if(existingModel == null) {
 			LCTech.LOGGER.warn("Did not find the expected vanilla baked model for FluidTankModel in registry.");
 		}
 		else {
 			//Replace the model
 			//LCTech.LOGGER.info("Replacing the Fluid Tank item model.");
-			IBakedModel customModel = modelGenerator.apply(existingModel);
+			BakedModel customModel = modelGenerator.apply(existingModel);
 			modelRegistry.put(itemModelResourceLocation, customModel);
 		}
 	}
@@ -48,7 +48,7 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public void stitchTextures(TextureStitchEvent.Pre event)
 	{
-		if(event.getMap().getTextureLocation() == PlayerContainer.LOCATION_BLOCKS_TEXTURE) {
+		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add bucket slot backgrounds
 			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
 		}

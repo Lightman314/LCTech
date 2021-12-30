@@ -6,10 +6,10 @@ import java.util.function.Supplier;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.PacketBuffer;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetFluidTradeProduct2 implements IMessage<MessageSetFluidTradeProduct2>{
 	
@@ -27,13 +27,13 @@ public class MessageSetFluidTradeProduct2 implements IMessage<MessageSetFluidTra
 	}
 	
 	@Override
-	public MessageSetFluidTradeProduct2 decode(PacketBuffer buffer) {
-		return new MessageSetFluidTradeProduct2(buffer.readUniqueId(), buffer.readInt(), FluidStack.readFromPacket(buffer));
+	public MessageSetFluidTradeProduct2 decode(FriendlyByteBuf buffer) {
+		return new MessageSetFluidTradeProduct2(buffer.readUUID(), buffer.readInt(), FluidStack.readFromPacket(buffer));
 	}
 
 	@Override
-	public void encode(MessageSetFluidTradeProduct2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public void encode(MessageSetFluidTradeProduct2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 		buffer.writeInt(message.tradeIndex);
 		message.fluid.writeToPacket(buffer);
 	}

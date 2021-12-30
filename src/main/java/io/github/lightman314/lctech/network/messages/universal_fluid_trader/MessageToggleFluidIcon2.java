@@ -7,9 +7,9 @@ import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderDat
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageToggleFluidIcon2 implements IMessage<MessageToggleFluidIcon2>{
 	
@@ -27,13 +27,13 @@ public class MessageToggleFluidIcon2 implements IMessage<MessageToggleFluidIcon2
 	}
 	
 	@Override
-	public MessageToggleFluidIcon2 decode(PacketBuffer buffer) {
-		return new MessageToggleFluidIcon2(buffer.readUniqueId(), buffer.readInt(), buffer.readInt());
+	public MessageToggleFluidIcon2 decode(FriendlyByteBuf buffer) {
+		return new MessageToggleFluidIcon2(buffer.readUUID(), buffer.readInt(), buffer.readInt());
 	}
 
 	@Override
-	public void encode(MessageToggleFluidIcon2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public void encode(MessageToggleFluidIcon2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 		buffer.writeInt(message.tradeIndex);
 		buffer.writeInt(message.icon);
 	}

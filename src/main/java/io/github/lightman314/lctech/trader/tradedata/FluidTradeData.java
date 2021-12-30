@@ -13,13 +13,13 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -103,12 +103,12 @@ public class FluidTradeData extends TradeData{
 	
 	int tankCapacity = DEFAULT_TANK_CAPACITY;
 	public int getTankCapacity() { return this.tankCapacity; }
-	public void applyUpgrades(IFluidTrader trader, IInventory upgradeInventory)
+	public void applyUpgrades(IFluidTrader trader, Container upgradeInventory)
 	{
 		this.tankCapacity = DEFAULT_TANK_CAPACITY;
-		for(int i = 0; i < upgradeInventory.getSizeInventory(); i++)
+		for(int i = 0; i < upgradeInventory.getContainerSize(); i++)
 		{
-			ItemStack stack = upgradeInventory.getStackInSlot(i);
+			ItemStack stack = upgradeInventory.getItem(i);
 			if(stack.getItem() instanceof UpgradeItem)
 			{
 				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
@@ -290,13 +290,13 @@ public class FluidTradeData extends TradeData{
 	}
 	
 	@Override
-	public CompoundNBT getAsNBT()
+	public CompoundTag getAsNBT()
 	{
-		CompoundNBT compound = super.getAsNBT();
+		CompoundTag compound = super.getAsNBT();
 		
-		compound.put("Tank", this.tank.writeToNBT(new CompoundNBT()));
+		compound.put("Tank", this.tank.writeToNBT(new CompoundTag()));
 		compound.putInt("Capacity", this.tankCapacity);
-		compound.put("Trade", this.product.writeToNBT(new CompoundNBT()));
+		compound.put("Trade", this.product.writeToNBT(new CompoundTag()));
 		compound.putInt("Quantity", this.bucketQuantity);
 		compound.putBoolean("CanDrain", this.canDrain);
 		compound.putBoolean("CanFill", this.canFill);
@@ -307,7 +307,7 @@ public class FluidTradeData extends TradeData{
 	}
 	
 	@Override
-	public void loadFromNBT(CompoundNBT compound)
+	public void loadFromNBT(CompoundTag compound)
 	{
 		super.loadFromNBT(compound);
 		//Load the tank
@@ -317,7 +317,7 @@ public class FluidTradeData extends TradeData{
 		//Load the product
 		this.product = FluidStack.loadFluidStackFromNBT(compound.getCompound("Trade"));
 		//Load the quantity
-		if(compound.contains("Quantity", Constants.NBT.TAG_INT))
+		if(compound.contains("Quantity", Tag.TAG_INT))
 			this.bucketQuantity = compound.getInt("Quantity");
 		//Load whether it can be drained
 		this.canDrain = compound.getBoolean("CanDrain");
@@ -351,14 +351,14 @@ public class FluidTradeData extends TradeData{
 		return list;
 	}
 	
-	public static CompoundNBT WriteNBTList(List<FluidTradeData> tradeList, CompoundNBT compound)
+	public static CompoundTag WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound)
 	{
 		return WriteNBTList(tradeList, compound, ItemTradeData.DEFAULT_KEY);
 	}
 	
-	public static CompoundNBT WriteNBTList(List<FluidTradeData> tradeList, CompoundNBT compound, String tag)
+	public static CompoundTag WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, String tag)
 	{
-		ListNBT list = new ListNBT();
+		ListTag list = new ListTag();
 		for(int i = 0; i < tradeList.size(); i++)
 		{
 			list.add(tradeList.get(i).getAsNBT());
@@ -368,19 +368,19 @@ public class FluidTradeData extends TradeData{
 		return compound;
 	}
 	
-	public static List<FluidTradeData> LoadNBTList(int tradeCount, CompoundNBT compound)
+	public static List<FluidTradeData> LoadNBTList(int tradeCount, CompoundTag compound)
 	{
 		return LoadNBTList(tradeCount, compound, ItemTradeData.DEFAULT_KEY);
 	}
 	
-	public static List<FluidTradeData> LoadNBTList(int tradeCount, CompoundNBT compound, String tag)
+	public static List<FluidTradeData> LoadNBTList(int tradeCount, CompoundTag compound, String tag)
 	{
 		List<FluidTradeData> tradeData = listOfSize(tradeCount);
 		
 		if(!compound.contains(tag))
 			return tradeData;
 		
-		ListNBT list = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
+		ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
 		for(int i = 0; i < list.size() && i < tradeCount; i++)
 		{
 			tradeData.get(i).loadFromNBT(list.getCompound(i));

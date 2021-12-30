@@ -4,8 +4,8 @@ import java.util.List;
 
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public interface IFluidTradeButtonContainer {
 
@@ -15,6 +15,6 @@ public interface IFluidTradeButtonContainer {
 	
 	public TradeEvent.TradeCostEvent TradeCostEvent(FluidTradeData trade);
 	
-	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput);
+	public boolean PermissionToTrade(int tradeIndex, List<Component> denialOutput);
 	
 }

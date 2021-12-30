@@ -13,31 +13,31 @@ import io.github.lightman314.lctech.core.ModContainers;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderContainer;
-import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.menus.UniversalMenu;
+import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
+import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
-public class UniversalFluidTraderContainer extends UniversalContainer implements ITraderContainer, IFluidTradeButtonContainer{
+public class UniversalFluidTraderContainer extends UniversalMenu implements ITraderMenu, IFluidTradeButtonContainer{
 
-	public final PlayerEntity player;
+	public final Player player;
 	
-	IInventory bucketInventory = new Inventory(1);
-	IInventory coinSlots = new Inventory(5);
+	Container bucketInventory = new SimpleContainer(1);
+	Container coinSlots = new SimpleContainer(5);
 	
 	public UniversalFluidTraderData getData()
 	{
@@ -47,12 +47,12 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		return null;
 	}
 	
-	public UniversalFluidTraderContainer(int windowId, PlayerInventory inventory, UUID traderID)
+	public UniversalFluidTraderContainer(int windowId, Inventory inventory, UUID traderID)
 	{
 		this(ModContainers.UNIVERSAL_FLUID_TRADER, windowId, inventory, traderID);
 	}
 	
-	protected UniversalFluidTraderContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, UUID traderID)
+	protected UniversalFluidTraderContainer(MenuType<?> type, int windowId, Inventory inventory, UUID traderID)
 	{
 		
 		super(type, windowId, traderID, inventory.player);
@@ -62,7 +62,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(this.getData());
 		
 		//Coin Slots
-		for(int x = 0; x < coinSlots.getSizeInventory(); x++)
+		for(int x = 0; x < coinSlots.getContainerSize(); x++)
 		{
 			this.addSlot(new CoinSlot(coinSlots, x, 8 + (x + 4) * 18 + inventoryOffset, getCoinSlotHeight()));
 		}
@@ -89,34 +89,34 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 	
 	@Override
 	public ItemStack getBucketItem() {
-		return this.bucketInventory.getStackInSlot(0);
+		return this.bucketInventory.getItem(0);
 	}
 	
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
 		
-		Slot slot = this.inventorySlots.get(index);
+		Slot slot = this.slots.get(index);
 		
-		if(slot != null && slot.getHasStack())
+		if(slot != null && slot.hasItem())
 		{
-			ItemStack slotStack = slot.getStack();
+			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.coinSlots.getSizeInventory() + this.bucketInventory.getSizeInventory())
+			if(index < this.coinSlots.getContainerSize() + this.bucketInventory.getContainerSize())
 			{
-				if(!this.mergeItemStack(slotStack,  this.coinSlots.getSizeInventory() + this.bucketInventory.getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.moveItemStackTo(slotStack,  this.coinSlots.getContainerSize() + this.bucketInventory.getContainerSize(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(index < this.inventorySlots.size())
+			else if(index < this.slots.size())
 			{
 				if(MoneyUtil.isCoin(slotStack.getItem()))
 				{
 					//Merge coins into coin slots
-					if(!this.mergeItemStack(slotStack, 0, this.coinSlots.getSizeInventory(), false))
+					if(!this.moveItemStackTo(slotStack, 0, this.coinSlots.getContainerSize(), false))
 					{
 						return ItemStack.EMPTY;
 					}
@@ -124,7 +124,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 				else
 				{
 					//Merge non-coins into the bucket slots
-					if(!this.mergeItemStack(slotStack, this.coinSlots.getSizeInventory(), this.coinSlots.getSizeInventory() + this.bucketInventory.getSizeInventory(), false))
+					if(!this.moveItemStackTo(slotStack, this.coinSlots.getContainerSize(), this.coinSlots.getContainerSize() + this.bucketInventory.getContainerSize(), false))
 					{
 						return ItemStack.EMPTY;
 					}
@@ -133,11 +133,11 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 			
 			if(slotStack.isEmpty())
 			{
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			}
 			else
 			{
-				slot.onSlotChanged();
+				slot.setChanged();
 			}
 		}
 		
@@ -166,16 +166,16 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn) {
+	public boolean stillValid(Player playerIn) {
 		return true;
 	}
 	
 	@Override
-	public void onContainerClosed(PlayerEntity player)
+	public void removed(Player player)
 	{
-		super.onContainerClosed(player);
-		this.clearContainer(player, player.world, this.coinSlots);
-		this.clearContainer(player, player.world, this.bucketInventory);
+		super.removed(player);
+		this.clearContainer(player, this.coinSlots);
+		this.clearContainer(player, this.bucketInventory);
 	}
 
 	public boolean isOwner()
@@ -224,9 +224,9 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		{
 			if(!InventoryUtil.PutItemStack(coinSlots, coinList.get(i)))
 			{
-				IInventory inventory = new Inventory(1);
-				inventory.setInventorySlotContents(0, coinList.get(i));
-				this.clearContainer(player, player.getEntityWorld(), inventory);
+				Container inventory = new SimpleContainer(1);
+				inventory.setItem(0, coinList.get(i));
+				this.clearContainer(player, inventory);
 			}
 		}
 		//Clear the coin storage
@@ -239,7 +239,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		
 		if(this.getData() == null)
 		{
-			this.player.closeScreen();
+			this.player.closeContainer();
 			return;
 		}
 		
@@ -278,7 +278,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 			return;
 		}
 		//Abort if the liquids cannot be transferred properly
-		if(!trade.canTransferFluids(this.bucketInventory.getStackInSlot(0)))
+		if(!trade.canTransferFluids(this.bucketInventory.getItem(0)))
 		{
 			LCTech.LOGGER.debug("The fluids cannot be properly transfered for the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
@@ -317,8 +317,8 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		this.getData().markLoggerDirty();
 		
 		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.getData().isCreative());
-		this.bucketInventory.setInventorySlotContents(0, newBucket);
+		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.getData().isCreative());
+		this.bucketInventory.setItem(0, newBucket);
 		this.getData().markTradesDirty();
 		
 		
@@ -326,7 +326,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 
 	@Override
 	public TradeEvent.TradeCostEvent TradeCostEvent(FluidTradeData trade) {
-		TradeEvent.TradeCostEvent event = new TradeEvent.TradeCostEvent(this.player, trade, this, () -> this.getData());
+		TradeEvent.TradeCostEvent event = new TradeEvent.TradeCostEvent(this.player, trade, () -> this.getData());
 		this.getData().tradeCost(event);
 		trade.tradeCost(event);
 		MinecraftForge.EVENT_BUS.post(event);
@@ -334,9 +334,9 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 	}
 
 	@Override
-	public boolean PermissionToTrade(int tradeIndex, List<ITextComponent> denialOutput) {
+	public boolean PermissionToTrade(int tradeIndex, List<Component> denialOutput) {
 		FluidTradeData trade = this.getData().getTrade(tradeIndex);
-		PreTradeEvent event = new PreTradeEvent(this.player, trade, this, () -> this.getData());
+		PreTradeEvent event = new PreTradeEvent(this.player, trade, () -> this.getData());
 		this.getData().beforeTrade(event);
 		trade.beforeTrade(event);
 		MinecraftForge.EVENT_BUS.post(event);

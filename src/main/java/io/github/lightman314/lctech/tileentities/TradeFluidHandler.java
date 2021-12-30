@@ -12,14 +12,15 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.PlayerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -215,9 +216,9 @@ public class TradeFluidHandler implements IFluidHandler{
 	}
 	
 	//Run when the player clicks on the tank gui with a held item on both client and server.
-	public void OnPlayerInteraction(PlayerEntity player, int tradeIndex)
+	public void OnPlayerInteraction(AbstractContainerMenu menu, Player player, int tradeIndex)
 	{
-		ItemStack heldStack = player.inventory.getItemStack();
+		ItemStack heldStack = menu.getCarried();
 		if(heldStack.isEmpty()) //If held stack is empty, do nothing
 			return;
 		
@@ -254,19 +255,17 @@ public class TradeFluidHandler implements IFluidHandler{
 							this.markTradesDirty();
 							
 							//Drain the bucket (unless we're in creative mode)
-							if(!player.abilities.isCreativeMode)
+							if(!player.isCreative())
 							{
 								ItemStack emptyBucket = new ItemStack(Items.BUCKET);
 								heldStack.shrink(1);
 								if(heldStack.isEmpty())
 								{
-									player.inventory.setItemStack(emptyBucket);
-									player.inventory.markDirty();
+									menu.setCarried(emptyBucket);
 								}	
 								else
 								{
-									player.inventory.setItemStack(heldStack);
-									player.inventory.markDirty();
+									menu.setCarried(heldStack);
 									PlayerUtil.givePlayerItem(player, emptyBucket);
 								}
 							}
@@ -278,7 +277,7 @@ public class TradeFluidHandler implements IFluidHandler{
 					if(!tank.isEmpty() && trade.getDrainableAmount() >= FluidAttributes.BUCKET_VOLUME)
 					{
 						//Tank has more than 1 bucket of fluid, drain the tank
-						Item filledBucket = tank.getFluid().getFilledBucket();
+						Item filledBucket = tank.getFluid().getBucket();
 						if(filledBucket != null && filledBucket != Items.AIR)
 						{
 							//Filled bucket is not null or air; Fill the bucket, and drain the tank
@@ -287,19 +286,17 @@ public class TradeFluidHandler implements IFluidHandler{
 							this.markTradesDirty();
 							
 							//Fill the bucket (unless we're in creative mode)
-							if(!player.abilities.isCreativeMode)
+							if(!player.isCreative())
 							{
 								ItemStack newBucket = new ItemStack(filledBucket, 1);
 								heldStack.shrink(1);
 								if(heldStack.isEmpty())
 								{
-									player.inventory.setItemStack(newBucket);
-									player.inventory.markDirty();
+									menu.setCarried(newBucket);
 								}
 								else
 								{
-									player.inventory.setItemStack(heldStack);
-									player.inventory.markDirty();
+									menu.setCarried(heldStack);
 									PlayerUtil.givePlayerItem(player, newBucket);
 								}
 							}
@@ -382,7 +379,7 @@ public class TradeFluidHandler implements IFluidHandler{
 	{
 		
 		@Override
-		public ITextComponent getName() { return new StringTextComponent("NULL"); }
+		public Component getName() { return new TextComponent("NULL"); }
 		@Override
 		public UUID getOwnerID() { return new UUID(0,0); }
 
@@ -410,7 +407,7 @@ public class TradeFluidHandler implements IFluidHandler{
 		public void markTradesDirty() { }
 
 		@Override
-		public IInventory getUpgradeInventory() { return new Inventory(5); }
+		public Container getUpgradeInventory() { return new SimpleContainer(5); }
 		
 		@Override
 		public void reapplyUpgrades() { }
@@ -422,13 +419,13 @@ public class TradeFluidHandler implements IFluidHandler{
 		public boolean drainCapable() { return false; }
 
 		@Override
-		public void openTradeMenu(PlayerEntity player) { }
+		public void openTradeMenu(Player player) { }
 
 		@Override
-		public void openStorageMenu(PlayerEntity player) { }
+		public void openStorageMenu(Player player) { }
 
 		@Override
-		public void openFluidEditMenu(PlayerEntity player, int tradeIndex) { }
+		public void openFluidEditMenu(Player player, int tradeIndex) { }
 		
 	}
 	

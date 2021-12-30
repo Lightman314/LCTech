@@ -3,14 +3,14 @@ package io.github.lightman314.lctech.network;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.network.messages.fluid_trader.*;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.*;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor.PacketTarget;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class LCTechPacketHandler {
 	
@@ -51,12 +51,12 @@ public class LCTechPacketHandler {
 		instance.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
 	}
 	
-	public static PacketTarget getTarget(PlayerEntity player)
+	public static PacketTarget getTarget(Player player)
 	{
-		return getTarget((ServerPlayerEntity)player);
+		return getTarget((ServerPlayer)player);
 	}
 	
-	public static PacketTarget getTarget(ServerPlayerEntity player)
+	public static PacketTarget getTarget(ServerPlayer player)
 	{
 		return PacketDistributor.PLAYER.with(() -> player);
 	}

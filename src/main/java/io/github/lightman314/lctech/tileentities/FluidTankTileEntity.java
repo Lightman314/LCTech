@@ -11,22 +11,21 @@ import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lctech.util.PlayerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -35,7 +34,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
-public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
+public class FluidTankTileEntity extends BlockEntity implements IFluidHandler{
 
 	public static final int DEFAULT_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
 	
@@ -53,13 +52,13 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 	
 	private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> this);
 	
-	public FluidTankTileEntity() { this(ModTileEntities.FLUID_TANK); }
+	public FluidTankTileEntity(BlockPos pos, BlockState state) { this(ModTileEntities.FLUID_TANK, pos, state); }
 	
-	protected FluidTankTileEntity(TileEntityType<?> type) { super(type); }
+	protected FluidTankTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
 	
-	public ActionResultType onInteraction(PlayerEntity player, Hand hand)
+	public InteractionResult onInteraction(Player player, InteractionHand hand)
 	{
-		ItemStack heldItem = hand == Hand.MAIN_HAND ? player.inventory.getCurrentItem() : player.inventory.offHandInventory.get(0);
+		ItemStack heldItem = hand == InteractionHand.MAIN_HAND ? player.getInventory().getSelected() : player.getInventory().offhand.get(0);
 		FluidUtil.getFluidHandler(heldItem).ifPresent(fluidHandler ->{
 			if(fluidHandler instanceof FluidBucketWrapper) //Bucket interactions
 			{
@@ -79,10 +78,10 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 								this.tankContents = bucketFluid;
 							else
 								this.tankContents.grow(bucketFluid.getAmount());
-							this.markDirty();
+							this.setChanged();
 							
 							//Drain the bucket (unless we're in creative mode)
-							if(!player.abilities.isCreativeMode)
+							if(!player.isCreative())
 							{
 								ItemStack emptyBucket = new ItemStack(Items.BUCKET);
 								this.replacePlayerItem(player, hand, heldItem, emptyBucket);
@@ -95,17 +94,17 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 					if(!this.tankContents.isEmpty() && this.tankContents.getAmount() >= FluidAttributes.BUCKET_VOLUME)
 					{
 						//Tank has more than 1 bucket of fluid, drain the tank
-						Item filledBucket = this.tankContents.getFluid().getFilledBucket();
+						Item filledBucket = this.tankContents.getFluid().getBucket();
 						if(filledBucket != null && filledBucket != Items.AIR)
 						{
 							//Filled bucket is not null or air; Fill the bucket, and drain the tank
 							this.tankContents.shrink(FluidAttributes.BUCKET_VOLUME);
 							if(this.tankContents.isEmpty())
 								this.tankContents = FluidStack.EMPTY;
-							this.markDirty();
+							this.setChanged();
 							
 							//Fill the bucket (unless we're in creative mode)
-							if(!player.abilities.isCreativeMode)
+							if(!player.isCreative())
 							{
 								ItemStack newBucket = new ItemStack(filledBucket, 1);
 								this.replacePlayerItem(player, hand, heldItem, newBucket);
@@ -138,7 +137,7 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 						this.tankContents = drainResults;
 					else
 						this.tankContents.grow(drainResults.getAmount());
-					this.markDirty();
+					this.setChanged();
 				}
 				else if(!this.tankContents.isEmpty())
 				{
@@ -151,25 +150,25 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 						this.tankContents.shrink(drainedAmount);
 						if(this.tankContents.isEmpty())
 							this.tankContents = FluidStack.EMPTY;
-						this.markDirty();
+						this.setChanged();
 					}
 				}
 			}
 		});
 		if(FluidUtil.getFluidHandler(heldItem).isPresent())
-			return ActionResultType.SUCCESS;
-		return ActionResultType.PASS;
+			return InteractionResult.SUCCESS;
+		return InteractionResult.PASS;
 	}
 	
-	private void replacePlayerItem(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newItem)
+	private void replacePlayerItem(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newItem)
 	{
 		oldStack.shrink(1);
 		if(oldStack.isEmpty())
 		{
-			if(hand == Hand.MAIN_HAND)
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, newItem);
+			if(hand == InteractionHand.MAIN_HAND)
+				player.getInventory().setItem(player.getInventory().selected, newItem);
 			else
-				player.inventory.offHandInventory.set(0, newItem);
+				player.getInventory().offhand.set(0, newItem);
 		}
 		else //Give it to the player manually
 		{
@@ -178,34 +177,35 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 	}
 	
 	@Override
-	public void markDirty()
+	public void setChanged()
 	{
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
 			TileEntityUtil.sendUpdatePacket(this);
-			super.markDirty();
+			super.setChanged();
 		}
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		
-		compound.put("Tank", this.tankContents.writeToNBT(new CompoundNBT()));
+		compound.put("Tank", this.tankContents.writeToNBT(new CompoundTag()));
 		
-		return super.write(compound);
+		super.saveAdditional(compound);
+		
 	}
 	
-	public CompoundNBT superWrite(CompoundNBT compound) { return super.write(compound); }
+	public CompoundTag superWrite(CompoundTag compound) { return super.save(compound); }
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
-		if(compound.contains("Tank", Constants.NBT.TAG_COMPOUND))
+		if(compound.contains("Tank", Tag.TAG_COMPOUND))
 			this.tankContents = FluidStack.loadFluidStackFromNBT(compound.getCompound("Tank"));
 		
-		super.read(state, compound);
+		super.load(compound);
 	}
 	
 	public void loadFromItem(ItemStack stack)
@@ -223,24 +223,13 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 		return FluidTankBlock.RENDER_DATA;
 	}
 	
-	@Nullable
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket()
-	{
-		return new SUpdateTileEntityPacket(this.pos, 0, this.write(new CompoundNBT()));
-	}
-	
-	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt)
-	{
-		CompoundNBT compound = pkt.getNbtCompound();
-		this.read(this.getBlockState(),  compound);
-	}
+	public CompoundTag getUpdateTag() {return this.saveWithFullMetadata(); }
 	
 	@Override
 	public void onLoad() {
-		if(this.world.isRemote)
-			TileEntityUtil.requestUpdatePacket(this.world, this.pos);
+		if(this.level.isClientSide)
+			TileEntityUtil.requestUpdatePacket(this.level, this.worldPosition);
 	}
 	
 	//IFluidHandler Functions
@@ -275,7 +264,7 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 					this.tankContents = resource.copy();
 				else
 					this.tankContents.grow(fillAmount);
-				this.markDirty();
+				this.setChanged();
 			}
 			return fillAmount;
 		}
@@ -296,7 +285,7 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 			this.tankContents.shrink(drainAmount);
 			if(this.tankContents.isEmpty())
 				this.tankContents = FluidStack.EMPTY;
-			this.markDirty();
+			this.setChanged();
 		}
 		return resultStack;
 	}

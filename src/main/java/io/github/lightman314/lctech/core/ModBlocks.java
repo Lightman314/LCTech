@@ -6,16 +6,16 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blocks.*;
+import io.github.lightman314.lctech.blocks.traderblocks.*;
 import io.github.lightman314.lctech.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.BlockItemPair;
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -32,77 +32,76 @@ public class ModBlocks {
 	//Fluid Tanks
 	public static final BlockItemPair IRON_TANK = register("iron_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
 			10 * FluidAttributes.BUCKET_VOLUME,
-			Block.Properties.create(Material.GLASS)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, 5.0f)
+			Block.Properties.of(Material.GLASS)
+			//.harvestTool(ToolType.PICKAXE)
+			.strength(3.0f, 5.0f)
 			.sound(SoundType.GLASS)
 			));
 	public static final BlockItemPair GOLD_TANK = register("gold_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
 			25 * FluidAttributes.BUCKET_VOLUME,
-			Block.Properties.create(Material.GLASS)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, 5.0f)
+			Block.Properties.of(Material.GLASS)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, 5.0f)
 			.sound(SoundType.GLASS)
 			));
 	
 	//Fluid traders
 	public static final BlockItemPair FLUID_TAP = register("fluid_tap", LightmansCurrency.TRADING_GROUP, new FluidTapBlock(
-			Block.Properties.create(Material.GLASS)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			Block.Properties.of(Material.GLASS)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.GLASS),
-			Block.makeCuboidShape(4d, 0d, 4d, 12d, 16d, 12d)
+			Block.box(4d, 0d, 4d, 12d, 16d, 12d)
 			));
 	
 	public static final BlockItemPair FLUID_TAP_BUNDLE = register("fluid_tap_bundle", LightmansCurrency.TRADING_GROUP, new FluidTapBundleBlock(
-			Block.Properties.create(Material.GLASS)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			Block.Properties.of(Material.GLASS)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.GLASS)
 			));
 	
 	//Universal Fluid Traders
 	public static final BlockItemPair FLUID_SERVER_SML = register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			2,
-			Block.Properties.create(Material.IRON)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			Block.Properties.of(Material.METAL)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	
 	public static final BlockItemPair FLUID_SERVER_MED = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			4,
-			Block.Properties.create(Material.IRON)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			Block.Properties.of(Material.METAL)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	public static final BlockItemPair FLUID_SERVER_LRG = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			6,
-			Block.Properties.create(Material.IRON)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			Block.Properties.of(Material.METAL)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	public static final BlockItemPair FLUID_SERVER_XLRG = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			8,
-			Block.Properties.create(Material.IRON)
-			.harvestTool(ToolType.PICKAXE)
-			.notSolid()
-			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			Block.Properties.of(Material.METAL)
+			//.harvestTool(ToolType.PICKAXE)
+			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	
-	private static BlockItemPair register(String name, ItemGroup itemGroup, Block block) { return register(name, BlockItemType.NORMAL, itemGroup, block); }
+	private static BlockItemPair register(String name, CreativeModeTab tab, Block block) { return register(name, BlockItemType.NORMAL, tab, block); }
 	
-	private static BlockItemPair register(String name, BlockItemType type, ItemGroup itemGroup, Block block)
+	private static BlockItemPair register(String name, BlockItemType type, CreativeModeTab tab, Block block)
 	{
 		block.setRegistryName(name);
 		BLOCKS.add(block);
@@ -112,10 +111,10 @@ public class ModBlocks {
 			switch(type)
 			{
 				case FLUID_TANK:
-					item = new FluidTankItem(block, new Item.Properties().group(itemGroup).maxStackSize(1));
+					item = new FluidTankItem(block, new Item.Properties().tab(tab).stacksTo(1));
 					break;
 				default:
-					item = new BlockItem(block, new Item.Properties().group(itemGroup));
+					item = new BlockItem(block, new Item.Properties().tab(tab));
 			}
 			if(item != null)
 			{

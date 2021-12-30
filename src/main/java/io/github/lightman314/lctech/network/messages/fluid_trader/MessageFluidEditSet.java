@@ -3,11 +3,11 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.container.FluidEditContainer;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageFluidEditSet implements IMessage<MessageFluidEditSet>{
 	
@@ -21,24 +21,24 @@ public class MessageFluidEditSet implements IMessage<MessageFluidEditSet>{
 	}
 	
 	@Override
-	public MessageFluidEditSet decode(PacketBuffer buffer) {
-		return new MessageFluidEditSet(buffer.readItemStack());
+	public MessageFluidEditSet decode(FriendlyByteBuf buffer) {
+		return new MessageFluidEditSet(buffer.readItem());
 	}
 
 	@Override
-	public void encode(MessageFluidEditSet message, PacketBuffer buffer) {
-		buffer.writeItemStack(message.item);
+	public void encode(MessageFluidEditSet message, FriendlyByteBuf buffer) {
+		buffer.writeItemStack(message.item, false);
 	}
 
 	@Override
 	public void handle(MessageFluidEditSet message, Supplier<Context> source) {
 		source.get().enqueueWork(() ->{
-			PlayerEntity player = source.get().getSender();
+			Player player = source.get().getSender();
 			if(player != null)
 			{
-				if(player.openContainer instanceof FluidEditContainer)
+				if(player.containerMenu instanceof FluidEditContainer)
 				{
-					FluidEditContainer container = (FluidEditContainer)player.openContainer;
+					FluidEditContainer container = (FluidEditContainer)player.containerMenu;
 					container.setFluid(message.item);
 				}
 			}

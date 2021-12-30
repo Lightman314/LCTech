@@ -11,25 +11,25 @@ import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -55,32 +55,32 @@ public class FluidTankItem extends BlockItem{
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
-		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
+		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		FluidStack fluid = GetFluid(stack);
 		if(!fluid.isEmpty())
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
 			int capacity = GetCapacity(stack);
-			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "mB / " + capacity + "mB"));
+			tooltip.add(new TextComponent(ChatFormatting.GRAY.toString() + fluid.getAmount() + "mB / " + capacity + "mB"));
 		}
 		else
 		{
-			tooltip.add(new TranslationTextComponent("tooltip.lctech.fluid_tank.capacity", GetCapacity(stack)));
+			tooltip.add(new TranslatableComponent("tooltip.lctech.fluid_tank.capacity", GetCapacity(stack)));
 		}
 	}
 	
 	//Force the tank item to have it's tank data
 	@Override
-	public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+	public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 		if(!stack.hasTag())
 			InitTankData(stack);
 	}
 	
 	//Force the tank item to have it's tank data
 	@Override
-	public void onCreated(ItemStack stack, World worldIn, PlayerEntity playerIn) {
+	public void onCraftedBy(ItemStack stack, Level worldIn, Player playerIn) {
 		InitTankData(stack);
 	}
 	
@@ -88,8 +88,8 @@ public class FluidTankItem extends BlockItem{
 	{
 		if(stack.getItem() instanceof FluidTankItem)
 		{
-			CompoundNBT tag = stack.getOrCreateTag();
-			if(tag.contains("Tank", Constants.NBT.TAG_COMPOUND))
+			CompoundTag tag = stack.getOrCreateTag();
+			if(tag.contains("Tank", Tag.TAG_COMPOUND))
 				return FluidStack.loadFluidStackFromNBT(tag.getCompound("Tank"));
 		}
 		return FluidStack.EMPTY;
@@ -118,9 +118,9 @@ public class FluidTankItem extends BlockItem{
 		return MathUtil.clamp((double)GetFluid(stack).getAmount() / (double)GetCapacity(stack), 0d, 1d);
 	}
 	
-	public static ItemStack GetItemFromTank(@Nullable FluidTankTileEntity tileEntity)
+	public static ItemStack GetItemFromTank(@Nullable FluidTankTileEntity blockEntity)
 	{
-		if(tileEntity == null)
+		if(blockEntity == null)
 		{
 			//Return a default tank
 			ItemStack returnStack = new ItemStack(ModBlocks.IRON_TANK);
@@ -128,8 +128,8 @@ public class FluidTankItem extends BlockItem{
 			return returnStack;
 		}
 		
-		ItemStack returnStack = new ItemStack(tileEntity.getBlockState().getBlock().asItem());
-		FluidStack tank = tileEntity.getTankContents();
+		ItemStack returnStack = new ItemStack(blockEntity.getBlockState().getBlock().asItem());
+		FluidStack tank = blockEntity.getTankContents();
 		WriteTankData(returnStack, tank);
 		
 		return returnStack;
@@ -143,8 +143,8 @@ public class FluidTankItem extends BlockItem{
 	
 	public static void WriteTankData(ItemStack stack, FluidStack tank)
 	{
-		CompoundNBT tag = stack.getOrCreateTag();
-		tag.put("Tank", tank.writeToNBT(new CompoundNBT()));
+		CompoundTag tag = stack.getOrCreateTag();
+		tag.put("Tank", tank.writeToNBT(new CompoundTag()));
 		stack.setTag(tag);
 	}
 	
@@ -156,7 +156,7 @@ public class FluidTankItem extends BlockItem{
 	}
 	
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT compound)
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag compound)
 	{
 		return new FluidTankCapability(stack);
 	}

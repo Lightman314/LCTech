@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetFluidTradeRules implements IMessage<MessageSetFluidTradeRules>{
 	
@@ -37,27 +37,27 @@ public class MessageSetFluidTradeRules implements IMessage<MessageSetFluidTradeR
 	}
 	
 	@Override
-	public MessageSetFluidTradeRules decode(PacketBuffer buffer) {
-		return new MessageSetFluidTradeRules(buffer.readBlockPos(), TradeRule.readRules(buffer.readCompoundTag()), buffer.readInt());
+	public MessageSetFluidTradeRules decode(FriendlyByteBuf buffer) {
+		return new MessageSetFluidTradeRules(buffer.readBlockPos(), TradeRule.readRules(buffer.readNbt()), buffer.readInt());
 	}
 
 	@Override
-	public void encode(MessageSetFluidTradeRules message, PacketBuffer buffer) {
+	public void encode(MessageSetFluidTradeRules message, FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(message.pos);
-		buffer.writeCompoundTag(TradeRule.writeRules(new CompoundNBT(), message.rules));
+		buffer.writeNbt(TradeRule.writeRules(new CompoundTag(), message.rules));
 		buffer.writeInt(message.tradeIndex);
 	}
 
 	@Override
 	public void handle(MessageSetFluidTradeRules message, Supplier<Context> source) {
 		source.get().enqueueWork(() ->{
-			PlayerEntity player = source.get().getSender();
+			Player player = source.get().getSender();
 			if(player != null)
 			{
-				TileEntity tileEntity = player.world.getTileEntity(message.pos);
-				if(tileEntity instanceof FluidTraderTileEntity)
+				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
+				if(blockEntity instanceof FluidTraderTileEntity)
 				{
-					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)tileEntity;
+					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)blockEntity;
 					if(message.tradeIndex < 0)
 					{
 						traderEntity.setRules(message.rules);

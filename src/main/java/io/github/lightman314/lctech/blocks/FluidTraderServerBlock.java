@@ -3,23 +3,23 @@ package io.github.lightman314.lctech.blocks;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.tileentities.UniversalFluidTraderTileEntity;
-import io.github.lightman314.lightmanscurrency.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
+import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
-public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlock{
+public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlock, EntityBlock{
 	
 	final int tradeCount;
 	
@@ -30,70 +30,64 @@ public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlo
 	}
 	
 	@Override
-	public boolean hasTileEntity(BlockState state)
-	{
-		return true;
-	}
-	
-	@Override
 	@Nullable
-	public TileEntity createTileEntity(BlockState state, IBlockReader world)
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new UniversalFluidTraderTileEntity(this.tradeCount);
+		return new UniversalFluidTraderTileEntity(pos, state, this.tradeCount);
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World worldIn, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		if(!worldIn.isRemote)
+		if(!level.isClientSide)
 		{
-			UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)worldIn.getTileEntity(pos);
-			if(tileEntity != null && player instanceof PlayerEntity)
+			UniversalTraderBlockEntity tileEntity = (UniversalTraderBlockEntity)level.getBlockEntity(pos);
+			if(tileEntity != null && player instanceof Player)
 			{
-				if(stack.hasDisplayName())
-					tileEntity.init((PlayerEntity)player, stack.getDisplayName().getString());
+				if(stack.hasCustomHoverName())
+					tileEntity.init((Player)player, stack.getDisplayName().getString());
 				else
-					tileEntity.init((PlayerEntity)player);
+					tileEntity.init((Player)player);
 			}
 		}
 	}
 	
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player)
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)worldIn.getTileEntity(pos);
-		if(tileEntity != null)
+		UniversalTraderBlockEntity blockEntity = (UniversalTraderBlockEntity)level.getBlockEntity(pos);
+		if(blockEntity != null)
 		{
-			if(!tileEntity.canBreak(player))
+			if(!blockEntity.canBreak(player))
 				return;
-			tileEntity.onDestroyed();
+			blockEntity.onDestroyed();
 		}
 		
-		super.onBlockHarvested(worldIn, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 	}
 	
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		if(!world.isRemote)
+		if(!level.isClientSide)
 		{
-			UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)world.getTileEntity(pos);
+			UniversalTraderBlockEntity tileEntity = (UniversalTraderBlockEntity)level.getBlockEntity(pos);
 			if(tileEntity != null)
 			{
-				if(tileEntity.hasPermissions(playerEntity))
+				if(tileEntity.hasPermissions(player))
 				{
-					tileEntity.updateOwner(playerEntity);
-					tileEntity.openStorageMenu(playerEntity);
+					tileEntity.updateOwner(player);
+					tileEntity.openStorageMenu(player);
 				}
 			}
 		}
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 	
 	@Override
-	public TileEntity getTileEntity(BlockState state, IWorld world, BlockPos pos)
+	public BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
-		return world.getTileEntity(pos);
+		return level.getBlockEntity(pos);
 	}
 	
 

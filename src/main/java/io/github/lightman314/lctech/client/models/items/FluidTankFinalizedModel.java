@@ -7,23 +7,23 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTankFinalizedModel implements IBakedModel{
+public class FluidTankFinalizedModel implements BakedModel{
 	
-	IBakedModel parentModel;
+	BakedModel parentModel;
 	FluidStack tank;
 	int capacity;
 	FluidRenderData renderData;
 	
-	public FluidTankFinalizedModel(IBakedModel parentModel, FluidStack tank, int capacity, FluidRenderData renderData)
+	public FluidTankFinalizedModel(BakedModel parentModel, FluidStack tank, int capacity, FluidRenderData renderData)
 	{
 		this.parentModel = parentModel;
 		this.tank = tank;
@@ -45,8 +45,8 @@ public class FluidTankFinalizedModel implements IBakedModel{
 	}
 
 	@Override
-	public boolean isAmbientOcclusion() {
-		return parentModel.isAmbientOcclusion();
+	public boolean useAmbientOcclusion() {
+		return parentModel.useAmbientOcclusion();
 	}
 
 	@Override
@@ -55,30 +55,30 @@ public class FluidTankFinalizedModel implements IBakedModel{
 	}
 
 	@Override
-	public boolean isSideLit() {
+	public boolean usesBlockLight() {
 		return false;
 	}
 
 	@Override
-	public boolean isBuiltInRenderer() {
-		return parentModel.isBuiltInRenderer();
+	public boolean isCustomRenderer() {
+		return parentModel.isCustomRenderer();
 	}
 	
 	@Override
-	public ItemOverrideList getOverrides() {
+	public ItemOverrides getOverrides() {
 		return null;
 	}
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public TextureAtlasSprite getParticleTexture() {
-		return parentModel.getParticleTexture();
+	public TextureAtlasSprite getParticleIcon() {
+		return parentModel.getParticleIcon();
 	}
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public ItemCameraTransforms getItemCameraTransforms() {
-		return this.parentModel.getItemCameraTransforms();
+	public ItemTransforms getTransforms() {
+		return this.parentModel.getTransforms();
 	}
 
 }

@@ -6,10 +6,10 @@ import io.github.lightman314.lctech.client.renderer.tileentity.FluidTraderTileEn
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModContainers;
 import io.github.lightman314.lctech.core.ModTileEntities;
-import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public class ClientProxy extends CommonProxy{
 
@@ -18,23 +18,23 @@ public class ClientProxy extends CommonProxy{
 	{
 		
 		//Set Render Layers
-		RenderTypeLookup.setRenderLayer(ModBlocks.FLUID_TAP.block, RenderType.getCutout());
-		RenderTypeLookup.setRenderLayer(ModBlocks.FLUID_TAP_BUNDLE.block, RenderType.getCutout());
-		RenderTypeLookup.setRenderLayer(ModBlocks.IRON_TANK.block, RenderType.getCutout());
-		RenderTypeLookup.setRenderLayer(ModBlocks.GOLD_TANK.block, RenderType.getCutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP.block, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP_BUNDLE.block, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.IRON_TANK.block, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK.block, RenderType.cutout());
 		
 		//Register Screens
-		ScreenManager.registerFactory(ModContainers.FLUID_TRADER, FluidTraderScreen::new);
-		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
-		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_CR, FluidTraderScreenCR::new);
-		ScreenManager.registerFactory(ModContainers.FLUID_EDIT, FluidEditScreen::new);
-		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
-		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
-		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
+		MenuScreens.register(ModContainers.FLUID_TRADER, FluidTraderScreen::new);
+		MenuScreens.register(ModContainers.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
+		MenuScreens.register(ModContainers.FLUID_TRADER_CR, FluidTraderScreenCR::new);
+		MenuScreens.register(ModContainers.FLUID_EDIT, FluidEditScreen::new);
+		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
+		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
+		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
 		
 		//Register Tile Entity Renderers
-		ClientRegistry.bindTileEntityRenderer(ModTileEntities.FLUID_TRADER, FluidTraderTileEntityRenderer::new);
-		ClientRegistry.bindTileEntityRenderer(ModTileEntities.FLUID_TANK, FluidTankTileEntityRenderer::new);
+		BlockEntityRenderers.register(ModTileEntities.FLUID_TRADER, FluidTraderTileEntityRenderer::new);
+		BlockEntityRenderers.register(ModTileEntities.FLUID_TANK, FluidTankTileEntityRenderer::new);
 		
 		
 	}

@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "lctech:iron_tank",
+    "lctech:gold_tank",
+    "lctech:fluid_tap",
+    "lctech:fluid_tap_bundle",
+    "lctech:fluid_trader_server_sml",
+    "lctech:fluid_trader_server_med",
+    "lctech:fluid_trader_server_lrg",
+    "lctech:fluid_trader_server_xlrg"
+  ]
+}

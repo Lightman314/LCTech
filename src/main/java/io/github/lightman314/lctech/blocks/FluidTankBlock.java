@@ -3,25 +3,26 @@ package io.github.lightman314.lctech.blocks;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class FluidTankBlock extends Block implements IFluidTankBlock{
+public class FluidTankBlock extends Block implements EntityBlock{
 
-	public static final VoxelShape SHAPE = makeCuboidShape(0d, 0d, 0d, 16d, 16d, 16d);
+	public static final VoxelShape SHAPE = LazyShapes.BOX_T;
 	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 14f, 15.98f);
 	
 	private final VoxelShape shape;
@@ -43,68 +44,61 @@ public class FluidTankBlock extends Block implements IFluidTankBlock{
 	}
 	
 	@Override
-	public boolean hasTileEntity(BlockState state)
-	{
-		return true;
-	}
-	
-	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world)
-	{
-		return new FluidTankTileEntity();
-	}
-	
-	@Override
-	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext contect)
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
 	{
 		return this.shape;
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity player, ItemStack stack)
 	{
-		if(!world.isRemote())
+		if(!level.isClientSide)
 		{
-			FluidTankTileEntity tileEntity = (FluidTankTileEntity)world.getTileEntity(pos);
+			FluidTankTileEntity tileEntity = (FluidTankTileEntity)level.getBlockEntity(pos);
 			if(tileEntity != null)
 				tileEntity.loadFromItem(stack);
 		}
 	}
 	
 	@Override
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result)
+	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof FluidTankTileEntity)
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof FluidTankTileEntity)
 		{
-			return ((FluidTankTileEntity)tileEntity).onInteraction(player, hand);
+			return ((FluidTankTileEntity)blockEntity).onInteraction(player, hand);
 		}
-		return ActionResultType.PASS;
+		return InteractionResult.PASS;
 	}
 	
 	//Drop tank item
 	@Override
-	public void onBlockHarvested(World worldIn, BlockPos pos, BlockState state, PlayerEntity player)
+	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		if(!worldIn.isRemote && !player.abilities.isCreativeMode)
+		if(!level.isClientSide && !player.isCreative())
 		{
-			TileEntity tileEntity = worldIn.getTileEntity(pos);
+			BlockEntity tileEntity = level.getBlockEntity(pos);
 			if(tileEntity instanceof FluidTankTileEntity)
 			{
-				spawnAsEntity(worldIn, pos, FluidTankItem.GetItemFromTank((FluidTankTileEntity)tileEntity));
+				popResource(level, pos, FluidTankItem.GetItemFromTank((FluidTankTileEntity)tileEntity));
 			}
 		}
-		super.onBlockHarvested(worldIn, pos, state, player);
+		super.playerWillDestroy(level, pos, state, player);
 	}
 	
 	@Override
-	public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof FluidTankTileEntity)
-			return FluidTankItem.GetItemFromTank((FluidTankTileEntity)tileEntity);
+	public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
+		BlockEntity blockEntity = level.getBlockEntity(pos);
+		if(blockEntity instanceof FluidTankTileEntity)
+			return FluidTankItem.GetItemFromTank((FluidTankTileEntity)blockEntity);
 		return new ItemStack(this);
 	}
 	
 	public FluidRenderData getRenderData() { return RENDER_DATA; }
+
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new FluidTankTileEntity(pos, state);
+	}
 	
 }

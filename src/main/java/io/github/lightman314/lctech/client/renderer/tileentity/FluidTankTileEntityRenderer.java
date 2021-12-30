@@ -1,24 +1,24 @@
 package io.github.lightman314.lctech.client.renderer.tileentity;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTankTileEntityRenderer extends TileEntityRenderer<FluidTankTileEntity>{
+public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTankTileEntity>{
 
-	public FluidTankTileEntityRenderer(TileEntityRendererDispatcher dispatcher)
+	public FluidTankTileEntityRenderer(BlockEntityRendererProvider.Context context)
 	{
-		super(dispatcher);
+		
 	}
 	
 	@Override
-	public void render(FluidTankTileEntity tileEntity, float partialTicket, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int light, int overlay)
+	public void render(FluidTankTileEntity tileEntity, float partialTicket, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay)
 	{
 		
 		FluidStack tank = tileEntity.getTankContents();
@@ -28,7 +28,7 @@ public class FluidTankTileEntityRenderer extends TileEntityRenderer<FluidTankTil
 			if(renderData != null)
 			{
 				renderData.setFillPercent((float)tileEntity.getTankFillPercent());
-				FluidRenderUtil.drawFluidInWorld(tank, tileEntity.getWorld(), tileEntity.getPos(), matrixStack, renderTypeBuffer, renderData, light);
+				FluidRenderUtil.drawFluidInWorld(tank, tileEntity.getLevel(), tileEntity.getBlockPos(), poseStack, bufferSource, renderData, light);
 			}
 		}
 		

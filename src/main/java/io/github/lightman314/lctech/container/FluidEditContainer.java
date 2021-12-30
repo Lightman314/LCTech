@@ -12,17 +12,17 @@ import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEd
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -30,7 +30,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class FluidEditContainer extends Container{
+public class FluidEditContainer extends AbstractContainerMenu{
 
 	private static final List<Fluid> BLACKLISTED_FLUIDS = Lists.newArrayList(Fluids.EMPTY);
 	public static final void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
@@ -40,13 +40,13 @@ public class FluidEditContainer extends Container{
 	
 	private static List<Fluid> allFluids = null;
 	
-	public final PlayerEntity player;
+	public final Player player;
 	public final Supplier<IFluidTrader> traderSource;
 	public final int tradeIndex;
 	public final FluidTradeData tradeData;
 	
 	List<Fluid> searchResultFluids;
-	IInventory displayInventory;
+	Container displayInventory;
 	
 	private String searchString;
 	private int page;
@@ -54,14 +54,14 @@ public class FluidEditContainer extends Container{
 	
 	final List<Slot> tradeSlots;
 	
-	protected boolean isClient() { return this.player.world.isRemote; }
+	protected boolean isClient() { return this.player.level.isClientSide; }
 	
-	public FluidEditContainer(int windowId, PlayerInventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex)
+	public FluidEditContainer(int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex)
 	{
 		this(ModContainers.FLUID_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
 	}
 	
-	protected FluidEditContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex, FluidTradeData tradeData)
+	protected FluidEditContainer(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex, FluidTradeData tradeData)
 	{
 		super(type, windowId);
 		
@@ -71,7 +71,7 @@ public class FluidEditContainer extends Container{
 		this.traderSource = traderSource;
 		this.tradeSlots = Lists.newArrayList();
 		
-		this.displayInventory = new Inventory(columnCount * rowCount);
+		this.displayInventory = new SimpleContainer(columnCount * rowCount);
 		
 		if(!this.isClient())
 			return;
@@ -94,24 +94,23 @@ public class FluidEditContainer extends Container{
 	}
 	
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickType, PlayerEntity player)
+	public void clicked(int slotId, int dragType, ClickType clickType, Player player)
 	{
 		if(!this.isClient()) //Only function on client, as the server will be desynchronized
-			return ItemStack.EMPTY;
+			return;
 		
-		if(slotId >= 0 && slotId < inventorySlots.size())
+		if(slotId >= 0 && slotId < this.slots.size())
 		{
-			Slot slot = inventorySlots.get(slotId);
+			Slot slot = this.slots.get(slotId);
 			if(slot == null)
-				return ItemStack.EMPTY;
+				return;
 			
-			ItemStack stack = slot.getStack();
+			ItemStack stack = slot.getItem();
 			//Define the item
 			if(!stack.isEmpty())
 				this.setFluid(stack);
 			
 		}
-		return ItemStack.EMPTY;
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -122,17 +121,17 @@ public class FluidEditContainer extends Container{
 		allFluids = Lists.newArrayList();
 		
 		ForgeRegistries.FLUIDS.forEach(fluid ->{
-			if(!BLACKLISTED_FLUIDS.contains(fluid) && fluid.isSource(fluid.getDefaultState()))
+			if(!BLACKLISTED_FLUIDS.contains(fluid) && fluid.isSource(fluid.defaultFluidState()))
 				allFluids.add(fluid);
 		});
 		
 	}
 	
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index) { return ItemStack.EMPTY; }
+	public ItemStack quickMoveStack(Player playerEntity, int index) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity player) { return true; }
+	public boolean stillValid(Player player) { return true; }
 	
 	public void modifySearch(String newSearch) {
 		this.searchString = newSearch.toLowerCase();
@@ -161,7 +160,7 @@ public class FluidEditContainer extends Container{
 	}
 	
 	public int maxPage() {
-		return (this.searchResultFluids.size() - 1) / this.displayInventory.getSizeInventory();
+		return (this.searchResultFluids.size() - 1) / this.displayInventory.getContainerSize();
 	}
 	
 	public void modifyPage(int deltaPage) {
@@ -177,16 +176,16 @@ public class FluidEditContainer extends Container{
 		
 		int startIndex = this.page * columnCount * rowCount;
 		//Define the display inventories contents
-		for(int i = 0; i < this.displayInventory.getSizeInventory(); i++)
+		for(int i = 0; i < this.displayInventory.getContainerSize(); i++)
 		{
 			int thisIndex = startIndex + i;
 			if(thisIndex < this.searchResultFluids.size()) //Set to search result item
 			{
 				ItemStack stack = FluidItemUtil.getFluidDispayItem(this.searchResultFluids.get(thisIndex));
-				this.displayInventory.setInventorySlotContents(i, stack);
+				this.displayInventory.setItem(i, stack);
 			}
 			else
-				this.displayInventory.setInventorySlotContents(i, ItemStack.EMPTY);
+				this.displayInventory.setItem(i, ItemStack.EMPTY);
 		}
 	}
 	

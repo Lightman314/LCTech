@@ -4,28 +4,30 @@ import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderDat
 import io.github.lightman314.lctech.core.ModTileEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
-public class UniversalFluidTraderTileEntity extends UniversalTraderTileEntity{
+public class UniversalFluidTraderTileEntity extends UniversalTraderBlockEntity{
 
 	int tradeCount = 1;
-	public UniversalFluidTraderTileEntity()
+	public UniversalFluidTraderTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.UNIVERSAL_FLUID_TRADER);
+		super(ModTileEntities.UNIVERSAL_FLUID_TRADER, pos, state);
 	}
 	
-	public UniversalFluidTraderTileEntity(int tradeCount)
+	public UniversalFluidTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		this();
+		this(pos, state);
 		this.tradeCount = tradeCount;
 	}
 
 	@Override
 	protected UniversalTraderData createInitialData(Entity owner) {
-		return new UniversalFluidTraderData(owner, this.pos, this.world.getDimensionKey(), this.getTraderID(), this.tradeCount);
+		return new UniversalFluidTraderData(owner, this.worldPosition, this.level.dimension(), this.getTraderID(), this.tradeCount);
 	}
 	
 	@Override
@@ -40,13 +42,13 @@ public class UniversalFluidTraderTileEntity extends UniversalTraderTileEntity{
 			{
 				FluidTradeData trade = fluidData.getTrade(i);
 				if(!trade.getTankContents().isEmpty())
-					Block.spawnAsEntity(world, pos, FluidShardItem.GetFluidShard(trade.getTankContents()));
+					Block.popResource(this.level, this.worldPosition, FluidShardItem.GetFluidShard(trade.getTankContents()));
 			}
 			//Dump upgrade data
-			for(int i = 0; i < fluidData.getUpgradeInventory().getSizeInventory(); i++)
+			for(int i = 0; i < fluidData.getUpgradeInventory().getContainerSize(); i++)
 			{
-				if(!fluidData.getUpgradeInventory().getStackInSlot(i).isEmpty())
-					Block.spawnAsEntity(world, pos, fluidData.getUpgradeInventory().getStackInSlot(i));
+				if(!fluidData.getUpgradeInventory().getItem(i).isEmpty())
+					Block.popResource(this.level, this.worldPosition, fluidData.getUpgradeInventory().getItem(i));
 			}
 			
 		}

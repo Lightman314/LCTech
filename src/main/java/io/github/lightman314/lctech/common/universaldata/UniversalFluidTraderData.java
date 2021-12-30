@@ -21,10 +21,10 @@ import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.containers.UniversalContainer;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.menus.UniversalMenu;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -32,24 +32,24 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRule
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.network.NetworkHooks;
 
 public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
 
@@ -64,8 +64,8 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	int tradeCount = 1;
 	List<FluidTradeData> trades = null;
 	
-	IInventory upgradeInventory = new Inventory(5);
-	public IInventory getUpgradeInventory() { return this.upgradeInventory; }
+	Container upgradeInventory = new SimpleContainer(5);
+	public Container getUpgradeInventory() { return this.upgradeInventory; }
 	public void reapplyUpgrades() { this.trades.forEach(trade -> trade.applyUpgrades(this, this.upgradeInventory)); }
 	
 	private final FluidShopLogger logger = new FluidShopLogger();
@@ -74,34 +74,34 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public UniversalFluidTraderData() {}
 	
-	public UniversalFluidTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount) {
-		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
+	public UniversalFluidTraderData(Entity owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount) {
+		super(owner.getUUID(), owner.getDisplayName().getString(), pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADELIMIT);
 		this.trades = FluidTradeData.listOfSize(tradeCount);
 	}
 	
 	@Override
-	public void read(CompoundNBT compound)
+	public void read(CompoundTag compound)
 	{
-		if(compound.contains("TradeLimit", Constants.NBT.TAG_INT))
+		if(compound.contains("TradeLimit", Tag.TAG_INT))
 			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
 		
-		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
 		
-		if(compound.contains("UpgradeInventory", Constants.NBT.TAG_LIST))
+		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 		
 		this.logger.read(compound);
 		
-		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
 		super.read(compound);
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public CompoundTag write(CompoundTag compound)
 	{
 		this.writeTrades(compound);
 		this.writeUpgrades(compound);
@@ -111,26 +111,26 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		return super.write(compound);
 	}
 	
-	protected final CompoundNBT writeTrades(CompoundNBT compound)
+	protected final CompoundTag writeTrades(CompoundTag compound)
 	{
 		compound.putInt("TradeLimit", this.trades.size());
 		FluidTradeData.WriteNBTList(this.trades, compound);
 		return compound;
 	}
 	
-	protected final CompoundNBT writeUpgrades(CompoundNBT compound)
+	protected final CompoundTag writeUpgrades(CompoundTag compound)
 	{
 		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
 		return compound;
 	}
 	
-	protected final CompoundNBT writeLogger(CompoundNBT compound)
+	protected final CompoundTag writeLogger(CompoundTag compound)
 	{
 		this.logger.write(compound);
 		return compound;
 	}
 	
-	protected final CompoundNBT writeRules(CompoundNBT compound)
+	protected final CompoundTag writeRules(CompoundTag compound)
 	{
 		TradeRule.writeRules(compound, this.tradeRules);
 		return compound;
@@ -156,7 +156,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	}
 	
 	private void forceReOpen() {
-		UniversalContainer.onForceReopen(this.getTraderID());
+		UniversalMenu.onForceReopen(this.getTraderID());
 	}
 	
 	public void overrideTradeCount(int newTradeCount)
@@ -203,61 +203,61 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public ResourceLocation getTraderType() { return TYPE; }
 	
 	@Override
-	public ITextComponent getDefaultName() {
-		return new TranslationTextComponent("gui.lctech.universaltrader.fluid");
+	public Component getDefaultName() {
+		return new TranslatableComponent("gui.lctech.universaltrader.fluid");
 	}
 	
 	@Override
-	protected INamedContainerProvider getTradeMenuProvider() {
+	protected MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this.getTraderID());
 	}
 	
 	@Override
-	protected INamedContainerProvider getStorageMenuProvider() {
+	protected MenuProvider getStorageMenuProvider() {
 		return new StorageProvider(this.getTraderID());
 	}
 	
-	protected INamedContainerProvider getFluidEditMenuProvider(int tradeIndex) { return new FluidEditProvider(this.getTraderID(), tradeIndex); }
+	protected MenuProvider getFluidEditMenuProvider(int tradeIndex) { return new FluidEditProvider(this.getTraderID(), tradeIndex); }
 	
 	@Override
-	public void openFluidEditMenu(PlayerEntity player, int tradeIndex) {
-		INamedContainerProvider provider = getFluidEditMenuProvider(tradeIndex);
+	public void openFluidEditMenu(Player player, int tradeIndex) {
+		MenuProvider provider = getFluidEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
 			LCTech.LOGGER.error("No fluid edit container provider was given for the trader of type " + this.getTraderType().toString());
 			return;
 		}
-		if(!(player instanceof ServerPlayerEntity))
+		if(!(player instanceof ServerPlayer))
 		{
 			LCTech.LOGGER.error("Player is not a server player entity. Cannot open the storage menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
+		NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.getTraderID(), tradeIndex));
 	}
 	
-	private static class TraderProvider implements INamedContainerProvider {
+	private static class TraderProvider implements MenuProvider {
 		final UUID traderID;
 		private TraderProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
-		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
 			return new UniversalFluidTraderContainer(menuID, inventory, this.traderID);
 		}
 		@Override
-		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
+		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
-	private static class StorageProvider implements INamedContainerProvider {
+	private static class StorageProvider implements MenuProvider {
 		final UUID traderID;
 		private StorageProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
-		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
 			return new UniversalFluidTraderStorageContainer(menuID, inventory, this.traderID);
 		}
 		@Override
-		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
+		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
-	private static class FluidEditProvider implements INamedContainerProvider {
+	private static class FluidEditProvider implements MenuProvider {
 		final UUID traderID;
 		final int tradeIndex;
 		private FluidEditProvider(UUID traderID, int tradeIndex) { this.traderID = traderID; this.tradeIndex = tradeIndex; }
@@ -269,11 +269,11 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 			return null;
 		}
 		@Override
-		public Container createMenu(int menuID, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
 			return new UniversalFluidEditContainer(menuID, inventory, () -> getData(), this.tradeIndex);
 		}
 		@Override
-		public ITextComponent getDisplayName() { return new StringTextComponent(""); }
+		public Component getDisplayName() { return new TextComponent(""); }
 	}
 	
 	

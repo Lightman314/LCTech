@@ -22,44 +22,44 @@ import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFlui
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
-import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
-public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
+public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADE_LIMIT = 8;
 	
@@ -71,8 +71,8 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	
 	List<FluidTradeData> trades;
 	
-	IInventory upgradeInventory = new Inventory(5);
-	public IInventory getUpgradeInventory() { return this.upgradeInventory; }
+	Container upgradeInventory = new SimpleContainer(5);
+	public Container getUpgradeInventory() { return this.upgradeInventory; }
 	public void reapplyUpgrades() { this.trades.forEach(trade -> trade.applyUpgrades(this, this.upgradeInventory)); }
 	
 	List<TradeRule> tradeRules = Lists.newArrayList();
@@ -81,40 +81,36 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	 * Default Fluid Trader Entity:
 	 * Trade Count: 1
 	 */
-	public FluidTraderTileEntity()
+	public FluidTraderTileEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.FLUID_TRADER);
-		this.trades = FluidTradeData.listOfSize(this.tradeCount);
+		this(ModTileEntities.FLUID_TRADER, pos, state);
 	}
 	
 	/**
 	 * Default Fluid Trader Entity (for children):
 	 * Trade Count: 1
 	 */
-	protected FluidTraderTileEntity(TileEntityType<?> type)
+	protected FluidTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
-		super(type);
-		this.trades = FluidTradeData.listOfSize(this.tradeCount);
-	}
-	
-	/**
-	 * Default Fluid Trader Entity (for children):
-	 * Trade Count: @param tradeCount (up to 8)
-	 */
-	protected FluidTraderTileEntity(TileEntityType<?> type, int tradeCount)
-	{
-		super(type);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
-		this.trades = FluidTradeData.listOfSize(this.tradeCount);
+		this(type, pos, state, 1);
 	}
 	
 	/**
 	 * Default Fluid Trader Entity:
 	 * Trade Count: @param tradeCount (up to 8)
 	 */
-	public FluidTraderTileEntity(int tradeCount)
+	public FluidTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		this();
+		this(ModTileEntities.FLUID_TRADER, pos, state, tradeCount);
+	}
+	
+	/**
+	 * Default Fluid Trader Entity (for children):
+	 * Trade Count: @param tradeCount (up to 8)
+	 */
+	protected FluidTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
+	{
+		super(type, pos, state);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
@@ -139,7 +135,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
 	public void addTrade() {
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		if(this.tradeCount >= TRADE_LIMIT)
 			return;
@@ -148,7 +144,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	}
 	
 	public void removeTrade() {
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			return;
 		if(this.tradeCount <= 1)
 			return;
@@ -157,13 +153,13 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	}
 	
 	private void forceReOpen() {
-		for(PlayerEntity player : this.getUsers())
+		for(Player player : this.getUsers())
 		{
-			if(player.openContainer instanceof FluidTraderStorageContainer)
+			if(player.containerMenu instanceof FluidTraderStorageContainer)
 				this.openStorageMenu(player);
-			else if(player.openContainer instanceof FluidTraderContainerCR)
-				this.openCashRegisterTradeMenu(player, ((FluidTraderContainerCR)player.openContainer).cashRegister);
-			else if(player.openContainer instanceof FluidTraderContainer)
+			else if(player.containerMenu instanceof FluidTraderContainerCR)
+				this.openCashRegisterTradeMenu(player, ((FluidTraderContainerCR)player.containerMenu).cashRegister);
+			else if(player.containerMenu instanceof FluidTraderContainer)
 				this.openTradeMenu(player);
 		}
 	}
@@ -181,15 +177,15 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 			this.trades.set(i, oldTrades.get(i));
 		}
 		//Send an update to the client
-		if(!this.world.isRemote)
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeTrades(new CompoundNBT());
+			CompoundTag compound = this.writeTrades(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
 	}
 	
 	@Override
-	public CompoundNBT write(CompoundNBT compound)
+	public void saveAdditional(CompoundTag compound)
 	{
 		
 		writePermissions(compound);
@@ -198,57 +194,56 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		writeRules(compound);
 		writeLogger(compound);
 		
-		compound = super.write(compound);
+		super.saveAdditional(compound);
 		
-		return compound;
 	}
 	
-	protected CompoundNBT writePermissions(CompoundNBT compound)
+	protected CompoundTag writePermissions(CompoundTag compound)
 	{
 		return compound;
 	}
 	
-	public CompoundNBT writeTrades(CompoundNBT compound)
+	public CompoundTag writeTrades(CompoundTag compound)
 	{
 		compound.putInt("TradeCount", this.tradeCount);
 		FluidTradeData.WriteNBTList(this.trades, compound);
 		return compound;
 	}
 	
-	public CompoundNBT writeUpgradeInventory(CompoundNBT compound)
+	public CompoundTag writeUpgradeInventory(CompoundTag compound)
 	{
 		InventoryUtil.saveAllItems("UpgradeInventory", compound, this.upgradeInventory);
 		return compound;
 	}
 	
-	protected CompoundNBT writeRules(CompoundNBT compound)
+	protected CompoundTag writeRules(CompoundTag compound)
 	{
 		TradeRule.writeRules(compound, this.tradeRules);
 		return compound;
 	}
 	
-	protected CompoundNBT writeLogger(CompoundNBT compound)
+	protected CompoundTag writeLogger(CompoundTag compound)
 	{
 		this.logger.write(compound);
 		return compound;
 	}
 	
 	@Override
-	public void read(BlockState state, CompoundNBT compound)
+	public void load(CompoundTag compound)
 	{
 		
-		super.read(state, compound);
+		super.load(compound);
 		
-		if(compound.contains("TradeCount", Constants.NBT.TAG_INT))
+		if(compound.contains("TradeCount", Tag.TAG_INT))
 			this.tradeCount = compound.getInt("TradeCount");
 		
-		if(compound.contains(ItemTradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
+		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
 		
-		if(compound.contains("UpgradeInventory",Constants.NBT.TAG_LIST))
+		if(compound.contains("UpgradeInventory",Tag.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 			
-		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
+		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
 		this.logger.read(compound);
@@ -259,39 +254,39 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	public boolean drainCapable() { return true; }
 
 	@Override
-	public INamedContainerProvider getTradeMenuProvider() {
+	public MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this);
 	}
 	
 	@Override
-	public INamedContainerProvider getStorageMenuProvider() {
+	public MenuProvider getStorageMenuProvider() {
 		return new TraderStorageProvider(this);
 	}
 	
 	@Override
-	public INamedContainerProvider getCashRegisterTradeMenuProvider(CashRegisterTileEntity registerEntity) {
+	public MenuProvider getCashRegisterTradeMenuProvider(CashRegisterBlockEntity registerEntity) {
 		return new TradeCRContainerProvider(this, registerEntity);
 	}
 	
-	protected INamedContainerProvider getFluidEditMenuProvider(int tradeIndex) { return new FluidEditContainerProvider(this, tradeIndex); }
+	protected MenuProvider getFluidEditMenuProvider(int tradeIndex) { return new FluidEditContainerProvider(this, tradeIndex); }
 	
 	@Override
-	public void openFluidEditMenu(PlayerEntity player, int tradeIndex) {
-		INamedContainerProvider provider = getFluidEditMenuProvider(tradeIndex);
+	public void openFluidEditMenu(Player player, int tradeIndex) {
+		MenuProvider provider = getFluidEditMenuProvider(tradeIndex);
 		if(provider == null)
 		{
 			LCTech.LOGGER.error("No fluid edit container provider was given for the trader of type " + this.getType().getRegistryName().toString());
 			return;
 		}
-		if(!(player instanceof ServerPlayerEntity))
+		if(!(player instanceof ServerPlayer))
 		{
 			LCTech.LOGGER.error("Player is not a server player entity. Cannot open the storage menu.");
 			return;
 		}
-		NetworkHooks.openGui((ServerPlayerEntity)player, provider, new TradeIndexDataWriter(this.pos, tradeIndex));
+		NetworkHooks.openGui((ServerPlayer)player, provider, new TradeIndexDataWriter(this.worldPosition, tradeIndex));
 	}
 	
-	private class TraderProvider implements INamedContainerProvider
+	private class TraderProvider implements MenuProvider
 	{
 
 		final FluidTraderTileEntity tileEntity;
@@ -302,18 +297,18 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		}
 		
 		@Override
-		public Container createMenu(int windowId, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
 			return new FluidTraderContainer(windowId, inventory, this.tileEntity);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
+		public Component getDisplayName() {
 			return this.tileEntity.getName();
 		}
 		
 	}
 	
-	private class TraderStorageProvider implements INamedContainerProvider
+	private class TraderStorageProvider implements MenuProvider
 	{
 
 		final FluidTraderTileEntity tileEntity;
@@ -324,56 +319,56 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		}
 		
 		@Override
-		public Container createMenu(int windowId, PlayerInventory inventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
 			return new FluidTraderStorageContainer(windowId, inventory, this.tileEntity);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
+		public Component getDisplayName() {
 			return this.tileEntity.getName();
 		}
 		
 	}
 	
-	private class TradeCRContainerProvider implements INamedContainerProvider
+	private class TradeCRContainerProvider implements MenuProvider
 	{
-		FluidTraderTileEntity tileEntity;
-		CashRegisterTileEntity registerEntity;
+		FluidTraderTileEntity blockEntity;
+		CashRegisterBlockEntity registerEntity;
 		
-		public TradeCRContainerProvider(FluidTraderTileEntity tileEntity, CashRegisterTileEntity registerEntity) {
-			this.tileEntity = tileEntity;
+		public TradeCRContainerProvider(FluidTraderTileEntity blockEntity, CashRegisterBlockEntity registerEntity) {
+			this.blockEntity = blockEntity;
 			this.registerEntity = registerEntity;
 		}
 		
-		public ITextComponent getDisplayName() { return tileEntity.getName(); }
+		public Component getDisplayName() { return blockEntity.getName(); }
 		
-		public Container createMenu(int id, PlayerInventory inventory, PlayerEntity entity)
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new FluidTraderContainerCR(id, inventory, tileEntity, registerEntity);
+			return new FluidTraderContainerCR(id, inventory, blockEntity, registerEntity);
 		}
 		
 	}
 	
-	private class FluidEditContainerProvider implements INamedContainerProvider
+	private class FluidEditContainerProvider implements MenuProvider
 	{
-		FluidTraderTileEntity tileEntity;
+		FluidTraderTileEntity blockEntity;
 		int tradeIndex;
 		
-		public FluidEditContainerProvider(FluidTraderTileEntity tileEntity, int tradeIndex) {
-			this.tileEntity = tileEntity;
+		public FluidEditContainerProvider(FluidTraderTileEntity blockEntity, int tradeIndex) {
+			this.blockEntity = blockEntity;
 			this.tradeIndex = tradeIndex;
 		}
 		
-		public ITextComponent getDisplayName() { return this.tileEntity.getName(); }
+		public Component getDisplayName() { return this.blockEntity.getName(); }
 		
-		public Container createMenu(int id, PlayerInventory inventory, PlayerEntity player) {
-			return new FluidEditContainer(id, inventory, ()-> tileEntity, tradeIndex);
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+			return new FluidEditContainer(id, inventory, () -> blockEntity, tradeIndex);
 		}
 		
 	}
 	
 	@Override
-	public void tick() {
+	public void serverTick() {
 		//Recalculate the drainable tank to fix the issue with the create pump...
 		//Like seriously, I had to stay up til 2 in the morning for this bs...
 		this.fluidHandler.resetDrainableTank();
@@ -399,11 +394,11 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	@Override
 	public void markTradesDirty() {
 		
-		this.markDirty();
+		this.setChanged();
 		
-		if(!world.isRemote)
+		if(!level.isClientSide)
 		{
-			CompoundNBT compound = this.writeTrades(new CompoundNBT());
+			CompoundTag compound = this.writeTrades(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
 		
@@ -412,20 +407,20 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	
 
 	@Override
-	public void dumpContents(World world, BlockPos pos)
+	public void dumpContents(Level level, BlockPos pos)
 	{
 		//super.dumpContents dumps the coins automatically
-		super.dumpContents(world, pos);
+		super.dumpContents(level, pos);
 		//Dump the extra fluids if present
 		this.trades.forEach(trade ->{
 			if(!trade.getTankContents().isEmpty())
-				Block.spawnAsEntity(world, pos, FluidShardItem.GetFluidShard(trade.getTankContents()));
+				Block.popResource(level, pos, FluidShardItem.GetFluidShard(trade.getTankContents()));
 		});
 		//Dump the upgrade items if present
-		for(int i = 0; i < this.upgradeInventory.getSizeInventory(); i++)
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); i++)
 		{
-			if(!this.upgradeInventory.getStackInSlot(i).isEmpty())
-				Block.spawnAsEntity(world, pos, this.upgradeInventory.getStackInSlot(i));
+			if(!this.upgradeInventory.getItem(i).isEmpty())
+				Block.popResource(level, pos, this.upgradeInventory.getItem(i));
 		}
 	}
 	
@@ -458,11 +453,11 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 
 	@Override
 	public void markRulesDirty() {
-		this.markDirty();
-		if(!this.world.isRemote)
+		this.setChanged();
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = this.writeRules(new CompoundNBT());
-			TileEntityUtil.sendUpdatePacket(this, compound);
+			CompoundTag compound = this.writeRules(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
 	}
 
@@ -498,10 +493,10 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 
 	@Override
 	public void markLoggerDirty() {
-		this.markDirty();
-		if(!this.world.isRemote)
+		this.setChanged();
+		if(!this.level.isClientSide)
 		{
-			CompoundNBT compound = writeLogger(new CompoundNBT());
+			CompoundTag compound = writeLogger(new CompoundTag());
 			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
 	}
@@ -510,23 +505,23 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	
 	private static class TraderScreenHandler implements ITradeRuleScreenHandler
 	{
-		private FluidTraderTileEntity tileEntity;
+		private FluidTraderTileEntity blockEntity;
 		
-		public TraderScreenHandler(FluidTraderTileEntity tileEntity) { this.tileEntity = tileEntity; }
+		public TraderScreenHandler(FluidTraderTileEntity blockEntity) { this.blockEntity = blockEntity; }
 
 		@Override
 		public void reopenLastScreen() {
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.tileEntity.pos));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.blockEntity.worldPosition));
 		}
 
 		@Override
 		public ITradeRuleHandler ruleHandler() {
-			return this.tileEntity;
+			return this.blockEntity;
 		}
 
 		@Override
 		public void updateServer(List<TradeRule> newRules) {
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(this.tileEntity.pos, newRules));
+			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(this.blockEntity.worldPosition, newRules));
 		}
 		
 	}
@@ -554,7 +549,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
     {
 		//Check for client flag
-		if(this.world.isRemote)
+		if(this.level.isClientSide)
 			this.fluidHandler.flagAsClient();
 		
 		//Return the fluid handler capability

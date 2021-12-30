@@ -8,11 +8,11 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	
@@ -36,16 +36,16 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	}
 	
 	@Override
-	public MessageSetFluidPrice2 decode(PacketBuffer buffer) {
-		return new MessageSetFluidPrice2(buffer.readUniqueId(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readInt(), buffer.readBoolean());
+	public MessageSetFluidPrice2 decode(FriendlyByteBuf buffer) {
+		return new MessageSetFluidPrice2(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readNbt()), FluidTradeData.loadTradeType(buffer.readUtf()), buffer.readInt(), buffer.readBoolean());
 	}
 
 	@Override
-	public void encode(MessageSetFluidPrice2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
+	public void encode(MessageSetFluidPrice2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
 		buffer.writeInt(message.tradeIndex);
-		buffer.writeCompoundTag(message.price.writeToNBT(new CompoundNBT(), CoinValue.DEFAULT_KEY));
-		buffer.writeString(message.tradeType.name());
+		buffer.writeNbt(message.price.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
+		buffer.writeUtf(message.tradeType.name());
 		buffer.writeInt(message.quantity);
 		buffer.writeBoolean(message.canFill);
 		

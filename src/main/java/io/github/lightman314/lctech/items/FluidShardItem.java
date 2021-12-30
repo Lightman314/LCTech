@@ -11,23 +11,23 @@ import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -65,25 +65,25 @@ public class FluidShardItem extends Item{
 	}
 	
 	@Override
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
-		super.addInformation(stack,  worldIn,  tooltip,  flagIn);
+		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		FluidStack fluid = GetFluid(stack);
 		if(!fluid.isEmpty())
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
-			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "mB"));
+			tooltip.add(new TextComponent(ChatFormatting.GRAY.toString() + fluid.getAmount() + "mB"));
 		}
 	}
 	
 	//Force the tank item to have it's tank data
 	@Override
-	public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-		if(GetFluid(stack).isEmpty() && entity instanceof PlayerEntity)
+	public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected) {
+		if(GetFluid(stack).isEmpty() && entity instanceof Player)
 		{
 			//Remove the empty fluid shard from the players inventory
-			PlayerEntity player = (PlayerEntity)entity;
-			player.inventory.setInventorySlotContents(itemSlot, ItemStack.EMPTY);
+			Player player = (Player)entity;
+			player.getInventory().setItem(itemSlot, ItemStack.EMPTY);
 		}
 	}
 	
@@ -91,8 +91,8 @@ public class FluidShardItem extends Item{
 	{
 		if(stack.getItem() instanceof FluidShardItem)
 		{
-			CompoundNBT tag = stack.getOrCreateTag();
-			if(tag.contains("Tank", Constants.NBT.TAG_COMPOUND))
+			CompoundTag tag = stack.getOrCreateTag();
+			if(tag.contains("Tank", Tag.TAG_COMPOUND))
 				return FluidStack.loadFluidStackFromNBT(tag.getCompound("Tank"));
 		}
 		return FluidStack.EMPTY;
@@ -111,13 +111,13 @@ public class FluidShardItem extends Item{
 	
 	public static void WriteTankData(ItemStack stack, FluidStack tank)
 	{
-		CompoundNBT tag = stack.getOrCreateTag();
-		tag.put("Tank", tank.writeToNBT(new CompoundNBT()));
+		CompoundTag tag = stack.getOrCreateTag();
+		tag.put("Tank", tank.writeToNBT(new CompoundTag()));
 		stack.setTag(tag);
 	}
 	
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT compound)
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag compound)
 	{
 		return new FluidShardCapability(stack);
 	}

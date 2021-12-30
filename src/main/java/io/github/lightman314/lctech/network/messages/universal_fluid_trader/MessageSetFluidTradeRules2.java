@@ -7,12 +7,12 @@ import java.util.function.Supplier;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent.Context;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent.Context;
 
 public class MessageSetFluidTradeRules2 implements IMessage<MessageSetFluidTradeRules2>{
 	
@@ -35,14 +35,14 @@ public class MessageSetFluidTradeRules2 implements IMessage<MessageSetFluidTrade
 	}
 	
 	@Override
-	public MessageSetFluidTradeRules2 decode(PacketBuffer buffer) {
-		return new MessageSetFluidTradeRules2(buffer.readUniqueId(), TradeRule.readRules(buffer.readCompoundTag()), buffer.readInt());
+	public MessageSetFluidTradeRules2 decode(FriendlyByteBuf buffer) {
+		return new MessageSetFluidTradeRules2(buffer.readUUID(), TradeRule.readRules(buffer.readNbt()), buffer.readInt());
 	}
 
 	@Override
-	public void encode(MessageSetFluidTradeRules2 message, PacketBuffer buffer) {
-		buffer.writeUniqueId(message.traderID);
-		buffer.writeCompoundTag(TradeRule.writeRules(new CompoundNBT(), message.rules));
+	public void encode(MessageSetFluidTradeRules2 message, FriendlyByteBuf buffer) {
+		buffer.writeUUID(message.traderID);
+		buffer.writeNbt(TradeRule.writeRules(new CompoundTag(), message.rules));
 		buffer.writeInt(message.tradeIndex);
 	}
 

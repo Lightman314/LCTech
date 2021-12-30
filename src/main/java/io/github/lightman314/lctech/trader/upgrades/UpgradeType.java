@@ -11,9 +11,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lctech.LCTech;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
@@ -28,7 +28,7 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 	
 	protected abstract List<String> getDataTags();
 	protected abstract Object defaultTagValue(String tag);
-	public List<ITextComponent> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
+	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(); }
 	public final UpgradeData getDefaultData() { return new UpgradeData(this); }
 	
 	@Override
@@ -108,17 +108,17 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 			return 0f;
 		}
 		
-		public void read(CompoundNBT compound)
+		public void read(CompoundTag compound)
 		{
 			
 		}
 		
-		public CompoundNBT writeToNBT() { return writeToNBT(null); }
+		public CompoundTag writeToNBT() { return writeToNBT(null); }
 		
-		public CompoundNBT writeToNBT(@Nullable UpgradeType source)
+		public CompoundTag writeToNBT(@Nullable UpgradeType source)
 		{
 			Map<String,Object> modifiedEntries = source == null ? this.data : getModifiedEntries(this,source);
-			CompoundNBT compound = new CompoundNBT();
+			CompoundTag compound = new CompoundTag();
 			modifiedEntries.forEach((key,value) ->{
 				
 			});
