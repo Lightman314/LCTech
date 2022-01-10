@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;

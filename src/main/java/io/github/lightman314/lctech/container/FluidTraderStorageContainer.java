@@ -11,10 +11,11 @@ import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditOpen;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.containers.interfaces.ICreativeTraderContainer;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -26,7 +27,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
-public class FluidTraderStorageContainer extends Container implements ITraderStorageContainer, ICreativeTraderContainer{
+public class FluidTraderStorageContainer extends Container implements ITraderStorageContainer{
 
 	public final PlayerEntity player;
 	public final FluidTraderTileEntity tileEntity;
@@ -136,7 +137,7 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 
 	@Override
 	public boolean canInteractWith(PlayerEntity playerIn) {
-		return true;
+		return this.hasPermission(Permissions.OPEN_STORAGE);
 	}
 	
 	@Override
@@ -150,14 +151,14 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		
 	}
 	
-	public boolean isOwner()
+	public boolean hasPermission(String permission)
 	{
-		return this.tileEntity.isOwner(this.player);
+		return this.tileEntity.hasPermission(this.player, permission);
 	}
 	
-	public boolean hasPermissions()
+	public int getPermissionLevel(String permission)
 	{
-		return this.tileEntity.hasPermissions(this.player);
+		return this.tileEntity.getPermissionLevel(this.player, permission);
 	}
 	
 	private void OnUpgradeSlotChanged()
@@ -191,6 +192,12 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 			return;
 		}
 		
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
+			return;
+		}
+		
 		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
 		this.tileEntity.addStoredMoney(addValue);
 		this.coinSlots.clear();
@@ -202,6 +209,12 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		if(this.tileEntity.isRemoved())
 		{
 			this.player.closeScreen();
+			return;
+		}
+		
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		
@@ -224,27 +237,6 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		//Clear the coin storage
 		this.tileEntity.clearStoredMoney();
 		
-	}
-	
-	public void ToggleCreative()
-	{
-		if(this.tileEntity.isRemoved())
-		{
-			this.player.closeScreen();
-			return;
-		}
-		
-		this.tileEntity.toggleCreative();
-	}
-	
-	public void AddTrade()
-	{
-		this.tileEntity.addTrade();
-	}
-	
-	public void RemoveTrade()
-	{
-		this.tileEntity.removeTrade();
 	}
 
 }

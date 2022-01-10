@@ -11,6 +11,7 @@ import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -53,9 +54,9 @@ public class FluidTapBundleBlock extends RotatableBlock implements IFluidTraderB
 			TraderTileEntity tileEntity = (TraderTileEntity)world.getTileEntity(pos);
 			if(tileEntity != null)
 			{
-				tileEntity.setOwner(player);
+				tileEntity.initOwner(PlayerReference.of(player));
 				if(stack.hasDisplayName())
-					tileEntity.setCustomName(stack.getDisplayName().getString());
+					tileEntity.getCoreSettings().setCustomName(null, stack.getDisplayName().getString());
 			}
 		}
 	}
@@ -69,10 +70,7 @@ public class FluidTapBundleBlock extends RotatableBlock implements IFluidTraderB
 			if(tileEntity instanceof TraderTileEntity)
 			{
 				TraderTileEntity trader = (FluidTraderTileEntity)tileEntity;
-				if(trader.isOwner(player) && !trader.isCreative())
-				{
-					trader.setOwner(player);
-				}
+				trader.getCoreSettings().updateNames(player);
 				TileEntityUtil.sendUpdatePacket(tileEntity);
 				trader.openTradeMenu(player);
 			}

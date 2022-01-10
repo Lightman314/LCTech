@@ -19,20 +19,29 @@ import io.github.lightman314.lctech.core.ModTileEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
+import io.github.lightman314.lctech.tileentities.handler.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
+import io.github.lightman314.lctech.trader.settings.FluidTraderSettings.FluidHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
+import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
@@ -57,6 +66,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
@@ -65,7 +75,9 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	
 	int tradeCount = 1;
 	
-	final TradeFluidHandler fluidHandler = new TradeFluidHandler(() -> this);
+	final TradeFluidHandler fluidHandler = new TradeFluidHandler(this);
+	
+	FluidTraderSettings fluidSettings = new FluidTraderSettings(this, this::markFluidSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	FluidShopLogger logger = new FluidShopLogger();
 	
@@ -124,6 +136,8 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		return MathUtil.clamp(this.tradeCount, 1, TRADE_LIMIT);
 	}
 	
+	public int getTradeCountLimit() { return TRADE_LIMIT; }
+	
 	public FluidTradeData getTrade(int tradeIndex)
 	{
 		if(tradeIndex >= 0 && tradeIndex < this.trades.size())
@@ -138,20 +152,37 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
-	public void addTrade() {
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.pos, isAdd));
+	}
+	
+	public void addTrade(PlayerEntity requestor) {
 		if(this.world.isRemote)
 			return;
 		if(this.tradeCount >= TRADE_LIMIT)
 			return;
+		
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "add trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		this.overrideTradeCount(this.tradeCount + 1);
 		this.forceReOpen();
 	}
 	
-	public void removeTrade() {
+	public void removeTrade(PlayerEntity requestor) {
 		if(this.world.isRemote)
 			return;
 		if(this.tradeCount <= 1)
 			return;
+		
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "remove trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		this.overrideTradeCount(this.tradeCount - 1);
 		this.forceReOpen();
 	}
@@ -188,12 +219,14 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		}
 	}
 	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.fluidSettings); }
+	
 	@Override
 	public CompoundNBT write(CompoundNBT compound)
 	{
 		
-		writePermissions(compound);
 		writeTrades(compound);
+		writeFluidSettings(compound);
 		writeUpgradeInventory(compound);
 		writeRules(compound);
 		writeLogger(compound);
@@ -203,15 +236,16 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		return compound;
 	}
 	
-	protected CompoundNBT writePermissions(CompoundNBT compound)
-	{
-		return compound;
-	}
-	
 	public CompoundNBT writeTrades(CompoundNBT compound)
 	{
 		compound.putInt("TradeCount", this.tradeCount);
 		FluidTradeData.WriteNBTList(this.trades, compound);
+		return compound;
+	}
+	
+	public CompoundNBT writeFluidSettings(CompoundNBT compound)
+	{
+		compound.put("FluidSettings", this.fluidSettings.save(new CompoundNBT()));
 		return compound;
 	}
 	
@@ -247,7 +281,10 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		
 		if(compound.contains("UpgradeInventory",Constants.NBT.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
-			
+		
+		if(compound.contains("FluidSettings",Constants.NBT.TAG_COMPOUND))
+			this.fluidSettings.load(compound.getCompound("FluidSettings"));
+		
 		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
@@ -409,8 +446,21 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		
 	}
 
+	public FluidTraderSettings getFluidSettings()
+	{
+		return this.fluidSettings;
+	}
 	
-
+	public void markFluidSettingsDirty()
+	{
+		if(!this.world.isRemote)
+		{
+			CompoundNBT compound = this.writeFluidSettings(new CompoundNBT());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+		}
+		this.markDirty();
+	}
+	
 	@Override
 	public void dumpContents(World world, BlockPos pos)
 	{
@@ -553,15 +603,23 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
     @Nonnull
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
     {
-		//Check for client flag
-		if(this.world.isRemote)
-			this.fluidHandler.flagAsClient();
-		
 		//Return the fluid handler capability
 		if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-			return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, this.fluidHandler.holder);
+		{
+			Direction relativeSide = side;
+			if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+			{
+				Direction facing = ((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState());
+				relativeSide = IItemHandlerBlock.getRelativeSide(facing, side);
+			}
+			FluidHandlerSettings handlerSetting = this.fluidSettings.getHandlerSetting(relativeSide);
+			IFluidHandler handler = this.fluidHandler.getFluidHandler(handlerSetting);
+			if(handler != null)
+				return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> handler));
+			return LazyOptional.empty();
+		}
 		
-		//Otherwise return none
+		//Otherwise return default
 		return super.getCapability(cap, side);
     }
 	

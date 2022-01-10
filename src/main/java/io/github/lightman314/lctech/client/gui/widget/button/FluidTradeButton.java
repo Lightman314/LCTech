@@ -115,8 +115,8 @@ public class FluidTradeButton extends Button{
 		List<ITextComponent> denialText = Lists.newArrayList();
 		boolean hasDiscount = false;
 		boolean isValid = forceActive ? true : trade.isValid();
-		boolean hasStock = forceActive ? true : trade.hasStock(trader, null) || trader.isCreative();
-		boolean hasSpace = forceActive ? true : trade.hasSpace() || trader.isCreative();
+		boolean hasStock = forceActive ? true : trade.hasStock(trader, null) || trader.getCoreSettings().isCreative();
+		boolean hasSpace = forceActive ? true : trade.hasSpace() || trader.getCoreSettings().isCreative();
 		boolean canAfford = forceActive ? true : false;
 		CoinValue cost = trade.getCost();
 		if(!forceActive && container != null)
@@ -127,7 +127,7 @@ public class FluidTradeButton extends Button{
 			cost = event.getCostResult();
 			hasDiscount = event.getCostMultiplier() != 1d;
 			//Has Stock
-			hasStock = trade.hasStock(trader, cost) || trader.isCreative();
+			hasStock = trade.hasStock(trader, cost) || trader.getCoreSettings().isCreative();
 			//Permission
 			hasPermission = container.PermissionToTrade(tradeIndex, denialText);
 			//CanAfford
@@ -242,7 +242,7 @@ public class FluidTradeButton extends Button{
 		CoinValue price = trade.getCost();
 		if(container != null)
 			price = container.TradeCostEvent(trade).getCostResult();
-		tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", trader.isCreative() ? new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new StringTextComponent("§6" + trade.getStock(trader, price))));
+		tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new StringTextComponent("§6" + trade.getStock(trader, price))));
 		//If denied, give denial reason
 		if(container != null)
 		{
@@ -309,7 +309,7 @@ public class FluidTradeButton extends Button{
 			CoinValue price = trade.getCost();
 			if(container != null)
 				price = container.TradeCostEvent(trade).getCostResult();
-			return trader.isCreative() || trade.hasStock(trader, price);
+			return trader.getCoreSettings().isCreative() || trade.hasStock(trader, price);
 		}
 		return false;
 	}

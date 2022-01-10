@@ -6,8 +6,9 @@ import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class UniversalFluidTraderTileEntity extends UniversalTraderTileEntity{
 
@@ -24,8 +25,8 @@ public class UniversalFluidTraderTileEntity extends UniversalTraderTileEntity{
 	}
 
 	@Override
-	protected UniversalTraderData createInitialData(Entity owner) {
-		return new UniversalFluidTraderData(owner, this.pos, this.world.getDimensionKey(), this.getTraderID(), this.tradeCount);
+	protected UniversalTraderData createInitialData(PlayerEntity owner) {
+		return new UniversalFluidTraderData(PlayerReference.of(owner), this.pos, this.world.getDimensionKey(), this.getTraderID(), this.tradeCount);
 	}
 	
 	@Override

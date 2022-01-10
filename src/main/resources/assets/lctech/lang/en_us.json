@@ -36,6 +36,14 @@
     
     "tooltip.lctech.upgrade.fluid_capacity":"Increases tank capacity by %smB",
     
+    "gui.lctech.settings.fluidinput.side": "Input Sides",
+    "gui.lctech.settings.fluidoutput.side": "Output Sides",
+    
+    "tooltip.lctech.settings.fluidinput" : "External Fluid Input & Output",
+    
+    "permission.changeDrainability" : "Edit Drain/Fill Settings",
+    "permission.fluidExternalInputs" : "Change Import/Export Settings",
+    
     "log.shoplog.fluid.format": "%1$s%2$s %3$s %4$s for %5$s",
     "log.shoplog.fluid.fluidformat": "%1$smB of %2$s"
 }

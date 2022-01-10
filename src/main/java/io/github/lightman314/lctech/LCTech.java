@@ -13,9 +13,11 @@ import org.apache.logging.log4j.Logger;
 
 import io.github.lightman314.lctech.client.ClientModEvents;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
+import io.github.lightman314.lctech.common.universaldata.traderSearching.FluidTraderSearchFilter;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("lctech")
@@ -55,6 +57,9 @@ public class LCTech
     private void doCommonStuff(final FMLCommonSetupEvent event)
     {
         LCTechPacketHandler.init();
+        
+        //Register Trader Search Filters
+        TraderSearchFilter.addFilter(new FluidTraderSearchFilter());
         
         //Register the universal data deserializer
         TradingOffice.RegisterDataType(UniversalFluidTraderData.TYPE, UniversalFluidTraderData::new);

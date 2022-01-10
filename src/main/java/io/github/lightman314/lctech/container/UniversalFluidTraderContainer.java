@@ -19,6 +19,8 @@ import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -178,9 +180,14 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		this.clearContainer(player, player.world, this.bucketInventory);
 	}
 
-	public boolean isOwner()
+	public boolean hasPermission(String permission)
 	{
-		return this.getData().isOwner(this.player);
+		return this.getData().hasPermission(this.player, permission);
+	}
+	
+	public int getPermissionLevel(String permission)
+	{
+		return this.getData().getPermissionLevel(this.player, permission);
 	}
 	
 	public long GetCoinValue()
@@ -205,6 +212,12 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		
 		if(getData().getStoredMoney().getRawValue() <= 0)
 			return;
+		
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+			return;
+		}
 		
 		//Get the coin count from the tile entity
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getData().getStoredMoney());
@@ -266,13 +279,13 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		CoinValue price = this.TradeCostEvent(trade).getCostResult();
 		
 		//Abort if not enough fluid in the tank
-		if(!trade.hasStock(this.getData(), price) && !this.getData().isCreative())
+		if(!trade.hasStock(this.getData(), price) && !this.getData().getCoreSettings().isCreative())
 		{
 			LCTech.LOGGER.debug("Not enough fluid to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
 		}
 		//Abort if the tank doesn't have enough space for the purchased fluid.
-		if(trade.isPurchase() && !(trade.hasSpace() || this.getData().isCreative()))
+		if(trade.isPurchase() && !(trade.hasSpace() || this.getData().getCoreSettings().isCreative()))
 		{
 			LCTech.LOGGER.debug("Not enough space in the fluid tank to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
@@ -292,7 +305,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 				LCTech.LOGGER.debug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
 			}
-			if(!this.getData().isCreative())
+			if(!this.getData().getCoreSettings().isCreative())
 			{
 				//Add the stored money to the trader
 				this.getData().addStoredMoney(price);
@@ -304,7 +317,7 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 			//Put the payment in the purchasers wallet, coin slot, etc.
 			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
 			
-			if(!this.getData().isCreative())
+			if(!this.getData().getCoreSettings().isCreative())
 			{
 				//Remove the stored money to the trader
 				this.getData().removeStoredMoney(price);
@@ -313,11 +326,11 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 		}
 		
 		//Log the successful trade
-		this.getData().getLogger().AddLog(player, trade, price, this.getData().isCreative());
+		this.getData().getLogger().AddLog(player, trade, price, this.getData().getCoreSettings().isCreative());
 		this.getData().markLoggerDirty();
 		
 		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.getData().isCreative());
+		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.getData().getCoreSettings().isCreative());
 		this.bucketInventory.setInventorySlotContents(0, newBucket);
 		this.getData().markTradesDirty();
 		

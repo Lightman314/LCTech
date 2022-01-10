@@ -13,6 +13,7 @@ import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.container.FluidEditContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -77,8 +78,8 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 		
 		//Initialize thie buttons
 		//Page Buttons
-		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize, 0));
-		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, GUI_TEXTURE, this.xSize + 16, 0));
+		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
 		
 		//Close Button
 		this.addButton(new Button(this.guiLeft + 7, this.guiTop + 129, 162, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));

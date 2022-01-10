@@ -13,8 +13,9 @@ import io.github.lightman314.lctech.container.UniversalFluidTraderStorageContain
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
-import io.github.lightman314.lctech.tileentities.TradeFluidHandler;
+import io.github.lightman314.lctech.tileentities.handler.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
@@ -26,13 +27,16 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -59,7 +63,9 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public static final int VERSION = 0;
 	
-	public final TradeFluidHandler fluidHandler = new TradeFluidHandler(() -> this);
+	public final TradeFluidHandler fluidHandler = new TradeFluidHandler(this);
+	
+	private FluidTraderSettings fluidSettings = new FluidTraderSettings(this, this::markFluidSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	int tradeCount = 1;
 	List<FluidTradeData> trades = null;
@@ -74,8 +80,8 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public UniversalFluidTraderData() {}
 	
-	public UniversalFluidTraderData(Entity owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount) {
-		super(owner.getUniqueID(), owner.getDisplayName().getString(), pos, world, traderID);
+	public UniversalFluidTraderData(PlayerReference owner, BlockPos pos, RegistryKey<World> world, UUID traderID, int tradeCount) {
+		super(owner, pos, world, traderID);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADELIMIT);
 		this.trades = FluidTradeData.listOfSize(tradeCount);
 	}
@@ -97,6 +103,9 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		if(compound.contains(TradeRule.DEFAULT_TAG, Constants.NBT.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
+		if(compound.contains("FluidSettings", Constants.NBT.TAG_COMPOUND))
+			this.fluidSettings.load(compound.getCompound("FluidSettings"));
+		
 		super.read(compound);
 	}
 	
@@ -107,6 +116,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		this.writeUpgrades(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
+		this.writeFluidSettings(compound);
 		
 		return super.write(compound);
 	}
@@ -136,21 +146,44 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		return compound;
 	}
 	
+	protected final CompoundNBT writeFluidSettings(CompoundNBT compound)
+	{
+		compound.put("FluidSettings", this.fluidSettings.save(new CompoundNBT()));
+		return compound;
+	}
+	
 	@Override
 	public int getTradeCount() {
 		return this.tradeCount;
 	}
+	
+	public int getTradeCountLimit() { return TRADELIMIT; }
 
-	public void addTrade() {
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade2(this.getTraderID(), isAdd));
+	}
+	
+	public void addTrade(PlayerEntity requestor) {
 		if(this.tradeCount >= TRADELIMIT)
 			return;
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "add trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		this.overrideTradeCount(this.tradeCount + 1);
 		forceReOpen();
 	}
 	
-	public void removeTrade() {
+	public void removeTrade(PlayerEntity requestor) {
 		if(this.tradeCount <= 1)
 			return;
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "remove trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		this.overrideTradeCount(this.tradeCount - 1);
 		forceReOpen();
 	}
@@ -191,6 +224,18 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public void markTradesDirty() { this.markDirty(this::writeTrades); }
 
+	public FluidTraderSettings getFluidSettings()
+	{
+		return this.fluidSettings;
+	}
+	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(); }
+	
+	public void markFluidSettingsDirty()
+	{
+		this.markDirty(this::writeFluidSettings);
+	}
+	
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
 	public FluidShopLogger getLogger() { return this.logger; }

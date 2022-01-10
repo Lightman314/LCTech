@@ -6,6 +6,7 @@ import io.github.lightman314.lctech.tileentities.UniversalFluidTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.blocks.ITraderBlock;
 import io.github.lightman314.lightmanscurrency.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.tileentity.UniversalTraderTileEntity;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -80,9 +81,9 @@ public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlo
 			UniversalTraderTileEntity tileEntity = (UniversalTraderTileEntity)world.getTileEntity(pos);
 			if(tileEntity != null)
 			{
-				if(tileEntity.hasPermissions(playerEntity))
+				if(tileEntity.hasPermission(playerEntity, Permissions.OPEN_STORAGE))
 				{
-					tileEntity.updateOwner(playerEntity);
+					tileEntity.updateNames(playerEntity);
 					tileEntity.openStorageMenu(playerEntity);
 				}
 			}
