@@ -259,7 +259,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 			for(int i = 0; i < tileEntity.getTradeCount(); i++)
 			{
 				int result = FluidTradeButton.tryRenderTooltip(matrixStack, this, i, tileEntity, this.guiLeft + FluidTraderUtil.getButtonPosX(tileEntity, i) + 32, this.guiTop + FluidTraderUtil.getButtonPosY(tileEntity, i), mouseX, mouseY, null, true);
-				if(result == -2 && this.container.player.inventory.getItemStack().isEmpty())
+				if(result == -2 && this.container.player.inventory.getItemStack().isEmpty() && this.container.hasPermission(Permissions.EDIT_TRADES))
 					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_edit"), mouseX, mouseY);
 			}
 		}

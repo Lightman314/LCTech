@@ -122,6 +122,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		//this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
 		this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.buttonTradeRules.visible = this.trader.get().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.buttonToggleDrainable = this.addButton(new PlainButton(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleDrainButton, GUI_TEXTURE, this.xSize, 16));
 		this.buttonToggleDrainable.visible = this.trader.get().drainCapable();

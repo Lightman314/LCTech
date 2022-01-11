@@ -119,12 +119,16 @@ public class FluidTraderScreenCR extends ContainerScreen<FluidTraderContainerCR>
 		
 		this.container.tick();
 		
-		if(this.buttonCollectMoney != null)
+		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
+			this.buttonCollectMoney.visible = true;
 			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().isCreative();
 		}
+		else
+			this.buttonCollectMoney.visible = false;
+		
 		if(this.buttonSkipToPage != null)
 		{
 			this.buttonSkipToPage.active = this.getPageInput() >= 0 && this.getPageInput() < this.container.getTotalCount() && this.getPageInput() != this.container.getThisIndex();
