@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
+import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
@@ -62,9 +62,9 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 			if(player != null)
 			{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof FluidTraderTileEntity)
+				if(blockEntity instanceof FluidTraderBlockEntity)
 				{
-					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)blockEntity;
+					FluidTraderBlockEntity traderEntity = (FluidTraderBlockEntity)blockEntity;
 					FluidTradeData trade = traderEntity.getTrade(message.tradeIndex);
 					
 					trade.setCost(message.price);

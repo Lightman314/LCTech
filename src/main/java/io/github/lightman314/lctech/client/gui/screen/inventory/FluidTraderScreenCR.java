@@ -10,12 +10,14 @@ import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.FluidTraderContainerCR;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRNextTrader;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRSkipTo;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -79,28 +81,20 @@ public class FluidTraderScreenCR extends AbstractContainerScreen<FluidTraderCont
 		
 		if(this.menu.cashRegister.getPairedTraderSize() > 1)
 		{
-			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos + tradeOffset - 20, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176, 16));
-			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos + tradeOffset - 20, this.topPos, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
+			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - tradeOffset, this.topPos, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
 			
 			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, new TextComponent("")));
 			this.pageInput.setMaxLength(9);
 			this.pageInput.setValue(String.valueOf(this.menu.getThisIndex() + 1));
 			
-			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton, GUI_TEXTURE, 176 + 16, 16));
+			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
 			this.buttonSkipToPage.active = false;
-			
-			
-			
 		}
 		
-		if(this.menu.isOwner())
-		{
-			
-			//this.buttonShowStorage = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop, this::PressStorageButton, GUI_TEXTURE, this.xSize, 0));
-			
-			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, GUI_TEXTURE, this.imageWidth + 16, 0));
-			this.buttonCollectMoney.active = false;
-		}
+		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 16, 0)));
+		this.buttonCollectMoney.active = false;
+		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS);
 		
 		initTradeButtons();
 		
@@ -121,12 +115,16 @@ public class FluidTraderScreenCR extends AbstractContainerScreen<FluidTraderCont
 		
 		this.menu.tick();
 		
-		if(this.buttonCollectMoney != null)
+		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
+			this.buttonCollectMoney.visible = true;
 			this.buttonCollectMoney.active = this.menu.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.tileEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.menu.tileEntity.getCoreSettings().isCreative();
 		}
+		else
+			this.buttonCollectMoney.visible = false;
+		
 		if(this.buttonSkipToPage != null)
 		{
 			this.buttonSkipToPage.active = this.getPageInput() >= 0 && this.getPageInput() < this.menu.getTotalCount() && this.getPageInput() != this.menu.getThisIndex();
@@ -153,12 +151,10 @@ public class FluidTraderScreenCR extends AbstractContainerScreen<FluidTraderCont
 	
 	private void PressCollectionButton(Button button)
 	{
-		if(menu.isOwner())
+		if(menu.hasPermission(Permissions.COLLECT_COINS))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
 		}
-		else
-			LCTech.LOGGER.warn("Non-owner attempted the collect the stored money.");
 	}
 	
 	private void PressTradeButton(Button button)

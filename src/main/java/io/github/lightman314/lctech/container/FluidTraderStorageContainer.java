@@ -4,17 +4,18 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.core.ModContainers;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditOpen;
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ICreativeTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -26,14 +27,14 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class FluidTraderStorageContainer extends AbstractContainerMenu implements ITraderStorageMenu, ICreativeTraderMenu{
+public class FluidTraderStorageContainer extends AbstractContainerMenu implements ITraderStorageMenu{
 
 	public final Player player;
-	public final FluidTraderTileEntity tileEntity;
+	public final FluidTraderBlockEntity tileEntity;
 	
 	final Container coinSlots;
 	
-	public FluidTraderStorageContainer(int windowId, Inventory inventory, FluidTraderTileEntity tileEntity) {
+	public FluidTraderStorageContainer(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity) {
 		super(ModContainers.FLUID_TRADER_STORAGE, windowId);
 		
 		this.player = inventory.player;
@@ -136,7 +137,7 @@ public class FluidTraderStorageContainer extends AbstractContainerMenu implement
 
 	@Override
 	public boolean stillValid(Player playerIn) {
-		return true;
+		return this.hasPermission(Permissions.OPEN_STORAGE);
 	}
 	
 	@Override
@@ -150,14 +151,14 @@ public class FluidTraderStorageContainer extends AbstractContainerMenu implement
 		
 	}
 	
-	public boolean isOwner()
+	public boolean hasPermission(String permission)
 	{
-		return this.tileEntity.isOwner(this.player);
+		return this.tileEntity.hasPermission(this.player, permission);
 	}
 	
-	public boolean hasPermissions()
+	public int getPermissionLevel(String permission)
 	{
-		return this.tileEntity.hasPermissions(this.player);
+		return this.tileEntity.getPermissionLevel(this.player, permission);
 	}
 	
 	private void OnUpgradeSlotChanged()
@@ -191,6 +192,12 @@ public class FluidTraderStorageContainer extends AbstractContainerMenu implement
 			return;
 		}
 		
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
+			return;
+		}
+		
 		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
 		this.tileEntity.addStoredMoney(addValue);
 		this.coinSlots.clearContent();
@@ -202,6 +209,12 @@ public class FluidTraderStorageContainer extends AbstractContainerMenu implement
 		if(this.tileEntity.isRemoved())
 		{
 			this.player.closeContainer();
+			return;
+		}
+		
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		
@@ -224,27 +237,6 @@ public class FluidTraderStorageContainer extends AbstractContainerMenu implement
 		//Clear the coin storage
 		this.tileEntity.clearStoredMoney();
 		
-	}
-	
-	public void ToggleCreative()
-	{
-		if(this.tileEntity.isRemoved())
-		{
-			this.player.closeContainer();
-			return;
-		}
-		
-		this.tileEntity.toggleCreative();
-	}
-	
-	public void AddTrade()
-	{
-		this.tileEntity.addTrade();
-	}
-	
-	public void RemoveTrade()
-	{
-		this.tileEntity.removeTrade();
 	}
 
 }

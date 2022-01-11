@@ -12,6 +12,7 @@ import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEd
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -131,7 +132,7 @@ public class FluidEditContainer extends AbstractContainerMenu{
 	public ItemStack quickMoveStack(Player playerEntity, int index) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(Player player) { return true; }
+	public boolean stillValid(Player player) { return this.traderSource.get().hasPermission(player, Permissions.EDIT_TRADES); }
 	
 	public void modifySearch(String newSearch) {
 		this.searchString = newSearch.toLowerCase();

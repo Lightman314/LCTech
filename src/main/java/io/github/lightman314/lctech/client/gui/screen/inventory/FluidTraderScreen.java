@@ -12,10 +12,12 @@ import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.FluidTraderContainer;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -143,16 +145,14 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 	{
 		super.init();
 		
-		if(this.menu.isOwner())
-		{
-			
-			int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(this.menu.tileEntity);
-			
-			this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos, this::PressStorageButton, GUI_TEXTURE, 176, 0));
-			
-			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
-			this.buttonCollectMoney.active = false;
-		}
+		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(this.menu.tileEntity);
+		
+		this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos, this::PressStorageButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
+		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE);
+		
+		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
+		this.buttonCollectMoney.active = false;
+		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS);
 		
 		initTradeButtons();
 		
@@ -173,12 +173,17 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 		
 		this.menu.tick();
 		
-		if(this.buttonCollectMoney != null)
+		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE);
+		
+		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
+			this.buttonCollectMoney.visible = true;
 			this.buttonCollectMoney.active = this.menu.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.tileEntity.isCreative();
+				this.buttonCollectMoney.visible = !this.menu.tileEntity.getCoreSettings().isCreative();
 		}
+		else
+			this.buttonCollectMoney.visible = false;
 		
 	}
 	
@@ -205,22 +210,18 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 
 	private void PressStorageButton(Button button)
 	{
-		if(menu.isOwner())
+		if(menu.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.menu.tileEntity.getBlockPos()));
 		}
-		else
-			LCTech.LOGGER.warn("Non-owner attempted to open the Fluid Trader's Storage");
 	}
 	
 	private void PressCollectionButton(Button button)
 	{
-		if(menu.isOwner())
+		if(menu.hasPermission(Permissions.COLLECT_COINS))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
 		}
-		else
-			LCTech.LOGGER.warn("Non-owner attempted the collect the stored money.");
 	}
 	
 	private void PressTradeButton(Button button)

@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.tileentities;
+package io.github.lightman314.lctech.blockentities;
 
 import java.util.List;
 
@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.blockentities.handler.TradeFluidHandler;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
@@ -15,21 +16,29 @@ import io.github.lightman314.lctech.container.FluidEditContainer;
 import io.github.lightman314.lctech.container.FluidTraderContainer;
 import io.github.lightman314.lctech.container.FluidTraderContainerCR;
 import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
-import io.github.lightman314.lctech.core.ModTileEntities;
+import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
 import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
+import io.github.lightman314.lctech.trader.settings.FluidTraderSettings.FluidHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -57,15 +66,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.network.NetworkHooks;
 
-public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
+public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
 	
 	public static final int TRADE_LIMIT = 8;
 	
 	int tradeCount = 1;
 	
-	final TradeFluidHandler fluidHandler = new TradeFluidHandler(() -> this);
+	final TradeFluidHandler fluidHandler = new TradeFluidHandler(this);
+	
+	FluidTraderSettings fluidSettings = new FluidTraderSettings(this, this::markFluidSettingsDirty, this::sendSettingsUpdateToServer);
 	
 	FluidShopLogger logger = new FluidShopLogger();
 	
@@ -81,16 +93,16 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	 * Default Fluid Trader Entity:
 	 * Trade Count: 1
 	 */
-	public FluidTraderTileEntity(BlockPos pos, BlockState state)
+	public FluidTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		this(ModTileEntities.FLUID_TRADER, pos, state);
+		this(ModBlockEntities.FLUID_TRADER, pos, state);
 	}
 	
 	/**
 	 * Default Fluid Trader Entity (for children):
 	 * Trade Count: 1
 	 */
-	protected FluidTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
+	protected FluidTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state)
 	{
 		this(type, pos, state, 1);
 	}
@@ -99,16 +111,16 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	 * Default Fluid Trader Entity:
 	 * Trade Count: @param tradeCount (up to 8)
 	 */
-	public FluidTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
+	public FluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		this(ModTileEntities.FLUID_TRADER, pos, state, tradeCount);
+		this(ModBlockEntities.FLUID_TRADER, pos, state, tradeCount);
 	}
 	
 	/**
 	 * Default Fluid Trader Entity (for children):
 	 * Trade Count: @param tradeCount (up to 8)
 	 */
-	protected FluidTraderTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
+	protected FluidTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
 	{
 		super(type, pos, state);
 		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
@@ -119,6 +131,8 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	{
 		return MathUtil.clamp(this.tradeCount, 1, TRADE_LIMIT);
 	}
+	
+	public int getTradeCountLimit() { return TRADE_LIMIT; }
 	
 	public FluidTradeData getTrade(int tradeIndex)
 	{
@@ -134,20 +148,37 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
-	public void addTrade() {
+	public void requestAddOrRemoveTrade(boolean isAdd)
+	{
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageAddOrRemoveTrade(this.worldPosition, isAdd));
+	}
+	
+	public void addTrade(Player requestor) {
 		if(this.level.isClientSide)
 			return;
 		if(this.tradeCount >= TRADE_LIMIT)
 			return;
+		
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "add trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		this.overrideTradeCount(this.tradeCount + 1);
 		this.forceReOpen();
 	}
 	
-	public void removeTrade() {
+	public void removeTrade(Player requestor) {
 		if(this.level.isClientSide)
 			return;
 		if(this.tradeCount <= 1)
 			return;
+		
+		if(!TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "remove trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		this.overrideTradeCount(this.tradeCount - 1);
 		this.forceReOpen();
 	}
@@ -184,12 +215,14 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 		}
 	}
 	
+	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.fluidSettings); }
+	
 	@Override
 	public void saveAdditional(CompoundTag compound)
 	{
 		
-		writePermissions(compound);
 		writeTrades(compound);
+		writeFluidSettings(compound);
 		writeUpgradeInventory(compound);
 		writeRules(compound);
 		writeLogger(compound);
@@ -198,15 +231,16 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 		
 	}
 	
-	protected CompoundTag writePermissions(CompoundTag compound)
-	{
-		return compound;
-	}
-	
 	public CompoundTag writeTrades(CompoundTag compound)
 	{
 		compound.putInt("TradeCount", this.tradeCount);
 		FluidTradeData.WriteNBTList(this.trades, compound);
+		return compound;
+	}
+	
+	public CompoundTag writeFluidSettings(CompoundTag compound)
+	{
+		compound.put("FluidSettings", this.fluidSettings.save(new CompoundTag()));
 		return compound;
 	}
 	
@@ -243,6 +277,9 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 		if(compound.contains("UpgradeInventory",Tag.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 			
+		if(compound.contains("FluidSettings", Tag.TAG_COMPOUND))
+			this.fluidSettings.load(compound.getCompound("FluidSettings"));
+		
 		if(compound.contains(TradeRule.DEFAULT_TAG, Tag.TAG_LIST))
 			this.tradeRules = TradeRule.readRules(compound);
 		
@@ -289,9 +326,9 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	private class TraderProvider implements MenuProvider
 	{
 
-		final FluidTraderTileEntity tileEntity;
+		final FluidTraderBlockEntity tileEntity;
 		
-		private TraderProvider(FluidTraderTileEntity tileEntity)
+		private TraderProvider(FluidTraderBlockEntity tileEntity)
 		{
 			this.tileEntity = tileEntity;
 		}
@@ -311,9 +348,9 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	private class TraderStorageProvider implements MenuProvider
 	{
 
-		final FluidTraderTileEntity tileEntity;
+		final FluidTraderBlockEntity tileEntity;
 		
-		private TraderStorageProvider(FluidTraderTileEntity tileEntity)
+		private TraderStorageProvider(FluidTraderBlockEntity tileEntity)
 		{
 			this.tileEntity = tileEntity;
 		}
@@ -332,10 +369,10 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	
 	private class TradeCRContainerProvider implements MenuProvider
 	{
-		FluidTraderTileEntity blockEntity;
+		FluidTraderBlockEntity blockEntity;
 		CashRegisterBlockEntity registerEntity;
 		
-		public TradeCRContainerProvider(FluidTraderTileEntity blockEntity, CashRegisterBlockEntity registerEntity) {
+		public TradeCRContainerProvider(FluidTraderBlockEntity blockEntity, CashRegisterBlockEntity registerEntity) {
 			this.blockEntity = blockEntity;
 			this.registerEntity = registerEntity;
 		}
@@ -351,10 +388,10 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	
 	private class FluidEditContainerProvider implements MenuProvider
 	{
-		FluidTraderTileEntity blockEntity;
+		FluidTraderBlockEntity blockEntity;
 		int tradeIndex;
 		
-		public FluidEditContainerProvider(FluidTraderTileEntity blockEntity, int tradeIndex) {
+		public FluidEditContainerProvider(FluidTraderBlockEntity blockEntity, int tradeIndex) {
 			this.blockEntity = blockEntity;
 			this.tradeIndex = tradeIndex;
 		}
@@ -404,8 +441,21 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 		
 	}
 
+	public FluidTraderSettings getFluidSettings()
+	{
+		return this.fluidSettings;
+	}
 	
-
+	public void markFluidSettingsDirty()
+	{
+		if(!this.level.isClientSide)
+		{
+			CompoundTag compound = this.writeFluidSettings(new CompoundTag());
+			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+		}
+		this.setChanged();
+	}
+	
 	@Override
 	public void dumpContents(Level level, BlockPos pos)
 	{
@@ -505,9 +555,9 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
 	
 	private static class TraderScreenHandler implements ITradeRuleScreenHandler
 	{
-		private FluidTraderTileEntity blockEntity;
+		private FluidTraderBlockEntity blockEntity;
 		
-		public TraderScreenHandler(FluidTraderTileEntity blockEntity) { this.blockEntity = blockEntity; }
+		public TraderScreenHandler(FluidTraderBlockEntity blockEntity) { this.blockEntity = blockEntity; }
 
 		@Override
 		public void reopenLastScreen() {
@@ -548,13 +598,21 @@ public class FluidTraderTileEntity extends TraderBlockEntity implements IFluidTr
     @Nonnull
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
     {
-		//Check for client flag
-		if(this.level.isClientSide)
-			this.fluidHandler.flagAsClient();
-		
 		//Return the fluid handler capability
 		if(cap == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
-			return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, this.fluidHandler.holder);
+		{
+			Direction relativeSide = side;
+			if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+			{
+				Direction facing = ((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState());
+				relativeSide = IItemHandlerBlock.getRelativeSide(facing, side);
+			}
+			FluidHandlerSettings handlerSetting = this.fluidSettings.getHandlerSetting(relativeSide);
+			IFluidHandler handler = this.fluidHandler.getFluidHandler(handlerSetting);
+			if(handler != null)
+				return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> handler));
+			return LazyOptional.empty();
+		}
 		
 		//Otherwise return none
 		return super.getCapability(cap, side);

@@ -2,10 +2,11 @@ package io.github.lightman314.lctech.blocks;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lctech.tileentities.UniversalFluidTraderTileEntity;
+import io.github.lightman314.lctech.blockentities.UniversalFluidTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.interfaces.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -33,7 +34,7 @@ public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlo
 	@Nullable
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
 	{
-		return new UniversalFluidTraderTileEntity(pos, state, this.tradeCount);
+		return new UniversalFluidTraderBlockEntity(pos, state, this.tradeCount);
 	}
 	
 	@Override
@@ -74,9 +75,9 @@ public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlo
 			UniversalTraderBlockEntity tileEntity = (UniversalTraderBlockEntity)level.getBlockEntity(pos);
 			if(tileEntity != null)
 			{
-				if(tileEntity.hasPermissions(player))
+				if(tileEntity.hasPermission(player, Permissions.OPEN_STORAGE))
 				{
-					tileEntity.updateOwner(player);
+					tileEntity.updateNames(player);
 					tileEntity.openStorageMenu(player);
 				}
 			}

@@ -2,7 +2,8 @@ package io.github.lightman314.lctech.trader;
 
 import java.util.List;
 
-import io.github.lightman314.lctech.tileentities.TradeFluidHandler;
+import io.github.lightman314.lctech.blockentities.handler.TradeFluidHandler;
+import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
@@ -21,5 +22,7 @@ public interface IFluidTrader extends ITrader, IUpgradeable{
 	public void openTradeMenu(Player player);
 	public void openStorageMenu(Player player);
 	public void openFluidEditMenu(Player player, int tradeIndex);
+	public FluidTraderSettings getFluidSettings();
+	public void markFluidSettingsDirty();
 	
 }

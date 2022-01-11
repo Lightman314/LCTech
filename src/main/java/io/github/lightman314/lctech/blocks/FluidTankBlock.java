@@ -1,8 +1,8 @@
 package io.github.lightman314.lctech.blocks;
 
+import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidTankItem;
-import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -54,7 +54,7 @@ public class FluidTankBlock extends Block implements EntityBlock{
 	{
 		if(!level.isClientSide)
 		{
-			FluidTankTileEntity tileEntity = (FluidTankTileEntity)level.getBlockEntity(pos);
+			FluidTankBlockEntity tileEntity = (FluidTankBlockEntity)level.getBlockEntity(pos);
 			if(tileEntity != null)
 				tileEntity.loadFromItem(stack);
 		}
@@ -64,9 +64,9 @@ public class FluidTankBlock extends Block implements EntityBlock{
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof FluidTankTileEntity)
+		if(blockEntity instanceof FluidTankBlockEntity)
 		{
-			return ((FluidTankTileEntity)blockEntity).onInteraction(player, hand);
+			return ((FluidTankBlockEntity)blockEntity).onInteraction(player, hand);
 		}
 		return InteractionResult.PASS;
 	}
@@ -78,9 +78,9 @@ public class FluidTankBlock extends Block implements EntityBlock{
 		if(!level.isClientSide && !player.isCreative())
 		{
 			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof FluidTankTileEntity)
+			if(tileEntity instanceof FluidTankBlockEntity)
 			{
-				popResource(level, pos, FluidTankItem.GetItemFromTank((FluidTankTileEntity)tileEntity));
+				popResource(level, pos, FluidTankItem.GetItemFromTank((FluidTankBlockEntity)tileEntity));
 			}
 		}
 		super.playerWillDestroy(level, pos, state, player);
@@ -89,8 +89,8 @@ public class FluidTankBlock extends Block implements EntityBlock{
 	@Override
 	public ItemStack getCloneItemStack(BlockGetter level, BlockPos pos, BlockState state) {
 		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof FluidTankTileEntity)
-			return FluidTankItem.GetItemFromTank((FluidTankTileEntity)blockEntity);
+		if(blockEntity instanceof FluidTankBlockEntity)
+			return FluidTankItem.GetItemFromTank((FluidTankBlockEntity)blockEntity);
 		return new ItemStack(this);
 	}
 	
@@ -98,7 +98,7 @@ public class FluidTankBlock extends Block implements EntityBlock{
 
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new FluidTankTileEntity(pos, state);
+		return new FluidTankBlockEntity(pos, state);
 	}
 	
 }

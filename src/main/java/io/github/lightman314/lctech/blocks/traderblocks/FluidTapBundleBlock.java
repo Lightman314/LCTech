@@ -6,11 +6,11 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
-import io.github.lightman314.lctech.core.ModTileEntities;
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
+import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
@@ -40,12 +40,12 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {
-		return new FluidTraderTileEntity(pos, state, 4);
+		return new FluidTraderBlockEntity(pos, state, 4);
 	}
 
 	@Override
 	protected BlockEntityType<?> traderType() {
-		return ModTileEntities.FLUID_TRADER;
+		return ModBlockEntities.FLUID_TRADER;
 	}
 
 	@Override

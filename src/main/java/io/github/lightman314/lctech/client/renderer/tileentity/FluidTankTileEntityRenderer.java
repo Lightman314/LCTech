@@ -2,15 +2,15 @@ package io.github.lightman314.lctech.client.renderer.tileentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTankTileEntity>{
+public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTankBlockEntity>{
 
 	public FluidTankTileEntityRenderer(BlockEntityRendererProvider.Context context)
 	{
@@ -18,7 +18,7 @@ public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTan
 	}
 	
 	@Override
-	public void render(FluidTankTileEntity tileEntity, float partialTicket, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay)
+	public void render(FluidTankBlockEntity tileEntity, float partialTicket, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay)
 	{
 		
 		FluidStack tank = tileEntity.getTankContents();

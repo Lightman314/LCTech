@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.client.gui.widget.button.interfaces.IFluidTradeButtonContainer;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.slots.FluidInputSlot;
 import io.github.lightman314.lctech.core.ModContainers;
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent;
@@ -16,6 +16,8 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -33,17 +35,17 @@ import net.minecraftforge.common.MinecraftForge;
 public class FluidTraderContainer extends AbstractContainerMenu implements ITraderMenu, IFluidTradeButtonContainer{
 
 	public final Player player;
-	public final FluidTraderTileEntity tileEntity;
+	public final FluidTraderBlockEntity tileEntity;
 	
 	Container bucketInventory = new SimpleContainer(1);
 	Container coinSlots = new SimpleContainer(5);
 	
-	public FluidTraderContainer(int windowId, Inventory inventory, FluidTraderTileEntity tileEntity)
+	public FluidTraderContainer(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity)
 	{
 		this(ModContainers.FLUID_TRADER, windowId, inventory, tileEntity);
 	}
 	
-	protected FluidTraderContainer(MenuType<?> type, int windowId, Inventory inventory, FluidTraderTileEntity tileEntity)
+	protected FluidTraderContainer(MenuType<?> type, int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity)
 	{
 		
 		super(type, windowId);
@@ -174,9 +176,14 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		this.tileEntity.userClose(player);
 	}
 
-	public boolean isOwner()
+	public boolean hasPermission(String permission)
 	{
-		return this.tileEntity.isOwner(this.player);
+		return this.tileEntity.hasPermission(this.player, permission);
+	}
+	
+	public int getPermissionLevel(String permission)
+	{
+		return this.tileEntity.getPermissionLevel(this.player, permission);
 	}
 	
 	public long GetCoinValue()
@@ -201,6 +208,12 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		
 		if(tileEntity.getStoredMoney().getRawValue() <= 0)
 			return;
+		
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
+			return;
+		}
 		
 		//Get the coin count from the tile entity
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.tileEntity.getStoredMoney());
@@ -262,13 +275,13 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		CoinValue price = this.TradeCostEvent(trade).getCostResult();
 		
 		//Abort if not enough fluid in the tank
-		if(!trade.hasStock(this.tileEntity, price) && !this.tileEntity.isCreative())
+		if(!trade.hasStock(this.tileEntity, price) && !this.tileEntity.getCoreSettings().isCreative())
 		{
 			LCTech.LOGGER.debug("Not enough fluid to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
 		}
 		//Abort if the tank doesn't have enough space for the purchased fluid.
-		if(trade.isPurchase() && !(trade.hasSpace() || this.tileEntity.isCreative()))
+		if(trade.isPurchase() && !(trade.hasSpace() || this.tileEntity.getCoreSettings().isCreative()))
 		{
 			LCTech.LOGGER.debug("Not enough space in the fluid tank to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
@@ -288,7 +301,7 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 				LCTech.LOGGER.debug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
 				return;
 			}
-			if(!this.tileEntity.isCreative())
+			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Add the stored money to the trader
 				this.tileEntity.addStoredMoney(price);
@@ -300,7 +313,7 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 			//Put the payment in the purchasers wallet, coin slot, etc.
 			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
 			
-			if(!this.tileEntity.isCreative())
+			if(!this.tileEntity.getCoreSettings().isCreative())
 			{
 				//Remove the stored money to the trader
 				this.tileEntity.removeStoredMoney(price);
@@ -309,11 +322,11 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		}
 		
 		//Log the successful trade
-		this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.isCreative());
+		this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.getCoreSettings().isCreative());
 		this.tileEntity.markLoggerDirty();
 		
 		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.tileEntity.isCreative());
+		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.tileEntity.getCoreSettings().isCreative());
 		this.bucketInventory.setItem(0, newBucket);
 		this.tileEntity.markTradesDirty();
 		

@@ -13,6 +13,7 @@ import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.container.FluidEditContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -75,8 +76,8 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditContainer>
 		
 		//Initialize thie buttons
 		//Page Buttons
-		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, GUI_TEXTURE, this.width, 0));
-		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.width, this.topPos, this::PressPageButton, GUI_TEXTURE, this.width + 16, 0));
+		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.width, 0)));
+		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.width, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.width + 16, 0)));
 		
 		//Close Button
 		this.addRenderableWidget(new Button(this.leftPos + 7, this.topPos + 129, 162, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));

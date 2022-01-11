@@ -11,10 +11,12 @@ import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.UniversalFluidTraderContainer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -71,16 +73,14 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(this.menu.getData());
 		int tradeHeight = FluidTraderUtil.getTradeDisplayHeight(this.menu.getData());
 		
-		this.buttonBack = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + tradeHeight - 20, this::PressBackButton, GUI_TEXTURE, 176 + 32, 0));
+		this.buttonBack = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + tradeHeight - 20, this::PressBackButton, this.font, IconData.of(GUI_TEXTURE, 176 + 32, 0)));
 		
-		if(this.menu.isOwner())
-		{
-			
-			this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos, this::PressStorageButton, GUI_TEXTURE, 176, 0));
-			
-			this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, GUI_TEXTURE, 176 + 16, 0));
-			this.buttonCollectMoney.active = false;
-		}
+		this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos, this::PressStorageButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
+		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE);
+		
+		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
+		this.buttonCollectMoney.active = false;
+		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS);
 		
 		initTradeButtons();
 		
@@ -100,12 +100,17 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 	{
 		this.menu.tick();
 		
-		if(this.buttonCollectMoney != null)
+		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE);
+		
+		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
+			this.buttonCollectMoney.visible = true;
 			this.buttonCollectMoney.active = this.menu.getData().getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.getData().isCreative();
+				this.buttonCollectMoney.visible = !this.menu.getData().getCoreSettings().isCreative();
 		}
+		else
+			this.buttonCollectMoney.visible = false;
 		
 	}
 	
@@ -136,7 +141,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 
 	private void PressStorageButton(Button button)
 	{
-		if(menu.isOwner())
+		if(menu.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.menu.getData().getTraderID()));
 		}
@@ -146,7 +151,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 	
 	private void PressCollectionButton(Button button)
 	{
-		if(menu.isOwner())
+		if(menu.hasPermission(Permissions.COLLECT_COINS))
 		{
 			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCollectCoins());
 		}

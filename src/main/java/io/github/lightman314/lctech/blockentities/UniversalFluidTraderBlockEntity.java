@@ -1,25 +1,26 @@
-package io.github.lightman314.lctech.tileentities;
+package io.github.lightman314.lctech.blockentities;
 
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
-import io.github.lightman314.lctech.core.ModTileEntities;
+import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class UniversalFluidTraderTileEntity extends UniversalTraderBlockEntity{
+public class UniversalFluidTraderBlockEntity extends UniversalTraderBlockEntity{
 
 	int tradeCount = 1;
-	public UniversalFluidTraderTileEntity(BlockPos pos, BlockState state)
+	public UniversalFluidTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModTileEntities.UNIVERSAL_FLUID_TRADER, pos, state);
+		super(ModBlockEntities.UNIVERSAL_FLUID_TRADER, pos, state);
 	}
 	
-	public UniversalFluidTraderTileEntity(BlockPos pos, BlockState state, int tradeCount)
+	public UniversalFluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
 		this(pos, state);
 		this.tradeCount = tradeCount;
@@ -27,7 +28,7 @@ public class UniversalFluidTraderTileEntity extends UniversalTraderBlockEntity{
 
 	@Override
 	protected UniversalTraderData createInitialData(Entity owner) {
-		return new UniversalFluidTraderData(owner, this.worldPosition, this.level.dimension(), this.getTraderID(), this.tradeCount);
+		return new UniversalFluidTraderData(PlayerReference.of(owner), this.worldPosition, this.level.dimension(), this.getTraderID(), this.tradeCount);
 	}
 	
 	@Override

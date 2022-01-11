@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.tileentities;
+package io.github.lightman314.lctech.blockentities;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lctech.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import io.github.lightman314.lctech.core.ModTileEntities;
+import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lctech.util.PlayerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -34,7 +34,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
-public class FluidTankTileEntity extends BlockEntity implements IFluidHandler{
+public class FluidTankBlockEntity extends BlockEntity implements IFluidHandler{
 
 	public static final int DEFAULT_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
 	
@@ -52,9 +52,9 @@ public class FluidTankTileEntity extends BlockEntity implements IFluidHandler{
 	
 	private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> this);
 	
-	public FluidTankTileEntity(BlockPos pos, BlockState state) { this(ModTileEntities.FLUID_TANK, pos, state); }
+	public FluidTankBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.FLUID_TANK, pos, state); }
 	
-	protected FluidTankTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
+	protected FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
 	
 	public InteractionResult onInteraction(Player player, InteractionHand hand)
 	{

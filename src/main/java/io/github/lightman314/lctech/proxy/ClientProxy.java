@@ -5,7 +5,7 @@ import io.github.lightman314.lctech.client.renderer.tileentity.FluidTankTileEnti
 import io.github.lightman314.lctech.client.renderer.tileentity.FluidTraderTileEntityRenderer;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModContainers;
-import io.github.lightman314.lctech.core.ModTileEntities;
+import io.github.lightman314.lctech.core.ModBlockEntities;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -33,8 +33,8 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
 		
 		//Register Tile Entity Renderers
-		BlockEntityRenderers.register(ModTileEntities.FLUID_TRADER, FluidTraderTileEntityRenderer::new);
-		BlockEntityRenderers.register(ModTileEntities.FLUID_TANK, FluidTankTileEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER, FluidTraderTileEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK, FluidTankTileEntityRenderer::new);
 		
 		
 	}

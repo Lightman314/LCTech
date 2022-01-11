@@ -6,9 +6,9 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
 import io.github.lightman314.lctech.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.core.ModBlocks;
-import io.github.lightman314.lctech.tileentities.FluidTankTileEntity;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
@@ -110,7 +110,7 @@ public class FluidTankItem extends BlockItem{
 			if(block != null)
 				return block.tankCapacity;
 		}
-		return FluidTankTileEntity.DEFAULT_CAPACITY;
+		return FluidTankBlockEntity.DEFAULT_CAPACITY;
 	}
 	
 	public static double GetTankFillPercent(ItemStack stack)
@@ -118,7 +118,7 @@ public class FluidTankItem extends BlockItem{
 		return MathUtil.clamp((double)GetFluid(stack).getAmount() / (double)GetCapacity(stack), 0d, 1d);
 	}
 	
-	public static ItemStack GetItemFromTank(@Nullable FluidTankTileEntity blockEntity)
+	public static ItemStack GetItemFromTank(@Nullable FluidTankBlockEntity blockEntity)
 	{
 		if(blockEntity == null)
 		{
@@ -187,7 +187,7 @@ public class FluidTankItem extends BlockItem{
 
 		@Override
 		public int getTankCapacity(int tank) {
-			return tank == 0 ? this.capacity() : FluidTankTileEntity.DEFAULT_CAPACITY;
+			return tank == 0 ? this.capacity() : FluidTankBlockEntity.DEFAULT_CAPACITY;
 		}
 
 		@Override

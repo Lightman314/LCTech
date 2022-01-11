@@ -3,7 +3,7 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
+import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
@@ -55,9 +55,9 @@ public class MessageSetFluidTradeRules implements IMessage<MessageSetFluidTradeR
 			if(player != null)
 			{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
-				if(blockEntity instanceof FluidTraderTileEntity)
+				if(blockEntity instanceof FluidTraderBlockEntity)
 				{
-					FluidTraderTileEntity traderEntity = (FluidTraderTileEntity)blockEntity;
+					FluidTraderBlockEntity traderEntity = (FluidTraderBlockEntity)blockEntity;
 					if(message.tradeIndex < 0)
 					{
 						traderEntity.setRules(message.rules);

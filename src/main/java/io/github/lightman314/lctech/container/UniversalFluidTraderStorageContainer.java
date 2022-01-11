@@ -15,9 +15,10 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.UniversalMenu;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ICreativeTraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
@@ -28,7 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class UniversalFluidTraderStorageContainer extends UniversalMenu implements ITraderStorageMenu, ICreativeTraderMenu{
+public class UniversalFluidTraderStorageContainer extends UniversalMenu implements ITraderStorageMenu{
 
 	public final Player player;
 	
@@ -87,9 +88,6 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 	 */
 	public void PlayerTankInteraction(int tradeIndex)
 	{
-		if(this.player.level.isClientSide) //Flag the fluid handler as client to block marking the data as dirty.
-			this.getData().getFluidHandler().flagAsClient();
-		
 		this.getData().getFluidHandler().OnPlayerInteraction(this, this.player, tradeIndex);
 	}
 	
@@ -146,7 +144,7 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 
 	@Override
 	public boolean stillValid(Player playerIn) {
-		return true;
+		return this.hasPermission(Permissions.OPEN_STORAGE);
 	}
 	
 	@Override
@@ -156,16 +154,6 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 		
 		super.removed(player);
 		
-	}
-	
-	public boolean isOwner()
-	{
-		return this.getData().isOwner(this.player);
-	}
-	
-	public boolean hasPermissions()
-	{
-		return this.getData().hasPermissions(this.player);
 	}
 	
 	private void OnUpgradeSlotChanged()
@@ -200,6 +188,12 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 			return;
 		}
 		
+		if(!this.hasPermission(Permissions.STORE_COINS))
+		{
+			Settings.PermissionWarning(this.player, "store coins", Permissions.STORE_COINS);
+			return;
+		}
+		
 		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
 		this.getData().addStoredMoney(addValue);
 		this.coinSlots.clearContent();
@@ -211,6 +205,12 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 		if(this.getData() == null)
 		{
 			this.player.closeContainer();
+			return;
+		}
+		
+		if(!this.hasPermission(Permissions.COLLECT_COINS))
+		{
+			Settings.PermissionWarning(this.player, "collect stored coins", Permissions.COLLECT_COINS);
 			return;
 		}
 		
@@ -233,27 +233,6 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 		//Clear the coin storage
 		this.getData().clearStoredMoney();
 		
-	}
-	
-	public void ToggleCreative()
-	{
-		if(this.getData() == null)
-		{
-			this.player.closeContainer();
-			return;
-		}
-		
-		this.getData().toggleCreative();
-	}
-	
-	public void AddTrade()
-	{
-		this.getData().addTrade();
-	}
-	
-	public void RemoveTrade()
-	{
-		this.getData().removeTrade();
 	}
 
 	@Override
