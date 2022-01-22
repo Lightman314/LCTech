@@ -196,8 +196,6 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandler{
 		
 	}
 	
-	public CompoundTag superWrite(CompoundTag compound) { return super.save(compound); }
-	
 	@Override
 	public void load(CompoundTag compound)
 	{

@@ -39,7 +39,7 @@ repositories {
 
 dependencies {
 	
-    minecraft 'net.minecraftforge:forge:1.18.1-39.0.0'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.45'
     
     compileOnly 'curse.maven:lightmanscurrency-472521:3597900'
     
