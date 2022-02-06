@@ -3,19 +3,17 @@ package io.github.lightman314.lctech.blockentities.handler;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings.FluidHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
-import io.github.lightman314.lctech.util.PlayerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class TradeFluidHandler{
 
@@ -327,163 +325,57 @@ public class TradeFluidHandler{
 	}
 	
 	//Run when the player clicks on the tank gui with a held item on both client and server.
-		public void OnPlayerInteraction(AbstractContainerMenu menu, Player player, int tradeIndex)
+	public void OnPlayerInteraction(AbstractContainerMenu menu, Player player, int tradeIndex)
+	{
+		ItemStack heldStack = menu.getCarried();
+		if(heldStack.isEmpty()) //If held stack is empty, do nothing
+			return;
+		
+		FluidTradeData trade = this.trader.getTrade(tradeIndex);
+		if(trade == null)
+			return;
+		
+		//Try and fill the tank
+		FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trade, Integer.MAX_VALUE, player, true);
+		if(result.isSuccess())
 		{
-			ItemStack heldStack = menu.getCarried();
-			if(heldStack.isEmpty()) //If held stack is empty, do nothing
+			//If creative, and the item was a bucket, don't move the items around
+			if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldStack.getItem() == Items.BUCKET))
 				return;
-			
-			FluidTradeData trade = this.trader.getTrade(tradeIndex);
-			//Return if the tank is empty, and no product is defined
-			//if(trade.getProduct().isEmpty() && trade.getTankContents().isEmpty())
-			//	return;
-			
-			FluidUtil.getFluidHandler(heldStack).ifPresent(fluidHandler ->{
-				if(fluidHandler instanceof FluidBucketWrapper) //Bucket interactions
-				{
-					FluidBucketWrapper bucketWrapper = (FluidBucketWrapper)fluidHandler;
-					
-					FluidStack bucketFluid = bucketWrapper.getFluid();
-					FluidStack tank = trade.getTankContents();
-					if(!bucketWrapper.getFluid().isEmpty())
-					{
-						//Attempt to fill the tank
-						if(trade.canFillTank(bucketFluid))
-						{
-							//Fluid is valid; Attempt to fill the tank
-							if(trade.getTankSpace() >= bucketFluid.getAmount())
-							{
-								//Has space, fill the tank
-								if(tank.isEmpty())
-									tank = bucketFluid;
-								else
-									tank.grow(bucketFluid.getAmount());
-								trade.setTankContents(tank);
-								//If the product is empty, define the product to the tank fluid
-								if(trade.getProduct().isEmpty())
-									trade.setProduct(bucketFluid);
-								
-								this.trader.markTradesDirty();
-								
-								//Drain the bucket (unless we're in creative mode)
-								if(!player.isCreative())
-								{
-									ItemStack emptyBucket = new ItemStack(Items.BUCKET);
-									heldStack.shrink(1);
-									if(heldStack.isEmpty())
-									{
-										menu.setCarried(emptyBucket);
-									}	
-									else
-									{
-										menu.setCarried(heldStack);
-										PlayerUtil.givePlayerItem(player, emptyBucket);
-									}
-								}
-							}
-						}
-					} else
-					{
-						//Attempt to drain the tank
-						if(!tank.isEmpty() && trade.getDrainableAmount() >= FluidAttributes.BUCKET_VOLUME)
-						{
-							//Tank has more than 1 bucket of fluid, drain the tank
-							Item filledBucket = tank.getFluid().getBucket();
-							if(filledBucket != null && filledBucket != Items.AIR)
-							{
-								//Filled bucket is not null or air; Fill the bucket, and drain the tank
-								tank.shrink(FluidAttributes.BUCKET_VOLUME);
-								trade.setTankContents(tank);
-								this.trader.markTradesDirty();
-								
-								//Fill the bucket (unless we're in creative mode)
-								if(!player.isCreative())
-								{
-									ItemStack newBucket = new ItemStack(filledBucket, 1);
-									heldStack.shrink(1);
-									if(heldStack.isEmpty())
-									{
-										menu.setCarried(newBucket);
-									}
-									else
-									{
-										menu.setCarried(heldStack);
-										PlayerUtil.givePlayerItem(player, newBucket);
-									}
-								}
-							}
-						}
-					}
-				}
-				else //Normal fluid handler interaction
-				{
-					//If both product & tank are empty, allow the contents of the fluid handler to define the trade product
-					if(trade.getProduct().isEmpty() && trade.getTankContents().isEmpty())
-					{
-						FluidStack drainResult = fluidHandler.drain(trade.getTankCapacity(), FluidAction.EXECUTE);
-						if(!drainResult.isEmpty())
-						{
-							trade.setTankContents(drainResult);
-							trade.setProduct(drainResult);
-							this.trader.markTradesDirty();
-						}
-					}
-					//If the tank is full, attempt to drain first as well
-					else if(trade.getProduct().isEmpty() || trade.getTankContents().getAmount() >= trade.getTankCapacity())
-					{
-						FluidStack tank = trade.getTankContents();
-						
-						//Limit drain request to the drainable amount, just in case a pending drain is active
-						FluidStack fillRequest = tank.copy();
-						fillRequest.setAmount(trade.getDrainableAmount());
-						
-						int drainedAmount = fluidHandler.fill(fillRequest, FluidAction.EXECUTE);
-						if(drainedAmount > 0)
-						{
-							tank.shrink(drainedAmount);
-							trade.setTankContents(tank);
-							this.trader.markTradesDirty();
-						}
-					}
-					//Normal tank operations
-					else if(!trade.getProduct().isEmpty() && trade.validTankContents())
-					{
-						
-						//Attempt to deposit first
-						FluidStack drainRequest = trade.getProduct();
-						drainRequest.setAmount(trade.getTankSpace());
-						
-						FluidStack drainResults = fluidHandler.drain(drainRequest, FluidAction.EXECUTE);
-						if(!drainResults.isEmpty())
-						{
-							FluidStack tank = trade.getTankContents();
-							if(tank.isEmpty())
-								tank = drainResults;
-							else
-								tank.grow(drainResults.getAmount());
-							trade.setTankContents(tank);
-							this.trader.markTradesDirty();
-						}
-						else
-						{
-							
-							//Deposit failed, attempt to drain the fluid then
-							FluidStack tank = trade.getTankContents();
-							//Limit drain request to the drainable amount, just in case a pending drain is active
-							FluidStack fillRequest = tank.copy();
-							fillRequest.setAmount(trade.getDrainableAmount());
-							
-							int drainedAmount = fluidHandler.fill(fillRequest, FluidAction.EXECUTE);
-							if(drainedAmount > 0)
-							{
-								tank.shrink(drainedAmount);
-								trade.setTankContents(tank);
-								this.trader.markTradesDirty();
-							}
-						}
-					}
-				}
-			});
+			if(heldStack.getCount() > 1)
+			{
+				heldStack.shrink(1);
+				menu.setCarried(heldStack);
+				ItemHandlerHelper.giveItemToPlayer(player, result.getResult());
+			}
+			else
+			{
+				menu.setCarried(result.getResult());
+			}
 		}
+		else
+		{
+			//Failed to fill the tank, now attempt to drain it
+			result = FluidUtil.tryFillContainer(heldStack, trade, Integer.MAX_VALUE, player, true);
+			if(result.isSuccess())
+			{
+				//If creative, and the item was a bucket, don't move the items around
+				if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldStack.getItem() == Items.BUCKET))
+					return;
+				if(heldStack.getCount() > 1)
+				{
+					heldStack.shrink(1);
+					menu.setCarried(heldStack);
+					ItemHandlerHelper.giveItemToPlayer(player, result.getResult());
+				}
+				else
+				{
+					menu.setCarried(result.getResult());
+				}
+			}
+				
+		}
+		
+	}
 	
 }

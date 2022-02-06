@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.container.UniversalFluidTraderContainer;
+import io.github.lightman314.lctech.menu.UniversalFluidTraderMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -25,7 +25,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class UniversalFluidTraderScreen extends AbstractContainerScreen<UniversalFluidTraderContainer>{
+public class UniversalFluidTraderScreen extends AbstractContainerScreen<UniversalFluidTraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/fluid_trader.png");
 	
@@ -41,7 +41,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 	
 	List<FluidTradeButton> tradeButtons = new ArrayList<>();
 	
-	public UniversalFluidTraderScreen(UniversalFluidTraderContainer container, Inventory inventory, Component title) {
+	public UniversalFluidTraderScreen(UniversalFluidTraderMenu container, Inventory inventory, Component title) {
 		super(container, inventory, title);
 		this.imageWidth = FluidTraderUtil.getWidth(this.menu.getData());
 		this.imageHeight = 133 + FluidTraderUtil.getTradeDisplayHeight(this.menu.getData());
@@ -80,7 +80,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 		
 		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getData().getCoreSettings().hasBankAccount();
 		
 		initTradeButtons();
 		
@@ -91,7 +91,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 		int tradeCount = this.menu.getData().getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addRenderableWidget(new FluidTradeButton(this.leftPos + FluidTraderUtil.getButtonPosX(this.menu.getData(), i), this.topPos + FluidTraderUtil.getButtonPosY(this.menu.getData(), i), this::PressTradeButton, i, this, this.font, () -> this.menu.getData(), this.menu)));
+			this.tradeButtons.add(this.addRenderableWidget(new FluidTradeButton(this.leftPos + FluidTraderUtil.getButtonPosX(this.menu.getData(), i), this.topPos + FluidTraderUtil.getButtonPosY(this.menu.getData(), i), this::PressTradeButton, i, this, this.font, () -> this.menu.getData(), () -> this.menu.GetCoinValue(), () -> this.menu.getBucketItem())));
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 		
 		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = true;
+			this.buttonCollectMoney.visible = !this.menu.getData().getCoreSettings().hasBankAccount();
 			this.buttonCollectMoney.active = this.menu.getData().getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.menu.getData().getCoreSettings().isCreative();
@@ -135,7 +135,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(poseStack, this, this.menu.getData(), mouseX, mouseY, menu, false);
+			this.tradeButtons.get(i).tryRenderTooltip(poseStack, this, this.menu.getData(), mouseX, mouseY, false);
 		}
 	}
 
@@ -172,7 +172,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 	
 	private void PressBackButton(Button button)
 	{
-		this.minecraft.setScreen(new TradingTerminalScreen(this.menu.player));
+		this.minecraft.setScreen(new TradingTerminalScreen());
 	}
 	
 }

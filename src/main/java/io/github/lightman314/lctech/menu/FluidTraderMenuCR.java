@@ -1,17 +1,17 @@
-package io.github.lightman314.lctech.container;
+package io.github.lightman314.lctech.menu;
 
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
-import io.github.lightman314.lctech.core.ModContainers;
+import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import net.minecraft.world.entity.player.Inventory;
 
-public class FluidTraderContainerCR extends FluidTraderContainer implements ITraderCashRegisterMenu{
+public class FluidTraderMenuCR extends FluidTraderMenu implements ITraderCashRegisterMenu{
 
 	public CashRegisterBlockEntity cashRegister;
 	
-	public FluidTraderContainerCR(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity, CashRegisterBlockEntity cashRegister) {
-		super(ModContainers.FLUID_TRADER_CR, windowId, inventory, tileEntity);
+	public FluidTraderMenuCR(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity, CashRegisterBlockEntity cashRegister) {
+		super(ModMenus.FLUID_TRADER_CR, windowId, inventory, tileEntity);
 		this.cashRegister = cashRegister;
 	}
 	

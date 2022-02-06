@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.container.FluidTraderContainer;
+import io.github.lightman314.lctech.menu.FluidTraderMenu;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -30,7 +30,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContainer>{
+public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/fluid_trader.png");
 	
@@ -44,7 +44,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 	
 	List<FluidTradeButton> tradeButtons = new ArrayList<>();
 	
-	public FluidTraderScreen(FluidTraderContainer container, Inventory inventory, Component title) {
+	public FluidTraderScreen(FluidTraderMenu container, Inventory inventory, Component title) {
 		super(container, inventory, title);
 		this.imageWidth = FluidTraderUtil.getWidth(this.menu.tileEntity);
 		this.imageHeight = 133 + FluidTraderUtil.getTradeDisplayHeight(this.menu.tileEntity);
@@ -152,7 +152,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 		
 		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.tileEntity.getCoreSettings().hasBankAccount();
 		
 		initTradeButtons();
 		
@@ -163,7 +163,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 		int tradeCount = this.menu.tileEntity.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addRenderableWidget(new FluidTradeButton(this.leftPos + FluidTraderUtil.getButtonPosX(this.menu.tileEntity, i), this.topPos + FluidTraderUtil.getButtonPosY(this.menu.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.menu.tileEntity, this.menu)));
+			this.tradeButtons.add(this.addRenderableWidget(new FluidTradeButton(this.leftPos + FluidTraderUtil.getButtonPosX(this.menu.tileEntity, i), this.topPos + FluidTraderUtil.getButtonPosY(this.menu.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.menu.tileEntity, () -> this.menu.GetCoinValue(), () -> this.menu.getBucketItem())));
 		}
 	}
 	
@@ -177,7 +177,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 		
 		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = true;
+			this.buttonCollectMoney.visible = !this.menu.tileEntity.getCoreSettings().hasBankAccount();
 			this.buttonCollectMoney.active = this.menu.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.menu.tileEntity.getCoreSettings().isCreative();
@@ -204,7 +204,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderContai
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(poseStack, this, this.menu.tileEntity, mouseX, mouseY, menu, false);
+			this.tradeButtons.get(i).tryRenderTooltip(poseStack, this, this.menu.tileEntity, mouseX, mouseY, false);
 		}
 	}
 

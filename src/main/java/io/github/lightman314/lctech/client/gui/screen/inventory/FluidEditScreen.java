@@ -10,7 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
-import io.github.lightman314.lctech.container.FluidEditContainer;
+import io.github.lightman314.lctech.menu.FluidEditMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -22,7 +22,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class FluidEditScreen extends AbstractContainerScreen<FluidEditContainer>{
+public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 	
 	public static final ResourceLocation GUI_TEXTURE = ItemEditScreen.GUI_TEXTURE;
 	
@@ -37,7 +37,7 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditContainer>
 	
 	List<Button> tradePriceButtons = Lists.newArrayList();
 	
-	public FluidEditScreen(FluidEditContainer container, Inventory inventory, Component title) {
+	public FluidEditScreen(FluidEditMenu container, Inventory inventory, Component title) {
 		super(container, inventory, title);
 		this.width = 176;
 		this.height = 156;
@@ -55,7 +55,7 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditContainer>
 		this.blit(poseStack, startX, startY, 0, 0, this.width, this.height);
 		
 		//Render the fake trade button
-		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, startX, startY - FluidTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), null, false, true, false);
+		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, startX, startY - FluidTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), false, true, false);
 		
 	}
 	
@@ -91,7 +91,7 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditContainer>
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(poseStack, mouseX, mouseY);
 		
-		FluidTradeButton.tryRenderTooltip(poseStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - FluidTradeButton.HEIGHT, mouseX, mouseY, null, true);
+		FluidTradeButton.tryRenderTooltip(poseStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - FluidTradeButton.HEIGHT, mouseX, mouseY, true);
 		
 	}
 	

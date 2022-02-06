@@ -12,7 +12,7 @@ import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.client.gui.screen.TradeFluidPriceScreen;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
+import io.github.lightman314.lctech.menu.FluidTraderStorageMenu;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidTradeTankInteraction;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
@@ -48,7 +48,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
-public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTraderStorageContainer>{
+public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTraderStorageMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/fluid_trader_storage.png");
 	public static final ResourceLocation ALLY_GUI_TEXTURE = TradeRuleScreen.GUI_TEXTURE;
@@ -69,7 +69,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 	
 	List<Button> tradePriceButtons = Lists.newArrayList();
 	
-	public FluidTraderStorageScreen(FluidTraderStorageContainer container, Inventory inventory, Component title) {
+	public FluidTraderStorageScreen(FluidTraderStorageMenu container, Inventory inventory, Component title) {
 		super(container, inventory, title);
 		this.imageWidth = FluidTraderUtil.getWidth(this.menu.tileEntity) + 64;
 		this.imageHeight = 100 + FluidTraderUtil.getTradeDisplayHeight(this.menu.tileEntity);
@@ -146,7 +146,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 		//Draw the fake fluid trade buttons
 		for(int i = 0; i < trader.getTradeCount(); i++)
 		{
-			FluidTradeButton.renderFluidTradeButton(poseStack, screen, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, null, false, true, true);
+			FluidTradeButton.renderFluidTradeButton(poseStack, screen, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, false, true, true);
 		}
 		
 	}
@@ -177,7 +177,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 		this.buttonShowTrades = this.addRenderableWidget(new IconButton(this.leftPos + traderOffset - 20, this.topPos, this::PressTradesButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
 		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos + traderOffset - 20, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = !this.menu.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = !this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.tileEntity.getCoreSettings().hasBankAccount();
 		
 		this.buttonStoreMoney = this.addRenderableWidget(new IconButton(this.leftPos + inventoryOffset + 176 + 32, this.topPos + FluidTraderUtil.getTradeDisplayHeight(this.menu.tileEntity), this::PressStoreCoinsButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
 		this.buttonStoreMoney.visible = false;
@@ -257,7 +257,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 			FluidTraderBlockEntity tileEntity = this.menu.tileEntity;
 			for(int i = 0; i < tileEntity.getTradeCount(); i++)
 			{
-				int result = FluidTradeButton.tryRenderTooltip(poseStack, this, i, tileEntity, this.leftPos + FluidTraderUtil.getButtonPosX(tileEntity, i) + 32, this.topPos + FluidTraderUtil.getButtonPosY(tileEntity, i), mouseX, mouseY, null, true);
+				int result = FluidTradeButton.tryRenderTooltip(poseStack, this, i, tileEntity, this.leftPos + FluidTraderUtil.getButtonPosX(tileEntity, i) + 32, this.topPos + FluidTraderUtil.getButtonPosY(tileEntity, i), mouseX, mouseY, true);
 				if(result == -2 && this.menu.getCarried().isEmpty() && this.menu.hasPermission(Permissions.EDIT_TRADES))
 					this.renderTooltip(poseStack, new TranslatableComponent("tooltip.lctech.trader.fluid_edit"), mouseX, mouseY);
 			}
@@ -275,7 +275,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 		
 		this.menu.tick();
 		
-		this.buttonCollectMoney.visible = (!this.menu.tileEntity.getCoreSettings().isCreative() || this.menu.tileEntity.getStoredMoney().getRawValue() > 0) && this.menu.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = (!this.menu.tileEntity.getCoreSettings().isCreative() || this.menu.tileEntity.getStoredMoney().getRawValue() > 0) && this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.tileEntity.getCoreSettings().hasBankAccount();
 		this.buttonCollectMoney.active = this.menu.tileEntity.getStoredMoney().getRawValue() > 0;
 		
 		this.buttonOpenSettings.visible = this.menu.hasPermission(Permissions.EDIT_SETTINGS);

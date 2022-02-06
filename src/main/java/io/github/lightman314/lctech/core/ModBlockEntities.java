@@ -22,6 +22,9 @@ public class ModBlockEntities {
 	//Fluid Trader
 	public static final BlockEntityType<FluidTraderBlockEntity> FLUID_TRADER = buildType("fluid_trader", BlockEntityType.Builder.of(FluidTraderBlockEntity::new, ModBlocks.FLUID_TAP.block, ModBlocks.FLUID_TAP_BUNDLE.block));
 	
+	//Energy Trader
+	public static final BlockEntityType<EnergyTraderBlockEntity> ENERGY_TRADER = buildType("energy_trader", BlockEntityType.Builder.of(EnergyTraderBlockEntity::new));
+	
 	//Universal Fluid Trader
 	public static final BlockEntityType<UniversalFluidTraderBlockEntity> UNIVERSAL_FLUID_TRADER = buildType("universal_fluid_trader", BlockEntityType.Builder.of(UniversalFluidTraderBlockEntity::new, ModBlocks.FLUID_SERVER_SML.block));
 	

@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.container.slots;
+package io.github.lightman314.lctech.menu.slots;
 
 import com.mojang.datafixers.util.Pair;
 

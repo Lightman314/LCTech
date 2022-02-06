@@ -2,15 +2,12 @@ package io.github.lightman314.lctech.client.gui.widget.button;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.client.gui.widget.button.interfaces.IFluidTradeButtonContainer;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
@@ -18,9 +15,12 @@ import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
+import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -61,11 +61,12 @@ public class FluidTradeButton extends Button{
 	
 	int tradeIndex;
 	Supplier<IFluidTrader> source;
-	IFluidTradeButtonContainer container;
+	Supplier<Long> availableCoins;
+	Supplier<ItemStack> bucketSlot;
 	Screen screen;
 	Font font;
 	
-	public FluidTradeButton(int x, int y, OnPress pressable, int tradeIndex, Screen screen, Font font, Supplier<IFluidTrader> source, IFluidTradeButtonContainer container)
+	public FluidTradeButton(int x, int y, OnPress pressable, int tradeIndex, Screen screen, Font font, Supplier<IFluidTrader> source, Supplier<Long> availableCoins, Supplier<ItemStack> bucketSlot)
 	{
 		
 		super(x,y,WIDTH, HEIGHT, new TextComponent(""), pressable);
@@ -73,25 +74,39 @@ public class FluidTradeButton extends Button{
 		this.screen = screen;
 		this.font = font;
 		this.source = source;
-		this.container = container;
+		this.availableCoins = availableCoins;
+		this.bucketSlot = bucketSlot;
 		
 	}
 	
 	private FluidTradeData getTrade() { return this.source.get().getTrade(this.tradeIndex); }
 	
+	private static PlayerReference getPlayer() {
+		Minecraft minecraft = Minecraft.getInstance();
+		return PlayerReference.of(minecraft.player);
+	}
+	
 	@Override
 	public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
-		this.active = isActive(this.getTrade(), this.source.get(), this.container);
-		renderFluidTradeButton(matrixStack, this.screen, this.font, this.x, this.y, this.tradeIndex, this.source.get(), this.container, this.isHovered, false, false);
+		this.active = isActive(this.getTrade(), this.source.get());
+		renderFluidTradeButton(matrixStack, this.screen, this.font, this.x, this.y, this.tradeIndex, this.source.get(), this.isHovered, false, false, this.availableCoins.get(), this.bucketSlot.get());
+	}
+	
+	public static void renderFluidTradeButton(PoseStack poseStack, Screen screen, Font font, int x, int y, int tradeIndex, IFluidTrader trader, boolean hovered, boolean forceActive, boolean storageMode)
+	{
+		renderFluidTradeButton(poseStack, screen, font, x, y, tradeIndex, trader, hovered, forceActive, storageMode, 0, ItemStack.EMPTY);
 	}
 	
 	//No inverted input as fluid trade buttons are also the input method.
-	public static void renderFluidTradeButton(PoseStack poseStack, Screen screen, Font font, int x, int y, int tradeIndex, IFluidTrader trader, @Nullable IFluidTradeButtonContainer container, boolean hovered, boolean forceActive, boolean storageMode)
+	private static void renderFluidTradeButton(PoseStack poseStack, Screen screen, Font font, int x, int y, int tradeIndex, IFluidTrader trader, boolean hovered, boolean forceActive, boolean storageMode, long availableCoins, ItemStack bucketSlot)
 	{
+		
+		PlayerReference player = getPlayer();
+		
 		FluidTradeData trade = trader.getTrade(tradeIndex);
 		RenderSystem.setShaderTexture(0, TRADE_TEXTURES);
-		boolean active = forceActive ? true : isActive(trade, trader, container);
+		boolean active = forceActive ? true : isActive(trade, trader);
 		
 		if(active)
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -110,26 +125,25 @@ public class FluidTradeButton extends Button{
 		
 		//Collect data
 		boolean hasPermission = forceActive ? true : false;
-		List<Component> denialText = Lists.newArrayList();
 		boolean hasDiscount = false;
 		boolean isValid = forceActive ? true : trade.isValid();
-		boolean hasStock = forceActive ? true : trade.hasStock(trader, null) || trader.getCoreSettings().isCreative();
+		boolean hasStock = forceActive ? true : trade.hasStock(trader, getPlayer()) || trader.getCoreSettings().isCreative();
 		boolean hasSpace = forceActive ? true : trade.hasSpace() || trader.getCoreSettings().isCreative();
 		boolean canAfford = forceActive ? true : false;
 		CoinValue cost = trade.getCost();
-		if(!forceActive && container != null)
+		if(!forceActive)
 		{
 			
 			//Discount Check
-			TradeCostEvent event = container.TradeCostEvent(trade);
+			TradeCostEvent event = trader.runTradeCostEvent(getPlayer(), tradeIndex);
 			cost = event.getCostResult();
 			hasDiscount = event.getCostMultiplier() != 1d;
 			//Has Stock
-			hasStock = trade.hasStock(trader, cost) || trader.getCoreSettings().isCreative();
+			hasStock = trade.hasStock(trader, getPlayer()) || trader.getCoreSettings().isCreative();
 			//Permission
-			hasPermission = container.PermissionToTrade(tradeIndex, denialText);
+			hasPermission = !trader.runPreTradeEvent(player, tradeIndex).isCanceled();
 			//CanAfford
-			canAfford = canAfford(trade,container) && trade.canTransferFluids(container.getBucketItem());
+			canAfford = canAfford(trader, tradeIndex, availableCoins, bucketSlot) && trade.canTransferFluids(bucketSlot);
 			
 		}
 		//Render the trade text
@@ -163,17 +177,17 @@ public class FluidTradeButton extends Button{
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 	}
 	
-	public void tryRenderTooltip(PoseStack matrixStack, Screen screen, IFluidTrader trader, int mouseX, int mouseY, @Nullable IFluidTradeButtonContainer container, boolean storageMode)
+	public void tryRenderTooltip(PoseStack matrixStack, Screen screen, IFluidTrader trader, int mouseX, int mouseY, boolean storageMode)
 	{
 		if(this.isHovered)
-			tryRenderTooltip(matrixStack, screen, this.tradeIndex, trader, this.x, this.y, mouseX, mouseY, container, storageMode);
+			tryRenderTooltip(matrixStack, screen, this.tradeIndex, trader, this.x, this.y, mouseX, mouseY, storageMode);
 	}
 	
-	public static int tryRenderTooltip(PoseStack matrixStack, Screen screen, int tradeIndex, IFluidTrader trader, int x, int y, int mouseX, int mouseY, @Nullable IFluidTradeButtonContainer container, boolean storageMode)
+	public static int tryRenderTooltip(PoseStack matrixStack, Screen screen, int tradeIndex, IFluidTrader trader, int x, int y, int mouseX, int mouseY, boolean storageMode)
 	{
 		if(isMouseOverBucket(x,y,mouseX, mouseY))
 		{
-			List<Component> tooltip = getTooltipForBucket(screen, tradeIndex, trader, container);
+			List<Component> tooltip = getTooltipForBucket(screen, tradeIndex, trader);
 			if(tooltip != null)
 			{
 				screen.renderComponentTooltip(matrixStack, tooltip, mouseX, mouseY);
@@ -225,7 +239,7 @@ public class FluidTradeButton extends Button{
 		return mouseX >= minX && mouseX < (minX + 10) && mouseY >= minY && mouseY < (minY + 10);
 	}
 	
-	public static List<Component> getTooltipForBucket(Screen screen, int tradeIndex, IFluidTrader trader, @Nullable IFluidTradeButtonContainer container)
+	public static List<Component> getTooltipForBucket(Screen screen, int tradeIndex, IFluidTrader trader)
 	{
 		FluidTradeData trade = trader.getTrade(tradeIndex);
 		FluidStack product = trade.getProduct();
@@ -239,17 +253,11 @@ public class FluidTradeButton extends Button{
 		//Quantity
 		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip.quantity", trade.getBucketQuantity(), trade.getQuantity()).withStyle(ChatFormatting.GOLD));
 		//Stock
-		CoinValue price = trade.getCost();
-		if(container != null)
-			price = container.TradeCostEvent(trade).getCostResult();
-		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.getStock(trader, price))));
+		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.getStock(trader, getPlayer()))));
 		//If denied, give denial reason
-		if(container != null)
-		{
-			List<Component> denialText = Lists.newArrayList();
-			if(!container.PermissionToTrade(tradeIndex, denialText))
-				denialText.forEach(reason -> tooltips.add(reason));
-		}
+		PreTradeEvent pte = trader.runPreTradeEvent(getPlayer(), tradeIndex);
+		if(pte.isCanceled())
+			pte.getDenialReasons().forEach(reason -> tooltips.add(reason));
 		
 		return tooltips;
 	}
@@ -286,30 +294,28 @@ public class FluidTradeButton extends Button{
 		return 0;
 	}
 	
-	protected static boolean canAfford(FluidTradeData trade, IFluidTradeButtonContainer container)
+	protected static boolean canAfford(IFluidTrader trader, int tradeIndex, long availableCoins, ItemStack bucketSlot)
 	{
+		FluidTradeData trade = trader.getTrade(tradeIndex);
 		if(trade.isSale())
 		{
 			if(trade.getCost().isFree())
 				return true;
 			else
-				return container.GetCoinValue() >= trade.getCost().getRawValue();
+				return availableCoins >= trader.runTradeCostEvent(getPlayer(), tradeIndex).getCostResult().getRawValue();
 		}
 		else if(trade.isPurchase())
 		{
-			return trade.canTransferFluids(container.getBucketItem());
+			return trade.canTransferFluids(bucketSlot);
 		}
 		return true;
 	}
 	
-	public static boolean isActive(FluidTradeData trade, IFluidTrader trader, @Nullable IFluidTradeButtonContainer container)
+	public static boolean isActive(FluidTradeData trade, IFluidTrader trader)
 	{
 		if(trade.isValid())
 		{
-			CoinValue price = trade.getCost();
-			if(container != null)
-				price = container.TradeCostEvent(trade).getCostResult();
-			return trader.getCoreSettings().isCreative() || trade.hasStock(trader, price);
+			return trader.getCoreSettings().isCreative() || trade.hasStock(trader, getPlayer());
 		}
 		return false;
 	}

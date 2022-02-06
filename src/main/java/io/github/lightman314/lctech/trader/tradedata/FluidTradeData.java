@@ -9,6 +9,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.upgrades.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -17,16 +18,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
-public class FluidTradeData extends TradeData{
+public class FluidTradeData extends TradeData implements IFluidHandler{
 	
 	public enum FluidTradeType { SALE, PURCHASE }
 	
@@ -74,7 +76,7 @@ public class FluidTradeData extends TradeData{
 	
 	public boolean canFillTank(FluidStack fluid)
 	{
-		return (this.product.isEmpty() && this.tank.isEmpty()) || ((this.tank.isEmpty() || this.tank.isFluidEqual(fluid)) && this.product.isFluidEqual(fluid));
+		return (!this.product.isEmpty() && !this.tank.isEmpty()) || ((this.tank.isEmpty() || this.tank.isFluidEqual(fluid)) && this.product.isFluidEqual(fluid));
 	}
 	
 	boolean canDrain = false;
@@ -124,11 +126,14 @@ public class FluidTradeData extends TradeData{
 	
 	public FluidTradeData() { }
 	
-	public boolean hasStock(IFluidTrader trader, CoinValue price) { return this.getStock(trader, price) > 0; }
-	public int getStock(IFluidTrader trader, CoinValue cost)
+	public boolean hasStock(IFluidTrader trader) { return this.getStock(trader) > 0; }
+	public boolean hasStock(IFluidTrader trader, Player player) { return this.getStock(trader, player) > 0; }
+	public boolean hasStock(IFluidTrader trader, PlayerReference player) { return this.getStock(trader, player) > 0; }
+	public int getStock(IFluidTrader trader) { return this.getStock(trader, (PlayerReference)null); }
+	public int getStock(IFluidTrader trader, Player player) { return this.getStock(trader, PlayerReference.of(player)); }
+	public int getStock(IFluidTrader trader, PlayerReference player)
 	{
-		if(cost == null)
-			cost = this.cost;
+		
 		if(this.product.isEmpty())
 			return 0;
 		
@@ -148,8 +153,8 @@ public class FluidTradeData extends TradeData{
 			if(cost.getRawValue() == 0)
 				return 0;
 			long coinValue = trader.getStoredMoney().getRawValue();
-			long price = cost.getRawValue();
-			return (int)(coinValue/price);
+			CoinValue price = player == null ? this.cost : trader.runTradeCostEvent(player, trader.getAllTrades().indexOf(this)).getCostResult();
+			return (int)(coinValue/price.getRawValue());
 		}
 		return 0;
 	}
@@ -393,5 +398,63 @@ public class FluidTradeData extends TradeData{
 
 	@Override
 	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
+	
+	//Personal fluid handler. Assume that the player has permission to fill or drain the tank
+	
+	@Override
+	public int getTanks() { return 1; }
+	@Override
+	public FluidStack getFluidInTank(int tank) {
+		return tank == 0 ? this.tank.copy() : FluidStack.EMPTY;
+	}
+	@Override
+	public int getTankCapacity(int tank) {
+		return tank == 0 ? this.tankCapacity : 0;
+	}
+	@Override
+	public boolean isFluidValid(int tank, FluidStack stack) {
+		return tank == 0 ? this.canFillTank(stack) : false;
+	}
+	@Override
+	public int fill(FluidStack resource, FluidAction action) {
+		if(!this.canFillTank(resource))
+			return 0;
+		int fillAmount = Math.min(resource.getAmount(), this.tankCapacity - this.tank.getAmount());
+		if(action.execute())
+		{
+			if(this.tank.isEmpty())
+			{
+				this.tank = resource.copy();
+				this.tank.setAmount(fillAmount);
+			}
+			else
+				this.tank.grow(fillAmount);
+		}
+		return fillAmount;
+	}
+	@Override
+	public FluidStack drain(FluidStack resource, FluidAction action) {
+		if(resource.isEmpty() || this.tank.isEmpty() || !this.tank.isFluidEqual(resource))
+			return FluidStack.EMPTY;
+		int drainAmount = Math.min(resource.getAmount(), this.tank.getAmount());
+		FluidStack result = this.tank.copy();
+		result.setAmount(drainAmount);
+		if(action.execute())
+		{
+			//Drain the tank
+			this.tank.shrink(drainAmount);
+			if(this.tank.isEmpty())
+				this.tank = FluidStack.EMPTY;
+		}
+		return result;
+	}
+	@Override
+	public FluidStack drain(int maxDrain, FluidAction action) {
+		if(this.tank.isEmpty())
+			return FluidStack.EMPTY;
+		FluidStack resource = this.tank.copy();
+		resource.setAmount(maxDrain);
+		return this.drain(resource, action);
+	}
 	
 }

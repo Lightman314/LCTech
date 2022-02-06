@@ -12,12 +12,12 @@ import io.github.lightman314.lctech.blockentities.handler.TradeFluidHandler;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
-import io.github.lightman314.lctech.container.FluidEditContainer;
-import io.github.lightman314.lctech.container.FluidTraderContainer;
-import io.github.lightman314.lctech.container.FluidTraderContainerCR;
-import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
+import io.github.lightman314.lctech.menu.FluidEditMenu;
+import io.github.lightman314.lctech.menu.FluidTraderMenu;
+import io.github.lightman314.lctech.menu.FluidTraderMenuCR;
+import io.github.lightman314.lctech.menu.FluidTraderStorageMenu;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
 import io.github.lightman314.lctech.trader.IFluidTrader;
@@ -42,9 +42,9 @@ import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -69,7 +69,7 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.network.NetworkHooks;
 
-public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
+public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
 	
 	public static final int TRADE_LIMIT = 8;
 	
@@ -186,11 +186,11 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	private void forceReOpen() {
 		for(Player player : this.getUsers())
 		{
-			if(player.containerMenu instanceof FluidTraderStorageContainer)
+			if(player.containerMenu instanceof FluidTraderStorageMenu)
 				this.openStorageMenu(player);
-			else if(player.containerMenu instanceof FluidTraderContainerCR)
-				this.openCashRegisterTradeMenu(player, ((FluidTraderContainerCR)player.containerMenu).cashRegister);
-			else if(player.containerMenu instanceof FluidTraderContainer)
+			else if(player.containerMenu instanceof FluidTraderMenuCR)
+				this.openCashRegisterTradeMenu(player, ((FluidTraderMenuCR)player.containerMenu).cashRegister);
+			else if(player.containerMenu instanceof FluidTraderMenu)
 				this.openTradeMenu(player);
 		}
 	}
@@ -210,8 +210,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		//Send an update to the client
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeTrades(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTrades(new CompoundTag()));
 		}
 	}
 	
@@ -335,7 +334,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		@Override
 		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-			return new FluidTraderContainer(windowId, inventory, this.tileEntity);
+			return new FluidTraderMenu(windowId, inventory, this.tileEntity);
 		}
 
 		@Override
@@ -357,7 +356,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		@Override
 		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-			return new FluidTraderStorageContainer(windowId, inventory, this.tileEntity);
+			return new FluidTraderStorageMenu(windowId, inventory, this.tileEntity);
 		}
 
 		@Override
@@ -381,7 +380,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new FluidTraderContainerCR(id, inventory, blockEntity, registerEntity);
+			return new FluidTraderMenuCR(id, inventory, blockEntity, registerEntity);
 		}
 		
 	}
@@ -399,7 +398,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		public Component getDisplayName() { return this.blockEntity.getName(); }
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-			return new FluidEditContainer(id, inventory, () -> blockEntity, tradeIndex);
+			return new FluidEditMenu(id, inventory, () -> blockEntity, tradeIndex);
 		}
 		
 	}
@@ -425,7 +424,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 
 	@Override
 	public int getTradeStock(int tradeIndex) {
-		return this.getTrade(tradeIndex).getStock(this, null);
+		return this.getTrade(tradeIndex).getStock(this, (Player)null);
 	}
 
 	@Override
@@ -435,8 +434,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		if(!level.isClientSide)
 		{
-			CompoundTag compound = this.writeTrades(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeTrades(new CompoundTag()));
 		}
 		
 	}
@@ -450,8 +448,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	{
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeFluidSettings(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeFluidSettings(new CompoundTag()));
 		}
 		this.setChanged();
 	}
@@ -506,8 +503,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		this.setChanged();
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = this.writeRules(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, this.writeRules(new CompoundTag()));
 		}
 	}
 
@@ -546,8 +542,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		this.setChanged();
 		if(!this.level.isClientSide)
 		{
-			CompoundTag compound = writeLogger(new CompoundTag());
-			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
+			BlockEntityUtil.sendUpdatePacket(this, writeLogger(new CompoundTag()));
 		}
 	}
 	

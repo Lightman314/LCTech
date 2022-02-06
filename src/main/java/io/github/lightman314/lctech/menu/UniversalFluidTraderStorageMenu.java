@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.container;
+package io.github.lightman314.lctech.menu;
 
 import java.util.List;
 import java.util.UUID;
@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
-import io.github.lightman314.lctech.container.slots.UpgradeInputSlot;
-import io.github.lightman314.lctech.core.ModContainers;
+import io.github.lightman314.lctech.core.ModMenus;
+import io.github.lightman314.lctech.menu.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditOpen;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -29,7 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class UniversalFluidTraderStorageContainer extends UniversalMenu implements ITraderStorageMenu{
+public class UniversalFluidTraderStorageMenu extends UniversalMenu implements ITraderStorageMenu{
 
 	public final Player player;
 	
@@ -43,8 +43,8 @@ public class UniversalFluidTraderStorageContainer extends UniversalMenu implemen
 		return null;
 	}
 	
-	public UniversalFluidTraderStorageContainer(int windowId, Inventory inventory, UUID traderID) {
-		super(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, windowId, traderID, inventory.player);
+	public UniversalFluidTraderStorageMenu(int windowId, Inventory inventory, UUID traderID) {
+		super(ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE, windowId, traderID, inventory.player);
 		
 		this.player = inventory.player;
 		

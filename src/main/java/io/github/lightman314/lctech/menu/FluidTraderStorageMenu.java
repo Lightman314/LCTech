@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.container;
+package io.github.lightman314.lctech.menu;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.container.slots.UpgradeInputSlot;
-import io.github.lightman314.lctech.core.ModContainers;
+import io.github.lightman314.lctech.core.ModMenus;
+import io.github.lightman314.lctech.menu.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditOpen;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -27,15 +27,15 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-public class FluidTraderStorageContainer extends AbstractContainerMenu implements ITraderStorageMenu{
+public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu{
 
 	public final Player player;
 	public final FluidTraderBlockEntity tileEntity;
 	
 	final Container coinSlots;
 	
-	public FluidTraderStorageContainer(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity) {
-		super(ModContainers.FLUID_TRADER_STORAGE, windowId);
+	public FluidTraderStorageMenu(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity) {
+		super(ModMenus.FLUID_TRADER_STORAGE, windowId);
 		
 		this.player = inventory.player;
 		this.tileEntity = tileEntity;

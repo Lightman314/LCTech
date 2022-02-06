@@ -1,27 +1,24 @@
-package io.github.lightman314.lctech.container;
+package io.github.lightman314.lctech.menu;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
-import io.github.lightman314.lctech.client.gui.widget.button.interfaces.IFluidTradeButtonContainer;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.container.slots.FluidInputSlot;
-import io.github.lightman314.lctech.core.ModContainers;
+import io.github.lightman314.lctech.core.ModMenus;
+import io.github.lightman314.lctech.menu.slots.FluidInputSlot;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,9 +27,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 
-public class FluidTraderContainer extends AbstractContainerMenu implements ITraderMenu, IFluidTradeButtonContainer{
+public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMenu {
 
 	public final Player player;
 	public final FluidTraderBlockEntity tileEntity;
@@ -40,12 +36,12 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 	Container bucketInventory = new SimpleContainer(1);
 	Container coinSlots = new SimpleContainer(5);
 	
-	public FluidTraderContainer(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity)
+	public FluidTraderMenu(int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity)
 	{
-		this(ModContainers.FLUID_TRADER, windowId, inventory, tileEntity);
+		this(ModMenus.FLUID_TRADER, windowId, inventory, tileEntity);
 	}
 	
-	protected FluidTraderContainer(MenuType<?> type, int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity)
+	protected FluidTraderMenu(MenuType<?> type, int windowId, Inventory inventory, FluidTraderBlockEntity tileEntity)
 	{
 		
 		super(type, windowId);
@@ -83,7 +79,6 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		
 	}
 	
-	@Override
 	public ItemStack getBucketItem() {
 		return this.bucketInventory.getItem(0);
 	}
@@ -268,14 +263,14 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		}
 		
 		//Check if the player is allowed to do the trade
-		if(!PermissionToTrade(tradeIndex, null))
+		if(this.tileEntity.runPreTradeEvent(this.player, tradeIndex).isCanceled())
 			return;
 		
 		//Get the cost of the trade
-		CoinValue price = this.TradeCostEvent(trade).getCostResult();
+		CoinValue price = this.tileEntity.runTradeCostEvent(this.player, tradeIndex).getCostResult();
 		
 		//Abort if not enough fluid in the tank
-		if(!trade.hasStock(this.tileEntity, price) && !this.tileEntity.getCoreSettings().isCreative())
+		if(!trade.hasStock(this.tileEntity, PlayerReference.of(this.player)) && !this.tileEntity.getCoreSettings().isCreative())
 		{
 			LCTech.LOGGER.debug("Not enough fluid to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
 			return;
@@ -325,33 +320,15 @@ public class FluidTraderContainer extends AbstractContainerMenu implements ITrad
 		this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.getCoreSettings().isCreative());
 		this.tileEntity.markLoggerDirty();
 		
+		//Post the trade success event
+		this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
+		
 		//Transfer Fluids
 		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.tileEntity.getCoreSettings().isCreative());
 		this.bucketInventory.setItem(0, newBucket);
 		this.tileEntity.markTradesDirty();
 		
 		
-	}
-
-	@Override
-	public TradeEvent.TradeCostEvent TradeCostEvent(FluidTradeData trade) {
-		TradeEvent.TradeCostEvent event = new TradeEvent.TradeCostEvent(this.player, trade, () -> this.tileEntity);
-		this.tileEntity.tradeCost(event);
-		trade.tradeCost(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		return event;
-	}
-
-	@Override
-	public boolean PermissionToTrade(int tradeIndex, List<Component> denialOutput) {
-		FluidTradeData trade = this.tileEntity.getTrade(tradeIndex);
-		PreTradeEvent event = new PreTradeEvent(this.player, trade, () -> this.tileEntity);
-		this.tileEntity.beforeTrade(event);
-		trade.beforeTrade(event);
-		MinecraftForge.EVENT_BUS.post(event);
-		if(denialOutput != null)
-			event.getDenialReasons().forEach(reason -> denialOutput.add(reason));
-		return !event.isCanceled();
 	}
 	
 }

@@ -9,9 +9,9 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.blockentities.handler.TradeFluidHandler;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
-import io.github.lightman314.lctech.container.UniversalFluidEditContainer;
-import io.github.lightman314.lctech.container.UniversalFluidTraderContainer;
-import io.github.lightman314.lctech.container.UniversalFluidTraderStorageContainer;
+import io.github.lightman314.lctech.menu.UniversalFluidEditMenu;
+import io.github.lightman314.lctech.menu.UniversalFluidTraderMenu;
+import io.github.lightman314.lctech.menu.UniversalFluidTraderStorageMenu;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.trader.IFluidTrader;
@@ -55,7 +55,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkHooks;
 
-public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
+public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
 
 	public static final int TRADELIMIT = FluidTraderBlockEntity.TRADE_LIMIT;
 	
@@ -215,7 +215,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	@Override
 	public int getTradeStock(int index) {
-		return this.getTrade(index).getStock(this, this.getTrade(index).getCost());
+		return this.getTrade(index).getStock(this, (Player)null);
 	}
 	
 	public List<FluidTradeData> getAllTrades() {
@@ -285,7 +285,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		private TraderProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalFluidTraderContainer(menuID, inventory, this.traderID);
+			return new UniversalFluidTraderMenu(menuID, inventory, this.traderID);
 		}
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }
@@ -296,7 +296,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		private StorageProvider(UUID traderID) { this.traderID = traderID; }
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalFluidTraderStorageContainer(menuID, inventory, this.traderID);
+			return new UniversalFluidTraderStorageMenu(menuID, inventory, this.traderID);
 		}
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }
@@ -315,7 +315,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		}
 		@Override
 		public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) {
-			return new UniversalFluidEditContainer(menuID, inventory, () -> getData(), this.tradeIndex);
+			return new UniversalFluidEditMenu(menuID, inventory, () -> getData(), this.tradeIndex);
 		}
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }

@@ -1,11 +1,11 @@
-package io.github.lightman314.lctech.container;
+package io.github.lightman314.lctech.menu;
 
 import java.util.List;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.core.ModContainers;
+import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditClose;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditSet;
@@ -31,7 +31,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class FluidEditContainer extends AbstractContainerMenu{
+public class FluidEditMenu extends AbstractContainerMenu{
 
 	private static final List<Fluid> BLACKLISTED_FLUIDS = Lists.newArrayList(Fluids.EMPTY);
 	public static final void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
@@ -57,12 +57,12 @@ public class FluidEditContainer extends AbstractContainerMenu{
 	
 	protected boolean isClient() { return this.player.level.isClientSide; }
 	
-	public FluidEditContainer(int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex)
+	public FluidEditMenu(int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex)
 	{
-		this(ModContainers.FLUID_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
+		this(ModMenus.FLUID_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
 	}
 	
-	protected FluidEditContainer(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex, FluidTradeData tradeData)
+	protected FluidEditMenu(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex, FluidTradeData tradeData)
 	{
 		super(type, windowId);
 		
