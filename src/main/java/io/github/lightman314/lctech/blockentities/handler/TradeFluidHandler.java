@@ -339,6 +339,7 @@ public class TradeFluidHandler{
 		FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trade, Integer.MAX_VALUE, player, true);
 		if(result.isSuccess())
 		{
+			this.trader.markTradesDirty();
 			//If creative, and the item was a bucket, don't move the items around
 			if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldStack.getItem() == Items.BUCKET))
 				return;
@@ -359,6 +360,7 @@ public class TradeFluidHandler{
 			result = FluidUtil.tryFillContainer(heldStack, trade, Integer.MAX_VALUE, player, true);
 			if(result.isSuccess())
 			{
+				this.trader.markTradesDirty();
 				//If creative, and the item was a bucket, don't move the items around
 				if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldStack.getItem() == Items.BUCKET))
 					return;

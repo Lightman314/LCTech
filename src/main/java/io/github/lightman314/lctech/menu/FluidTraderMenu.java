@@ -210,6 +210,9 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 			return;
 		}
 		
+		if(this.tileEntity.getCoreSettings().hasBankAccount())
+			return;
+		
 		//Get the coin count from the tile entity
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.tileEntity.getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);

@@ -204,6 +204,9 @@ public class UniversalFluidTraderMenu extends UniversalMenu implements ITraderMe
 			return;
 		}
 		
+		if(this.getData().getCoreSettings().hasBankAccount())
+			return;
+		
 		//Get the coin count from the tile entity
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getData().getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
@@ -313,6 +316,9 @@ public class UniversalFluidTraderMenu extends UniversalMenu implements ITraderMe
 		//Log the successful trade
 		this.getData().getLogger().AddLog(player, trade, price, this.getData().getCoreSettings().isCreative());
 		this.getData().markLoggerDirty();
+		
+		//Run the trade success event
+		this.getData().runPostTradeEvent(this.player, tradeIndex, price);
 		
 		//Transfer Fluids
 		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.getData().getCoreSettings().isCreative());

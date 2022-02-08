@@ -111,7 +111,7 @@ public class ModBlocks {
 			switch(type)
 			{
 				case FLUID_TANK:
-					item = new FluidTankItem(block, new Item.Properties().tab(tab).stacksTo(1));
+					item = new FluidTankItem(block, new Item.Properties().tab(tab));
 					break;
 				default:
 					item = new BlockItem(block, new Item.Properties().tab(tab));

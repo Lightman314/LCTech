@@ -218,6 +218,9 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 			return;
 		}
 		
+		if(this.tileEntity.getCoreSettings().hasBankAccount())
+			return;
+		
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

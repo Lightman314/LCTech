@@ -76,7 +76,7 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	
 	public boolean canFillTank(FluidStack fluid)
 	{
-		return (!this.product.isEmpty() && !this.tank.isEmpty()) || ((this.tank.isEmpty() || this.tank.isFluidEqual(fluid)) && this.product.isFluidEqual(fluid));
+		return !fluid.isEmpty() && ((this.tank.isEmpty() || this.tank.isFluidEqual(fluid)) && this.product.isFluidEqual(fluid));
 	}
 	
 	boolean canDrain = false;

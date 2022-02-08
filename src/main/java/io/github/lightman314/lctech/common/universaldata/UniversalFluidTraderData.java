@@ -215,7 +215,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	@Override
 	public int getTradeStock(int index) {
-		return this.getTrade(index).getStock(this, (Player)null);
+		return this.getTrade(index).getStock(this);
 	}
 	
 	public List<FluidTradeData> getAllTrades() {
