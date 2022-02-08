@@ -13,8 +13,8 @@ import io.github.lightman314.lctech.container.UniversalFluidTraderStorageContain
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
-import io.github.lightman314.lctech.tileentities.handler.TradeFluidHandler;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;

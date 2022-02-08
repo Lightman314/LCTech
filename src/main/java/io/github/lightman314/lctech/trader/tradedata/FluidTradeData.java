@@ -3,11 +3,10 @@ package io.github.lightman314.lctech.trader.tradedata;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.items.UpgradeItem;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -22,11 +21,11 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 public class FluidTradeData extends TradeData implements IFluidHandler{
 	
@@ -80,12 +79,12 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	}
 	
 	boolean canDrain = false;
-	public boolean canDrain() { return this.canDrain; }
-	public void setDrainable(boolean value) { this.canDrain = value; }
+	public boolean canDrainExternally() { return this.canDrain; }
+	public void setDrainableExternally(boolean value) { this.canDrain = value; }
 	boolean canFill = false;
-	public boolean canFill() { return this.canFill; }
-	public void setFillable(boolean value) { this.canFill = value; }
-	public boolean canFill(FluidStack fluid)
+	public boolean canFillExternally() { return this.canFill; }
+	public void setFillableExternally(boolean value) { this.canFill = value; }
+	public boolean canFillExternally(FluidStack fluid)
 	{
 		if(!canFill || fluid.isEmpty())
 			return false;
@@ -142,7 +141,8 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 			if(this.tank.isFluidEqual(this.product))
 			{
 				//How many buckets the tank holds
-				return this.tank.getAmount() / this.getQuantity();
+				//Presume that any fluids pending drain are not in the tank
+				return (this.tank.getAmount() - this.pendingDrain) / this.getQuantity();
 			}
 		}
 		else if(this.isPurchase())
@@ -166,8 +166,7 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	}
 	
 	//Flag as not valid should the tank & product not match
-	//Flag as not valid should there be a pending drain
-	public boolean isValid() { return super.isValid() && !this.product.isEmpty() && (this.tank.isEmpty() || this.product.isFluidEqual(this.tank)) && !this.hasPendingDrain(); }
+	public boolean isValid() { return super.isValid() && !this.product.isEmpty() && (this.tank.isEmpty() || this.product.isFluidEqual(this.tank)); }
 	
 	/**
 	 * Confirms that the bucket stack can have the proper amount of fluids extracted or poured into them.
@@ -206,8 +205,9 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 			//Check if the bucket stack can have 1 bucket of the product extracted
 			if(this.tank.isEmpty() || this.tank.isFluidEqual(this.product))
 			{
-				if(this.getFilledBucket().getItem() == bucketStack.getItem() && this.bucketQuantity == 1)
-					return true;
+				//Shouldn't need a manual check for an empty bucket, fluid handler method should work just fine
+				//if(this.getFilledBucket().getItem() == bucketStack.getItem() && this.bucketQuantity == 1)
+				//	return true;
 				AtomicBoolean passes = new AtomicBoolean(false);
 				FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
 					if(fluidHandler.drain(this.productOfQuantity(), FluidAction.SIMULATE).getAmount() == this.getQuantity())
@@ -230,62 +230,51 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 			
 		if(this.isSale())
 		{
-			if(bucketStack.getItem() == Items.BUCKET && this.bucketQuantity == 1)
-			{
-				//Drain the fluid from the tank
-				if(!isCreative)
-					this.tank.shrink(FluidAttributes.BUCKET_VOLUME);
-				return this.getFilledBucket();
-			}
-			AtomicBoolean drained = new AtomicBoolean(false);
+			//Check if it can fill the item appropriately
+			AtomicBoolean canFillNormally = new AtomicBoolean(false);
 			FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-				//Add the fluid to the fluid handler
-				int fillAmount = fluidHandler.fill(this.productOfQuantity(), FluidAction.EXECUTE);
-				//Drain the fluid from the tank
-				if(!isCreative)
-					this.tank.shrink(fillAmount);
-				drained.set(true);
+				canFillNormally.set(fluidHandler.fill(this.productOfQuantity(), FluidAction.SIMULATE) == this.getQuantity());
 			});
-			if(!drained.get())
+			
+			if(canFillNormally.get())
 			{
-				//Set a pending drain
-				this.pendingDrain += this.getQuantity();
+				//If creative, temporarily replace the tank with a filled tank
+				FluidStack tankBackup = this.tank.copy();
+				if(isCreative)
+					this.tank = this.productOfQuantity();
+				//Fill the item from the tank
+				FluidActionResult result = FluidUtil.tryFillContainer(bucketStack, this, this.getQuantity(), null, true);
+				//If creative, restore the backup tank to ensure the tank contents were not changed.
+				if(isCreative)
+					this.tank = tankBackup;
+				
+				return result.getResult();
 			}
-			return bucketStack;
+			else if(this.canDrain) //Cannot drain to item, trigger pending drain
+			{
+				this.pendingDrain += this.getQuantity();
+				return bucketStack;
+			}
+			else
+			{
+				LCTech.LOGGER.error("Flagged as being able to transfer fluids for the sale, but the bucket stack cannot accept the fluid, and this trade does not allow external drains.");
+				return bucketStack;
+			}
 		}
 		else if(this.isPurchase())
 		{
 			
-			//Remove the bucket from the bucketStack
-			AtomicReference<ItemStack> returnStack = new AtomicReference<ItemStack>(bucketStack);
-			FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-				if(fluidHandler instanceof FluidBucketWrapper && this.bucketQuantity == 1)
-				{
-					//Fill the tank
-					if(!isCreative)
-					{
-						if(this.tank.isEmpty())
-							this.tank = this.getProduct().copy();
-						else
-							this.tank.grow(FluidAttributes.BUCKET_VOLUME);
-					}
-					returnStack.set(new ItemStack(Items.BUCKET));
-				}
-				else
-				{
-					//Remove the fluid from the fluid handler
-					FluidStack drainStack = fluidHandler.drain(this.productOfQuantity(), FluidAction.EXECUTE);
-					//Add the fluid to the tank
-					if(!isCreative)
-					{
-						if(this.tank.isEmpty())
-							this.tank = drainStack;
-						else
-							this.tank.grow(drainStack.getAmount());
-					}
-				}
-			});
-			return returnStack.get();
+			//Drain the item into the tank
+			//If creative, temporarily replace the tank with an empty tank
+			FluidStack tankBackup = this.tank.copy();
+			if(isCreative)
+				this.tank = FluidStack.EMPTY;
+			FluidActionResult result = FluidUtil.tryEmptyContainer(bucketStack, this, this.getQuantity(), null, true);
+			//If creative, restore the backup tank to ensure the tank contents were not changed.
+			if(isCreative)
+				this.tank = tankBackup;
+			return result.getResult();
+			
 		}
 		else
 		{

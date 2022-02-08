@@ -9,7 +9,7 @@ import io.github.lightman314.lctech.core.ModContainers;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditClose;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditSet;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;

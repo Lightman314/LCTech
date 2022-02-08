@@ -52,10 +52,10 @@ public class MessageToggleFluidIcon implements IMessage<MessageToggleFluidIcon>{
 					switch(message.icon)
 					{
 					case 0:
-						trade.setDrainable(!trade.canDrain());
+						trade.setDrainableExternally(!trade.canDrainExternally());
 						break;
 					case 1:
-						trade.setFillable(!trade.canFill());
+						trade.setFillableExternally(!trade.canFillExternally());
 						break;
 					}
 					traderEntity.markTradesDirty();

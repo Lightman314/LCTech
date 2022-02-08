@@ -14,7 +14,7 @@ import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFlui
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidPrice2;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
@@ -94,8 +94,8 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		//Store local copies of togglable data
 		FluidTradeData localTrade = this.trade.get();
 		this.localDirection = localTrade.getTradeType();
-		this.localDrainable = localTrade.canDrain();
-		this.localFillable = localTrade.canFill();
+		this.localDrainable = localTrade.canDrainExternally();
+		this.localFillable = localTrade.canFillExternally();
 		this.localQuantity = localTrade.getBucketQuantity();
 		
 		//Save various functions

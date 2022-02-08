@@ -49,7 +49,7 @@ public class MessageToggleFluidIcon2 implements IMessage<MessageToggleFluidIcon2
 				switch(message.icon)
 				{
 				case 1:
-					trade.setFillable(!trade.canFill());
+					trade.setFillableExternally(!trade.canFillExternally());
 					break;
 				}
 				fluidTrader.markTradesDirty();
