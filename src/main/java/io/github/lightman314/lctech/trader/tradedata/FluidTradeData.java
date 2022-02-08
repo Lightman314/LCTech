@@ -8,7 +8,6 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.upgrades.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
@@ -167,7 +166,6 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	}
 	
 	//Flag as not valid should the tank & product not match
-	//Flag as not valid should there be a pending drain
 	public boolean isValid() { return super.isValid() && !this.product.isEmpty() && (this.tank.isEmpty() || this.product.isFluidEqual(this.tank)); }
 	
 	/**
@@ -258,7 +256,7 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 			}
 			else
 			{
-				LightmansCurrency.LogError("Flagged as being able to transfer fluids for the sale, but the bucket stack cannot accept the fluid, and this trade does not allow external drains.");
+				LCTech.LOGGER.error("Flagged as being able to transfer fluids for the sale, but the bucket stack cannot accept the fluid, and this trade does not allow external drains.");
 				return bucketStack;
 			}
 			

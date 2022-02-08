@@ -137,7 +137,6 @@ public class TradeFluidHandler{
 	private interface IInputHandler
 	{
 		
-		public boolean isCreative();
 		public FluidTradeData getTrade(int tank);
 		public void markTradesDirty();
 		public FluidTradeData getValidFillTrade(FluidStack resource);
@@ -152,7 +151,7 @@ public class TradeFluidHandler{
 			{
 				//Fill the tank
 				int fillAmount = MathUtil.clamp(resource.getAmount(), 0, trade.getTankSpace());
-				if(action.execute() && !this.isCreative())
+				if(action.execute())
 				{
 					FluidStack tank = trade.getTankContents();
 					if(tank.isEmpty())
