@@ -1,6 +1,5 @@
-package io.github.lightman314.lctech.blockentities.handler;
+package io.github.lightman314.lctech.trader.fluid;
 
-import io.github.lightman314.lctech.trader.IFluidTrader;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings.FluidHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -76,7 +75,7 @@ public class TradeFluidHandler{
 					if(trade.hasPendingDrain() && (trade.getTankContents().isFluidEqual(resource) || resource.isEmpty()))
 						return trade;
 					//Can also drain purchase trades if draining is enabled.
-					if(trade.isPurchase() && trade.canDrain() && (trade.getTankContents().isFluidEqual(resource) || resource.isEmpty()))
+					if(trade.isPurchase() && trade.canDrainExternally() && (trade.getTankContents().isFluidEqual(resource) || resource.isEmpty()))
 						return trade;
 				}
 			}
@@ -88,7 +87,7 @@ public class TradeFluidHandler{
 			for(int i = 0; i < this.getTradeCount(); i++)
 			{
 				FluidTradeData trade = this.getTrade(i);
-				if(trade.canFill() && trade.getProduct().isFluidEqual(resource) && trade.validTankContents() && trade.getTankSpace() > 0)
+				if(trade.canFillExternally() && trade.getProduct().isFluidEqual(resource) && trade.validTankContents() && trade.getTankSpace() > 0)
 					return trade;
 			}
 			return null;
@@ -118,7 +117,7 @@ public class TradeFluidHandler{
 						drainableTank.setAmount(trade.getPendingDrain());
 					return drainableTank;
 				}
-				else if(trade.isPurchase() && trade.canDrain())
+				else if(trade.isPurchase() && trade.canDrainExternally())
 				{
 					return trade.getTankContents();
 				}
@@ -142,7 +141,7 @@ public class TradeFluidHandler{
 		public FluidTradeData getValidFillTrade(FluidStack resource);
 		
 		public default boolean isFluidValidX(int tank, FluidStack stack) {
-			return this.getTrade(tank).canFill(stack);
+			return this.getTrade(tank).canFillExternally(stack);
 		}
 		
 		public default int fillX(FluidStack resource, FluidAction action) {

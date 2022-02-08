@@ -69,8 +69,8 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 					trade.setCost(message.price);
 					trade.setTradeType(message.tradeType);
 					trade.setBucketQuantity(message.bucketCount);
-					trade.setDrainable(message.canDrain);
-					trade.setFillable(message.canFill);
+					trade.setDrainableExternally(message.canDrain);
+					trade.setFillableExternally(message.canFill);
 					
 					traderEntity.markTradesDirty();
 					

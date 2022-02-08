@@ -1,8 +1,7 @@
-package io.github.lightman314.lctech.trader;
+package io.github.lightman314.lctech.trader.fluid;
 
 import java.util.List;
 
-import io.github.lightman314.lctech.blockentities.handler.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.upgrades.UpgradeType.IUpgradeable;

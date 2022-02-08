@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lctech.util.FluidItemUtil;
@@ -119,9 +119,9 @@ public class FluidTradeButton extends Button{
 		screen.blit(poseStack, x, y, xOffset, yOffset, WIDTH, HEIGHT);
 		//Draw drain & fill icons
 		if(trader.drainCapable())
-			screen.blit(poseStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrain() ? 0 : 10, HEIGHT * 4,  10, 10);
+			screen.blit(poseStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrainExternally() ? 0 : 10, HEIGHT * 4,  10, 10);
 		if(storageMode)
-			screen.blit(poseStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFill() ? 20 : 30, HEIGHT * 4, 10, 10);
+			screen.blit(poseStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFillExternally() ? 20 : 30, HEIGHT * 4, 10, 10);
 		
 		//Collect data
 		boolean hasPermission = forceActive ? true : false;
@@ -208,12 +208,12 @@ public class FluidTradeButton extends Button{
 		else if(isMouseOverIcon(0, x, y, mouseX, mouseY) && trader.drainCapable())
 		{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
-			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrain() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canDrain() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrainExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canDrainExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 		}
 		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY))
 		{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
-			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFill() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canFill() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFillExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canFillExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 		}
 		return 0;
 	}

@@ -1,7 +1,7 @@
 package io.github.lightman314.lctech.common;
 
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 
 public class FluidTraderUtil {
 

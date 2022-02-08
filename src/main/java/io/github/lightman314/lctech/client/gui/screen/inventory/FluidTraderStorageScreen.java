@@ -17,7 +17,7 @@ import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidTradeTankInteraction;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageToggleFluidIcon;
-import io.github.lightman314.lctech.trader.IFluidTrader;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.permissions.FluidPermissions;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
