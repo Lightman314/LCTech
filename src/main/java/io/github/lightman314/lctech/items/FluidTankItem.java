@@ -260,6 +260,7 @@ public class FluidTankItem extends BlockItem{
 		public ItemStack getContainer() {
 			return this.stack;
 		}
+		
 		@Override
 		public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
 			return CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY.orEmpty(capability, holder);

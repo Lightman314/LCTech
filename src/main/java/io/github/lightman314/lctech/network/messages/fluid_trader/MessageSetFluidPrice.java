@@ -7,7 +7,6 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
-import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -73,8 +72,8 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 					trade.setDrainable(message.canDrain);
 					trade.setFillable(message.canFill);
 					
-					CompoundNBT compound = traderEntity.writeTrades(new CompoundNBT());
-					TileEntityUtil.sendUpdatePacket(tileEntity, traderEntity.superWrite(compound));
+					traderEntity.markTradesDirty();
+					
 				}
 			}
 		});

@@ -224,6 +224,9 @@ public class UniversalFluidTraderStorageContainer extends UniversalContainer imp
 			return;
 		}
 		
+		if(this.getData().getCoreSettings().hasBankAccount())
+			return;
+		
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(getData().getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())

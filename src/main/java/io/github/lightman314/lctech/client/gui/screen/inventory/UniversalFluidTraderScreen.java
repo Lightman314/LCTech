@@ -80,7 +80,7 @@ public class UniversalFluidTraderScreen extends ContainerScreen<UniversalFluidTr
 		
 		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.getData().getCoreSettings().hasBankAccount();
 		
 		initTradeButtons();
 		
@@ -91,7 +91,7 @@ public class UniversalFluidTraderScreen extends ContainerScreen<UniversalFluidTr
 		int tradeCount = this.container.getData().getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addButton(new FluidTradeButton(this.guiLeft + FluidTraderUtil.getButtonPosX(this.container.getData(), i), this.guiTop + FluidTraderUtil.getButtonPosY(this.container.getData(), i), this::PressTradeButton, i, this, this.font, () -> this.container.getData(), this.container)));
+			this.tradeButtons.add(this.addButton(new FluidTradeButton(this.guiLeft + FluidTraderUtil.getButtonPosX(this.container.getData(), i), this.guiTop + FluidTraderUtil.getButtonPosY(this.container.getData(), i), this::PressTradeButton, i, this, this.font, () -> this.container.getData(), () -> this.container.GetCoinValue(), () -> this.container.getBucketItem())));
 		}
 	}
 	
@@ -106,7 +106,7 @@ public class UniversalFluidTraderScreen extends ContainerScreen<UniversalFluidTr
 		
 		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = true;
+			this.buttonCollectMoney.visible = !this.container.getData().getCoreSettings().hasBankAccount();
 			this.buttonCollectMoney.active = this.container.getData().getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.container.getData().getCoreSettings().isCreative();
@@ -137,7 +137,7 @@ public class UniversalFluidTraderScreen extends ContainerScreen<UniversalFluidTr
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(matrix, this, this.container.getData(), mouseX, mouseY, container, false);
+			this.tradeButtons.get(i).tryRenderTooltip(matrix, this, this.container.getData(), mouseX, mouseY, false);
 		}
 	}
 
@@ -170,7 +170,7 @@ public class UniversalFluidTraderScreen extends ContainerScreen<UniversalFluidTr
 	
 	private void PressBackButton(Button button)
 	{
-		this.minecraft.displayGuiScreen(new TradingTerminalScreen(this.container.player));
+		this.minecraft.displayGuiScreen(new TradingTerminalScreen());
 	}
 	
 }

@@ -147,7 +147,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		//Draw the fake fluid trade buttons
 		for(int i = 0; i < trader.getTradeCount(); i++)
 		{
-			FluidTradeButton.renderFluidTradeButton(matrix, screen, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, null, false, true, true);
+			FluidTradeButton.renderFluidTradeButton(matrix, screen, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, false, true, true);
 		}
 		
 	}
@@ -178,7 +178,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		this.buttonShowTrades = this.addButton(new IconButton(this.guiLeft + traderOffset - 20, this.guiTop, this::PressTradesButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
 		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft + traderOffset - 20, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.tileEntity.getCoreSettings().hasBankAccount();
 		
 		this.buttonShowLog = this.addButton(new Button(this.guiLeft + traderOffset, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
 		this.buttonClearLog = this.addButton(new Button(this.guiLeft + traderOffset + 20, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
@@ -258,7 +258,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 			FluidTraderTileEntity tileEntity = this.container.tileEntity;
 			for(int i = 0; i < tileEntity.getTradeCount(); i++)
 			{
-				int result = FluidTradeButton.tryRenderTooltip(matrixStack, this, i, tileEntity, this.guiLeft + FluidTraderUtil.getButtonPosX(tileEntity, i) + 32, this.guiTop + FluidTraderUtil.getButtonPosY(tileEntity, i), mouseX, mouseY, null, true);
+				int result = FluidTradeButton.tryRenderTooltip(matrixStack, this, i, tileEntity, this.guiLeft + FluidTraderUtil.getButtonPosX(tileEntity, i) + 32, this.guiTop + FluidTraderUtil.getButtonPosY(tileEntity, i), mouseX, mouseY, true);
 				if(result == -2 && this.container.player.inventory.getItemStack().isEmpty() && this.container.hasPermission(Permissions.EDIT_TRADES))
 					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_edit"), mouseX, mouseY);
 			}
@@ -277,7 +277,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		
 		this.container.tick();
 		
-		this.buttonCollectMoney.visible = (!this.container.tileEntity.getCoreSettings().isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = (!this.container.tileEntity.getCoreSettings().isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.tileEntity.getCoreSettings().hasBankAccount();
 		this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 		
 		this.buttonOpenSettings.visible = this.container.hasPermission(Permissions.EDIT_SETTINGS);

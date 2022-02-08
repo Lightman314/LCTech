@@ -56,7 +56,7 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
 		
 		//Render the fake trade button
-		FluidTradeButton.renderFluidTradeButton(matrix, this, font, startX, startY - FluidTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), null, false, true, false);
+		FluidTradeButton.renderFluidTradeButton(matrix, this, font, startX, startY - FluidTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), false, true, false);
 		
 	}
 	
@@ -95,7 +95,7 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 		
 		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
 		
-		FluidTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - FluidTradeButton.HEIGHT, mouseX, mouseY, null, true);
+		FluidTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - FluidTradeButton.HEIGHT, mouseX, mouseY, true);
 		
 	}
 	

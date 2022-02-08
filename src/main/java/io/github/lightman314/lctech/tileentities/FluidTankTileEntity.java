@@ -8,13 +8,11 @@ import io.github.lightman314.lctech.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.core.ModTileEntities;
 import io.github.lightman314.lctech.items.FluidTankItem;
-import io.github.lightman314.lctech.util.PlayerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TileEntityUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -28,12 +26,13 @@ import net.minecraft.util.Hand;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 
@@ -59,122 +58,54 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 	
 	public ActionResultType onInteraction(PlayerEntity player, Hand hand)
 	{
-		ItemStack heldItem = hand == Hand.MAIN_HAND ? player.inventory.getCurrentItem() : player.inventory.offHandInventory.get(0);
-		FluidUtil.getFluidHandler(heldItem).ifPresent(fluidHandler ->{
-			if(fluidHandler instanceof FluidBucketWrapper) //Bucket interactions
+		ItemStack heldItem = player.getHeldItem(hand);
+		if(!FluidUtil.getFluidHandler(heldItem).isPresent())
+			return ActionResultType.PASS;
+		
+		//Try to fill the tank first
+		FluidActionResult result = FluidUtil.tryEmptyContainer(heldItem, this, Integer.MAX_VALUE, player, true);
+		if(result.isSuccess())
+		{
+			this.markDirty();
+			//If creative, and the item was a bucket, don't move the items around
+			if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldItem.getItem() == Items.BUCKET))
+				return ActionResultType.SUCCESS;
+			if(heldItem.getCount() > 1)
 			{
-				FluidBucketWrapper bucketWrapper = (FluidBucketWrapper)fluidHandler;
-				
-				FluidStack bucketFluid = bucketWrapper.getFluid();
-				if(!bucketWrapper.getFluid().isEmpty())
-				{
-					//Attempt to fill the tank
-					if(this.tankContents.isEmpty() || this.tankContents.isFluidEqual(bucketFluid))
-					{
-						//Fluid is valid; Attempt to fill the tank
-						if(this.getTankSpace() >= bucketFluid.getAmount())
-						{
-							//Has space, fill the tank
-							if(this.tankContents.isEmpty())
-								this.tankContents = bucketFluid;
-							else
-								this.tankContents.grow(bucketFluid.getAmount());
-							this.markDirty();
-							
-							//Drain the bucket (unless we're in creative mode)
-							if(!player.abilities.isCreativeMode)
-							{
-								ItemStack emptyBucket = new ItemStack(Items.BUCKET);
-								this.replacePlayerItem(player, hand, heldItem, emptyBucket);
-							}
-						}
-					}
-				} else
-				{
-					//Attempt to drain the tank
-					if(!this.tankContents.isEmpty() && this.tankContents.getAmount() >= FluidAttributes.BUCKET_VOLUME)
-					{
-						//Tank has more than 1 bucket of fluid, drain the tank
-						Item filledBucket = this.tankContents.getFluid().getFilledBucket();
-						if(filledBucket != null && filledBucket != Items.AIR)
-						{
-							//Filled bucket is not null or air; Fill the bucket, and drain the tank
-							this.tankContents.shrink(FluidAttributes.BUCKET_VOLUME);
-							if(this.tankContents.isEmpty())
-								this.tankContents = FluidStack.EMPTY;
-							this.markDirty();
-							
-							//Fill the bucket (unless we're in creative mode)
-							if(!player.abilities.isCreativeMode)
-							{
-								ItemStack newBucket = new ItemStack(filledBucket, 1);
-								this.replacePlayerItem(player, hand, heldItem, newBucket);
-							}
-							
-						}
-					}
-				}
+				heldItem.shrink(1);
+				player.setHeldItem(hand, heldItem);
+				ItemHandlerHelper.giveItemToPlayer(player, result.getResult());
 			}
-			else //Normal fluid handler interaction
+			else
 			{
-				//Attempt to fill the tank first
-				FluidStack drainResults = FluidStack.EMPTY;
-				if(this.tankContents.isEmpty())
+				player.setHeldItem(hand, result.getResult());
+			}
+		}
+		else
+		{
+			//Now try to empty the tank
+			result = FluidUtil.tryFillContainer(heldItem, this, Integer.MAX_VALUE, player, true);
+			if(result.isSuccess())
+			{
+				this.markDirty();
+				//If creative, and the item was a bucket, don't move the items around
+				if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldItem.getItem() == Items.BUCKET))
+					return ActionResultType.SUCCESS;
+				if(heldItem.getCount() > 1)
 				{
-					//Attempt to drain anything
-					drainResults = fluidHandler.drain(this.getTankCapacity(), FluidAction.EXECUTE);
+					heldItem.shrink(1);
+					player.setHeldItem(hand, heldItem);
+					ItemHandlerHelper.giveItemToPlayer(player, result.getResult());
 				}
 				else
 				{
-					//Attempt to drain a fluid that matches the tank
-					FluidStack drainRequest = this.tankContents.copy();
-					drainRequest.setAmount(this.getTankSpace());
-					
-					drainResults = fluidHandler.drain(drainRequest, FluidAction.EXECUTE);
-				}
-				if(!drainResults.isEmpty())
-				{
-					if(this.tankContents.isEmpty())
-						this.tankContents = drainResults;
-					else
-						this.tankContents.grow(drainResults.getAmount());
-					this.markDirty();
-				}
-				else if(!this.tankContents.isEmpty())
-				{
-					//Deposit failed, attempt to drain the fluid then
-					FluidStack fillRequest = this.tankContents.copy();
-					
-					int drainedAmount = fluidHandler.fill(fillRequest, FluidAction.EXECUTE);
-					if(drainedAmount > 0)
-					{
-						this.tankContents.shrink(drainedAmount);
-						if(this.tankContents.isEmpty())
-							this.tankContents = FluidStack.EMPTY;
-						this.markDirty();
-					}
+					player.setHeldItem(hand, result.getResult());
 				}
 			}
-		});
-		if(FluidUtil.getFluidHandler(heldItem).isPresent())
-			return ActionResultType.SUCCESS;
-		return ActionResultType.PASS;
-	}
-	
-	private void replacePlayerItem(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newItem)
-	{
-		oldStack.shrink(1);
-		if(oldStack.isEmpty())
-		{
-			if(hand == Hand.MAIN_HAND)
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, newItem);
-			else
-				player.inventory.offHandInventory.set(0, newItem);
 		}
-		else //Give it to the player manually
-		{
-			PlayerUtil.givePlayerItem(player, newItem);
-		}
+		
+		
+		return ActionResultType.SUCCESS;
 	}
 	
 	@Override

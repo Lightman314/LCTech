@@ -430,7 +430,7 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 
 	@Override
 	public int getTradeStock(int tradeIndex) {
-		return this.getTrade(tradeIndex).getStock(this, null);
+		return this.getTrade(tradeIndex).getStock(this);
 	}
 
 	@Override

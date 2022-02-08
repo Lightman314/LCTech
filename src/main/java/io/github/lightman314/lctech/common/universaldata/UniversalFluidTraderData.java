@@ -55,7 +55,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>, ITradeRuleHandler{
+public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
 
 	public static final int TRADELIMIT = FluidTraderTileEntity.TRADE_LIMIT;
 	
@@ -215,7 +215,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	@Override
 	public int getTradeStock(int index) {
-		return this.getTrade(index).getStock(this, this.getTrade(index).getCost());
+		return this.getTrade(index).getStock(this);
 	}
 	
 	public List<FluidTradeData> getAllTrades() {

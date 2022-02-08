@@ -97,7 +97,7 @@ public class FluidTraderScreenCR extends ContainerScreen<FluidTraderContainerCR>
 		
 		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20 + tradeOffset, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS);
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.tileEntity.getCoreSettings().hasBankAccount();
 		
 		initTradeButtons();
 		
@@ -108,7 +108,7 @@ public class FluidTraderScreenCR extends ContainerScreen<FluidTraderContainerCR>
 		int tradeCount = this.container.tileEntity.getTradeCount();
 		for(int i = 0; i < tradeCount; i++)
 		{
-			this.tradeButtons.add(this.addButton(new FluidTradeButton(this.guiLeft + FluidTraderUtil.getButtonPosX(this.container.tileEntity, i), this.guiTop + FluidTraderUtil.getButtonPosY(this.container.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.container.tileEntity, this.container)));
+			this.tradeButtons.add(this.addButton(new FluidTradeButton(this.guiLeft + FluidTraderUtil.getButtonPosX(this.container.tileEntity, i), this.guiTop + FluidTraderUtil.getButtonPosY(this.container.tileEntity, i), this::PressTradeButton, i, this, this.font, () -> this.container.tileEntity, () -> this.container.GetCoinValue(), () -> this.container.getBucketItem())));
 		}
 	}
 	
@@ -121,7 +121,7 @@ public class FluidTraderScreenCR extends ContainerScreen<FluidTraderContainerCR>
 		
 		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = true;
+			this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().hasBankAccount();
 			this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
 				this.buttonCollectMoney.visible = !this.container.tileEntity.getCoreSettings().isCreative();
@@ -153,7 +153,7 @@ public class FluidTraderScreenCR extends ContainerScreen<FluidTraderContainerCR>
 		}
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(matrix, this, this.container.tileEntity, mouseX, mouseY, container, false);
+			this.tradeButtons.get(i).tryRenderTooltip(matrix, this, this.container.tileEntity, mouseX, mouseY, false);
 		}
 	}
 	

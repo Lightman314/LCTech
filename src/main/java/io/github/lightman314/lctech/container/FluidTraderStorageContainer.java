@@ -218,6 +218,9 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 			return;
 		}
 		
+		if(this.tileEntity.getCoreSettings().hasBankAccount())
+			return;
+		
 		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())
