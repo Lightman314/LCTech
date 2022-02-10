@@ -34,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerEntity;
@@ -240,8 +241,13 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	public void OnCoinValueChanged(CoinValueInput input) { }
 
 	@Override
-	public <T extends Button> T addButton(T button) {
+	public <T extends Button> T addCustomButton(T button) {
 		return super.addButton(button);
+	}
+	
+	@Override
+	public <T extends IGuiEventListener> T addCustomListener(T listener) {
+		return super.addListener(listener);
 	}
 
 	@Override
