@@ -2,9 +2,12 @@ package io.github.lightman314.lctech.trader.fluid;
 
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
-import io.github.lightman314.lctech.trader.upgrades.UpgradeType.IUpgradeable;
+import io.github.lightman314.lctech.upgrades.UpgradeType;
+import io.github.lightman314.lctech.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -17,7 +20,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
 public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler{
-
+	
+	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.FLUID_CAPACITY);
+	
+	public default boolean allowUpgrade(UpgradeType type) {
+		return ALLOWED_UPGRADES.contains(type);
+	}
+	
 	public FluidTradeData getTrade(int tradeIndex);
 	public List<FluidTradeData> getAllTrades();
 	public void markTradesDirty();

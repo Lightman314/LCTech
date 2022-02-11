@@ -1,18 +1,14 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern":[
-    " g ",
-    "gug",
-    " g "
-  ],
-  "key": {
-    "u": {
+  "type": "minecraft:crafting_shapeless",
+  "group": "fluid_capacity_upgrades",
+  "ingredients": [
+    {
       "item": "lctech:fluid_capacity_upgrade_1"
     },
-    "g": {
+    {
       "item": "minecraft:gold_ingot"
     }
-  },
+  ],
   "result": {
     "item": "lctech:fluid_capacity_upgrade_2"
   }

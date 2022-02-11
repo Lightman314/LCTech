@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "lctech:block/battery_shop",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "lctech:block/battery_shop",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "lctech:block/battery_shop",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "lctech:block/battery_shop",
+            "y": 270
+        }
+    }
+}

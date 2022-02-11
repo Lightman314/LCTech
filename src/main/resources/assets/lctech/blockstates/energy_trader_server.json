@@ -1,0 +1,20 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "lctech:block/energy_trader_server",
+            "y": 0
+        },
+        "facing=east": {
+            "model": "lctech:block/energy_trader_server",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "lctech:block/energy_trader_server",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "lctech:block/energy_trader_server",
+            "y": 270
+        }
+    }
+}

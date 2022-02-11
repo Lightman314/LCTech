@@ -319,18 +319,17 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 			
 		}
 		
+		//Transfer Fluids
+		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.tileEntity.getCoreSettings().isCreative());
+		this.bucketInventory.setItem(0, newBucket);
+		this.tileEntity.markTradesDirty();
+		
 		//Log the successful trade
 		this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.getCoreSettings().isCreative());
 		this.tileEntity.markLoggerDirty();
 		
 		//Post the trade success event
 		this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
-		
-		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.tileEntity.getCoreSettings().isCreative());
-		this.bucketInventory.setItem(0, newBucket);
-		this.tileEntity.markTradesDirty();
-		
 		
 	}
 	

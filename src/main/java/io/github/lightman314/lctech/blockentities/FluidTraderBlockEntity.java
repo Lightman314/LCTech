@@ -424,7 +424,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 
 	@Override
 	public int getTradeStock(int tradeIndex) {
-		return this.getTrade(tradeIndex).getStock(this, (Player)null);
+		return this.getTrade(tradeIndex).getStock(this);
 	}
 
 	@Override

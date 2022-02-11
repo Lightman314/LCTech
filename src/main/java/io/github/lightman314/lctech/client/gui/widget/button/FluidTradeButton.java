@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTrad
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -113,7 +114,7 @@ public class FluidTradeButton extends Button{
 		else
 			RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
 		
-		int yOffset = getRenderYOffset(trade.getTradeType());
+		int yOffset = getRenderYOffset(trade.getTradeDirection());
 		int xOffset = hovered ? WIDTH : 0;
 		//Draw Button BG
 		screen.blit(poseStack, x, y, xOffset, yOffset, WIDTH, HEIGHT);
@@ -249,9 +250,9 @@ public class FluidTradeButton extends Button{
 		List<Component> tooltips = Lists.newArrayList();
 		
 		//Fluid Name
-		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip." + trade.getTradeType().name().toLowerCase(), FluidFormatUtil.getFluidName(product, ChatFormatting.GOLD)));
+		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip." + trade.getTradeDirection().name().toLowerCase(), FluidFormatUtil.getFluidName(product, ChatFormatting.GOLD)));
 		//Quantity
-		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip.quantity", trade.getBucketQuantity(), trade.getQuantity()).withStyle(ChatFormatting.GOLD));
+		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip.quantity", trade.getBucketQuantity(), FluidFormatUtil.formatFluidAmount(trade.getQuantity())).withStyle(ChatFormatting.GOLD));
 		//Stock
 		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.getStock(trader, getPlayer()))));
 		//If denied, give denial reason
@@ -274,11 +275,11 @@ public class FluidTradeButton extends Button{
 			//Fluid Name
 			tooltips.add(FluidFormatUtil.getFluidName(trade.getTankContents()));
 			//'amount'/'capacity'mB
-			tooltips.add(new TextComponent(ChatFormatting.GRAY.toString() + trade.getTankContents().getAmount() + "mB/" + trade.getTankCapacity() + "mB"));
+			tooltips.add(new TextComponent(FluidFormatUtil.formatFluidAmount(trade.getTankContents().getAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(trade.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
 			//Pending drain
 			if(trade.hasPendingDrain())
 			{
-				tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.pending_drain", trade.getPendingDrain()));
+				tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.pending_drain", FluidFormatUtil.formatFluidAmount(trade.getPendingDrain())));
 			}
 			if(storageMode)
 				tooltips.add(new TranslatableComponent("tooltip.lctech.trader.fluid.fill_tank"));
@@ -287,9 +288,9 @@ public class FluidTradeButton extends Button{
 		
 	}
 	
-	public static int getRenderYOffset(FluidTradeData.FluidTradeType tradeType)
+	public static int getRenderYOffset(TradeData.TradeDirection tradeType)
 	{
-		if(tradeType == FluidTradeData.FluidTradeType.PURCHASE)
+		if(tradeType == TradeData.TradeDirection.PURCHASE)
 			return HEIGHT;
 		return 0;
 	}

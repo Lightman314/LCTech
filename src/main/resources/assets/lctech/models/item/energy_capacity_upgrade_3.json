@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "lctech:items/energy_capacity_upgrade_3"
+  }
+}

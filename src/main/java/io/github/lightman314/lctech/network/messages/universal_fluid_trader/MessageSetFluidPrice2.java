@@ -5,10 +5,10 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,13 +19,13 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	UUID traderID;
 	int tradeIndex;
 	CoinValue price;
-	FluidTradeType tradeType;
+	TradeDirection tradeType;
 	int quantity;
 	boolean canFill;
 	
 	public MessageSetFluidPrice2() {};
 	
-	public MessageSetFluidPrice2(UUID traderID, int tradeIndex, CoinValue price, FluidTradeType tradeType, int quantity, boolean canFill)
+	public MessageSetFluidPrice2(UUID traderID, int tradeIndex, CoinValue price, TradeDirection tradeType, int quantity, boolean canFill)
 	{
 		this.traderID = traderID;
 		this.tradeIndex = tradeIndex;
@@ -61,7 +61,7 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 				FluidTradeData trade = fluidTrader.getTrade(message.tradeIndex);
 				
 				trade.setCost(message.price);
-				trade.setTradeType(message.tradeType);
+				trade.setTradeDirection(message.tradeType);
 				trade.setBucketQuantity(message.quantity);
 				trade.setDrainableExternally(false);
 				trade.setFillableExternally(message.canFill);

@@ -1,7 +1,7 @@
 package io.github.lightman314.lctech.menu.slots;
 
 import io.github.lightman314.lctech.items.UpgradeItem;
-import io.github.lightman314.lctech.trader.upgrades.UpgradeType.IUpgradeable;
+import io.github.lightman314.lctech.upgrades.UpgradeType.IUpgradeable;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
@@ -24,7 +24,7 @@ public class UpgradeInputSlot extends Slot{
 	{
 		Item item = stack.getItem();
 		if(item instanceof UpgradeItem)
-			return ((UpgradeItem)item).getUpgradeType().allowedForMachine(machine);
+			return machine.allowUpgrade((UpgradeItem)item);
 		return false;
 	}
 	
@@ -34,7 +34,8 @@ public class UpgradeInputSlot extends Slot{
 	@Override
 	public void setChanged() {
 		super.setChanged();
-		this.onModified.accept();
+		if(this.onModified != null)
+			this.onModified.accept();
 	}
 	
 	public interface IMessage

@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
-import io.github.lightman314.lctech.trader.upgrades.CapacityUpgrade;
+import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
@@ -28,19 +28,6 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class FluidTradeData extends TradeData implements IFluidHandler{
-	
-	public enum FluidTradeType { SALE, PURCHASE }
-	
-	public static int MaxTradeTypeStringLength() {
-		int length = 0;
-		for(FluidTradeType value : FluidTradeType.values())
-		{
-			int thisLength = value.name().length();
-			if(thisLength > length)
-				length = thisLength;
-		}
-		return length;
-	}
 	
 	public static final int MAX_BUCKET_QUANTITY = 10;
 	public static final int DEFAULT_TANK_CAPACITY = FluidAttributes.BUCKET_VOLUME * MAX_BUCKET_QUANTITY;
@@ -96,25 +83,37 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	public int getPendingDrain() { return this.pendingDrain; }
 	public void shrinkPendingDrain(int amount) { this.pendingDrain -= amount; if(this.pendingDrain < 0) this.pendingDrain = 0; }
 	
-	FluidTradeType tradeType = FluidTradeType.SALE;
-	public FluidTradeType getTradeType() { return this.tradeType; }
-	public void setTradeType(FluidTradeType type) { this.tradeType = type; }
-	public boolean isSale() { return this.tradeType == FluidTradeType.SALE; }
-	public boolean isPurchase() { return this.tradeType == FluidTradeType.PURCHASE; }
+	TradeDirection tradeDirection = TradeDirection.SALE;
+	public TradeDirection getTradeDirection() { return this.tradeDirection; }
+	public void setTradeDirection(TradeDirection type) { this.tradeDirection = type; }
+	public boolean isSale() { return this.tradeDirection == TradeDirection.SALE; }
+	public boolean isPurchase() { return this.tradeDirection == TradeDirection.PURCHASE; }
 	
 	int tankCapacity = DEFAULT_TANK_CAPACITY;
 	public int getTankCapacity() { return this.tankCapacity; }
 	public void applyUpgrades(IFluidTrader trader, Container upgradeInventory)
 	{
 		this.tankCapacity = DEFAULT_TANK_CAPACITY;
+		boolean baseStorageCompensation = false;
 		for(int i = 0; i < upgradeInventory.getContainerSize(); i++)
 		{
 			ItemStack stack = upgradeInventory.getItem(i);
 			if(stack.getItem() instanceof UpgradeItem)
 			{
 				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
-				if(upgradeItem.getUpgradeType().allowedForMachine(trader) && upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
-					this.tankCapacity += upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+				if(trader.allowUpgrade(upgradeItem))
+				{
+					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+					{
+						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+						if(addAmount > DEFAULT_TANK_CAPACITY && !baseStorageCompensation)
+						{
+							addAmount -= DEFAULT_TANK_CAPACITY;
+							baseStorageCompensation = true;
+						}
+						this.tankCapacity += addAmount;
+					}
+				}	
 			}
 		}
 	}
@@ -190,8 +189,7 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 					return !this.getFilledBucket().isEmpty() && this.bucketQuantity == 1;
 				AtomicBoolean passes = new AtomicBoolean(false);
 				FluidUtil.getFluidHandler(bucketStack).ifPresent(fluidHandler ->{
-					if(fluidHandler.fill(this.productOfQuantity(), FluidAction.SIMULATE) == this.getQuantity())
-						passes.set(true);
+					passes.set(fluidHandler.fill(this.productOfQuantity(), FluidAction.SIMULATE) == this.getQuantity());
 				});
 				if(passes.get())
 					return true;
@@ -276,7 +274,7 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 		}
 		else
 		{
-			LCTech.LOGGER.error("Fluid Trade type " + this.tradeType.name() + " is not a valid FluidTradeType for fluid transfer.");
+			LCTech.LOGGER.error("Fluid Trade type " + this.tradeDirection.name() + " is not a valid TradeDirection for fluid transfer.");
 			return bucketStack;
 		}
 	}
@@ -293,7 +291,7 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 		compound.putBoolean("CanDrain", this.canDrain);
 		compound.putBoolean("CanFill", this.canFill);
 		compound.putInt("PendingDrain", this.pendingDrain);
-		compound.putString("TradeType", this.tradeType.name());
+		compound.putString("TradeType", this.tradeDirection.name());
 		
 		return compound;
 	}
@@ -318,19 +316,18 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 		//Load the pending drain
 		this.pendingDrain = compound.getInt("PendingDrain");
 		//Load the trade type
-		this.tradeType = loadTradeType(compound.getString("TradeType"));
+		this.tradeDirection = loadTradeType(compound.getString("TradeType"));
 		
 	}
 	
-	public static FluidTradeType loadTradeType(String name)
+	public static TradeDirection loadTradeType(String name)
 	{
-		FluidTradeType value = FluidTradeType.SALE;
 		try {
-			value = FluidTradeType.valueOf(name);
+			return TradeDirection.valueOf(name);
 		} catch (IllegalArgumentException e) {
 			LCTech.LOGGER.error("Could not load '" + name + "' as a TradeType.");
+			return TradeDirection.SALE;
 		}
-		return value;
 	}
 	
 	public static List<FluidTradeData> listOfSize(int tradeCount)
@@ -382,9 +379,6 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 		
 		return tradeData;
 	}
-
-	@Override
-	public TradeDirection getTradeDirection() { return TradeDirection.SALE; }
 	
 	//Personal fluid handler. Assume that the player has permission to fill or drain the tank
 	

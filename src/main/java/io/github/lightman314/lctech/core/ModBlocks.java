@@ -58,8 +58,6 @@ public class ModBlocks {
 	
 	public static final BlockItemPair FLUID_TAP_BUNDLE = register("fluid_tap_bundle", LightmansCurrency.TRADING_GROUP, new FluidTapBundleBlock(
 			Block.Properties.of(Material.GLASS)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.GLASS)
 			));
@@ -73,7 +71,6 @@ public class ModBlocks {
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
-	
 	public static final BlockItemPair FLUID_SERVER_MED = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			4,
 			Block.Properties.of(Material.METAL)
@@ -95,6 +92,20 @@ public class ModBlocks {
 			Block.Properties.of(Material.METAL)
 			//.harvestTool(ToolType.PICKAXE)
 			//.notSolid()
+			.strength(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
+	//Energy Trader
+	public static final BlockItemPair BATTERY_SHOP = register("battery_shop", LightmansCurrency.TRADING_GROUP, new EnergyTraderBlock(
+			Block.Properties.of(Material.METAL)
+			.strength(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
+	//Universal Energy Trader
+	public static final BlockItemPair ENERGY_SERVER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, new EnergyTraderServerBlock(
+			Block.Properties.of(Material.METAL)
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));

@@ -1,13 +1,13 @@
-package io.github.lightman314.lctech.trader.upgrades;
+package io.github.lightman314.lctech.upgrades;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public abstract class CapacityUpgrade extends UpgradeType{
 
-	public static final String CAPACITY = "capacity";
-	private static final List<String> DATA_TAGS = ImmutableList.of(CAPACITY);
+	public static String CAPACITY = "capacity"; 
+	private static final List<String> DATA_TAGS = Lists.newArrayList(CAPACITY);
 
 	@Override
 	protected List<String> getDataTags() {

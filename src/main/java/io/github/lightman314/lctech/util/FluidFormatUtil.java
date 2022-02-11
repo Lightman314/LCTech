@@ -1,5 +1,7 @@
 package io.github.lightman314.lctech.util;
 
+import java.text.DecimalFormat;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
@@ -11,6 +13,11 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class FluidFormatUtil {
 
+	public static String formatFluidAmount(int amount)
+	{
+		return new DecimalFormat().format(amount);
+	}
+	
 	public static Component getFluidName(FluidStack fluid)
 	{
 		return getFluidName(fluid, null);
