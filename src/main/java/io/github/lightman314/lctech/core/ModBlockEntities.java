@@ -22,8 +22,15 @@ public class ModBlockEntities {
 	//Fluid Trader
 	public static final BlockEntityType<FluidTraderBlockEntity> FLUID_TRADER = buildType("fluid_trader", BlockEntityType.Builder.of(FluidTraderBlockEntity::new, ModBlocks.FLUID_TAP.block, ModBlocks.FLUID_TAP_BUNDLE.block));
 	
+	//Energy Trader
+	public static final BlockEntityType<EnergyTraderBlockEntity> ENERGY_TRADER = buildType("energy_trader", BlockEntityType.Builder.of(EnergyTraderBlockEntity::new, ModBlocks.BATTERY_SHOP.block));
+	
 	//Universal Fluid Trader
-	public static final BlockEntityType<UniversalFluidTraderBlockEntity> UNIVERSAL_FLUID_TRADER = buildType("universal_fluid_trader", BlockEntityType.Builder.of(UniversalFluidTraderBlockEntity::new, ModBlocks.FLUID_SERVER_SML.block));
+	public static final BlockEntityType<UniversalFluidTraderBlockEntity> UNIVERSAL_FLUID_TRADER = buildType("universal_fluid_trader", BlockEntityType.Builder.of(UniversalFluidTraderBlockEntity::new, ModBlocks.FLUID_SERVER_SML.block, ModBlocks.FLUID_SERVER_MED.block, ModBlocks.FLUID_SERVER_LRG.block, ModBlocks.FLUID_SERVER_XLRG.block));
+	
+	//Universal Energy Trader
+	public static final BlockEntityType<UniversalEnergyTraderBlockEntity> UNIVERSAL_ENERGY_TRADER = buildType("universal_energy_trader", BlockEntityType.Builder.of(UniversalEnergyTraderBlockEntity::new, ModBlocks.ENERGY_SERVER.block));
+	
 	
 	private static <T extends BlockEntity> BlockEntityType<T> buildType(String id, BlockEntityType.Builder<T> builder)
 	{

@@ -7,24 +7,35 @@
     "block.lctech.fluid_trader_server_med": "Střední obchodní server na tekutiny",
     "block.lctech.fluid_trader_server_lrg": "Velký obchodní server na tekutiny",
     "block.lctech.fluid_trader_server_xlrg": "Obrovský obchodní server na tekutiny",
-    
+    "block.lctech.battery_shop": "Energetický obchod",
+    "block.lctech.energy_trader_server": "Energetický obchodní server",
+
     "item.lctech.fluid_shard": "Zbytek tekutiny",
     "item.lctech.fluid_capacity_upgrade_1": "Vylepšení objemu (železné)",
     "item.lctech.fluid_capacity_upgrade_2": "Vylepšení objemu (zlaté)",
-    
+    "item.lctech.fluid_capacity_upgrade_3": "Vylepšení objemu (diamantové)",
+    "item.lctech.battery": "Baterie",
+    "item.lctech.energy_capacity_upgrade_1": "Vylepšení energetické kapacity (železné)",
+    "item.lctech.energy_capacity_upgrade_2": "Vylepšení energetické kapacity (zlaté)",
+    "item.lctech.energy_capacity_upgrade_3": "Vylepšení energetické kapacity (diamantové)",
+
     "gui.lctech.nofluid": "Prázdné",
     "gui.lctech.universaltrader.fluid": "Obchod s tekutinami",
+    "gui.lctech.universaltrader.energy": "Energetický obchod",
     "gui.lctech.fluidtrade.tooltip.sale": "Prodává §r%s",
     "gui.lctech.fluidtrade.tooltip.purchase": "§6Vykupuje §r%s",
     "gui.lctech.fluidtrade.tooltip.quantity": "%1$s Kbelík(ů) (%2$smB)",
     "gui.lctech.fluid_edit.title": "Vybrat tekutinu",
     "gui.lctech.fluidtrade.pending_drain": "Čekání na vyčerpání %smB tekutiny.",
-    
+    "gui.lctech.energytrade.tooltip.sale": "§6Prodává §r%s",
+    "gui.lctech.energytrade.tooltip.purchase": "§6Vykupuje §r%s",
+    "gui.lctech.energytrade.pending_drain": "Čekání na odběr %s.",
+
     "tooltip.lctech.fluid_tank.capacity": "Objem %smB",
     "tooltip.lctech.trader.fluid_edit": "Klikni pro nastavení tekutiny",
     "tooltip.lctech.trader.fluid.fill_tank": "Klikni s přepravkou tekutiny pro naplnění/vyprázdnění.",
-    "tooltip.lctech.trader.fluid.add_bucket": "Zvýšit prodávaný objem tekutiny o 1B (1000mB)",
-    "tooltip.lctech.trader.fluid.remove_bucket": "Snížit prodávaný objem tekutiny o 1B (1000mB)",
+    "tooltip.lctech.trader.fluid.add_bucket": "Zvýšit prodávaný objem tekutiny o 1B (1,000mB)",
+    "tooltip.lctech.trader.fluid.remove_bucket": "Snížit prodávaný objem tekutiny o 1B (1,000mB)",
     "tooltip.lctech.trader.fluid_settings.drainable": "Vyčerpávání",
     "tooltip.lctech.trader.fluid_settings.drainable.wordy": "Pokud je vyčerpávání povoleno,\nzákaznící si mohou vyčerpat zakoupenou tekutinu\npomocí pumpy nebo jiného vyčerpávacího zařízení.\nPlatí pouze pro prodej.",
     "tooltip.lctech.trader.fluid_settings.fillable": "Plnění",
@@ -33,17 +44,23 @@
     "tooltip.lctech.trader.fluid_settings.drain.disabled": "Externí vyčerpávání je ZAKÁZÁNO",
     "tooltip.lctech.trader.fluid_settings.fill.enabled": "Externí plnění je POVOLENO",
     "tooltip.lctech.trader.fluid_settings.fill.disabled": "Externí plnění je ZAKÁZÁNO",
-    
+
     "tooltip.lctech.upgrade.fluid_capacity":"Zvýší objem nádrže o %smB",
-    
+    "tooltip.lctech.upgrade.energy_capacity":"Zvýší kapacitu energie o %s.",
+
     "gui.lctech.settings.fluidinput.side": "Vstupní strany",
     "gui.lctech.settings.fluidoutput.side": "Výstupní strany",
-    
+    "gui.lctech.settings.energyinput.side": "Vstupní strany",
+    "gui.lctech.settings.energyoutput.side": "Výstupní strany",
+
     "tooltip.lctech.settings.fluidinput" : "Externí vstup a výstup pro tekutiny",
-    
+    "tooltip.lctech.settings.energyinput" : "Externí vstup a výstup pro energii",
+
     "permission.changeDrainability" : "Upravit nastavení vyčerpávání/plnění",
     "permission.fluidExternalInputs" : "Měnit nastavení vstupu/výstupu",
-    
+    "permission.energyExternalInputs" : "Měnit nastavení vstupu/výstupu",
+
     "log.shoplog.fluid.format": "%1$s%2$s %3$s %4$s za %5$s",
-    "log.shoplog.fluid.fluidformat": "%1$smB %2$s"
+    "log.shoplog.fluid.fluidformat": "%1$smB %2$s",
+    "log.shoplog.energy.format": "%1$s%2$s %3$s %4$s for %5$s"
 }

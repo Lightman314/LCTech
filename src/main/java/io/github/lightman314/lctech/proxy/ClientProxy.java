@@ -4,7 +4,7 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.*;
 import io.github.lightman314.lctech.client.renderer.tileentity.FluidTankTileEntityRenderer;
 import io.github.lightman314.lctech.client.renderer.tileentity.FluidTraderTileEntityRenderer;
 import io.github.lightman314.lctech.core.ModBlocks;
-import io.github.lightman314.lctech.core.ModContainers;
+import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -24,13 +24,18 @@ public class ClientProxy extends CommonProxy{
 		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK.block, RenderType.cutout());
 		
 		//Register Screens
-		MenuScreens.register(ModContainers.FLUID_TRADER, FluidTraderScreen::new);
-		MenuScreens.register(ModContainers.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
-		MenuScreens.register(ModContainers.FLUID_TRADER_CR, FluidTraderScreenCR::new);
-		MenuScreens.register(ModContainers.FLUID_EDIT, FluidEditScreen::new);
-		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
-		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
-		MenuScreens.register(ModContainers.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
+		MenuScreens.register(ModMenus.FLUID_TRADER, FluidTraderScreen::new);
+		MenuScreens.register(ModMenus.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
+		MenuScreens.register(ModMenus.FLUID_TRADER_CR, FluidTraderScreenCR::new);
+		MenuScreens.register(ModMenus.FLUID_EDIT, FluidEditScreen::new);
+		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
+		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
+		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
+		MenuScreens.register(ModMenus.ENERGY_TRADER, EnergyTraderScreen::new);
+		MenuScreens.register(ModMenus.ENERGY_TRADER_CR, EnergyTraderScreen::new);
+		MenuScreens.register(ModMenus.ENERGY_TRADER_UNIVERSAL, EnergyTraderScreen::new);
+		MenuScreens.register(ModMenus.ENERGY_TRADER_STORAGE, EnergyTraderStorageScreen::new);
+		MenuScreens.register(ModMenus.ENERGY_TRADER_STORAGE_UNIVERSAL, EnergyTraderStorageScreen::new);
 		
 		//Register Tile Entity Renderers
 		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER, FluidTraderTileEntityRenderer::new);

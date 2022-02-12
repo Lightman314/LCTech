@@ -2,8 +2,8 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
-import io.github.lightman314.lctech.container.UniversalFluidTraderStorageContainer;
+import io.github.lightman314.lctech.menu.FluidTraderStorageMenu;
+import io.github.lightman314.lctech.menu.UniversalFluidTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
@@ -36,14 +36,14 @@ public class MessageFluidTradeTankInteraction implements IMessage<MessageFluidTr
 			Player player = source.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof FluidTraderStorageContainer)
+				if(player.containerMenu instanceof FluidTraderStorageMenu)
 				{
-					FluidTraderStorageContainer container = (FluidTraderStorageContainer)player.containerMenu;
+					FluidTraderStorageMenu container = (FluidTraderStorageMenu)player.containerMenu;
 					container.PlayerTankInteraction(message.tradeIndex);
 				}
-				else if(player.containerMenu instanceof UniversalFluidTraderStorageContainer)
+				else if(player.containerMenu instanceof UniversalFluidTraderStorageMenu)
 				{
-					UniversalFluidTraderStorageContainer container = (UniversalFluidTraderStorageContainer)player.containerMenu;
+					UniversalFluidTraderStorageMenu container = (UniversalFluidTraderStorageMenu)player.containerMenu;
 					container.PlayerTankInteraction(message.tradeIndex);
 				}
 			}

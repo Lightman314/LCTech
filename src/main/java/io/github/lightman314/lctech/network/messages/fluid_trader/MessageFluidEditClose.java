@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 
 import java.util.function.Supplier;
 
-import io.github.lightman314.lctech.container.FluidEditContainer;
+import io.github.lightman314.lctech.menu.FluidEditMenu;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
@@ -28,9 +28,9 @@ public class MessageFluidEditClose implements IMessage<MessageFluidEditClose>{
 			Player player = source.get().getSender();
 			if(player != null)
 			{
-				if(player.containerMenu instanceof FluidEditContainer)
+				if(player.containerMenu instanceof FluidEditMenu)
 				{
-					FluidEditContainer container = (FluidEditContainer)player.containerMenu;
+					FluidEditMenu container = (FluidEditMenu)player.containerMenu;
 					container.openTraderStorage();
 				}
 			}

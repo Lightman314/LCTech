@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.trader.upgrades.UpgradeType;
-import io.github.lightman314.lctech.trader.upgrades.UpgradeType.IUpgradeItem;
-import io.github.lightman314.lctech.trader.upgrades.UpgradeType.UpgradeData;
+import io.github.lightman314.lctech.upgrades.UpgradeType;
+import io.github.lightman314.lctech.upgrades.UpgradeType.IUpgradeItem;
+import io.github.lightman314.lctech.upgrades.UpgradeType.UpgradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
