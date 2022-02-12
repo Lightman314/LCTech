@@ -7,24 +7,35 @@
     "block.lctech.fluid_trader_server_med": "Medium Fluid Trading Server",
     "block.lctech.fluid_trader_server_lrg": "Large Fluid Trading Server",
     "block.lctech.fluid_trader_server_xlrg": "Extra Large Fluid Trading Server",
+    "block.lctech.battery_shop": "Battery Shop",
+    "block.lctech.energy_trader_server": "Energy Trading Server",
     
     "item.lctech.fluid_shard": "Fluid Shard",
     "item.lctech.fluid_capacity_upgrade_1": "Fluid Capacity Upgrade (Iron)",
     "item.lctech.fluid_capacity_upgrade_2": "Fluid Capacity Upgrade (Gold)",
+    "item.lctech.fluid_capacity_upgrade_3": "Fluid Capacity Upgrade (Diamond)",
+    "item.lctech.battery": "Battery",
+    "item.lctech.energy_capacity_upgrade_1": "Energy Capacity Upgrade (Iron)",
+    "item.lctech.energy_capacity_upgrade_2": "Energy Capacity Upgrade (Gold)",
+    "item.lctech.energy_capacity_upgrade_3": "Energy Capacity Upgrade (Diamond)",
     
     "gui.lctech.nofluid": "No Fluid",
     "gui.lctech.universaltrader.fluid": "Fluid Trader",
+    "gui.lctech.universaltrader.energy": "Energy Trader",
     "gui.lctech.fluidtrade.tooltip.sale": "§6Selling §r%s",
     "gui.lctech.fluidtrade.tooltip.purchase": "§6Purchasing §r%s",
     "gui.lctech.fluidtrade.tooltip.quantity": "%1$s Bucket(s) (%2$smB)",
     "gui.lctech.fluid_edit.title": "Fluid Select",
     "gui.lctech.fluidtrade.pending_drain": "Waiting to drain %smB of fluid.",
+    "gui.lctech.energytrade.tooltip.sale": "§6Selling §r%s",
+    "gui.lctech.energytrade.tooltip.purchase": "§6Purchasing §r%s",
+    "gui.lctech.energytrade.pending_drain": "Waiting to drain %s.",
     
     "tooltip.lctech.fluid_tank.capacity": "Holds up to %smB",
     "tooltip.lctech.trader.fluid_edit": "Click to Set Fluid",
     "tooltip.lctech.trader.fluid.fill_tank": "Click with fluid container to fill/empty.",
-    "tooltip.lctech.trader.fluid.add_bucket": "Increase fluid amount sold by 1B (1000mB)",
-    "tooltip.lctech.trader.fluid.remove_bucket": "Decrease fluid amount sold by 1B (1000mB)",
+    "tooltip.lctech.trader.fluid.add_bucket": "Increase fluid amount sold by 1B (1,000mB)",
+    "tooltip.lctech.trader.fluid.remove_bucket": "Decrease fluid amount sold by 1B (1,000mB)",
     "tooltip.lctech.trader.fluid_settings.drainable": "Drainable",
     "tooltip.lctech.trader.fluid_settings.drainable.wordy": "While drainable, customers can drain purchased fluids\nvia a pump or some other fluid draining source.\n\nIf this is a purchase, all tank contents can be\ndrained via pump.",
     "tooltip.lctech.trader.fluid_settings.fillable": "Fillable",
@@ -34,16 +45,22 @@
     "tooltip.lctech.trader.fluid_settings.fill.enabled": "External Filling is ENABLED",
     "tooltip.lctech.trader.fluid_settings.fill.disabled": "External Filling is DISABLED",
     
-    "tooltip.lctech.upgrade.fluid_capacity":"Increases tank capacity by %smB",
+    "tooltip.lctech.upgrade.fluid_capacity":"Increases tank capacity by %smB.",
+    "tooltip.lctech.upgrade.energy_capacity":"Increases energy capacity by %s.",
     
     "gui.lctech.settings.fluidinput.side": "Input Sides",
     "gui.lctech.settings.fluidoutput.side": "Output Sides",
+    "gui.lctech.settings.energyinput.side": "Input Sides",
+    "gui.lctech.settings.energyoutput.side": "Output Sides",
     
     "tooltip.lctech.settings.fluidinput" : "External Fluid Input & Output",
+    "tooltip.lctech.settings.energyinput" : "External Energy Input & Output",
     
     "permission.changeDrainability" : "Edit Drain/Fill Settings",
     "permission.fluidExternalInputs" : "Change Import/Export Settings",
+    "permission.energyExternalInputs" : "Change Import/Export Settings",
     
     "log.shoplog.fluid.format": "%1$s%2$s %3$s %4$s for %5$s",
-    "log.shoplog.fluid.fluidformat": "%1$smB of %2$s"
+    "log.shoplog.fluid.fluidformat": "%1$smB of %2$s",
+    "log.shoplog.energy.format": "%1$s%2$s %3$s %4$s for %5$s"
 }

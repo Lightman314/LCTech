@@ -63,11 +63,11 @@ public class FluidTankItem extends BlockItem{
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
 			int capacity = GetCapacity(stack);
-			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "mB / " + capacity + "mB"));
+			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB / " + FluidFormatUtil.formatFluidAmount(capacity) + "mB"));
 		}
 		else
 		{
-			tooltip.add(new TranslationTextComponent("tooltip.lctech.fluid_tank.capacity", GetCapacity(stack)));
+			tooltip.add(new TranslationTextComponent("tooltip.lctech.fluid_tank.capacity", FluidFormatUtil.formatFluidAmount(GetCapacity(stack))));
 		}
 	}
 	

@@ -58,7 +58,7 @@ public class FluidTapBlock extends RotatableBlock implements IFluidTraderBlock{
 			TileEntity tileEntity = this.getTileEntity(state, world, pos);
 			if(tileEntity instanceof TraderTileEntity)
 			{
-				TraderTileEntity trader = (FluidTraderTileEntity)tileEntity;
+				TraderTileEntity trader = (TraderTileEntity)tileEntity;
 				trader.getCoreSettings().updateNames(player);
 				TileEntityUtil.sendUpdatePacket(tileEntity);
 				trader.openTradeMenu(player);

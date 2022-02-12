@@ -16,7 +16,6 @@ import io.github.lightman314.lctech.network.messages.universal_fluid_trader.Mess
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
@@ -30,6 +29,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpe
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.client.Minecraft;
@@ -55,7 +55,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	Supplier<IFluidTrader> trader;
 	Supplier<FluidTradeData> trade;
 	int tradeIndex;
-	FluidTradeType localDirection;
+	TradeDirection localDirection;
 	int localQuantity;
 	
 	Button buttonSetSell;
@@ -94,7 +94,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.player = player;
 		//Store local copies of togglable data
 		FluidTradeData localTrade = this.trade.get();
-		this.localDirection = localTrade.getTradeType();
+		this.localDirection = localTrade.getTradeDirection();
 		this.localDrainable = localTrade.canDrainExternally();
 		this.localFillable = localTrade.canFillExternally();
 		this.localQuantity = localTrade.getBucketQuantity();
@@ -136,8 +136,8 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	public void tick()
 	{
 		
-		this.buttonSetSell.active = this.localDirection != FluidTradeType.SALE;
-		this.buttonSetPurchase.active = this.localDirection != FluidTradeType.PURCHASE;
+		this.buttonSetSell.active = this.localDirection != TradeDirection.SALE;
+		this.buttonSetPurchase.active = this.localDirection != TradeDirection.PURCHASE;
 
 		this.buttonToggleDrainable.setResource(GUI_TEXTURE, this.xSize + (this.localDrainable ? 0 : 10), 16);
 		this.buttonToggleFillable.setResource(GUI_TEXTURE, this.xSize + (this.localFillable ? 20 : 30), 16);
@@ -196,9 +196,9 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	private void SetTradeType(Button button)
 	{
 		if(button == buttonSetSell)
-			this.localDirection = FluidTradeType.SALE;
+			this.localDirection = TradeDirection.SALE;
 		else
-			this.localDirection = FluidTradeType.PURCHASE;
+			this.localDirection = TradeDirection.PURCHASE;
 	}
 	
 	private void PressSaveButton(Button button)
@@ -305,12 +305,12 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		
 		public final int tradeIndex;
 		public final CoinValue cost;
-		public final FluidTradeType type;
+		public final TradeDirection type;
 		public final int quantity;
 		public final boolean canDrain;
 		public final boolean canFill;
 		
-		public TradePriceData(int tradeIndex, CoinValue cost, FluidTradeType type, int quantity, boolean canDrain, boolean canFill)
+		public TradePriceData(int tradeIndex, CoinValue cost, TradeDirection type, int quantity, boolean canDrain, boolean canFill)
 		{
 			this.tradeIndex = tradeIndex;
 			this.cost = cost;

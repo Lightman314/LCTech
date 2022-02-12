@@ -4,8 +4,8 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData.FluidTradeType;
 import io.github.lightman314.lightmanscurrency.network.message.IMessage;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -19,14 +19,14 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 	BlockPos pos;
 	int tradeIndex;
 	CoinValue price;
-	FluidTradeType tradeType;
+	TradeDirection tradeType;
 	boolean canDrain;
 	boolean canFill;
 	int bucketCount;
 	
 	public MessageSetFluidPrice() {};
 	
-	public MessageSetFluidPrice(BlockPos pos, int tradeIndex, CoinValue price, FluidTradeType tradeType, int bucketCount, boolean canDrain, boolean canFill)
+	public MessageSetFluidPrice(BlockPos pos, int tradeIndex, CoinValue price, TradeDirection tradeType, int bucketCount, boolean canDrain, boolean canFill)
 	{
 		this.pos = pos;
 		this.tradeIndex = tradeIndex;
@@ -39,7 +39,7 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 	
 	@Override
 	public MessageSetFluidPrice decode(PacketBuffer buffer) {
-		return new MessageSetFluidPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), FluidTradeData.loadTradeType(buffer.readString(FluidTradeData.MaxTradeTypeStringLength())), buffer.readInt(), buffer.readBoolean(), buffer.readBoolean());
+		return new MessageSetFluidPrice(buffer.readBlockPos(), buffer.readInt(), new CoinValue(buffer.readCompoundTag()), FluidTradeData.loadTradeType(buffer.readString(100)), buffer.readInt(), buffer.readBoolean(), buffer.readBoolean());
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 					FluidTradeData trade = traderEntity.getTrade(message.tradeIndex);
 					
 					trade.setCost(message.price);
-					trade.setTradeType(message.tradeType);
+					trade.setTradeDirection(message.tradeType);
 					trade.setBucketQuantity(message.bucketCount);
 					trade.setDrainableExternally(message.canDrain);
 					trade.setFillableExternally(message.canFill);

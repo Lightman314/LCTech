@@ -5,10 +5,14 @@ import java.util.List;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.container.*;
+import io.github.lightman314.lctech.container.EnergyTraderContainer.EnergyTraderContainerCR;
+import io.github.lightman314.lctech.container.EnergyTraderContainer.EnergyTraderContainerUniversal;
+import io.github.lightman314.lctech.container.EnergyTraderStorageContainer.EnergyTraderStorageContainerUniversal;
 import io.github.lightman314.lctech.tileentities.*;
 import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -53,6 +57,25 @@ public class ModContainers {
 		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
 		
 		return new UniversalFluidEditContainer(windowId, playerInventory, () -> tileEntity, data.readInt());
+	});
+	
+	public static final ContainerType<EnergyTraderContainer> ENERGY_TRADER = register("energy_trader", (IContainerFactory<EnergyTraderContainer>)(windowId, playerInventory, data) ->{
+		return new EnergyTraderContainer(windowId, playerInventory, data.readBlockPos());
+	});
+	public static final ContainerType<EnergyTraderContainerCR> ENERGY_TRADER_CR = register("energy_trader_cr", (IContainerFactory<EnergyTraderContainerCR>)(windowId, playerInventory, data) ->{
+		BlockPos traderPos = data.readBlockPos();
+		CashRegisterTileEntity registerEntity = (CashRegisterTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
+		return new EnergyTraderContainerCR(windowId, playerInventory, traderPos, registerEntity);
+	});
+	public static final ContainerType<EnergyTraderContainerUniversal> ENERGY_TRADER_UNIVERSAL = register("energy_trader_universal", (IContainerFactory<EnergyTraderContainerUniversal>)(windowId, playerInventory, data) ->{
+		return new EnergyTraderContainerUniversal(windowId, playerInventory, data.readUniqueId());
+	});
+	
+	public static final ContainerType<EnergyTraderStorageContainer> ENERGY_TRADER_STORAGE = register("energy_trader_storage", (IContainerFactory<EnergyTraderStorageContainer>)(windowId, playerInventory, data) ->{
+		return new EnergyTraderStorageContainer(windowId, playerInventory, data.readBlockPos());
+	});
+	public static final ContainerType<EnergyTraderStorageContainerUniversal> ENERGY_TRADER_STORAGE_UNIVERSAL = register("energy_trader_storage_universal", (IContainerFactory<EnergyTraderStorageContainerUniversal>)(windowId, playerInventory, data) ->{
+		return new EnergyTraderStorageContainerUniversal(windowId, playerInventory, data.readUniqueId());
 	});
 	
 	private static <T extends Container> ContainerType<T> register(String key, ContainerType.IFactory<T> factory)

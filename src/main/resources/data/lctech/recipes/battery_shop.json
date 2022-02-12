@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "ibi",
+    "ici"
+  ],
+  "key": {
+    "c": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "b": {
+      "item": "lctech:battery"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "lctech:battery_shop"
+  }
+}

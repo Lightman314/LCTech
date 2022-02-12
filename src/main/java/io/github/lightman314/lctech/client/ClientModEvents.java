@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.models.items.FluidShardModel;
 import io.github.lightman314.lctech.client.models.items.FluidTankModel;
+import io.github.lightman314.lctech.container.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.container.slots.FluidInputSlot;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.items.FluidTankItem;
@@ -51,6 +52,7 @@ public class ClientModEvents {
 		if(event.getMap().getTextureLocation() == PlayerContainer.LOCATION_BLOCKS_TEXTURE) {
 			//Add bucket slot backgrounds
 			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
+			event.addSprite(BatteryInputSlot.EMPTY_BATTERY_SLOT);
 		}
 	}
 	

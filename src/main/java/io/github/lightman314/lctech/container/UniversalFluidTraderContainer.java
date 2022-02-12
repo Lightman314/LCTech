@@ -322,18 +322,17 @@ public class UniversalFluidTraderContainer extends UniversalContainer implements
 			
 		}
 		
+		//Transfer Fluids
+		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.getData().getCoreSettings().isCreative());
+		this.bucketInventory.setInventorySlotContents(0, newBucket);
+		this.getData().markTradesDirty();
+		
 		//Log the successful trade
 		this.getData().getLogger().AddLog(player, trade, price, this.getData().getCoreSettings().isCreative());
 		this.getData().markLoggerDirty();
 		
 		//Run the trade success event
 		this.getData().runPostTradeEvent(this.player, tradeIndex, price);
-		
-		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.getData().getCoreSettings().isCreative());
-		this.bucketInventory.setInventorySlotContents(0, newBucket);
-		this.getData().markTradesDirty();
-		
 		
 	}
 

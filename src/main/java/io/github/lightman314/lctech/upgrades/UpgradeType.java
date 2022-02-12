@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.trader.upgrades;
+package io.github.lightman314.lctech.upgrades;
 
 import java.util.List;
 import java.util.Map;
@@ -11,20 +11,21 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.items.UpgradeItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 
 	private static final Map<ResourceLocation,UpgradeType> UPGRADE_TYPE_REGISTRY = Maps.newHashMap();
 	
-	public static final FluidCapacityUpgrade FLUID_CAPACITY = register(new ResourceLocation(LCTech.MODID,"fluid_trader"), new FluidCapacityUpgrade());
+	public static final FluidCapacityUpgrade FLUID_CAPACITY = register(new ResourceLocation(LCTech.MODID,"fluid_capacity"), new FluidCapacityUpgrade());
+	public static final EnergyCapacityUpgrade ENERGY_CAPACITY = register(new ResourceLocation(LCTech.MODID, "energy_capacity"), new EnergyCapacityUpgrade());
 	
 	private ResourceLocation type;
-
-	public abstract boolean allowedForMachine(IUpgradeable machine);
 	
 	protected abstract List<String> getDataTags();
 	protected abstract Object defaultTagValue(String tag);
@@ -54,13 +55,16 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 		return upgradeType;
 	}
 	
-	public interface IUpgradeable { }
+	public interface IUpgradeable {
+		public default boolean allowUpgrade(UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
+		public boolean allowUpgrade(UpgradeType type);
+	}
 	
 	public interface IUpgradeItem
 	{
 		public UpgradeType getUpgradeType();
-		public default boolean upgradeAllowedForMachine(IUpgradeable machine) { return getUpgradeType().allowedForMachine(machine); }
 		public UpgradeData getDefaultUpgradeData();
+		public default void onApplied(IUpgradeable target) { }
 	}
 	
 	public static class UpgradeData
@@ -69,6 +73,11 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 		private final Map<String,Object> data = Maps.newHashMap();
 		
 		public Set<String> getKeys() { return data.keySet(); }
+		
+		public boolean hasKey(String tag)
+		{
+			return this.getKeys().contains(tag);
+		}
 		
 		public UpgradeData(UpgradeType upgrade)
 		{
@@ -108,9 +117,27 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 			return 0f;
 		}
 		
+		public String getStringValue(String tag)
+		{
+			Object value = getValue(tag);
+			if(value instanceof String)
+				return (String)value;
+			return "";
+		}
+		
 		public void read(CompoundNBT compound)
 		{
-			
+			compound.keySet().forEach(key ->{
+				if(this.hasKey(key))
+				{
+					if(compound.contains(key, Constants.NBT.TAG_INT))
+						this.setValue(key, compound.getInt(key));
+					else if(compound.contains(key, Constants.NBT.TAG_FLOAT))
+						this.setValue(key, compound.getFloat(key));
+					else if(compound.contains(key, Constants.NBT.TAG_STRING))
+						this.setValue(key, compound.getString(key));
+				}
+			});
 		}
 		
 		public CompoundNBT writeToNBT() { return writeToNBT(null); }
@@ -120,7 +147,12 @@ public abstract class UpgradeType implements IForgeRegistryEntry<UpgradeType>{
 			Map<String,Object> modifiedEntries = source == null ? this.data : getModifiedEntries(this,source);
 			CompoundNBT compound = new CompoundNBT();
 			modifiedEntries.forEach((key,value) ->{
-				
+				if(value instanceof Integer)
+					compound.putInt(key, (Integer)value);
+				else if(value instanceof Float)
+					compound.putFloat(key, (Float)value);
+				else if(value instanceof String)
+					compound.putString(key, (String)value);
 			});
 			return compound;
 		}

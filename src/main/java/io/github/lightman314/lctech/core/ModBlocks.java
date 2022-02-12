@@ -100,6 +100,24 @@ public class ModBlocks {
 			.sound(SoundType.METAL)
 			));
 	
+	//Energy Trader
+	public static final BlockItemPair BATTERY_SHOP = register("battery_shop", LightmansCurrency.TRADING_GROUP, new EnergyTraderBlock(
+			Block.Properties.create(Material.IRON)
+			.harvestTool(ToolType.PICKAXE)
+			.notSolid()
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
+	//Universal Energy Trader
+	public static final BlockItemPair ENERGY_SERVER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, new EnergyTraderServerBlock(
+			Block.Properties.create(Material.IRON)
+			.harvestTool(ToolType.PICKAXE)
+			.notSolid()
+			.hardnessAndResistance(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
 	private static BlockItemPair register(String name, ItemGroup itemGroup, Block block) { return register(name, BlockItemType.NORMAL, itemGroup, block); }
 	
 	private static BlockItemPair register(String name, BlockItemType type, ItemGroup itemGroup, Block block)

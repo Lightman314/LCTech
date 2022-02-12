@@ -317,6 +317,11 @@ public class FluidTraderContainer extends Container implements ITraderContainer 
 			}
 			
 		}
+		
+		//Transfer Fluids
+		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.tileEntity.getCoreSettings().isCreative());
+		this.bucketInventory.setInventorySlotContents(0, newBucket);
+		this.tileEntity.markTradesDirty();
 
 		//Log the successful trade
 		this.tileEntity.getLogger().AddLog(player, trade, price, this.tileEntity.getCoreSettings().isCreative());
@@ -324,12 +329,6 @@ public class FluidTraderContainer extends Container implements ITraderContainer 
 		
 		//Post the trade success event
 		this.tileEntity.runPostTradeEvent(this.player, tradeIndex, price);
-		
-		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getStackInSlot(0), this.tileEntity.getCoreSettings().isCreative());
-		this.bucketInventory.setInventorySlotContents(0, newBucket);
-		this.tileEntity.markTradesDirty();
-		
 		
 	}
 	

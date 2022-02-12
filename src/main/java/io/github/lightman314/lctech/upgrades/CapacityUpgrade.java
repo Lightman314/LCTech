@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.trader.upgrades;
+package io.github.lightman314.lctech.upgrades;
 
 import java.util.List;
 
