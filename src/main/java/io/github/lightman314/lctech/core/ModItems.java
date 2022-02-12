@@ -31,9 +31,9 @@ public class ModItems {
 	public static final Item BATTERY = register("battery", new BatteryItem(() -> 100000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
 	
 	//Energy Upgrades
-	public static final Item ENERGY_CAPACITY_UPGRADE_1 = register("energy_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.ENERGY_CAPACITY, 10000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item ENERGY_CAPACITY_UPGRADE_2 = register("energy_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.ENERGY_CAPACITY, 25000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item ENERGY_CAPACITY_UPGRADE_3 = register("energy_capacity_upgrade_3", new CapacityUpgradeItem(UpgradeType.ENERGY_CAPACITY, 100000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item ENERGY_CAPACITY_UPGRADE_1 = register("energy_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.ENERGY_CAPACITY, 100000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item ENERGY_CAPACITY_UPGRADE_2 = register("energy_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.ENERGY_CAPACITY, 250000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item ENERGY_CAPACITY_UPGRADE_3 = register("energy_capacity_upgrade_3", new CapacityUpgradeItem(UpgradeType.ENERGY_CAPACITY, 1000000, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
 	
 	private static Item register(String name, Item item)
 	{
