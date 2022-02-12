@@ -68,7 +68,7 @@ public class ModMenus {
 		return new EnergyTraderMenuCR(windowId, playerInventory, traderPos, registerEntity);
 	});
 	public static final MenuType<EnergyTraderMenuUniversal> ENERGY_TRADER_UNIVERSAL = register("energy_trader_universal", (IContainerFactory<EnergyTraderMenuUniversal>)(windowId, playerInventory, data) ->{
-		return new EnergyTraderMenuUniversal(windowId, playerInventory, data.readUUID(), true);
+		return new EnergyTraderMenuUniversal(windowId, playerInventory, data.readUUID());
 	});
 	
 	public static final MenuType<EnergyTraderStorageMenu> ENERGY_TRADER_STORAGE = register("energy_trader_storage", (IContainerFactory<EnergyTraderStorageMenu>)(windowId, playerInventory, data) ->{
@@ -76,7 +76,7 @@ public class ModMenus {
 	});
 	
 	public static final MenuType<EnergyTraderStorageMenuUniversal> ENERGY_TRADER_STORAGE_UNIVERSAL = register("energy_trader_storage_universal", (IContainerFactory<EnergyTraderStorageMenuUniversal>)(windowId, playerInventory, data) ->{
-		return new EnergyTraderStorageMenuUniversal(windowId, playerInventory, data.readUUID(), true);
+		return new EnergyTraderStorageMenuUniversal(windowId, playerInventory, data.readUUID());
 	});
 	
 	private static <T extends AbstractContainerMenu> MenuType<T> register(String key, MenuType.MenuSupplier<T> factory)

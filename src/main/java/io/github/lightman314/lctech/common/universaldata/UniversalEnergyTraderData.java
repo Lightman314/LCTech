@@ -259,7 +259,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 
 		@Override
 		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-			return new EnergyTraderMenu.EnergyTraderMenuUniversal(windowId, inventory, this.trader.getTraderID(), this.trader.isClient());
+			return new EnergyTraderMenu.EnergyTraderMenuUniversal(windowId, inventory, this.trader.getTraderID());
 		}
 
 		@Override
@@ -277,7 +277,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 
 		@Override
 		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-			return new EnergyTraderStorageMenu.EnergyTraderStorageMenuUniversal(windowId, inventory, this.trader.getTraderID(), this.trader.isClient());
+			return new EnergyTraderStorageMenu.EnergyTraderStorageMenuUniversal(windowId, inventory, this.trader.getTraderID());
 		}
 
 		@Override

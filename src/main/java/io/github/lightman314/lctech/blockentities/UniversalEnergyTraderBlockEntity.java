@@ -14,7 +14,7 @@ public class UniversalEnergyTraderBlockEntity extends UniversalTraderBlockEntity
 
 	public UniversalEnergyTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.UNIVERSAL_FLUID_TRADER, pos, state);
+		super(ModBlockEntities.UNIVERSAL_ENERGY_TRADER, pos, state);
 	}
 
 	@Override

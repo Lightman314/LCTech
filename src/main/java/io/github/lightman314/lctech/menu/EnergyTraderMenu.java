@@ -306,10 +306,10 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 	//Menu Combination Functions/Types
 	public static class EnergyTraderMenuUniversal extends EnergyTraderMenu {
 
-		public EnergyTraderMenuUniversal(int windowID, Inventory inventory, UUID traderID, boolean isClient) {
+		public EnergyTraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
 			super(ModMenus.ENERGY_TRADER_UNIVERSAL, windowID, inventory, () -> {
 				UniversalTraderData data = null;
-				if(isClient)
+				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);
 				else
 					data = TradingOffice.getData(traderID);

@@ -36,7 +36,7 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 		return ALLOWED_UPGRADES.contains(type);
 	}
 
-	public static final int DEFAULT_MAX_ENERGY = 10000;
+	public static final int DEFAULT_MAX_ENERGY = 100000;
 	
 	//Trade
 	public EnergyTradeData getTrade(int tradeIndex);

@@ -115,8 +115,6 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 		
 	}
 	
-	public ItemStack getBatteryStack() { return this.batteryInventory.getItem(0); }
-	
 	@Override
 	public ItemStack quickMoveStack(Player player, int index)
 	{
@@ -281,10 +279,10 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	//Menu Combination Functions/Types
 	public static class EnergyTraderStorageMenuUniversal extends EnergyTraderStorageMenu {
 
-		public EnergyTraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID, boolean isClient) {
+		public EnergyTraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
 			super(ModMenus.ENERGY_TRADER_STORAGE_UNIVERSAL, windowID, inventory, () -> {
 				UniversalTraderData data = null;
-				if(isClient)
+				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);
 				else
 					data = TradingOffice.getData(traderID);

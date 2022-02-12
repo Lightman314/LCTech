@@ -29,7 +29,7 @@ public class ModBlockEntities {
 	public static final BlockEntityType<UniversalFluidTraderBlockEntity> UNIVERSAL_FLUID_TRADER = buildType("universal_fluid_trader", BlockEntityType.Builder.of(UniversalFluidTraderBlockEntity::new, ModBlocks.FLUID_SERVER_SML.block, ModBlocks.FLUID_SERVER_MED.block, ModBlocks.FLUID_SERVER_LRG.block, ModBlocks.FLUID_SERVER_XLRG.block));
 	
 	//Universal Energy Trader
-	public static final BlockEntityType<UniversalEnergyTraderBlockEntity> UNIVERSAL_ENERGY_TRADER = buildType("universal_energy_trader", BlockEntityType.Builder.of(UniversalEnergyTraderBlockEntity::new));
+	public static final BlockEntityType<UniversalEnergyTraderBlockEntity> UNIVERSAL_ENERGY_TRADER = buildType("universal_energy_trader", BlockEntityType.Builder.of(UniversalEnergyTraderBlockEntity::new, ModBlocks.ENERGY_SERVER.block));
 	
 	
 	private static <T extends BlockEntity> BlockEntityType<T> buildType(String id, BlockEntityType.Builder<T> builder)
