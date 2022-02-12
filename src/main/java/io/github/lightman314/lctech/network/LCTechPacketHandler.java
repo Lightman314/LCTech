@@ -1,7 +1,11 @@
 package io.github.lightman314.lctech.network;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyPrice;
+import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyTradeRules;
 import io.github.lightman314.lctech.network.messages.fluid_trader.*;
+import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyPrice2;
+import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyTradeRules2;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.*;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.resources.ResourceLocation;
@@ -43,6 +47,14 @@ public class LCTechPacketHandler {
 		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
 		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
 		 register(MessageToggleFluidIcon2.class, new MessageToggleFluidIcon2());
+		 
+		 //Energy Traders
+		 register(MessageSetEnergyPrice.class, new MessageSetEnergyPrice());
+		 register(MessageSetEnergyTradeRules.class, new MessageSetEnergyTradeRules());
+		 
+		 //Universal Energy Traders
+		 register(MessageSetEnergyPrice2.class, new MessageSetEnergyPrice2());
+		 register(MessageSetEnergyTradeRules2.class, new MessageSetEnergyTradeRules2());
 		 
 	}
 	

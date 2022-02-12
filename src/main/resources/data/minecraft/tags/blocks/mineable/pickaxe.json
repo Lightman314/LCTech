@@ -8,6 +8,8 @@
     "lctech:fluid_trader_server_sml",
     "lctech:fluid_trader_server_med",
     "lctech:fluid_trader_server_lrg",
-    "lctech:fluid_trader_server_xlrg"
+    "lctech:fluid_trader_server_xlrg",
+    "lctech:battery_shop",
+    "lctech:energy_trader_server"
   ]
 }

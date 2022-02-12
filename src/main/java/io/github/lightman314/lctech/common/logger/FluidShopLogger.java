@@ -21,7 +21,7 @@ public class FluidShopLogger extends TextLogger{
 	{
 		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
 		Component playerName = new TextComponent("§a" + player.getName().getString());
-		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeType().name().toLowerCase());
+		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeDirection().name().toLowerCase());
 		
 		Component fluidName = FluidFormatUtil.getFluidName(trade.getProduct());
 		
