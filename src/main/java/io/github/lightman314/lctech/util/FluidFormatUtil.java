@@ -31,6 +31,4 @@ public class FluidFormatUtil {
 		return component;
 	}
 	
-	
-	
 }

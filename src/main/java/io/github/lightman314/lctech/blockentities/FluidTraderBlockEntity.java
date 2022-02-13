@@ -22,7 +22,6 @@ import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFlui
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
-import io.github.lightman314.lctech.trader.settings.FluidTraderSettings.FluidHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
@@ -451,6 +450,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 			BlockEntityUtil.sendUpdatePacket(this, this.writeFluidSettings(new CompoundTag()));
 		}
 		this.setChanged();
+		this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
 	}
 	
 	@Override
@@ -602,8 +602,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 				Direction facing = ((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState());
 				relativeSide = IItemHandlerBlock.getRelativeSide(facing, side);
 			}
-			FluidHandlerSettings handlerSetting = this.fluidSettings.getHandlerSetting(relativeSide);
-			IFluidHandler handler = this.fluidHandler.getFluidHandler(handlerSetting);
+			IFluidHandler handler = this.fluidHandler.getExternalHandler(relativeSide);
 			if(handler != null)
 				return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> handler));
 			return LazyOptional.empty();

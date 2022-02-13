@@ -19,9 +19,9 @@ import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEne
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
-import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings.EnergyHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
+import io.github.lightman314.lctech.util.DirectionalUtil;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
@@ -58,6 +58,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -370,6 +371,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	public void markEnergySettingsDirty()
 	{
 		this.setChanged();
+		this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
 		if(!this.level.isClientSide)
 		{
 			BlockEntityUtil.sendUpdatePacket(this, this.writeEnergySettings(new CompoundTag()));
@@ -519,8 +521,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 				Direction facing = ((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState());
 				relativeSide = IItemHandlerBlock.getRelativeSide(facing, side);
 			}
-			EnergyHandlerSettings handlerSetting = this.energySettings.getHandlerSettings(relativeSide);
-			IEnergyStorage handler = this.energyHandler.getHandler(handlerSetting);
+			IEnergyStorage handler = this.energyHandler.getExternalHandler(relativeSide);
 			if(handler != null)
 				return CapabilityEnergy.ENERGY.orEmpty(cap, LazyOptional.of(() -> handler));
 			return LazyOptional.empty();
@@ -681,6 +682,35 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	public void sendUpdateTradeRuleMessage(List<TradeRule> newRules) {
 		if(this.level.isClientSide)
 			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyTradeRules(this.worldPosition, newRules));
+	}
+	
+	@Override
+	public void serverTick() {
+		super.serverTick();
+		if(this.canDrainExternally() && this.getDrainableEnergy() > 0)
+		{
+			for(Direction direction : Direction.values())
+			{
+				if(this.energySettings.getOutputSides().get(direction) && this.getDrainableEnergy() > 0)
+				{
+					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? DirectionalUtil.getTrueSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
+					
+					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
+					if(be != null)
+					{
+						be.getCapability(CapabilityEnergy.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
+							int extractedAmount = energyHandler.receiveEnergy(this.getDrainableEnergy(), false);
+							if(extractedAmount > 0)
+							{
+								this.shrinkPendingDrain(extractedAmount);
+								this.shrinkEnergy(extractedAmount);
+								this.markEnergyStorageDirty();
+							}
+						});
+					}
+				}
+			}
+		}
 	}
 	
 }

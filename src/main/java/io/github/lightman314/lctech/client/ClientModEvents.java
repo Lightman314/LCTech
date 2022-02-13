@@ -15,14 +15,17 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
+@Mod.EventBusSubscriber(modid = LCTech.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
 
 	@SubscribeEvent
-	public void onModelBakeEvent(ModelBakeEvent event)
+	public static void onModelBakeEvent(ModelBakeEvent event)
 	{
 		FluidTankItem.getTankModelList().forEach(itemModelResourceLocation ->{
 			replaceModel(itemModelResourceLocation, event.getModelRegistry(), (existingModel) -> new FluidTankModel(existingModel));
@@ -47,7 +50,7 @@ public class ClientModEvents {
 	}
 	
 	@SubscribeEvent
-	public void stitchTextures(TextureStitchEvent.Pre event)
+	public static void stitchTextures(TextureStitchEvent.Pre event)
 	{
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
 			//Add bucket slot backgrounds

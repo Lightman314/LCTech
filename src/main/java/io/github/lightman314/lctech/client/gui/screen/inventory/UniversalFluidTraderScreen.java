@@ -24,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Items;
 
 public class UniversalFluidTraderScreen extends AbstractContainerScreen<UniversalFluidTraderMenu>{
 
@@ -75,7 +76,7 @@ public class UniversalFluidTraderScreen extends AbstractContainerScreen<Universa
 		
 		this.buttonBack = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + tradeHeight - 20, this::PressBackButton, this.font, IconData.of(GUI_TEXTURE, 176 + 32, 0)));
 		
-		this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos, this::PressStorageButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
+		this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos, this::PressStorageButton, this.font, IconData.of(Items.CHEST)));
 		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE);
 		
 		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20 + tradeOffset, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));

@@ -1,26 +1,24 @@
 package io.github.lightman314.lctech.trader.energy;
 
-import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings.EnergyHandlerSettings;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lctech.util.EnergyUtil.EnergyActionResult;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public class TradeEnergyHandler {
 
 	final IEnergyTrader trader;
-	final IEnergyStorage inputOnly;
-	final IEnergyStorage outputOnly;
-	final IEnergyStorage inputAndOutput;
+	final Map<Direction,IEnergyStorage> externalHandlers = new HashMap<>();
 	final IEnergyStorage batteryInteractable;
 	final IEnergyStorage tradeExecutor;
 	
 	public TradeEnergyHandler(IEnergyTrader trader)
 	{
 		this.trader = trader;
-		this.inputOnly = new EnergyHandler(trader, true, false);
-		this.outputOnly = new EnergyHandler(trader, false, true);
-		this.inputAndOutput = new EnergyHandler(trader, true, true);
 		this.batteryInteractable = new BatteryInteractionEnergyHandler(trader);
 		this.tradeExecutor = new TradeExecutionEnergyHandler(trader);
 	}
@@ -33,37 +31,32 @@ public class TradeEnergyHandler {
 	/**
 	 * Handler used for external interactions
 	 */
-	public IEnergyStorage getHandler(EnergyHandlerSettings settings)
+	public IEnergyStorage getExternalHandler(Direction relativeDirection)
 	{
-		switch(settings) {
-		case INPUT_ONLY:
-			return this.inputOnly;
-		case OUTPUT_ONLY:
-			return this.outputOnly;
-		case INPUT_AND_OUTPUT:
-			return this.inputAndOutput;
-			default:
-				return null;
-		}
+		//Return null if both the input & output are disabled for that side.
+		if(!this.trader.getEnergySettings().getInputSides().get(relativeDirection) && !this.trader.getEnergySettings().getOutputSides().get(relativeDirection))
+			return null;
+		//Otherwise, return the handler for that side
+		if(!this.externalHandlers.containsKey(relativeDirection)) //Create new handler for the requested side, if one doesn't exist
+			this.externalHandlers.put(relativeDirection, new ExternalEnergyHandler(this.trader, relativeDirection));
+		return this.externalHandlers.get(relativeDirection);
 	}
 	
-	private static class EnergyHandler implements IEnergyStorage
+	public static class ExternalEnergyHandler implements IEnergyStorage
 	{
 		
 		protected final IEnergyTrader trader;
-		private final boolean allowInput;
-		private final boolean allowOutput;
+		protected final Direction relativeDirection;
 		public final boolean isCreative() { return this.trader.getCoreSettings().isCreative(); }
 	
-		public EnergyHandler(IEnergyTrader trader, boolean allowInput, boolean allowOutput) {
+		public ExternalEnergyHandler(IEnergyTrader trader, Direction relativeDirection) {
 			this.trader = trader;
-			this.allowInput = allowInput;
-			this.allowOutput = allowOutput;
+			this.relativeDirection = relativeDirection;
 		}
 
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {
-			if(!this.allowInput)
+			if(!this.canReceive())
 				return 0;
 			int receiveAmount = Math.min(maxReceive, Math.max(0, this.trader.getMaxEnergy() - this.trader.getTotalEnergy()));
 			if(!simulate && receiveAmount > 0)
@@ -78,9 +71,9 @@ public class TradeEnergyHandler {
 
 		@Override
 		public int extractEnergy(int maxExtract, boolean simulate) {
-			if(!this.allowOutput)
+			if(!this.canExtract())
 				return 0;
-			int extractAmount = Math.min(maxExtract, this.isCreative() ? this.trader.getPendingDrain() : Math.min(this.trader.getPendingDrain(), this.trader.getTotalEnergy()));
+			int extractAmount = Math.min(maxExtract, this.trader.getDrainableEnergy());
 			if(!simulate && extractAmount > 0)
 			{
 				if(!this.isCreative())
@@ -88,13 +81,11 @@ public class TradeEnergyHandler {
 					//Drain the energy from the trader
 					this.trader.shrinkEnergy(extractAmount);
 				}
-				//Shrink the pending drain
-				this.trader.shrinkPendingDrain(extractAmount);
+				if(this.trader.getEnergySettings().isPurchaseDrainMode()) //Shrink the pending drain
+					this.trader.shrinkPendingDrain(extractAmount);
 				//Mark energy storage dirty
 				this.trader.markEnergyStorageDirty();
-				
 			}
-			
 			return extractAmount;
 		}
 
@@ -110,12 +101,12 @@ public class TradeEnergyHandler {
 
 		@Override
 		public boolean canExtract() {
-			return this.allowOutput;
+			return this.trader.getEnergySettings().getOutputSides().get(this.relativeDirection);
 		}
 
 		@Override
 		public boolean canReceive() {
-			return this.allowInput;
+			return this.trader.getEnergySettings().getInputSides().get(this.relativeDirection);
 		}
 		
 	}

@@ -18,7 +18,6 @@ import io.github.lightman314.lctech.network.messages.universal_energy_trader.Mes
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
-import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings.EnergyHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
@@ -67,8 +66,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	
 	public IEnergyStorage getEnergyHandler(Direction relativeSide)
 	{
-		EnergyHandlerSettings handlerSetting = this.energySettings.getHandlerSettings(relativeSide);
-		return this.energyHandler.getHandler(handlerSetting);
+		return this.energyHandler.getExternalHandler(relativeSide);
 	}
 	
 	EnergyShopLogger logger = new EnergyShopLogger();

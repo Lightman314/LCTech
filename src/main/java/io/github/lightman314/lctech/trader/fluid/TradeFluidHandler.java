@@ -1,8 +1,11 @@
 package io.github.lightman314.lctech.trader.fluid;
 
-import io.github.lightman314.lctech.trader.settings.FluidTraderSettings.FluidHandlerSettings;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -11,52 +14,41 @@ import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class TradeFluidHandler{
 
 	final IFluidTrader trader;
-	final FluidHandlerTemplate inputOnly;
-	final FluidHandlerTemplate outputOnly;
-	final FluidHandlerTemplate inputAndOutput;
+	Map<Direction,ExternalFluidHandler> externalHandlers = new HashMap<>();
 	
 	public TradeFluidHandler(IFluidTrader trader) {
 		this.trader = trader;
-		this.inputOnly = new InputOnly(trader);
-		this.outputOnly = new OutputOnly(trader);
-		this.inputAndOutput = new InputAndOutput(trader);
 	}
 	
-	public IFluidHandler getFluidHandler(FluidHandlerSettings setting)
+	public IFluidHandler getExternalHandler(Direction relativeDirection)
 	{
-		switch(setting)
-		{
-		case INPUT_ONLY:
-			return this.inputOnly;
-		case OUTPUT_ONLY:
-			return this.outputOnly;
-		case INPUT_AND_OUTPUT:
-			return this.inputAndOutput;
-			default:
-				return null;
-		}
+		//Return null if both the input & output are disabled for that side.
+		if(!this.trader.getFluidSettings().getInputSides().get(relativeDirection) && !this.trader.getFluidSettings().getOutputSides().get(relativeDirection))
+			return null;
+		//Otherwise, return the handler for that side
+		if(!this.externalHandlers.containsKey(relativeDirection))
+			this.externalHandlers.put(relativeDirection, new ExternalFluidHandler(this.trader, relativeDirection));
+		return this.externalHandlers.get(relativeDirection);
 	}
 
 	public void resetDrainableTank() {
-		this.inputOnly.resetDrainableTank();
-		this.outputOnly.resetDrainableTank();
-		this.inputAndOutput.resetDrainableTank();
+		this.externalHandlers.forEach((relDir,handler) -> handler.resetDrainableTank());
 	}
 	
-	private abstract static class FluidHandlerTemplate implements IFluidHandler
+	public static class ExternalFluidHandler implements IFluidHandler
 	{
 		
 		protected final IFluidTrader trader;
+		protected final Direction relativeDirection;
 		
 		private FluidTradeData drainableTank = null;
 		
-		protected FluidHandlerTemplate(IFluidTrader trader) { this.trader = trader; }
+		protected ExternalFluidHandler(IFluidTrader trader, Direction relativeDirection) { this.trader = trader; this.relativeDirection = relativeDirection; }
 
 		public final boolean isCreative() { return this.trader.getCoreSettings().isCreative(); }
 		public final int getTradeCount() { return this.trader.getTradeCount(); }
@@ -131,21 +123,21 @@ public class TradeFluidHandler{
 			return this.getTrade(tank).getTankCapacity();
 		}
 		
+		protected final boolean canFill() {
+			return this.trader.getFluidSettings().getInputSides().get(this.relativeDirection);
+		}
 		
-	}
-	
-	private interface IInputHandler
-	{
-		
-		public FluidTradeData getTrade(int tank);
-		public void markTradesDirty();
-		public FluidTradeData getValidFillTrade(FluidStack resource);
-		
-		public default boolean isFluidValidX(int tank, FluidStack stack) {
+		@Override
+		public boolean isFluidValid(int tank, FluidStack stack) {
+			if(!this.canFill())
+				return false;
 			return this.getTrade(tank).canFillExternally(stack);
 		}
 		
-		public default int fillX(FluidStack resource, FluidAction action) {
+		@Override
+		public int fill(FluidStack resource, FluidAction action) {
+			if(!this.canFill())
+				return 0;
 			FluidTradeData trade = this.getValidFillTrade(resource);
 			if(trade != null)
 			{
@@ -169,17 +161,14 @@ public class TradeFluidHandler{
 			return 0;
 		}
 		
-	}
-	
-	public interface IOutputHandler
-	{
+		protected final boolean canDrain() {
+			return this.trader.getFluidSettings().getOutputSides().get(this.relativeDirection);
+		}
 		
-		public boolean isCreative();
-		public FluidTradeData getTrade(int tank);
-		public void markTradesDirty();
-		FluidTradeData getValidDrainTrade(FluidStack resource);
-		
-		public default FluidStack drainX(FluidStack resource, FluidAction action) {
+		@Override
+		public FluidStack drain(FluidStack resource, FluidAction action) {
+			if(!this.canDrain())
+				return FluidStack.EMPTY;
 			if(resource.isEmpty())
 				return FluidStack.EMPTY;
 			FluidTradeData trade = getValidDrainTrade(resource);
@@ -216,7 +205,10 @@ public class TradeFluidHandler{
 			return FluidStack.EMPTY;
 		}
 		
-		public default FluidStack drainX(int maxDrain, FluidAction action) {
+		@Override
+		public FluidStack drain(int maxDrain, FluidAction action) {
+			if(!this.canDrain())
+				return FluidStack.EMPTY;
 			FluidTradeData trade = getValidDrainTrade(FluidStack.EMPTY);
 			if(trade != null)
 			{
@@ -250,86 +242,6 @@ public class TradeFluidHandler{
 			return FluidStack.EMPTY;
 		}
 		
-	}
-
-	private static class InputOnly extends FluidHandlerTemplate implements IInputHandler
-	{
-
-		private InputOnly(IFluidTrader trader) { super(trader); }
-
-		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return this.isFluidValidX(tank, stack);
-		}
-
-		@Override
-		public int fill(FluidStack resource, FluidAction action) {
-			return this.fillX(resource, action);
-		}
-
-		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			return FluidStack.EMPTY;
-		}
-
-		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
-			return FluidStack.EMPTY;
-		}
-		
-	}
-
-	private static class OutputOnly extends FluidHandlerTemplate implements IOutputHandler
-	{
-		
-		private OutputOnly(IFluidTrader trader) { super(trader); }
-
-		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return false;
-		}
-
-		@Override
-		public int fill(FluidStack resource, FluidAction action) {
-			return 0;
-		}
-
-		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			return this.drainX(resource, action);
-		}
-
-		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
-			return this.drainX(maxDrain, action);
-		}
-		
-	}
-	
-	private static class InputAndOutput extends FluidHandlerTemplate implements IInputHandler, IOutputHandler
-	{
-
-		private InputAndOutput(IFluidTrader trader) { super(trader); }
-
-		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return this.isFluidValidX(tank, stack);
-		}
-
-		@Override
-		public int fill(FluidStack resource, FluidAction action) {
-			return this.fillX(resource, action);
-		}
-
-		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			return this.drainX(resource, action);
-		}
-
-		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
-			return this.drainX(maxDrain, action);
-		}
 		
 	}
 	

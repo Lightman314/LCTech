@@ -26,36 +26,12 @@ public class FluidTraderSettings extends Settings{
 	private static final String UPDATE_INPUT_SIDE = "updateInputSide";
 	private static final String UPDATE_OUTPUT_SIDE = "updateOutputSide";
 	
-	public enum FluidHandlerSettings
-	{
-		DISABLED,
-		INPUT_ONLY,
-		OUTPUT_ONLY,
-		INPUT_AND_OUTPUT
-	}
-	
 	public FluidTraderSettings(ITrader trader, IMarkDirty markDirty, BiConsumer<ResourceLocation,CompoundTag> sendToServer) { super(trader, markDirty, sendToServer, TYPE); }
 	
 	DirectionalSettings inputSides = new DirectionalSettings();
 	public DirectionalSettings getInputSides() { return this.inputSides; }
 	DirectionalSettings outputSides = new DirectionalSettings();
 	public DirectionalSettings getOutputSides() { return this.outputSides; }
-	
-	public FluidHandlerSettings getHandlerSetting(Direction side)
-	{
-		if(side == null)
-			return FluidHandlerSettings.DISABLED;
-		if(this.inputSides.get(side))
-		{
-			if(this.outputSides.get(side))
-				return FluidHandlerSettings.INPUT_AND_OUTPUT;
-			else
-				return FluidHandlerSettings.INPUT_ONLY;
-		}
-		else if(this.outputSides.get(side))
-			return FluidHandlerSettings.OUTPUT_ONLY;
-		return FluidHandlerSettings.DISABLED;
-	}
 	
 	public CompoundTag toggleInputSide(Player requestor, Direction side)
 	{

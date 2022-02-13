@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.client.gui.screen.TradeEnergyPriceScreen;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
+import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.UpgradeType;
 import io.github.lightman314.lctech.upgrades.UpgradeType.IUpgradeable;
@@ -47,11 +48,27 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 	public void addPendingDrain(int amount);
 	public void shrinkPendingDrain(int amount);
 	public int getAvailableEnergy();
+	public default int getDrainableEnergy() {
+		if(this.getEnergySettings().isAlwaysDrainMode())
+		{
+			//Cannot drain from creative traders if they're in "ALWAYS" drain mode
+			return this.getCoreSettings().isCreative() ? 0 : this.getAvailableEnergy();
+		}
+		else if(this.getEnergySettings().isPurchaseDrainMode())
+		{
+			//Allow draining up to the purchasable amount when in purchase mode (confirm that we have the energy available if not in creative)
+			return this.getCoreSettings().isCreative() ? this.getPendingDrain() : Math.min(this.getPendingDrain(), this.getTotalEnergy());
+		}
+		return 0;
+	}
 	public int getTotalEnergy();
 	public int getMaxEnergy();
 	public void shrinkEnergy(int amount);
 	public void addEnergy(int amount);
 	public void markEnergyStorageDirty();
+	//Energy Settings
+	public EnergyTraderSettings getEnergySettings();
+	public void markEnergySettingsDirty();
 	//Interaction
 	public boolean canFillExternally();
 	public boolean canDrainExternally();

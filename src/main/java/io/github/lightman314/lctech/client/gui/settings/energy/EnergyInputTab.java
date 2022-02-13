@@ -10,9 +10,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsS
 import io.github.lightman314.lightmanscurrency.client.gui.settings.SettingsTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 
 public class EnergyInputTab extends SettingsTab{
@@ -23,6 +25,9 @@ public class EnergyInputTab extends SettingsTab{
 	
 	DirectionalSettingsWidget inputWidget;
 	DirectionalSettingsWidget outputWidget;
+	
+	//PlainButton buttonOutputEnergy;
+	Button buttonDrainMode;
 	
 	private final int textColor = 0xD0D0D0;
 	
@@ -46,6 +51,11 @@ public class EnergyInputTab extends SettingsTab{
 		this.inputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 20, screen.guiTop() + 25, () -> this.getSetting(EnergyTraderSettings.class).getInputSides(), this::ToggleInputSide, screen::addRenderableTabWidget);
 		this.outputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 120, screen.guiTop() + 25, () -> this.getSetting(EnergyTraderSettings.class).getOutputSides(), this::ToggleOutputSide, screen::addRenderableTabWidget);
 		
+		this.buttonDrainMode = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 100, screen.xSize - 40, 20, new TextComponent(""), this::ToggleDrainMode));
+		//this.buttonOutputEnergy = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 140, 10, 10, this::ToggleExportEnergy, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
+		
+		this.tick();
+		
 	}
 	
 	@Override
@@ -57,6 +67,9 @@ public class EnergyInputTab extends SettingsTab{
 		//Side Widget Labels
 		this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.energyinput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
 		this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.energyoutput.side"), screen.guiLeft() + 120, screen.guiTop() + 7, textColor);
+		//this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.energyoutput.export"), screen.guiLeft() + 35, screen.guiTop() + 140, textColor);
+		
+		this.updateOutputModeButton();
 		
 	}
 	
@@ -74,6 +87,20 @@ public class EnergyInputTab extends SettingsTab{
 	{
 		this.inputWidget.tick();
 		this.outputWidget.tick();
+		//this.buttonOutputEnergy.setResource(TraderSettingsScreen.GUI_TEXTURE, 10, this.getSetting(EnergyTraderSettings.class).exportEnergy() ? 200 : 220);
+	}
+	
+	private void updateOutputModeButton()
+	{
+		this.buttonDrainMode.setMessage(new TranslatableComponent("gui.lctech.settings.energy.drainmode", this.getOutputModeText()));
+	}
+	
+	private Component getOutputModeText()
+	{
+		if(this.getSetting(EnergyTraderSettings.class).isAlwaysDrainMode())
+			return new TranslatableComponent("gui.lctech.settings.energy.drainmode.full");
+		else
+			return new TranslatableComponent("gui.lctech.settings.energy.drainmode.sales");
 	}
 	
 	@Override
@@ -92,6 +119,20 @@ public class EnergyInputTab extends SettingsTab{
 	{
 		EnergyTraderSettings settings = this.getSetting(EnergyTraderSettings.class);
 		CompoundTag updateInfo = settings.toggleOutputSide(this.getPlayer(), side);
+		settings.sendToServer(updateInfo);
+	}
+	
+	/*private void ToggleExportEnergy(Button button)
+	{
+		EnergyTraderSettings settings = this.getSetting(EnergyTraderSettings.class);
+		CompoundTag updateInfo = settings.toggleExportEnergy(this.getPlayer());
+		settings.sendToServer(updateInfo);
+	}*/
+	
+	private void ToggleDrainMode(Button button)
+	{
+		EnergyTraderSettings settings = this.getSetting(EnergyTraderSettings.class);
+		CompoundTag updateInfo = settings.toggleDrainMode(this.getPlayer());
 		settings.sendToServer(updateInfo);
 	}
 	
