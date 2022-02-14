@@ -19,9 +19,9 @@ import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEne
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
-import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings.EnergyHandlerSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
+import io.github.lightman314.lctech.util.DirectionalUtil;
 import io.github.lightman314.lightmanscurrency.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
@@ -53,6 +53,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -371,6 +372,7 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 	public void markEnergySettingsDirty()
 	{
 		this.markDirty();
+		this.world.notifyNeighborsOfStateChange(this.pos, this.getBlockState().getBlock());
 		if(this.isServer())
 		{
 			CompoundNBT compound = this.writeEnergySettings(new CompoundNBT());
@@ -524,8 +526,7 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 				Direction facing = ((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState());
 				relativeSide = IItemHandlerBlock.getRelativeSide(facing, side);
 			}
-			EnergyHandlerSettings handlerSetting = this.energySettings.getHandlerSettings(relativeSide);
-			IEnergyStorage handler = this.energyHandler.getHandler(handlerSetting);
+			IEnergyStorage handler = this.energyHandler.getHandler(relativeSide);
 			if(handler != null)
 				return CapabilityEnergy.ENERGY.orEmpty(cap, LazyOptional.of(() -> handler));
 			return LazyOptional.empty();
@@ -691,7 +692,34 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 
 	@Override
 	public void tick() {
-		
+		if(this.isServer())
+		{
+			if(this.canDrainExternally() && this.getDrainableEnergy() > 0)
+			{
+				for(Direction direction : Direction.values())
+				{
+					if(this.energySettings.getOutputSides().get(direction) && this.getDrainableEnergy() > 0)
+					{
+						Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? DirectionalUtil.getTrueSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
+						
+						TileEntity te = this.world.getTileEntity(this.pos.offset(trueSide));
+						if(te != null)
+						{
+							te.getCapability(CapabilityEnergy.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
+								int extractedAmount = energyHandler.receiveEnergy(this.getDrainableEnergy(), false);
+								if(extractedAmount > 0)
+								{
+									this.shrinkPendingDrain(extractedAmount);
+									this.shrinkEnergy(extractedAmount);
+									this.markEnergyStorageDirty();
+								}
+							});
+						}
+						
+					}
+				}
+			}
+		}
 	}
 	
 }

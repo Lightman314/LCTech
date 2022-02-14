@@ -18,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.Constants;
 
 public class EnergyTraderSettings extends Settings{
 
@@ -25,13 +26,20 @@ public class EnergyTraderSettings extends Settings{
 	
 	private static final String UPDATE_INPUT_SIDE = "updateInputSide";
 	private static final String UPDATE_OUTPUT_SIDE = "updateOutputSide";
+	private static final String UPDATE_OUTPUT_MODE = "updateOutputMode";
 	
-	public enum EnergyHandlerSettings
-	{
-		DISABLED,
-		INPUT_ONLY,
-		OUTPUT_ONLY,
-		INPUT_AND_OUTPUT
+	public enum DrainMode { ALWAYS(0), PURCHASES_ONLY(1);
+
+		public final int index;
+		DrainMode(int index) { this.index = index; }
+
+		public static DrainMode of(int index) {
+			for(DrainMode mode : DrainMode.values())
+				if(mode.index == index)
+					return mode;
+			return DrainMode.ALWAYS;
+		}
+
 	}
 	
 	public EnergyTraderSettings(ITrader trader, IMarkDirty markDirty, BiConsumer<ResourceLocation,CompoundNBT> sendToServer) { super(trader, markDirty, sendToServer, TYPE); }
@@ -40,22 +48,9 @@ public class EnergyTraderSettings extends Settings{
 	public DirectionalSettings getInputSides() { return this.inputSides; }
 	DirectionalSettings outputSides = new DirectionalSettings();
 	public DirectionalSettings getOutputSides() { return this.outputSides; }
-	
-	public EnergyHandlerSettings getHandlerSettings(Direction side)
-	{
-		if(side == null)
-			return EnergyHandlerSettings.DISABLED;
-		if(this.inputSides.get(side))
-		{
-			if(this.outputSides.get(side))
-				return EnergyHandlerSettings.INPUT_AND_OUTPUT;
-			else
-				return EnergyHandlerSettings.INPUT_ONLY;
-		}
-		else if(this.outputSides.get(side))
-			return EnergyHandlerSettings.OUTPUT_ONLY;
-		return EnergyHandlerSettings.DISABLED;
-	}
+	private DrainMode drainMode = DrainMode.PURCHASES_ONLY;
+	public boolean isAlwaysDrainMode() { return this.drainMode == DrainMode.ALWAYS; }
+	public boolean isPurchaseDrainMode() { return this.drainMode == DrainMode.PURCHASES_ONLY; }
 	
 	public CompoundNBT toggleInputSide(PlayerEntity requestor, Direction side)
 	{
@@ -89,6 +84,20 @@ public class EnergyTraderSettings extends Settings{
 		return updateInfo;
 	}
 	
+	public CompoundNBT toggleDrainMode(PlayerEntity requestor)
+	{
+		if(!this.trader.hasPermission(requestor, EnergyPermissions.EDIT_INPUTS))
+		{
+			PermissionWarning(requestor, "toggle external drain mode", EnergyPermissions.EDIT_INPUTS);
+			return null;
+		}
+		this.drainMode = DrainMode.of(this.drainMode.index + 1);
+		this.trader.getCoreSettings().getLogger().LogSettingsChange(requestor, "outputMode", this.drainMode.name());
+		CompoundNBT updateInfo = initUpdateInfo(UPDATE_OUTPUT_MODE);
+		updateInfo.putInt("newValue", this.drainMode.index);
+		return updateInfo;
+	}
+	
 	@Override
 	public void changeSetting(PlayerEntity requestor, CompoundNBT updateInfo) {
 		if(this.isUpdateType(updateInfo, UPDATE_INPUT_SIDE))
@@ -113,6 +122,16 @@ public class EnergyTraderSettings extends Settings{
 					this.markDirty();
 			}
 		}
+		else if(this.isUpdateType(updateInfo, UPDATE_OUTPUT_MODE))
+		{
+			DrainMode newValue = DrainMode.of(updateInfo.getInt("newValue"));
+			if(newValue != this.drainMode)
+			{
+				CompoundNBT result = this.toggleDrainMode(requestor);
+				if(result != null)
+					this.markDirty();
+			}
+		}
 	}
 	
 	@Override
@@ -120,6 +139,7 @@ public class EnergyTraderSettings extends Settings{
 		
 		compound.put("InputSides", this.inputSides.save(new CompoundNBT()));
 		compound.put("OutputSides", this.outputSides.save(new CompoundNBT()));
+		compound.putInt("DrainMode", this.drainMode.index);
 		
 		return compound;
 		
@@ -130,6 +150,9 @@ public class EnergyTraderSettings extends Settings{
 		
 		this.inputSides.load(compound.getCompound("InputSides"));
 		this.outputSides.load(compound.getCompound("OutputSides"));
+		
+		if(compound.contains("DrainMode", Constants.NBT.TAG_INT))
+			this.drainMode = DrainMode.of(compound.getInt("DrainMode"));
 		
 	}
 	

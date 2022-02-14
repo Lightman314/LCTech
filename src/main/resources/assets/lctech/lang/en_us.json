@@ -50,8 +50,12 @@
     
     "gui.lctech.settings.fluidinput.side": "Input Sides",
     "gui.lctech.settings.fluidoutput.side": "Output Sides",
+    
     "gui.lctech.settings.energyinput.side": "Input Sides",
     "gui.lctech.settings.energyoutput.side": "Output Sides",
+    "gui.lctech.settings.energy.drainmode": "Allow Output: %s",
+    "gui.lctech.settings.energy.drainmode.full": "Always",
+    "gui.lctech.settings.energy.drainmode.sales": "Purchased Only",
     
     "tooltip.lctech.settings.fluidinput" : "External Fluid Input & Output",
     "tooltip.lctech.settings.energyinput" : "External Energy Input & Output",

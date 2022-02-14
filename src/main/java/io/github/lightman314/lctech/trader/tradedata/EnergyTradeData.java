@@ -79,7 +79,7 @@ public class EnergyTradeData extends TradeData {
 		{
 			if(!this.hasStock(trader))
 				return false;
-			if(trader.canDrainExternally())
+			if(trader.canDrainExternally() && trader.getEnergySettings().isPurchaseDrainMode())
 				return true;
 			//Check the battery stack for an energy handler that can hold the output amount
 			if(!batteryStack.isEmpty())
@@ -125,7 +125,7 @@ public class EnergyTradeData extends TradeData {
 				EnergyActionResult result = EnergyUtil.tryFillContainer(batteryStack, trader.getEnergyHandler().getTradeExecutor(), this.amount, true);
 				return result.getResult();
 			}
-			else if(trader.canDrainExternally())
+			else if(trader.canDrainExternally() && trader.getEnergySettings().isPurchaseDrainMode())
 			{
 				trader.addPendingDrain(this.amount);
 				return batteryStack;
