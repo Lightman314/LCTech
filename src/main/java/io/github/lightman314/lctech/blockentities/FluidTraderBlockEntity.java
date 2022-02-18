@@ -9,16 +9,20 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
+import io.github.lightman314.lctech.client.gui.screen.TradeFluidPriceScreen.TradePriceData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.menu.FluidEditMenu;
 import io.github.lightman314.lctech.menu.FluidTraderMenu;
-import io.github.lightman314.lctech.menu.FluidTraderMenuCR;
+import io.github.lightman314.lctech.menu.FluidTraderMenu.FluidTraderMenuCR;
 import io.github.lightman314.lctech.menu.FluidTraderStorageMenu;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
+import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidPrice;
+import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
+import io.github.lightman314.lctech.network.messages.fluid_trader.MessageToggleFluidIcon;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
@@ -64,6 +68,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.network.NetworkHooks;
@@ -84,7 +89,13 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	
 	Container upgradeInventory = new SimpleContainer(5);
 	public Container getUpgradeInventory() { return this.upgradeInventory; }
-	public void reapplyUpgrades() { this.trades.forEach(trade -> trade.applyUpgrades(this, this.upgradeInventory)); }
+	
+	public void reapplyUpgrades() { this.reapplyUpgrades(true); }
+	private void reapplyUpgrades(boolean markDirty) {
+		this.trades.forEach(trade -> trade.applyUpgrades(this, this.upgradeInventory));
+		if(markDirty)
+			this.markTradesDirty();
+	}
 	
 	List<TradeRule> tradeRules = Lists.newArrayList();
 	
@@ -164,7 +175,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 			return;
 		}
 		this.overrideTradeCount(this.tradeCount + 1);
-		this.forceReOpen();
+		this.forceReopen();
 	}
 	
 	public void removeTrade(Player requestor) {
@@ -179,16 +190,17 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 			return;
 		}
 		this.overrideTradeCount(this.tradeCount - 1);
-		this.forceReOpen();
+		this.forceReopen();
 	}
 	
-	private void forceReOpen() {
-		for(Player player : this.getUsers())
+	@Override
+	protected void forceReopen(List<Player> users) {
+		for(Player player : users)
 		{
 			if(player.containerMenu instanceof FluidTraderStorageMenu)
 				this.openStorageMenu(player);
 			else if(player.containerMenu instanceof FluidTraderMenuCR)
-				this.openCashRegisterTradeMenu(player, ((FluidTraderMenuCR)player.containerMenu).cashRegister);
+				this.openCashRegisterTradeMenu(player, ((FluidTraderMenuCR)player.containerMenu).getCashRegister());
 			else if(player.containerMenu instanceof FluidTraderMenu)
 				this.openTradeMenu(player);
 		}
@@ -271,7 +283,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
-		
+			
 		if(compound.contains("UpgradeInventory",Tag.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 			
@@ -282,6 +294,8 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 			this.tradeRules = TradeRule.readRules(compound);
 		
 		this.logger.read(compound);
+		
+		this.reapplyUpgrades(false);
 		
 	}
 	
@@ -333,7 +347,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		@Override
 		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-			return new FluidTraderMenu(windowId, inventory, this.tileEntity);
+			return new FluidTraderMenu(windowId, inventory, this.tileEntity.worldPosition);
 		}
 
 		@Override
@@ -355,7 +369,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		@Override
 		public AbstractContainerMenu createMenu(int windowId, Inventory inventory, Player player) {
-			return new FluidTraderStorageMenu(windowId, inventory, this.tileEntity);
+			return new FluidTraderStorageMenu(windowId, inventory, this.tileEntity.worldPosition);
 		}
 
 		@Override
@@ -379,7 +393,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity)
 		{
-			return new FluidTraderMenuCR(id, inventory, blockEntity, registerEntity);
+			return new FluidTraderMenuCR(id, inventory, this.blockEntity.worldPosition, registerEntity);
 		}
 		
 	}
@@ -397,7 +411,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		public Component getDisplayName() { return this.blockEntity.getName(); }
 		
 		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-			return new FluidEditMenu(id, inventory, () -> blockEntity, tradeIndex);
+			return new FluidEditMenu(id, inventory, this.blockEntity.worldPosition, tradeIndex);
 		}
 		
 	}
@@ -546,7 +560,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		}
 	}
 	
-	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new TraderScreenHandler(this); }
+	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TraderScreenHandler(this); }
 	
 	private static class TraderScreenHandler implements ITradeRuleScreenHandler
 	{
@@ -611,5 +625,29 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		//Otherwise return none
 		return super.getCapability(cap, side);
     }
+	
+	@Override
+	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid) {
+		if(this.isClient())
+			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct(this.worldPosition, tradeIndex, newFluid));
+	}
+	
+	@Override
+	public void sendToggleIconMessage(int tradeIndex, int icon) {
+		if(this.isClient())
+			LCTechPacketHandler.instance.sendToServer(new MessageToggleFluidIcon(this.worldPosition, tradeIndex, icon));
+	}
+	
+	@Override
+	public void sendPriceMessage(TradePriceData priceData) {
+		if(this.isClient())
+			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice(this.worldPosition, priceData.tradeIndex, priceData.cost, priceData.type, priceData.quantity, priceData.canDrain, priceData.canFill));
+	}
+	
+	@Override
+	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
+		if(this.isClient())
+			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(this.worldPosition, newRules, tradeIndex));
+	}
 	
 }

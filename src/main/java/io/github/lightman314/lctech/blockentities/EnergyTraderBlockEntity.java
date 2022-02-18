@@ -176,6 +176,9 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 		}
 	}
 	
+	@Override
+	public void forceReopen(List<Player> users) { }
+	
 	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.energySettings); }
 	
 	@Override
@@ -561,7 +564,8 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	@Override
 	public int getMaxEnergy() {
 		//Calculate based on the current upgrades
-		int maxEnergy = DEFAULT_MAX_ENERGY;
+		int defaultCapacity = IEnergyTrader.getDefaultMaxEnergy();
+		int maxEnergy = defaultCapacity;
 		boolean baseStorageCompensation = false;
 		for(int i = 0; i < this.upgradeInventory.getContainerSize(); ++i)
 		{
@@ -574,9 +578,9 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
 						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
-						if(addAmount > DEFAULT_MAX_ENERGY && !baseStorageCompensation)
+						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
-							addAmount -= DEFAULT_MAX_ENERGY;
+							addAmount -= defaultCapacity;
 							baseStorageCompensation = true;
 						}
 						maxEnergy += addAmount;

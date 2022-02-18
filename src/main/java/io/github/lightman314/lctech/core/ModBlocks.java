@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blocks.*;
 import io.github.lightman314.lctech.blocks.traderblocks.*;
 import io.github.lightman314.lctech.items.*;
@@ -31,17 +32,14 @@ public class ModBlocks {
 	
 	//Fluid Tanks
 	public static final BlockItemPair IRON_TANK = register("iron_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
-			10 * FluidAttributes.BUCKET_VOLUME,
+			() -> TechConfig.SERVER.ironTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 			Block.Properties.of(Material.GLASS)
-			//.harvestTool(ToolType.PICKAXE)
 			.strength(3.0f, 5.0f)
 			.sound(SoundType.GLASS)
 			));
 	public static final BlockItemPair GOLD_TANK = register("gold_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
-			25 * FluidAttributes.BUCKET_VOLUME,
+			() -> TechConfig.SERVER.goldTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 			Block.Properties.of(Material.GLASS)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, 5.0f)
 			.sound(SoundType.GLASS)
 			));
@@ -49,8 +47,6 @@ public class ModBlocks {
 	//Fluid traders
 	public static final BlockItemPair FLUID_TAP = register("fluid_tap", LightmansCurrency.TRADING_GROUP, new FluidTapBlock(
 			Block.Properties.of(Material.GLASS)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.GLASS),
 			Block.box(4d, 0d, 4d, 12d, 16d, 12d)
@@ -66,32 +62,24 @@ public class ModBlocks {
 	public static final BlockItemPair FLUID_SERVER_SML = register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			2,
 			Block.Properties.of(Material.METAL)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	public static final BlockItemPair FLUID_SERVER_MED = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			4,
 			Block.Properties.of(Material.METAL)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	public static final BlockItemPair FLUID_SERVER_LRG = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			6,
 			Block.Properties.of(Material.METAL)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	public static final BlockItemPair FLUID_SERVER_XLRG = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, new FluidTraderServerBlock(
 			8,
 			Block.Properties.of(Material.METAL)
-			//.harvestTool(ToolType.PICKAXE)
-			//.notSolid()
 			.strength(3.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));

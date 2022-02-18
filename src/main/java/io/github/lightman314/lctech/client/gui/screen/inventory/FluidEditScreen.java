@@ -12,8 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.menu.FluidEditMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -46,6 +45,10 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 	@Override
 	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
+		
+		if(this.menu.getTrader() == null)
+			return;
+		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		int startX = (this.width - width) / 2;
@@ -74,10 +77,10 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 		this.searchField.setMaxLength(32);
 		this.searchField.setTextColor(0xFFFFFF);
 		
-		//Initialize thie buttons
+		//Initialize the buttons
 		//Page Buttons
-		this.buttonPageLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.width, 0)));
-		this.buttonPageRight = this.addRenderableWidget(new IconButton(this.leftPos + this.width, this.topPos, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.width + 16, 0)));
+		this.buttonPageLeft = this.addRenderableWidget(IconAndButtonUtil.leftButton(this.leftPos - 20, this.topPos, this::PressPageButton));
+		this.buttonPageRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.width, this.topPos, this::PressPageButton));
 		
 		//Close Button
 		this.addRenderableWidget(new Button(this.leftPos + 7, this.topPos + 129, 162, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));
@@ -87,6 +90,13 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(this.menu.getTrader() == null)
+		{
+			this.menu.player.closeContainer();
+			return;
+		}
+		
 		this.renderBackground(poseStack);
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(poseStack, mouseX, mouseY);
@@ -98,6 +108,12 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 	@Override
 	public void containerTick()
 	{
+		
+		if(this.menu.getTrader() == null)
+		{
+			this.menu.player.closeContainer();
+			return;
+		}
 		
 		this.searchField.tick();
 		

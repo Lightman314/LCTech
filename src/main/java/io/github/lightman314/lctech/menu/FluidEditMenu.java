@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.menu;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
@@ -12,7 +13,11 @@ import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEd
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,6 +27,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,8 +49,9 @@ public class FluidEditMenu extends AbstractContainerMenu{
 	
 	public final Player player;
 	public final Supplier<IFluidTrader> traderSource;
+	public IFluidTrader getTrader() { return this.traderSource == null ? null : this.traderSource.get(); }
 	public final int tradeIndex;
-	public final FluidTradeData tradeData;
+	public final FluidTradeData getTrade() { return this.getTrader().getTrade(this.tradeIndex); }
 	
 	List<Fluid> searchResultFluids;
 	Container displayInventory;
@@ -57,17 +64,21 @@ public class FluidEditMenu extends AbstractContainerMenu{
 	
 	protected boolean isClient() { return this.player.level.isClientSide; }
 	
-	public FluidEditMenu(int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex)
+	public FluidEditMenu(int windowId, Inventory inventory, BlockPos traderPos, int tradeIndex)
 	{
-		this(ModMenus.FLUID_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
+		this(ModMenus.FLUID_EDIT, windowId, inventory, tradeIndex, () -> {
+			BlockEntity be = inventory.player.level.getBlockEntity(traderPos);
+			if(be instanceof IFluidTrader)
+				return (IFluidTrader)be;
+			return null;
+		});
 	}
 	
-	protected FluidEditMenu(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex, FluidTradeData tradeData)
+	protected FluidEditMenu(MenuType<?> type, int windowId, Inventory inventory, int tradeIndex, Supplier<IFluidTrader> traderSource)
 	{
 		super(type, windowId);
 		
 		this.player = inventory.player;
-		this.tradeData = tradeData;
 		this.tradeIndex = tradeIndex;
 		this.traderSource = traderSource;
 		this.tradeSlots = Lists.newArrayList();
@@ -132,7 +143,7 @@ public class FluidEditMenu extends AbstractContainerMenu{
 	public ItemStack quickMoveStack(Player playerEntity, int index) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean stillValid(Player player) { return this.traderSource.get().hasPermission(player, Permissions.EDIT_TRADES); }
+	public boolean stillValid(Player player) { return this.getTrader() != null && this.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
 	
 	public void modifySearch(String newSearch) {
 		this.searchString = newSearch.toLowerCase();
@@ -196,7 +207,7 @@ public class FluidEditMenu extends AbstractContainerMenu{
 			if(isClient())
 			{
 				//Send message to server
-				this.tradeData.setProduct(fluidStack);
+				this.getTrade().setProduct(fluidStack);
 				LCTechPacketHandler.instance.sendToServer(new MessageFluidEditSet(stack));
 			}
 			else
@@ -214,6 +225,22 @@ public class FluidEditMenu extends AbstractContainerMenu{
 		}
 		else {
 			this.traderSource.get().openStorageMenu(this.player);
+		}
+	}
+	
+	public static class UniversalFluidEditMenu extends FluidEditMenu
+	{
+		public UniversalFluidEditMenu(int windowID, Inventory inventory, UUID traderID, int tradeIndex) {
+			super(ModMenus.UNIVERSAL_FLUID_EDIT, windowID, inventory, tradeIndex, () ->{
+				UniversalTraderData data = null;
+				if(inventory.player.level.isClientSide)
+					data = ClientTradingOffice.getData(traderID);
+				else
+					data = TradingOffice.getData(traderID);
+				if(data instanceof IFluidTrader)
+					return (IFluidTrader)data;
+				return null;
+			});
 		}
 	}
 	

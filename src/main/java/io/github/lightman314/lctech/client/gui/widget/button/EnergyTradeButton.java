@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -110,8 +111,6 @@ public class EnergyTradeButton extends Button{
 			TradeCostEvent event = trader.runTradeCostEvent(player, tradeIndex);
 			cost = event.getCostResult();
 			hasDiscount = event.getCostMultiplier() != 1d;
-			//Has Stock
-			hasStock = trade.hasStock(trader, player);
 			//Permission
 			hasPermission = !trader.runPreTradeEvent(player, tradeIndex).isCanceled();
 			//CanAfford
@@ -146,9 +145,9 @@ public class EnergyTradeButton extends Button{
 		
 		List<Component> tooltips = Lists.newArrayList();
 		//Energy Amount, Selling/Purchasing
-		tooltips.add(new TranslatableComponent("gui.lctech.energytrade.tooltip." + trade.getTradeDirection().name().toLowerCase(), EnergyUtil.formatEnergyAmount(trade.getAmount())));
+		tooltips.add(new TranslatableComponent("gui.lctech.energytrade.tooltip." + trade.getTradeDirection().name().toLowerCase(), new TextComponent(EnergyUtil.formatEnergyAmount(trade.getAmount())).withStyle(ChatFormatting.GOLD)));
 		//Stock
-		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + trade.getStock(trader, getPlayer()))));
+		tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("" + trade.getStock(trader, getPlayer())).withStyle(ChatFormatting.GOLD)));
 		//If denied, give denial reason
 		PreTradeEvent pte = trader.runPreTradeEvent(getPlayer(), tradeIndex);
 		if(pte.isCanceled())

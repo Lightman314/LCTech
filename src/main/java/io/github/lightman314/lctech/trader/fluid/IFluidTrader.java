@@ -1,25 +1,39 @@
 package io.github.lightman314.lctech.trader.fluid;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.client.gui.screen.TradeFluidPriceScreen;
+import io.github.lightman314.lctech.common.logger.FluidShopLogger;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.upgrades.UpgradeType;
 import io.github.lightman314.lctech.upgrades.UpgradeType.IUpgradeable;
+import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
+import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.FluidStack;
 
-public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler{
+public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ILoggerSupport<FluidShopLogger>{
 	
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.FLUID_CAPACITY);
 	
@@ -39,6 +53,12 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler{
 	public void openFluidEditMenu(Player player, int tradeIndex);
 	public FluidTraderSettings getFluidSettings();
 	public void markFluidSettingsDirty();
+	//Client send messages
+	public ITradeRuleScreenHandler getRuleScreenHandler();
+	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid);
+	public void sendToggleIconMessage(int tradeIndex, int icon);
+	public void sendPriceMessage(TradeFluidPriceScreen.TradePriceData priceData);
+	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules);
 	
 	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)
@@ -85,6 +105,24 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler{
 			}
 		}
 		MinecraftForge.EVENT_BUS.post(event);
+	}
+	
+	public static Supplier<IFluidTrader> BlockEntitySource(Level level, BlockPos traderPos) {
+		return () -> {
+			BlockEntity be = level.getBlockEntity(traderPos);
+			if(be instanceof IFluidTrader)
+				return (IFluidTrader)be;
+			return null;
+		};
+	}
+	
+	public static Supplier<IFluidTrader> UniversalSource(Level level, UUID traderID) {
+		return () -> {
+			UniversalTraderData data = level.isClientSide ? ClientTradingOffice.getData(traderID) : TradingOffice.getData(traderID);
+			if(data instanceof IFluidTrader)
+				return (IFluidTrader)data;
+			return null;
+		};
 	}
 	
 }

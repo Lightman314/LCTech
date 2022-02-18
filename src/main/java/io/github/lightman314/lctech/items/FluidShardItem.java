@@ -52,7 +52,7 @@ public class FluidShardItem extends Item{
 	
 	public FluidShardItem(Properties properties)
 	{
-		super(properties);
+		super(properties.stacksTo(1));
 		this.renderData = RENDER_DATA;
 		SHARD_ITEMS.add(this);
 	}

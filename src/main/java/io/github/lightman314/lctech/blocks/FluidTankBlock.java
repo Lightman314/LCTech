@@ -1,5 +1,7 @@
 package io.github.lightman314.lctech.blocks;
 
+import java.util.function.Supplier;
+
 import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidTankItem;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.fluids.FluidAttributes;
 
 public class FluidTankBlock extends Block implements EntityBlock{
 
@@ -27,20 +30,20 @@ public class FluidTankBlock extends Block implements EntityBlock{
 	
 	private final VoxelShape shape;
 	
-	public final int tankCapacity;
+	private final Supplier<Integer> tankCapacity;
+	public int getTankCapacity() { return Math.max(this.tankCapacity.get(), FluidAttributes.BUCKET_VOLUME); }
 	
-	public FluidTankBlock(int tankCapacity, Properties properties)
+	public FluidTankBlock(int tankCapacity, Properties properties) { this(() -> tankCapacity / FluidAttributes.BUCKET_VOLUME, properties, SHAPE); }
+	
+	public FluidTankBlock(Supplier<Integer> tankCapacity, Properties properties) { this(tankCapacity, properties, SHAPE); }
+	
+	public FluidTankBlock(int tankCapacity, Properties properties, VoxelShape shape) { this(() -> tankCapacity / FluidAttributes.BUCKET_VOLUME, properties, shape); }
+	
+	public FluidTankBlock(Supplier<Integer> tankCapacity, Properties properties, VoxelShape shape)
 	{
 		super(properties);
 		this.tankCapacity = tankCapacity;
 		this.shape = SHAPE;
-	}
-	
-	public FluidTankBlock(int tankCapacity, Properties properties, VoxelShape shape)
-	{
-		super(properties);
-		this.tankCapacity = tankCapacity;
-		this.shape = shape;
 	}
 	
 	@Override

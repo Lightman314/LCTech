@@ -32,12 +32,12 @@ public class EnergyUtil {
 	}
 	
 	/**
-     * Fill a container from the given fluidSource.
+     * Fill a container from the given energySource.
      *
      * @param container   The container to be filled. Will not be modified.
      *                    Separate handling must be done to reduce the stack size, stow containers, etc, on success.
      * @param energySource The energy handler to be drained.
-     * @param maxAmount   The largest amount of fluid that should be transferred.
+     * @param maxAmount   The largest amount of energy that should be transferred.
      * @param doFill      true if the container should actually be filled, false if it should be simulated.
      * @return a {@link EnergyActionResult} holding the filled container if successful.
      */

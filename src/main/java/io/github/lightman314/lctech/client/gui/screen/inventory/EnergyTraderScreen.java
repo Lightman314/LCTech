@@ -11,8 +11,7 @@ import io.github.lightman314.lctech.client.gui.widget.button.EnergyTradeButton;
 import io.github.lightman314.lctech.menu.EnergyTraderMenu;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRNextTrader;
@@ -30,7 +29,6 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Items;
 
 public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu>{
 
@@ -61,6 +59,9 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	@Override
 	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
+		if(this.menu.getTrader() == null)
+			return;
+		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
@@ -76,11 +77,15 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	}
 	
 	@Override
-	protected void renderLabels(PoseStack pose, int mouseX, int mouseY)
-	{
+	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
+		
+		if(this.menu.getTrader() == null)
+			return;
+		
 		this.font.draw(pose, this.menu.getTrader().getTitle(), 8f, 6f, 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, 8f, this.imageHeight - 94f, 0x404040);
 		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.menu.GetCoinValue())), 80f, this.imageHeight - 124f, 0x404040);
+		
 	}
 	
 	@Override
@@ -89,28 +94,28 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 		
 		super.init();
 		
-		this.buttonShowStorage = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressStorageButton, this.font, IconData.of(Items.CHEST)));
+		this.buttonShowStorage = this.addRenderableWidget(IconAndButtonUtil.storageButton(this.leftPos - 20, this.topPos, this::PressStorageButton));
 		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE) && !this.menu.isCashRegister();
 		
-		this.buttonCollectMoney = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 16, 0)));
+		this.buttonCollectMoney = this.addRenderableWidget(IconAndButtonUtil.collectCoinButton(this.leftPos - 20, this.topPos + 20, this::PressCollectionButton, this.menu::getTrader));
 		this.buttonCollectMoney.active = false;
 		this.buttonCollectMoney.visible = this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getTrader().getCoreSettings().hasBankAccount();
 		
 		//Universal Widget(s)
-		this.buttonBack = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos + 40, this::PressBackButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 32, 0)));
+		this.buttonBack = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos - 20, this.topPos + 40, this::PressBackButton));
 		this.buttonBack.visible = this.menu.isUniversal();
 		
 		//Cash Register Widget(s)
 		if(this.menu.isCashRegister() && this.menu.getCashRegister().getPairedTraderSize() > 1)
 		{
-			this.buttonLeft = this.addRenderableWidget(new IconButton(this.leftPos - 20, this.topPos, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 16, 16)));
-			this.buttonRight = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth, this.topPos, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 32, 16)));
+			this.buttonLeft = this.addRenderableWidget(IconAndButtonUtil.leftButton(this.leftPos - 20, this.topPos, this::PressArrowButton));
+			this.buttonRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageWidth, this.topPos, this::PressArrowButton));
 			
 			this.pageInput = this.addRenderableWidget(new EditBox(this.font, this.leftPos + 50, this.topPos - 19, this.imageWidth - 120, 18, new TextComponent("")));
 			this.pageInput.setMaxLength(2);
 			this.pageInput.setValue(String.valueOf(this.menu.getThisCRIndex() + 1));
 			
-			this.buttonSkipToPage = this.addRenderableWidget(new IconButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton, this.font, IconData.of(GUI_TEXTURE, this.imageWidth + 32, 16)));
+			this.buttonSkipToPage = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton));
 			this.buttonSkipToPage.active = false;
 		}
 		
@@ -132,6 +137,13 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	@Override
 	public void containerTick()
 	{
+		
+		if(this.menu.getTrader() == null)
+		{
+			this.menu.player.closeContainer();
+			return;
+		}
+		
 		this.buttonShowStorage.visible = this.menu.hasPermission(Permissions.OPEN_STORAGE) && !this.menu.isCashRegister();
 		
 		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
@@ -157,23 +169,20 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(this.menu.getTrader() == null)
+		{
+			this.menu.player.closeContainer();
+			return;
+		}
+		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
 		this.renderTooltip(pose, mouseX, mouseY);
 		
-		if(this.buttonShowStorage != null && this.buttonShowStorage.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.trader.openstorage"), mouseX, mouseY);
-		}
-		else if(this.buttonCollectMoney != null && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.trader.collectcoins", this.menu.getTrader().getStoredMoney().getString()), mouseX, mouseY);
-		}
-		else if(this.buttonBack != null && this.buttonBack.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.trader.universaltrader.back"), mouseX, mouseY);
-		}
-		else if(this.isMouseOverEnergy(mouseX, mouseY))
+		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.renderables);
+
+		if(this.isMouseOverEnergy(mouseX, mouseY))
 		{
 			this.renderComponentTooltip(pose, IEnergyTrader.getEnergyHoverTooltip(this.menu.getTrader()), mouseX, mouseY);
 		}

@@ -40,7 +40,6 @@ public class FluidTankItem extends BlockItem{
 	private static final List<FluidTankItem> TANK_ITEMS = Lists.newArrayList();
 	@OnlyIn(Dist.CLIENT)
 	public static final List<ModelResourceLocation> getTankModelList(){
-		
 		List<ModelResourceLocation> list = Lists.newArrayList();
 		TANK_ITEMS.forEach(tankItem ->{
 			list.add(new ModelResourceLocation(tankItem.getRegistryName(),"inventory"));
@@ -108,7 +107,7 @@ public class FluidTankItem extends BlockItem{
 		{
 			FluidTankBlock block = ((FluidTankItem)stack.getItem()).getTankBlock();
 			if(block != null)
-				return block.tankCapacity;
+				return block.getTankCapacity();
 		}
 		return FluidTankBlockEntity.DEFAULT_CAPACITY;
 	}

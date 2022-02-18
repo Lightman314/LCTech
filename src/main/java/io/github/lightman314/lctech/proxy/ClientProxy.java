@@ -25,12 +25,15 @@ public class ClientProxy extends CommonProxy{
 		
 		//Register Screens
 		MenuScreens.register(ModMenus.FLUID_TRADER, FluidTraderScreen::new);
+		MenuScreens.register(ModMenus.FLUID_TRADER_CR, FluidTraderScreen::new);
+		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER, FluidTraderScreen::new);
+		
 		MenuScreens.register(ModMenus.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
-		MenuScreens.register(ModMenus.FLUID_TRADER_CR, FluidTraderScreenCR::new);
+		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
+		
 		MenuScreens.register(ModMenus.FLUID_EDIT, FluidEditScreen::new);
-		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
-		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
 		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
+		
 		MenuScreens.register(ModMenus.ENERGY_TRADER, EnergyTraderScreen::new);
 		MenuScreens.register(ModMenus.ENERGY_TRADER_CR, EnergyTraderScreen::new);
 		MenuScreens.register(ModMenus.ENERGY_TRADER_UNIVERSAL, EnergyTraderScreen::new);

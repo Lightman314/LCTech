@@ -3,7 +3,6 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.menu.FluidTraderStorageMenu;
-import io.github.lightman314.lctech.menu.UniversalFluidTraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
@@ -39,11 +38,6 @@ public class MessageFluidTradeTankInteraction implements IMessage<MessageFluidTr
 				if(player.containerMenu instanceof FluidTraderStorageMenu)
 				{
 					FluidTraderStorageMenu container = (FluidTraderStorageMenu)player.containerMenu;
-					container.PlayerTankInteraction(message.tradeIndex);
-				}
-				else if(player.containerMenu instanceof UniversalFluidTraderStorageMenu)
-				{
-					UniversalFluidTraderStorageMenu container = (UniversalFluidTraderStorageMenu)player.containerMenu;
 					container.PlayerTankInteraction(message.tradeIndex);
 				}
 			}

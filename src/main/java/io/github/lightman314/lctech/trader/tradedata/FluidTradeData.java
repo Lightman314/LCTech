@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
@@ -29,8 +30,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class FluidTradeData extends TradeData implements IFluidHandler{
 	
-	public static final int MAX_BUCKET_QUANTITY = 10;
-	public static final int DEFAULT_TANK_CAPACITY = FluidAttributes.BUCKET_VOLUME * MAX_BUCKET_QUANTITY;
+	public static final int getDefaultTankCapacity() { return TechConfig.SERVER.fluidTraderDefaultStorage.get() * FluidAttributes.BUCKET_VOLUME; }
 	
 	//Tank is stored locally, as each fluid-type being sold is stored independently
 	FluidStack tank = FluidStack.EMPTY;
@@ -58,7 +58,8 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	int bucketQuantity = 1;
 	public int getQuantity() { return this.bucketQuantity * FluidAttributes.BUCKET_VOLUME; }
 	public int getBucketQuantity() { return this.bucketQuantity; }
-	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, DEFAULT_TANK_CAPACITY / FluidAttributes.BUCKET_VOLUME); }
+	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, this.getMaxBucketQuantity()); }
+	public int getMaxBucketQuantity() { return Math.max(1, Math.min(TechConfig.SERVER.fluidTradeMaxQuantity.get(), this.tankCapacity / FluidAttributes.BUCKET_VOLUME)); }
 	
 	public boolean canFillTank(FluidStack fluid)
 	{
@@ -89,11 +90,12 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 	public boolean isSale() { return this.tradeDirection == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeDirection == TradeDirection.PURCHASE; }
 	
-	int tankCapacity = DEFAULT_TANK_CAPACITY;
+	int tankCapacity = getDefaultTankCapacity();
 	public int getTankCapacity() { return this.tankCapacity; }
 	public void applyUpgrades(IFluidTrader trader, Container upgradeInventory)
 	{
-		this.tankCapacity = DEFAULT_TANK_CAPACITY;
+		int defaultCapacity = getDefaultTankCapacity();
+		this.tankCapacity = defaultCapacity;
 		boolean baseStorageCompensation = false;
 		for(int i = 0; i < upgradeInventory.getContainerSize(); i++)
 		{
@@ -106,9 +108,9 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
 						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
-						if(addAmount > DEFAULT_TANK_CAPACITY && !baseStorageCompensation)
+						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
-							addAmount -= DEFAULT_TANK_CAPACITY;
+							addAmount -= defaultCapacity;
 							baseStorageCompensation = true;
 						}
 						this.tankCapacity += addAmount;

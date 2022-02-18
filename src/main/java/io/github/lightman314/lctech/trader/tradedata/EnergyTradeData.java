@@ -71,14 +71,19 @@ public class EnergyTradeData extends TradeData {
 		return super.isValid() && this.amount > 0;
 	}
 	
+	/**
+	 * Confirms that the battery stack can receive or extract the energy required to carry out this trade.
+	 * Does NOT confirm that the trader has enough energy in stock, or enough space to hold the relevant energy.
+	 * Returns true for sales if external purchase draining is allowed.
+	 */
 	public boolean canTransferEnergy(IEnergyTrader trader, ItemStack batteryStack)
 	{
 		if(!this.isValid())
 			return false;
 		if(this.isSale())
 		{
-			if(!this.hasStock(trader))
-				return false;
+			//if(!this.hasStock(trader) && !trader.getCoreSettings().isCreative())
+			//	return false;
 			if(trader.canDrainExternally() && trader.getEnergySettings().isPurchaseDrainMode())
 				return true;
 			//Check the battery stack for an energy handler that can hold the output amount
