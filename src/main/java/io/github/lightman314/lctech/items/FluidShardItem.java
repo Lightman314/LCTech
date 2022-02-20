@@ -72,7 +72,7 @@ public class FluidShardItem extends Item{
 		if(!fluid.isEmpty())
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
-			tooltip.add(new TextComponent(ChatFormatting.GRAY.toString() + fluid.getAmount() + "mB"));
+			tooltip.add(new TextComponent(ChatFormatting.GRAY.toString() + FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB"));
 		}
 	}
 	

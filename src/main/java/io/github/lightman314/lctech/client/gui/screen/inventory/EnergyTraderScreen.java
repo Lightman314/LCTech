@@ -59,7 +59,9 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	@Override
 	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -69,7 +71,7 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 		this.blit(pose, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		//Render the energy bar
-		double fillPercent = (double)this.menu.getTrader().getTotalEnergy() / (double)this.menu.getTrader().getMaxEnergy();
+		double fillPercent = (double)trader.getTotalEnergy() / (double)trader.getMaxEnergy();
 		int fillHeight = MathUtil.clamp((int)(ENERGY_BAR_HEIGHT * fillPercent), 0, ENERGY_BAR_HEIGHT);
 		int yOffset = ENERGY_BAR_HEIGHT - fillHeight;
 		this.blit(pose, this.leftPos + 8, this.topPos + 18 + yOffset, this.imageWidth, yOffset, 16, fillHeight);
@@ -79,10 +81,12 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	@Override
 	protected void renderLabels(PoseStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
-		this.font.draw(pose, this.menu.getTrader().getTitle(), 8f, 6f, 0x404040);
+		this.font.draw(pose, trader.getTitle(), 8f, 6f, 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, 8f, this.imageHeight - 94f, 0x404040);
 		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.menu.GetCoinValue())), 80f, this.imageHeight - 124f, 0x404040);
 		
@@ -138,7 +142,9 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	public void containerTick()
 	{
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 		{
 			this.menu.player.closeContainer();
 			return;
@@ -148,10 +154,10 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 		
 		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = !this.menu.getTrader().getCoreSettings().hasBankAccount();
-			this.buttonCollectMoney.active = this.menu.getTrader().getStoredMoney().getRawValue() > 0;
+			this.buttonCollectMoney.visible = !trader.getCoreSettings().hasBankAccount();
+			this.buttonCollectMoney.active = trader.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.getTrader().getCoreSettings().isCreative();
+				this.buttonCollectMoney.visible = !trader.getCoreSettings().isCreative();
 		}
 		else
 			this.buttonCollectMoney.visible = false;
@@ -170,7 +176,9 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 		{
 			this.menu.player.closeContainer();
 			return;
@@ -184,11 +192,11 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 
 		if(this.isMouseOverEnergy(mouseX, mouseY))
 		{
-			this.renderComponentTooltip(pose, IEnergyTrader.getEnergyHoverTooltip(this.menu.getTrader()), mouseX, mouseY);
+			this.renderComponentTooltip(pose, IEnergyTrader.getEnergyHoverTooltip(trader), mouseX, mouseY);
 		}
 		for(int i = 0; i < this.tradeButtons.size(); ++i)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(pose, this, this.menu.getTrader(), mouseX, mouseY);
+			this.tradeButtons.get(i).tryRenderTooltip(pose, this, trader, mouseX, mouseY);
 		}
 	}
 	

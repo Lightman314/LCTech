@@ -12,7 +12,6 @@ import io.github.lightman314.lctech.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.menu.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
@@ -74,10 +73,9 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 		this.player = inventory.player;
 		this.traderSource = traderSource;
 		
-		this.upgradeSlots = new SuppliedContainer(() -> this.getTrader().getUpgradeInventory());
+		this.upgradeSlots = new SuppliedContainer(new SafeUpgradeSlotSupplier(this.traderSource));
 		
-		if(this.getTrader() instanceof TraderBlockEntity)
-			((TraderBlockEntity)this.getTrader()).userOpen(this.player);
+		this.getTrader().userOpen(this.player);
 		
 		//Upgrade Slots
 		for(int i = 0; i < this.upgradeSlots.getContainerSize(); ++i)
@@ -156,9 +154,7 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	}
 	
 	@Override
-	public boolean stillValid(Player player) {
-		return this.getTrader() != null;
-	}
+	public boolean stillValid(Player player) { return this.getTrader() != null && this.hasPermission(Permissions.OPEN_STORAGE); }
 	
 	@Override
 	public void removed(Player player)
@@ -167,8 +163,8 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 		this.clearContainer(player, this.coinSlots);
 		this.clearContainer(player, this.batteryInventory);
 		
-		if(this.getTrader() instanceof TraderBlockEntity)
-			((TraderBlockEntity)this.getTrader()).userClose(player);
+		if(this.getTrader() != null)
+			this.getTrader().userClose(this.player);
 		
 		MinecraftForge.EVENT_BUS.unregister(this);
 		
@@ -176,12 +172,16 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	
 	public boolean hasPermission(String permission)
 	{
-		return this.getTrader().hasPermission(this.player, permission);
+		if(this.getTrader() != null)
+			return this.getTrader().hasPermission(this.player, permission);
+		return false;
 	}
 	
 	public int getPermissionLevel(String permission)
 	{
-		return this.getTrader().getPermissionLevel(this.player, permission);
+		if(this.getTrader() != null)
+			return this.getTrader().getPermissionLevel(this.player, permission);
+		return 0;
 	}
 	
 	private void OnUpgradeSlotChanges()
@@ -217,7 +217,7 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	@SubscribeEvent
 	public void onWorldTick(TickEvent.WorldTickEvent event)
 	{
-		if(event.side.isServer() && event.phase == TickEvent.Phase.START)
+		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.getTrader() != null)
 		{
 			this.HandleBatterySlot();
 		}
@@ -298,5 +298,23 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	}
 	
 	public boolean isUniversal() { return false; }
+	
+	private class SafeUpgradeSlotSupplier implements Supplier<Container>
+	{
+		private final Supplier<IEnergyTrader> traderSource;
+		private final IEnergyTrader getTrader() { return this.traderSource.get(); }
+		private final int upgradeSlotCount;
+		SafeUpgradeSlotSupplier(Supplier<IEnergyTrader> traderSource) {
+			this.traderSource = traderSource;
+			this.upgradeSlotCount = this.getTrader().getUpgradeInventory().getContainerSize();
+		}
+		@Override
+		public Container get() {
+			IEnergyTrader trader = this.getTrader();
+			if(trader != null)
+				return trader.getUpgradeInventory();
+			return new SimpleContainer(this.upgradeSlotCount);
+		}
+	}
 	
 }

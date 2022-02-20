@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.menu.FluidEditMenu;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import net.minecraft.client.gui.components.Button;
@@ -46,7 +47,9 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY)
 	{
 		
-		if(this.menu.getTrader() == null)
+		IFluidTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -58,7 +61,7 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 		this.blit(poseStack, startX, startY, 0, 0, this.width, this.height);
 		
 		//Render the fake trade button
-		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, startX, startY - FluidTradeButton.HEIGHT, this.menu.tradeIndex, this.menu.traderSource.get(), false, true, false);
+		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, startX, startY - FluidTradeButton.HEIGHT, this.menu.tradeIndex, trader, false, true, false);
 		
 	}
 	
@@ -101,7 +104,7 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		this.renderTooltip(poseStack, mouseX, mouseY);
 		
-		FluidTradeButton.tryRenderTooltip(poseStack, this, this.menu.tradeIndex, this.menu.traderSource.get(), this.leftPos, this.topPos - FluidTradeButton.HEIGHT, mouseX, mouseY, true);
+		FluidTradeButton.tryRenderTooltip(poseStack, this, this.menu.tradeIndex, this.menu.getTrader(), this.leftPos, this.topPos - FluidTradeButton.HEIGHT, mouseX, mouseY, true);
 		
 	}
 	

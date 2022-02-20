@@ -101,6 +101,12 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 	public void tick()
 	{
 		
+		if(this.trader.get() == null)
+		{
+			this.minecraft.setScreen(null);
+			return;
+		}
+		
 		this.buttonSetSell.active = this.localDirection != TradeDirection.SALE;
 		this.buttonSetPurchase.active = this.localDirection != TradeDirection.PURCHASE;
 		
@@ -116,6 +122,12 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 	@Override
 	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(this.trader.get() == null)
+		{
+			this.minecraft.setScreen(null);
+			return;
+		}
 		
 		this.renderBackground(matrixStack);
 		

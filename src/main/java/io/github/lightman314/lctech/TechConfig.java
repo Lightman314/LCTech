@@ -84,7 +84,7 @@ public class TechConfig {
 			this.energyTraderDefaultStorage = builder.comment("The amount of FE an energy trader has by default.")
 					.defineInRange("traderStorage", 100000, 1000, 100000000);
 			this.energyTradeMaxQuantity = builder.comment("The maximum amount of FE an energy trader can sell or purchase in a single trade.",
-					"Regardless of the input, it will always be enforced to be less than or equal to the energy trtaders current maximum capacity")
+					"Regardless of the input, it will always be enforced to be less than or equal to the energy traders current maximum capacity")
 					.defineInRange("tradeQuantityLimit", Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 			
 			builder.pop();

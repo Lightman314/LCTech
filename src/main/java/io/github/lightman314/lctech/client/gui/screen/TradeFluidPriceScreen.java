@@ -33,7 +33,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 
 public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 
@@ -42,7 +41,6 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	private int xSize = 176;
 	private int ySize = 88 + CoinValueInput.HEIGHT;
 	
-	Player player;
 	Supplier<IFluidTrader> trader;
 	public IFluidTrader getTrader() { return this.trader.get(); }
 	Supplier<FluidTradeData> trade;
@@ -97,7 +95,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.addRenderableWidget(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslatableComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		//this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
 		this.buttonTradeRules = this.addRenderableWidget(IconAndButtonUtil.tradeRuleButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton));
-		this.buttonTradeRules.visible = this.trader.get().getCoreSettings().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules.visible = this.trader.get().getCoreSettings().hasPermission(this.minecraft.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.buttonToggleDrainable = this.addRenderableWidget(new PlainButton(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleDrainButton, GUI_TEXTURE, this.xSize, 16));
 		this.buttonToggleDrainable.visible = this.trader.get().drainCapable();
@@ -110,6 +108,12 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	public void tick()
 	{
 		
+		if(this.getTrader() == null)
+		{
+			this.minecraft.setScreen(null);
+			return;
+		}
+		
 		this.buttonSetSell.active = this.localDirection != TradeDirection.SALE;
 		this.buttonSetPurchase.active = this.localDirection != TradeDirection.PURCHASE;
 
@@ -119,7 +123,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.buttonAddBucket.active = this.localQuantity < this.trade.get().getMaxBucketQuantity();
 		this.buttonRemoveBucket.active = this.localQuantity > 1;
 		
-		this.buttonTradeRules.visible = this.trader.get().getCoreSettings().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules.visible = this.trader.get().getCoreSettings().hasPermission(this.minecraft.player, Permissions.EDIT_TRADE_RULES);
 		
 		super.tick();
 		this.priceInput.tick();
@@ -129,6 +133,12 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	@Override
 	public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(this.getTrader() == null)
+		{
+			this.minecraft.setScreen(null);
+			return;
+		}
 		
 		this.renderBackground(matrixStack);
 		

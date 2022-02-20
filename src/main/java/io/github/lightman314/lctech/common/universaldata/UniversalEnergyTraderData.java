@@ -237,7 +237,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		}
 	}
 	
-	public void forceReopen(List<Player> users) { }
+	protected void forceReopen(List<Player> users) { }
 	
 	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(); }
 	

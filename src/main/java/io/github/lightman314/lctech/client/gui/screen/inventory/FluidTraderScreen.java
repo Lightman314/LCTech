@@ -10,6 +10,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.menu.FluidTraderMenu;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
@@ -60,7 +61,9 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 	@Override
 	protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() == null)
+		IFluidTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -68,9 +71,9 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 		int startX = (this.width - this.imageWidth)/2;
 		int startY = (this.height - this.imageHeight)/2;
 		
-		int columnCount = FluidTraderUtil.getTradeDisplayColumnCount(this.menu.getTrader());
-		int rowCount = FluidTraderUtil.getTradeDisplayRowCount(this.menu.getTrader());
-		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(this.menu.getTrader());
+		int columnCount = FluidTraderUtil.getTradeDisplayColumnCount(trader);
+		int rowCount = FluidTraderUtil.getTradeDisplayRowCount(trader);
+		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(trader);
 		
 		//Top-left corner
 		this.blit(poseStack, startX + tradeOffset, startY, 0, 0, 6, 17);
@@ -83,7 +86,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 				this.blit(poseStack, startX + tradeOffset + (x * TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY, 6 + FluidTradeButton.WIDTH, 0, TRADEBUTTON_HORIZ_SPACER, 17);
 		}
 		//Top-right corner
-		this.blit(poseStack, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(this.menu.getTrader()) - 6, startY, 75, 0, 6, 17);
+		this.blit(poseStack, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY, 75, 0, 6, 17);
 		
 		//Draw the bg & spacer of each button
 		for(int y = 0; y < rowCount; y++)
@@ -99,7 +102,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 					this.blit(poseStack, startX + tradeOffset + (x * TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY + 17 + (y * TRADEBUTTON_VERTICALITY), 6 + FluidTradeButton.WIDTH, 17, TRADEBUTTON_HORIZ_SPACER, TRADEBUTTON_VERTICALITY);
 			}
 			//Right edge
-			this.blit(poseStack, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(this.menu.getTrader()) - 6, startY + 17 + (y * TRADEBUTTON_VERTICALITY), 75, 17, 6, TRADEBUTTON_VERTICALITY);
+			this.blit(poseStack, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY + 17 + (y * TRADEBUTTON_VERTICALITY), 75, 17, 6, TRADEBUTTON_VERTICALITY);
 		}
 		
 		//Bottom-left corner
@@ -113,23 +116,25 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 				this.blit(poseStack, startX + tradeOffset + (x * TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY + 17 + (rowCount * TRADEBUTTON_VERTICALITY), 6, 104, TRADEBUTTON_HORIZ_SPACER, 7);
 		}
 		//Bottom-right corner
-		this.blit(poseStack, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(this.menu.getTrader()) - 6, startY + 17 + (rowCount * TRADEBUTTON_VERTICALITY), 75, 104, 6, 7);
+		this.blit(poseStack, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY + 17 + (rowCount * TRADEBUTTON_VERTICALITY), 75, 104, 6, 7);
 		
 		//Draw the bottom (player inventory/coin slots)
-		this.blit(poseStack, startX + FluidTraderUtil.getInventoryDisplayOffset(this.menu.getTrader()), startY + FluidTraderUtil.getTradeDisplayHeight(this.menu.getTrader()), 0, 111, 176, 133);
+		this.blit(poseStack, startX + FluidTraderUtil.getInventoryDisplayOffset(trader), startY + FluidTraderUtil.getTradeDisplayHeight(trader), 0, 111, 176, 133);
 	}
 	
 	@Override
 	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY)
 	{
 		
-		if(this.menu.getTrader() == null)
+		IFluidTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
-		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(this.menu.getTrader());
-		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(this.menu.getTrader());
+		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(trader);
+		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(trader);
 		
-		font.draw(poseStack, this.menu.getTrader().getTitle(), tradeOffset + 8f, 6f, 0x404040);
+		font.draw(poseStack, trader.getTitle(), tradeOffset + 8f, 6f, 0x404040);
 		
 		font.draw(poseStack, this.playerInventoryTitle, inventoryOffset + 8f, (this.imageHeight - 94), 0x404040);
 		
@@ -189,7 +194,9 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 	public void containerTick()
 	{
 		
-		if(this.menu.getTrader() == null)
+		IFluidTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 		{
 			this.menu.player.closeContainer();
 			return;
@@ -199,10 +206,10 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 		
 		if(this.menu.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = !this.menu.getTrader().getCoreSettings().hasBankAccount();
-			this.buttonCollectMoney.active = this.menu.getTrader().getStoredMoney().getRawValue() > 0;
+			this.buttonCollectMoney.visible = !trader.getCoreSettings().hasBankAccount();
+			this.buttonCollectMoney.active = trader.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.menu.getTrader().getCoreSettings().isCreative();
+				this.buttonCollectMoney.visible = !trader.getCoreSettings().isCreative();
 		}
 		else
 			this.buttonCollectMoney.visible = false;
@@ -218,7 +225,9 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		if(this.menu.getTrader() == null)
+		IFluidTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 		{
 			this.menu.player.closeContainer();
 			return;
@@ -232,7 +241,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 		
 		for(int i = 0; i < this.tradeButtons.size(); i++)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(poseStack, this, this.menu.getTrader(), mouseX, mouseY, false);
+			this.tradeButtons.get(i).tryRenderTooltip(poseStack, this, trader, mouseX, mouseY, false);
 		}
 	}
 

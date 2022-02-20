@@ -48,7 +48,7 @@ public class FluidEditMenu extends AbstractContainerMenu{
 	private static List<Fluid> allFluids = null;
 	
 	public final Player player;
-	public final Supplier<IFluidTrader> traderSource;
+	private final Supplier<IFluidTrader> traderSource;
 	public IFluidTrader getTrader() { return this.traderSource == null ? null : this.traderSource.get(); }
 	public final int tradeIndex;
 	public final FluidTradeData getTrade() { return this.getTrader().getTrade(this.tradeIndex); }

@@ -24,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -62,7 +61,9 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 	@Override
 	protected void renderBg(PoseStack pose, float partialTicks, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -74,7 +75,7 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 		this.blit(pose, this.leftPos + 176, this.topPos + 103, 176, 103, 32, 100);
 		
 		//Render the energy bar
-		double fillPercent = (double)this.menu.getTrader().getTotalEnergy() / (double)this.menu.getTrader().getMaxEnergy();
+		double fillPercent = (double)trader.getTotalEnergy() / (double)trader.getMaxEnergy();
 		int fillHeight = MathUtil.clamp((int)(ENERGY_BAR_HEIGHT * fillPercent), 0, ENERGY_BAR_HEIGHT);
 		int yOffset = ENERGY_BAR_HEIGHT - fillHeight;
 		this.blit(pose, this.leftPos + 8, this.topPos + 18 + yOffset, 176, yOffset, 16, fillHeight);
@@ -85,8 +86,8 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 			for(int x = 0; x < 2; x++)
 			{
 				int tradeIndex = x + y * 2;
-				if(tradeIndex < this.menu.getTrader().getTradeCount())
-					EnergyTradeButton.renderEnergyTradeButton(pose, this, this.font, this.leftPos + 28 + 73 * x, this.topPos + 17 + 31 * y, tradeIndex, this.menu.getTrader());
+				if(tradeIndex < trader.getTradeCount())
+					EnergyTradeButton.renderEnergyTradeButton(pose, this, this.font, this.leftPos + 28 + 73 * x, this.topPos + 17 + 31 * y, tradeIndex, trader);
 			}
 		}
 		
@@ -96,10 +97,12 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 	protected void renderLabels(PoseStack pose, int mouseX, int mouseY)
 	{
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 			return;
 		
-		this.font.draw(pose, this.menu.getTrader().getName(), 8f, 6f, 0x404040);
+		this.font.draw(pose, trader.getName(), 8f, 6f, 0x404040);
 		this.font.draw(pose, this.playerInventoryTitle, 8f, this.imageHeight - 94f, 0x404040);
 		
 	}
@@ -149,7 +152,9 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks)
 	{
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 		{
 			this.menu.player.closeContainer();
 			return;
@@ -162,10 +167,7 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 			this.buttonShowLog.render(pose, mouseX, mouseY, partialTicks);
 			if(this.buttonClearLog.visible)
 				this.buttonClearLog.render(pose, mouseX, mouseY, partialTicks);
-			if(this.buttonShowLog.isMouseOver(mouseX,  mouseY))
-				this.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.trader.log.hide"), mouseX, mouseY);
-			else if(this.buttonClearLog.isMouseOver(mouseX, mouseY))
-				this.renderTooltip(pose, new TranslatableComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
+			IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, Lists.newArrayList(this.buttonShowLog, this.buttonClearLog));
 			return;
 		}
 		super.render(pose, mouseX, mouseY, partialTicks);
@@ -186,9 +188,9 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 					int tradeIndex = x + y * 2;
 					int xPos = this.leftPos + 28 + 73 * x;
 					int yPos = this.topPos + 17 + 31 * y;
-					if(tradeIndex < this.menu.getTrader().getTradeCount() && this.isMouseOverTradeButton(xPos, yPos, mouseX, mouseY))
+					if(tradeIndex < trader.getTradeCount() && this.isMouseOverTradeButton(xPos, yPos, mouseX, mouseY))
 					{
-						EnergyTradeButton.renderTooltip(pose, this, tradeIndex, this.menu.getTrader(), xPos, yPos, mouseX, mouseY);
+						EnergyTradeButton.renderTooltip(pose, this, tradeIndex, trader, xPos, yPos, mouseX, mouseY);
 					}
 				}
 			}
@@ -210,7 +212,9 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 	public void containerTick()
 	{
 		
-		if(this.menu.getTrader() == null)
+		IEnergyTrader trader = this.menu.getTrader();
+		
+		if(trader == null)
 		{
 			this.menu.player.closeContainer();
 			return;
@@ -222,25 +226,25 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 			return;
 		}
 		
-		this.buttonCollectMoney.visible = (!this.menu.getTrader().getCoreSettings().isCreative() || this.menu.getTrader().getStoredMoney().getRawValue() > 0) && this.menu.hasPermission(Permissions.COLLECT_COINS) && !this.menu.getTrader().getCoreSettings().hasBankAccount();
-		this.buttonCollectMoney.active = this.menu.getTrader().getStoredMoney().getRawValue() > 0;
+		this.buttonCollectMoney.visible = (!trader.getCoreSettings().isCreative() || trader.getStoredMoney().getRawValue() > 0) && this.menu.hasPermission(Permissions.COLLECT_COINS) && !trader.getCoreSettings().hasBankAccount();
+		this.buttonCollectMoney.active = trader.getStoredMoney().getRawValue() > 0;
 		
 		this.buttonOpenSettings.visible = this.menu.hasPermission(Permissions.EDIT_SETTINGS);
 		this.buttonTradeRules.visible = this.menu.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
 		this.buttonStoreMoney.visible = this.menu.HasCoinsToAdd() && this.menu.hasPermission(Permissions.STORE_COINS);
-		this.buttonClearLog.visible = this.menu.getTrader().getLogger().logText.size() > 0 && this.menu.hasPermission(Permissions.CLEAR_LOGS);
+		this.buttonClearLog.visible = trader.getLogger().logText.size() > 0 && this.menu.hasPermission(Permissions.CLEAR_LOGS);
 		
 		boolean visible = this.menu.hasPermission(Permissions.EDIT_TRADES);
 		this.tradePriceButtons.forEach(button -> button.visible = visible);
 		
 		this.buttonAddTrade.visible = this.buttonRemoveTrade.visible = this.menu.hasPermission(Permissions.EDIT_TRADES);
-		this.buttonAddTrade.active = this.menu.getTrader().getTradeCount() < this.menu.getTrader().getTradeCountLimit();
-		this.buttonRemoveTrade.active = this.menu.getTrader().getTradeCount() > 1;
+		this.buttonAddTrade.active = trader.getTradeCount() < trader.getTradeCountLimit();
+		this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
 		
 		for(int i = 0; i < 4; ++i)
 		{
-			this.tradePriceButtons.get(i).visible = i < this.menu.getTrader().getTradeCount();
+			this.tradePriceButtons.get(i).visible = i < trader.getTradeCount();
 		}
 		
 	}

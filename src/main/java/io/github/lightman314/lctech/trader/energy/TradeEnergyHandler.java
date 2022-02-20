@@ -220,12 +220,12 @@ public class TradeEnergyHandler {
 
 		@Override
 		public int getEnergyStored() {
-			return Integer.MAX_VALUE;
+			return this.trader.getTotalEnergy();
 		}
 
 		@Override
 		public int getMaxEnergyStored() {
-			return Integer.MAX_VALUE;
+			return this.trader.getMaxEnergy();
 		}
 
 		@Override

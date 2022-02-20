@@ -45,7 +45,7 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 		this(ModMenus.FLUID_TRADER_STORAGE, windowId, inventory, IFluidTrader.BlockEntitySource(inventory.player.level, traderPos));
 	}
 	
-	private FluidTraderStorageMenu(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource) {
+	protected FluidTraderStorageMenu(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource) {
 		super(type, windowId);
 		
 		this.player = inventory.player;

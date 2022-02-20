@@ -33,17 +33,17 @@ public class FluidTankBlock extends Block implements EntityBlock{
 	private final Supplier<Integer> tankCapacity;
 	public int getTankCapacity() { return Math.max(this.tankCapacity.get(), FluidAttributes.BUCKET_VOLUME); }
 	
-	public FluidTankBlock(int tankCapacity, Properties properties) { this(() -> tankCapacity / FluidAttributes.BUCKET_VOLUME, properties, SHAPE); }
+	public FluidTankBlock(int tankCapacity, Properties properties) { this(() -> tankCapacity, properties, SHAPE); }
 	
 	public FluidTankBlock(Supplier<Integer> tankCapacity, Properties properties) { this(tankCapacity, properties, SHAPE); }
 	
-	public FluidTankBlock(int tankCapacity, Properties properties, VoxelShape shape) { this(() -> tankCapacity / FluidAttributes.BUCKET_VOLUME, properties, shape); }
+	public FluidTankBlock(int tankCapacity, Properties properties, VoxelShape shape) { this(() -> tankCapacity, properties, shape); }
 	
 	public FluidTankBlock(Supplier<Integer> tankCapacity, Properties properties, VoxelShape shape)
 	{
 		super(properties);
 		this.tankCapacity = tankCapacity;
-		this.shape = SHAPE;
+		this.shape = shape;
 	}
 	
 	@Override
