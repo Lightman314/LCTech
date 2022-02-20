@@ -69,8 +69,7 @@ public class EnergyTraderContainer extends Container implements ITraderContainer
 		this.player = inventory.player;
 		this.traderSource = traderSource;
 		
-		if(this.getTrader() instanceof TraderTileEntity)
-			((TraderTileEntity)this.getTrader()).userOpen(this.player);
+		this.getTrader().userOpen(this.player);
 		
 		//Coin Slots
 		for(int x = 0; x < coinSlots.getSizeInventory(); ++x)
@@ -153,9 +152,7 @@ public class EnergyTraderContainer extends Container implements ITraderContainer
 	}
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity player) {
-		return this.getTrader() != null;
-	}
+	public boolean canInteractWith(PlayerEntity player) { return this.getTrader() != null; }
 	
 	@Override
 	public void onContainerClosed(PlayerEntity player)
@@ -164,19 +161,23 @@ public class EnergyTraderContainer extends Container implements ITraderContainer
 		this.clearContainer(player, player.world, this.coinSlots);
 		this.clearContainer(player, player.world, this.batteryInventory);
 		
-		if(this.getTrader() instanceof TraderTileEntity)
-			((TraderTileEntity)this.getTrader()).userClose(player);
+		if(this.getTrader() != null)
+			this.getTrader().userClose(player);
 		
 	}
 	
 	public boolean hasPermission(String permission)
 	{
-		return this.getTrader().hasPermission(this.player, permission);
+		if(this.getTrader() != null)
+			return this.getTrader().hasPermission(this.player, permission);
+		return false;
 	}
 	
 	public int getPermissionLevel(String permission)
 	{
-		return this.getTrader().getPermissionLevel(this.player, permission);
+		if(this.getTrader() != null)
+			return this.getTrader().getPermissionLevel(this.player, permission);
+		return 0;
 	}
 	
 	public long GetCoinValue()
@@ -194,7 +195,7 @@ public class EnergyTraderContainer extends Container implements ITraderContainer
 	@Override
 	public void CollectCoinStorage()
 	{
-		if(this.getTrader().getStoredMoney().getRawValue() <= 0)
+		if(this.getTrader().getInternalStoredMoney().getRawValue() <= 0)
 			return;
 		
 		if(!this.hasPermission(Permissions.COLLECT_COINS))
@@ -207,7 +208,7 @@ public class EnergyTraderContainer extends Container implements ITraderContainer
 			return;
 		
 		//Get the coin count from the trader
-		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getTrader().getStoredMoney());
+		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getTrader().getInternalStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())
 		{
@@ -262,7 +263,7 @@ public class EnergyTraderContainer extends Container implements ITraderContainer
 			return;
 		
 		//Abort if the energy storage doesn't have enough space for the purchased energy
-		if(trade.isPurchase() && !(trade.hasSpace(this.getTrader()) || this.getTrader().getCoreSettings().isCreative()))
+		if(trade.isPurchase() && (!trade.hasSpace(this.getTrader()) || this.getTrader().getCoreSettings().isCreative()))
 			return;
 		
 		//Abort if the energy cannot be transferred properly

@@ -11,8 +11,7 @@ import io.github.lightman314.lctech.client.gui.widget.button.EnergyTradeButton;
 import io.github.lightman314.lctech.container.EnergyTraderContainer;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRNextTrader;
@@ -27,7 +26,6 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -61,8 +59,12 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
-	{
+	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
+		
+		IEnergyTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+			return;
 		
 		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);
 		RenderSystem.color4f(1f, 1f, 1f, 1f);
@@ -71,7 +73,7 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 		this.blit(matrix, this.guiLeft, this.guiTop, 0, 0, this.xSize, this.ySize);
 		
 		//Render the energy bar
-		double fillPercent = (double)this.container.getTrader().getTotalEnergy() / (double)this.container.getTrader().getMaxEnergy();
+		double fillPercent = (double)trader.getTotalEnergy() / (double)trader.getMaxEnergy();
 		int fillHeight = MathUtil.clamp((int)(ENERGY_BAR_HEIGHT * fillPercent), 0, ENERGY_BAR_HEIGHT);
 		int yOffset = ENERGY_BAR_HEIGHT - fillHeight;
 		this.blit(matrix, this.guiLeft + 8, this.guiTop+ 18 + yOffset, this.xSize, yOffset, 16, fillHeight);
@@ -79,9 +81,14 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 	}
 	
 	@Override
-	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
-	{
-		this.font.drawString(matrix, this.container.getTrader().getTitle().getString(), 8f, 6f, 0x404040);
+	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY) {
+		
+		IEnergyTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+			return;
+		
+		this.font.drawString(matrix, trader.getTitle().getString(), 8f, 6f, 0x404040);
 		this.font.drawString(matrix, this.playerInventory.getName().getString(), 8f, this.ySize - 94f, 0x404040);
 		this.font.drawString(matrix, new TranslationTextComponent("tooltip.lightmanscurrency.credit", MoneyUtil.getStringOfValue(this.container.GetCoinValue())).getString(), 80f, this.ySize - 124f, 0x404040);
 	}
@@ -92,28 +99,28 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 		
 		super.init();
 		
-		this.buttonShowStorage = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressStorageButton, this.font, IconData.of(Items.CHEST)));
+		this.buttonShowStorage = this.addButton(IconAndButtonUtil.storageButton(this.guiLeft - 20, this.guiTop, this::PressStorageButton));
 		this.buttonShowStorage.visible = this.container.hasPermission(Permissions.OPEN_STORAGE) && !this.container.isCashRegister();
 		
-		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
+		this.buttonCollectMoney = this.addButton(IconAndButtonUtil.collectCoinButton(this.guiLeft - 20, this.guiTop + 20, this::PressCollectionButton, this.container::getTrader));
 		this.buttonCollectMoney.active = false;
 		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.getTrader().getCoreSettings().hasBankAccount();
 		
 		//Universal Widget(s)
-		this.buttonBack = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop + 40, this::PressBackButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 32, 0)));
+		this.buttonBack = this.addButton(IconAndButtonUtil.backToTerminalButton(this.guiLeft - 20, this.guiTop + 40, this::PressBackButton));
 		this.buttonBack.visible = this.container.isUniversal();
 		
 		//Cash Register Widget(s)
 		if(this.container.isCashRegister() && this.container.getCashRegister().getPairedTraderSize() > 1)
 		{
-			this.buttonLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 16)));
-			this.buttonRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressArrowButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 32, 16)));
+			this.buttonLeft = this.addButton(IconAndButtonUtil.leftButton(this.guiLeft - 20, this.guiTop, this::PressArrowButton));
+			this.buttonRight = this.addButton(IconAndButtonUtil.rightButton(this.guiLeft + this.xSize, this.guiTop, this::PressArrowButton));
 			
-			this.pageInput = this.addListener(new TextFieldWidget(this.font, this.guiLeft + 50, this.guiTop - 19, this.xSize - 120, 18, new StringTextComponent("")));
+			this.pageInput = this.addButton(new TextFieldWidget(this.font, this.guiLeft + 50, this.guiTop - 19, this.xSize - 120, 18, new StringTextComponent("")));
 			this.pageInput.setMaxStringLength(2);
 			this.pageInput.setText(String.valueOf(this.container.getThisCRIndex() + 1));
 			
-			this.buttonSkipToPage = this.addButton(new IconButton(this.guiLeft + this.xSize - 68, this.guiTop - 20, this::PressPageSkipButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 32, 16)));
+			this.buttonSkipToPage = this.addButton(IconAndButtonUtil.rightButton(this.guiLeft + this.xSize - 68, this.guiTop - 20, this::PressPageSkipButton));
 			this.buttonSkipToPage.active = false;
 		}
 		
@@ -127,7 +134,7 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 		{
 			for(int x = 0; x < 2; ++x)
 			{
-				this.tradeButtons.add(this.addButton(new EnergyTradeButton(this.guiLeft + 28 + 73 * x, this.guiTop + 17 + 31 * y, this::PressTradeButton, x + 2 * y, this, this.font, () -> this.container.getTrader(), () -> this.container.GetCoinValue(), () -> this.container.getBatteryStack())));
+				this.tradeButtons.add(this.addButton(new EnergyTradeButton(this.guiLeft + 28 + 73 * x, this.guiTop + 17 + 31 * y, this::PressTradeButton, x + 2 * y, this, this.font, this.container::getTrader, () -> this.container.GetCoinValue(), () -> this.container.getBatteryStack())));
 			}
 		}
 	}
@@ -136,16 +143,24 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 	public void tick()
 	{
 		
+		IEnergyTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+		{
+			this.container.player.closeScreen();
+			return;
+		}
+		
 		super.tick();
 		
 		this.buttonShowStorage.visible = this.container.hasPermission(Permissions.OPEN_STORAGE) && !this.container.isCashRegister();
 		
 		if(this.container.hasPermission(Permissions.COLLECT_COINS))
 		{
-			this.buttonCollectMoney.visible = !this.container.getTrader().getCoreSettings().hasBankAccount();
-			this.buttonCollectMoney.active = this.container.getTrader().getStoredMoney().getRawValue() > 0;
+			this.buttonCollectMoney.visible = !trader.getCoreSettings().hasBankAccount();
+			this.buttonCollectMoney.active = trader.getStoredMoney().getRawValue() > 0;
 			if(!this.buttonCollectMoney.active)
-				this.buttonCollectMoney.visible = !this.container.getTrader().getCoreSettings().isCreative();
+				this.buttonCollectMoney.visible = !trader.getCoreSettings().isCreative();
 		}
 		else
 			this.buttonCollectMoney.visible = false;
@@ -163,29 +178,28 @@ public class EnergyTraderScreen extends ContainerScreen<EnergyTraderContainer>{
 	@Override
 	public void render(MatrixStack pose, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		IEnergyTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+		{
+			this.container.player.closeScreen();
+			return;
+		}
+		
 		this.renderBackground(pose);
 		super.render(pose, mouseX, mouseY, partialTicks);
 		this.renderHoveredTooltip(pose, mouseX, mouseY);
 		
-		if(this.buttonShowStorage != null && this.buttonShowStorage.isMouseOver(mouseX, mouseY))
+		IconAndButtonUtil.renderButtonTooltips(pose, mouseX, mouseY, this.buttons);
+		
+		if(this.isMouseOverEnergy(mouseX, mouseY))
 		{
-			this.renderTooltip(pose, new TranslationTextComponent("tooltip.lightmanscurrency.trader.openstorage"), mouseX, mouseY);
-		}
-		else if(this.buttonCollectMoney != null && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(pose, new TranslationTextComponent("tooltip.lightmanscurrency.trader.collectcoins", this.container.getTrader().getStoredMoney().getString()), mouseX, mouseY);
-		}
-		else if(this.buttonBack != null && this.buttonBack.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(pose, new TranslationTextComponent("tooltip.lightmanscurrency.trader.universaltrader.back"), mouseX, mouseY);
-		}
-		else if(this.isMouseOverEnergy(mouseX, mouseY))
-		{
-			this.func_243308_b(pose, IEnergyTrader.getEnergyHoverTooltip(this.container.getTrader()), mouseX, mouseY);
+			this.func_243308_b(pose, IEnergyTrader.getEnergyHoverTooltip(trader), mouseX, mouseY);
 		}
 		for(int i = 0; i < this.tradeButtons.size(); ++i)
 		{
-			this.tradeButtons.get(i).tryRenderTooltip(pose, this, this.container.getTrader(), mouseX, mouseY);
+			this.tradeButtons.get(i).tryRenderTooltip(pose, this, trader, mouseX, mouseY);
 		}
 	}
 	

@@ -1,8 +1,9 @@
 package io.github.lightman314.lctech.container;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.core.ModContainers;
@@ -24,6 +25,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -42,9 +44,10 @@ public class FluidEditContainer extends Container{
 	private static List<Fluid> allFluids = null;
 	
 	public final PlayerEntity player;
-	public final Supplier<IFluidTrader> traderSource;
+	private final Supplier<IFluidTrader> traderSource;
+	public IFluidTrader getTrader() { return this.traderSource == null ? null : this.traderSource.get(); }
 	public final int tradeIndex;
-	public final FluidTradeData tradeData;
+	public final FluidTradeData getTrade() { return this.getTrader().getTrade(this.tradeIndex); }
 	
 	List<Fluid> searchResultFluids;
 	IInventory displayInventory;
@@ -57,17 +60,16 @@ public class FluidEditContainer extends Container{
 	
 	protected boolean isClient() { return this.player.world.isRemote; }
 	
-	public FluidEditContainer(int windowId, PlayerInventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex)
+	public FluidEditContainer(int windowId, PlayerInventory inventory, BlockPos traderPos, int tradeIndex)
 	{
-		this(ModContainers.FLUID_EDIT, windowId, inventory, traderSource, tradeIndex, traderSource.get().getTrade(tradeIndex));
+		this(ModContainers.FLUID_EDIT, windowId, inventory, tradeIndex, IFluidTrader.TileEntitySource(inventory.player.world, traderPos));
 	}
 	
-	protected FluidEditContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, Supplier<IFluidTrader> traderSource, int tradeIndex, FluidTradeData tradeData)
+	protected FluidEditContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, int tradeIndex, Supplier<IFluidTrader> traderSource)
 	{
 		super(type, windowId);
 		
 		this.player = inventory.player;
-		this.tradeData = tradeData;
 		this.tradeIndex = tradeIndex;
 		this.traderSource = traderSource;
 		this.tradeSlots = Lists.newArrayList();
@@ -133,7 +135,7 @@ public class FluidEditContainer extends Container{
 	public ItemStack transferStackInSlot(PlayerEntity playerEntity, int index) { return ItemStack.EMPTY; }
 	
 	@Override
-	public boolean canInteractWith(PlayerEntity player) { return this.traderSource.get().hasPermission(player, Permissions.EDIT_TRADES); }
+	public boolean canInteractWith(PlayerEntity player) { return this.getTrader() != null && this.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
 	
 	public void modifySearch(String newSearch) {
 		this.searchString = newSearch.toLowerCase();
@@ -197,7 +199,7 @@ public class FluidEditContainer extends Container{
 			if(isClient())
 			{
 				//Send message to server
-				this.tradeData.setProduct(fluidStack);
+				this.getTrade().setProduct(fluidStack);
 				LCTechPacketHandler.instance.sendToServer(new MessageFluidEditSet(stack));
 			}
 			else
@@ -215,6 +217,13 @@ public class FluidEditContainer extends Container{
 		}
 		else {
 			this.traderSource.get().openStorageMenu(this.player);
+		}
+	}
+	
+	public static class UniversalFluidEditContainer extends FluidEditContainer
+	{
+		public UniversalFluidEditContainer(int windowID, PlayerInventory inventory, UUID traderID, int tradeIndex) {
+			super(ModContainers.UNIVERSAL_FLUID_EDIT, windowID, inventory, tradeIndex, IFluidTrader.UniversalSource(inventory.player.world, traderID));
 		}
 	}
 	

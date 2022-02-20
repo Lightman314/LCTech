@@ -44,7 +44,7 @@ public class FluidTankTileEntity extends TileEntity implements IFluidHandler{
 	{
 		Block block = this.getBlockState().getBlock();
 		if(block instanceof FluidTankBlock)
-			return ((FluidTankBlock)block).tankCapacity;
+			return ((FluidTankBlock)block).getTankCapacity();
 		return DEFAULT_CAPACITY;
 	}
 	public int getTankSpace() { return this.getTankCapacity() - this.tankContents.getAmount(); }

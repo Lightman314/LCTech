@@ -1,6 +1,8 @@
 package io.github.lightman314.lctech.container;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
@@ -9,9 +11,10 @@ import io.github.lightman314.lctech.container.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.core.ModContainers;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditOpen;
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.containers.interfaces.ITraderStorageContainer;
+import io.github.lightman314.lightmanscurrency.containers.inventories.SuppliedInventory;
 import io.github.lightman314.lightmanscurrency.containers.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -24,31 +27,41 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 
 public class FluidTraderStorageContainer extends Container implements ITraderStorageContainer{
 
 	public final PlayerEntity player;
-	public final FluidTraderTileEntity tileEntity;
+	private final Supplier<IFluidTrader> traderSource;
+	public IFluidTrader getTrader() { return this.traderSource == null ? null : this.traderSource.get(); }
 	
+	final IInventory safeUpgradeSlots;
 	final IInventory coinSlots;
 	
-	public FluidTraderStorageContainer(int windowId, PlayerInventory inventory, FluidTraderTileEntity tileEntity) {
-		super(ModContainers.FLUID_TRADER_STORAGE, windowId);
+	public FluidTraderStorageContainer(int windowId, PlayerInventory inventory, BlockPos traderPos) {
+		this(ModContainers.FLUID_TRADER_STORAGE, windowId, inventory, IFluidTrader.TileEntitySource(inventory.player.world, traderPos));
+	}
+	
+	protected FluidTraderStorageContainer(ContainerType<?> type, int windowId, PlayerInventory inventory, Supplier<IFluidTrader> traderSource) {
+		super(type, windowId);
 		
 		this.player = inventory.player;
-		this.tileEntity = tileEntity;
-		this.tileEntity.userOpen(this.player);
+		this.traderSource = traderSource;
+		
+		this.getTrader().userOpen(this.player);
 		
 		//No Storage slots, it's all handled by the buttons
 		
-		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(this.tileEntity) + 32;
+		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(this.getTrader()) + 32;
 		
 		//Upgrade slots
-		for(int i = 0; i < this.tileEntity.getUpgradeInventory().getSizeInventory(); i++)
+		this.safeUpgradeSlots = new SuppliedInventory(new SafeUpgradeSlotSupplier(this.traderSource));
+		for(int i = 0; i < this.safeUpgradeSlots.getSizeInventory(); i++)
 		{
-			this.addSlot(new UpgradeInputSlot(this.tileEntity.getUpgradeInventory(), i, inventoryOffset - 24, getStorageBottom() + 6 + i * 18, this.tileEntity, this::OnUpgradeSlotChanged));
+			this.addSlot(new UpgradeInputSlot(this.safeUpgradeSlots, i, inventoryOffset - 24, getStorageBottom() + 6 + i * 18, this.getTrader(), this::OnUpgradeSlotChanged));
 		}
 		
 		//Coin slots
@@ -81,21 +94,12 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 	 */
 	public void PlayerTankInteraction(int tradeIndex)
 	{
-		this.tileEntity.getFluidHandler().OnPlayerInteraction(this.player, tradeIndex);
+		this.getTrader().getFluidHandler().OnPlayerInteraction(this.player, tradeIndex);
 	}
 	
 	public int getStorageBottom()
 	{
-		return FluidTraderUtil.getTradeDisplayHeight(this.tileEntity);
-	}
-	
-	public void tick()
-	{
-		if(this.tileEntity.isRemoved())
-		{
-			this.player.closeScreen();
-			return;
-		}
+		return FluidTraderUtil.getTradeDisplayHeight(this.getTrader());
 	}
 	
 	@Override
@@ -113,14 +117,14 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 			//Move items from the coin/upgrade slots into the players inventory
 			if(index < this.coinSlots.getSizeInventory())
 			{
-				if(!this.mergeItemStack(slotStack, this.tileEntity.getUpgradeInventory().getSizeInventory() + this.coinSlots.getSizeInventory(), this.inventorySlots.size(), true))
+				if(!this.mergeItemStack(slotStack, this.safeUpgradeSlots.getSizeInventory() + this.coinSlots.getSizeInventory(), this.inventorySlots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
 			else
 			{
-				if(!this.mergeItemStack(slotStack, 0, this.tileEntity.getUpgradeInventory().getSizeInventory() + this.coinSlots.getSizeInventory(), false))
+				if(!this.mergeItemStack(slotStack, 0, this.safeUpgradeSlots.getSizeInventory() + this.coinSlots.getSizeInventory(), false))
 				{
 					return ItemStack.EMPTY;
 				}
@@ -136,9 +140,7 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 	}
 
 	@Override
-	public boolean canInteractWith(PlayerEntity playerIn) {
-		return this.hasPermission(Permissions.OPEN_STORAGE);
-	}
+	public boolean canInteractWith(PlayerEntity playerIn) { return this.getTrader() != null && this.hasPermission(Permissions.OPEN_STORAGE); }
 	
 	@Override
 	public void onContainerClosed(PlayerEntity player)
@@ -147,24 +149,29 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		
 		super.onContainerClosed(player);
 		
-		this.tileEntity.userClose(this.player);
+		if(this.getTrader() != null)
+			this.getTrader().userClose(this.player);
 		
 	}
 	
 	public boolean hasPermission(String permission)
 	{
-		return this.tileEntity.hasPermission(this.player, permission);
+		if(this.getTrader() != null)
+			return this.getTrader().hasPermission(this.player, permission);
+		return false;
 	}
 	
 	public int getPermissionLevel(String permission)
 	{
-		return this.tileEntity.getPermissionLevel(this.player, permission);
+		if(this.getTrader() != null)
+			return this.getTrader().getPermissionLevel(this.player, permission);
+		return 0;
 	}
 	
 	private void OnUpgradeSlotChanged()
 	{
-		this.tileEntity.reapplyUpgrades();
-		this.tileEntity.markTradesDirty();
+		this.getTrader().reapplyUpgrades();
+		this.getTrader().markTradesDirty();
 	}
 	
 	public void openFluidEditScreenForTrade(int tradeIndex)
@@ -175,7 +182,7 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		}
 		else
 		{
-			this.tileEntity.openFluidEditMenu(this.player, tradeIndex);
+			this.getTrader().openFluidEditMenu(this.player, tradeIndex);
 		}
 	}
 	
@@ -186,7 +193,7 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 	
 	public void AddCoins()
 	{
-		if(this.tileEntity.isRemoved())
+		if(this.getTrader() == null)
 		{
 			this.player.closeScreen();
 			return;
@@ -199,14 +206,14 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		}
 		
 		CoinValue addValue = CoinValue.easyBuild2(this.coinSlots);
-		this.tileEntity.addStoredMoney(addValue);
+		this.getTrader().addStoredMoney(addValue);
 		this.coinSlots.clear();
 		
 	}
 	
 	public void CollectCoinStorage()
 	{
-		if(this.tileEntity.isRemoved())
+		if(this.getTrader() == null)
 		{
 			this.player.closeScreen();
 			return;
@@ -218,10 +225,10 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 			return;
 		}
 		
-		if(this.tileEntity.getCoreSettings().hasBankAccount())
+		if(this.getTrader().getCoreSettings().hasBankAccount())
 			return;
 		
-		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(tileEntity.getStoredMoney());
+		List<ItemStack> coinList = MoneyUtil.getCoinsOfValue(this.getTrader().getInternalStoredMoney());
 		ItemStack wallet = LightmansCurrency.getWalletStack(this.player);
 		if(!wallet.isEmpty())
 		{
@@ -238,8 +245,36 @@ public class FluidTraderStorageContainer extends Container implements ITraderSto
 		this.clearContainer(this.player, this.player.world, inventory);
 		
 		//Clear the coin storage
-		this.tileEntity.clearStoredMoney();
+		this.getTrader().clearStoredMoney();
 		
+	}
+	
+	//Additional Menu Types
+	public static class FluidTraderStorageContainerUniversal extends FluidTraderStorageContainer
+	{
+		public FluidTraderStorageContainerUniversal(int windowID, PlayerInventory inventory, UUID traderID) {
+			super(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, windowID, inventory, IFluidTrader.UniversalSource(inventory.player.world, traderID));
+		}
+	}
+
+
+	private class SafeUpgradeSlotSupplier implements Supplier<IInventory>
+	{
+		private final Supplier<IFluidTrader> traderSource;
+		private final IFluidTrader getTrader() { return this.traderSource.get(); }
+		private final int upgradeSlotCount;
+		SafeUpgradeSlotSupplier(Supplier<IFluidTrader> traderSource) {
+			this.traderSource = traderSource;
+			this.upgradeSlotCount = this.getTrader().getUpgradeInventory().getSizeInventory();
+		}
+		@Override
+		public IInventory get() {
+			IFluidTrader trader = this.getTrader();
+			if(trader != null)
+				return trader.getUpgradeInventory();
+			return new Inventory(this.upgradeSlotCount);
+		}
+	
 	}
 
 }

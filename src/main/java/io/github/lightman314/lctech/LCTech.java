@@ -2,7 +2,9 @@ package io.github.lightman314.lctech;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -42,6 +44,9 @@ public class LCTech
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        
+        //Register configs
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, TechConfig.serverSpec);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -64,7 +69,7 @@ public class LCTech
         	LightmansCurrency.MACHINE_GROUP.addToSortingList(Lists.newArrayList(
         			ModBlocks.IRON_TANK, ModBlocks.GOLD_TANK,
         			ModItems.FLUID_CAPACITY_UPGRADE_1, ModItems.FLUID_CAPACITY_UPGRADE_2, ModItems.FLUID_CAPACITY_UPGRADE_3,
-        			ModItems.BATTERY,
+        			ModItems.BATTERY, ModItems.BATTERY_LARGE,
         			ModItems.ENERGY_CAPACITY_UPGRADE_1, ModItems.ENERGY_CAPACITY_UPGRADE_2, ModItems.ENERGY_CAPACITY_UPGRADE_3));
         	
         	LightmansCurrency.TRADING_GROUP.addToSortingList(Lists.newArrayList(

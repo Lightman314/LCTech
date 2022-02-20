@@ -1,22 +1,28 @@
 package io.github.lightman314.lctech.items;
 
+import java.util.function.Supplier;
+
 import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
 import io.github.lightman314.lctech.upgrades.UpgradeType.UpgradeData;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
 
 public class CapacityUpgradeItem extends UpgradeItem{
 
-	private final int capacityAmount;
+	private final Supplier<Integer> capacityAmount;
 	
 	public CapacityUpgradeItem(CapacityUpgrade upgradeType, int capacityAmount, Properties properties)
 	{
+		this(upgradeType, () -> capacityAmount, properties);
+	}
+	
+	public CapacityUpgradeItem(CapacityUpgrade upgradeType, Supplier<Integer> capacityAmount, Properties properties)
+	{
 		super(upgradeType, properties);
-		this.capacityAmount = MathUtil.clamp(capacityAmount, 1, Integer.MAX_VALUE);
+		this.capacityAmount = capacityAmount;
 	}
 
 	@Override
 	public void fillUpgradeData(UpgradeData data) {
-		data.setValue(CapacityUpgrade.CAPACITY, this.capacityAmount);
+		data.setValue(CapacityUpgrade.CAPACITY, Math.max(this.capacityAmount.get(), 1));
 	}
 	
 }

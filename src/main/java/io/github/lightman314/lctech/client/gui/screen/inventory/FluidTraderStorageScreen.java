@@ -14,33 +14,21 @@ import io.github.lightman314.lctech.common.FluidTraderUtil;
 import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidTradeTankInteraction;
-import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
-import io.github.lightman314.lctech.network.messages.fluid_trader.MessageToggleFluidIcon;
-import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.permissions.FluidPermissions;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemTraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TextLogWindow;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageStoreCoins;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -71,83 +59,82 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 	
 	public FluidTraderStorageScreen(FluidTraderStorageContainer container, PlayerInventory inventory, ITextComponent title) {
 		super(container, inventory, title);
-		this.xSize = FluidTraderUtil.getWidth(this.container.tileEntity) + 64;
-		this.ySize = 100 + FluidTraderUtil.getTradeDisplayHeight(this.container.tileEntity);
+		this.xSize = FluidTraderUtil.getWidth(this.container.getTrader()) + 64;
+		this.ySize = 100 + FluidTraderUtil.getTradeDisplayHeight(this.container.getTrader());
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int x, int y) {
-		
-		drawTraderStorageBackground(matrixStack, this, this.font, this.container, this.minecraft, this.xSize, this.ySize, this.container.tileEntity);
-		
-	}
-	
 	@SuppressWarnings("deprecation")
-	public static void drawTraderStorageBackground(MatrixStack matrix, Screen screen, FontRenderer font, Container container, Minecraft minecraft, int xSize, int ySize, IFluidTrader trader)
-	{
+	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
+		
+		IFluidTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+			return;
+		
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-		int startX = (screen.width - xSize)/2;
-		int startY = (screen.height - ySize)/2;
+		int startX = this.guiLeft;
+		int startY = this.guiTop;
 		
-		int columnCount = FluidTraderUtil.getTradeDisplayColumnCount(trader);
-		int rowCount = FluidTraderUtil.getTradeDisplayRowCount(trader);
-		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(trader) + 32;
+		int columnCount = FluidTraderUtil.getTradeDisplayColumnCount(this.container.getTrader());
+		int rowCount = FluidTraderUtil.getTradeDisplayRowCount(this.container.getTrader());
+		int tradeOffset = FluidTraderUtil.getTradeDisplayOffset(this.container.getTrader()) + 32;
 		
 		//Top-left corner
-		screen.blit(matrix, startX + tradeOffset, startY, 0, 0, 6, 17);
+		this.blit(matrix, startX + tradeOffset, startY, 0, 0, 6, 17);
 		for(int x = 0; x < columnCount; x++)
 		{
 			//Top of each button
-			screen.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + 6, startY, 6, 0, FluidTradeButton.WIDTH, 17);
+			this.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + 6, startY, 6, 0, FluidTradeButton.WIDTH, 17);
 			//Top spacer of each button
 			if(x < columnCount - 1)
-				screen.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY, 6 + FluidTradeButton.WIDTH, 0, FluidTraderUtil.TRADEBUTTON_HORIZ_SPACER, 17);
+				this.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY, 6 + FluidTradeButton.WIDTH, 0, FluidTraderUtil.TRADEBUTTON_HORIZ_SPACER, 17);
 		}
 		//Top-right corner
-		screen.blit(matrix, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY, 75, 0, 6, 17);
+		this.blit(matrix, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY, 75, 0, 6, 17);
 		
 		//Draw the bg & spacer of each button
 		for(int y = 0; y < rowCount; y++)
 		{
 			//Left edge
-			screen.blit(matrix, startX + tradeOffset, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 0, 17, 6, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
+			this.blit(matrix, startX + tradeOffset, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 0, 17, 6, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
 			for(int x = 0; x < columnCount; x++)
 			{
 				//Button BG
-				screen.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + 6, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6, 17, FluidTradeButton.WIDTH, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
+				this.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + 6, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6, 17, FluidTradeButton.WIDTH, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
 				//Right spacer for the trade button
 				if(x < columnCount - 1)
-					screen.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6 + FluidTradeButton.WIDTH, 17, FluidTraderUtil.TRADEBUTTON_HORIZ_SPACER, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
+					this.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6 + FluidTradeButton.WIDTH, 17, FluidTraderUtil.TRADEBUTTON_HORIZ_SPACER, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
 			}
 			//Right edge
-			screen.blit(matrix, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 75, 17, 6, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
+			this.blit(matrix, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY + 17 + (y * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 75, 17, 6, FluidTraderUtil.TRADEBUTTON_VERTICALITY);
 		}
 		
 		//Bottom-left corner
-		screen.blit(matrix, startX + tradeOffset, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 0, 104, 6, 7);
+		this.blit(matrix, startX + tradeOffset, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 0, 104, 6, 7);
 		for(int x = 0; x < columnCount; x++)
 		{
 			//Bottom of each button
-			screen.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + 6, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6, 104, FluidTradeButton.WIDTH, 7);
+			this.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + 6, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6, 104, FluidTradeButton.WIDTH, 7);
 			//Bottom spacer of each button
 			if(x < columnCount - 1)
-				screen.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6, 104, FluidTraderUtil.TRADEBUTTON_HORIZ_SPACER, 7);
+				this.blit(matrix, startX + tradeOffset + (x * FluidTraderUtil.TRADEBUTTON_HORIZONTAL) + FluidTradeButton.WIDTH + 6, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 6, 104, FluidTraderUtil.TRADEBUTTON_HORIZ_SPACER, 7);
 		}
 		//Bottom-right corner
-		screen.blit(matrix, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 75, 104, 6, 7);
+		this.blit(matrix, startX + tradeOffset + FluidTraderUtil.getTradeDisplayWidth(trader) - 6, startY + 17 + (rowCount * FluidTraderUtil.TRADEBUTTON_VERTICALITY), 75, 104, 6, 7);
 		
 		//Draw the bottom (player inventory & coin input slots)
 		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(trader) + 32;
 		int tradeHeight = FluidTraderUtil.getTradeDisplayHeight(trader);
-		screen.blit(matrix, startX + inventoryOffset, startY + tradeHeight, 0, 111, 176 + 32, 100);
+		this.blit(matrix, startX + inventoryOffset, startY + tradeHeight, 0, 111, 176 + 32, 100);
 		//Draw the upgrade slots
-		screen.blit(matrix, startX + inventoryOffset - 32, startY + tradeHeight, 176, 111, 32, 100);
+		this.blit(matrix, startX + inventoryOffset - 32, startY + tradeHeight, 176, 111, 32, 100);
 		
 		//Draw the fake fluid trade buttons
 		for(int i = 0; i < trader.getTradeCount(); i++)
 		{
-			FluidTradeButton.renderFluidTradeButton(matrix, screen, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, false, true, true);
+			FluidTradeButton.renderFluidTradeButton(matrix, this, font, startX + FluidTraderUtil.getButtonPosX(trader, i) + 32, startY + FluidTraderUtil.getButtonPosY(trader, i), i, trader, false, true, true);
 		}
 		
 	}
@@ -155,15 +142,15 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 	@Override
 	protected void drawGuiContainerForegroundLayer(MatrixStack matrix, int mouseX, int mouseY)
 	{
-		drawTraderStorageForeground(matrix, this.font, this.container.tileEntity, this.ySize, this.container.tileEntity.getName(), this.playerInventory.getDisplayName());
-	}
-	
-	public static void drawTraderStorageForeground(MatrixStack matrix, FontRenderer font, IFluidTrader trader, int ySize, ITextComponent title, ITextComponent inventoryTitle)
-	{
 		
-		font.drawString(matrix, title.getString(), 8.0f + FluidTraderUtil.getTradeDisplayOffset(trader) + 32, 6.0f, 0x404040);
+		IFluidTrader trader = this.container.getTrader();
 		
-		font.drawString(matrix, inventoryTitle.getString(), FluidTraderUtil.getInventoryDisplayOffset(trader) + 8.0f + 32, ySize - 94, 0x404040);
+		if(trader == null)
+			return;
+
+		font.drawString(matrix, trader.getTitle().getString(), 8.0f + FluidTraderUtil.getTradeDisplayOffset(trader) + 32, 6.0f, 0x404040);
+		
+		font.drawString(matrix, this.playerInventory.getDisplayName().getString(), FluidTraderUtil.getInventoryDisplayOffset(trader) + 8.0f + 32, ySize - 94, 0x404040);
 		
 	}
 	
@@ -172,34 +159,36 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 	{
 		super.init();
 		
-		int traderOffset = FluidTraderUtil.getTradeDisplayOffset(this.container.tileEntity) + 32;
-		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(this.container.tileEntity) + 32;
+		IFluidTrader trader = this.container.getTrader();
 		
-		this.buttonShowTrades = this.addButton(new IconButton(this.guiLeft + traderOffset - 20, this.guiTop, this::PressTradesButton, this.font, IconData.of(GUI_TEXTURE, 176, 0)));
-		this.buttonCollectMoney = this.addButton(new IconButton(this.guiLeft + traderOffset - 20, this.guiTop + 20, this::PressCollectionButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 0)));
+		int traderOffset = FluidTraderUtil.getTradeDisplayOffset(trader) + 32;
+		int inventoryOffset = FluidTraderUtil.getInventoryDisplayOffset(trader) + 32;
+		
+		this.buttonShowTrades = this.addButton(IconAndButtonUtil.traderButton(this.guiLeft + traderOffset - 20, this.guiTop, this::PressTradesButton));
+		this.buttonCollectMoney = this.addButton(IconAndButtonUtil.collectCoinButton(this.guiLeft + traderOffset - 20, this.guiTop + 20, this::PressCollectionButton, this.container::getTrader));
 		this.buttonCollectMoney.active = false;
-		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.tileEntity.getCoreSettings().hasBankAccount();
+		this.buttonCollectMoney.visible = this.container.hasPermission(Permissions.COLLECT_COINS) && !trader.getCoreSettings().hasBankAccount();
 		
-		this.buttonShowLog = this.addButton(new Button(this.guiLeft + traderOffset, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.showlog"), this::PressLogButton));
-		this.buttonClearLog = this.addButton(new Button(this.guiLeft + traderOffset + 20, this.guiTop - 20, 20, 20, new TranslationTextComponent("gui.button.lightmanscurrency.clearlog"), this::PressClearLogButton));
+		this.buttonShowLog = this.addButton(IconAndButtonUtil.showLoggerButton(this.guiLeft + traderOffset, this.guiTop - 20, this::PressLogButton, () -> this.logWindow.visible));
+		this.buttonClearLog = this.addButton(IconAndButtonUtil.clearLoggerButton(this.guiLeft + traderOffset + 20, this.guiTop - 20, this::PressClearLogButton));
 		
-		this.buttonStoreMoney = this.addButton(new IconButton(this.guiLeft + inventoryOffset + 176 + 32, this.guiTop + FluidTraderUtil.getTradeDisplayHeight(this.container.tileEntity), this::PressStoreCoinsButton, this.font, IconData.of(GUI_TEXTURE, 176, 16)));
+		this.buttonStoreMoney = this.addButton(IconAndButtonUtil.storeCoinButton(this.guiLeft + inventoryOffset + 176 + 32, this.guiTop + FluidTraderUtil.getTradeDisplayHeight(trader), this::PressStoreCoinsButton));
 		this.buttonStoreMoney.visible = false;
 		
-		int tradeWindowWidth = FluidTraderUtil.getTradeDisplayWidth(this.container.tileEntity);
+		int tradeWindowWidth = FluidTraderUtil.getTradeDisplayWidth(trader);
 		
-		this.buttonOpenSettings = this.addButton(new IconButton(this.guiLeft + traderOffset + tradeWindowWidth - 20, this.guiTop - 20, this::PressSettingsButton, this.font, IconData.of(ItemTraderStorageScreen.GUI_TEXTURE, 176 + 32, 0)));
+		this.buttonOpenSettings = this.addButton(IconAndButtonUtil.openSettingsButton(this.guiLeft + traderOffset + tradeWindowWidth - 20, this.guiTop - 20, this::PressSettingsButton));
 		this.buttonOpenSettings.visible = this.container.hasPermission(Permissions.EDIT_SETTINGS);
 		
-		this.buttonTradeRules = this.addButton(new IconButton(this.guiLeft + traderOffset + tradeWindowWidth - 40, this.guiTop - 20, this::PressTradeRulesButton, this.font, IconData.of(GUI_TEXTURE, 176 + 16, 16)));
+		this.buttonTradeRules = this.addButton(IconAndButtonUtil.tradeRuleButton(this.guiLeft + traderOffset + tradeWindowWidth - 40, this.guiTop - 20, this::PressTradeRulesButton));
 		this.buttonTradeRules.visible = this.container.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
-		this.logWindow = this.addListener(new TextLogWindow(this.guiLeft + this.xSize/2 - TextLogWindow.WIDTH/2, this.guiTop, () -> this.container.tileEntity.getLogger(), this.font));
+		this.logWindow = this.addListener(IconAndButtonUtil.traderLogWindow(this, this.container::getTrader));
 		this.logWindow.visible = false;
 		
-		for(int i = 0; i < this.container.tileEntity.getTradeCount(); i++)
+		for(int i = 0; i < trader.getTradeCount(); i++)
 		{
-			this.tradePriceButtons.add(this.addButton(new PlainButton(this.guiLeft + FluidTraderUtil.getPriceButtonPosX(this.container.tileEntity, i) + 32, this.guiTop + FluidTraderUtil.getPriceButtonPosY(this.container.tileEntity, i), 10, 10, this::PressTradePriceButton, GUI_TEXTURE, 176 + 64, 40)));
+			this.tradePriceButtons.add(this.addButton(new PlainButton(this.guiLeft + FluidTraderUtil.getPriceButtonPosX(trader, i) + 32, this.guiTop + FluidTraderUtil.getPriceButtonPosY(trader, i), 10, 10, this::PressTradePriceButton, GUI_TEXTURE, 176 + 64, 40)));
 		}
 		
 		tick();
@@ -209,6 +198,15 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 	@Override
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		IFluidTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+		{
+			this.container.player.closeScreen();
+			return;
+		}
+		
 		this.renderBackground(matrixStack);
 		if(this.logWindow.visible)
 		{
@@ -216,58 +214,34 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 			this.buttonShowLog.render(matrixStack, mouseX, mouseY, partialTicks);
 			if(this.buttonClearLog.visible)
 				this.buttonClearLog.render(matrixStack, mouseX, mouseY, partialTicks);
-			if(this.buttonShowLog.isMouseOver(mouseX,  mouseY))
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.hide"), mouseX, mouseY);
-			else if(this.buttonClearLog.isMouseOver(mouseX, mouseY))
-				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
+			IconAndButtonUtil.renderButtonTooltips(matrixStack, mouseX, mouseY, Lists.newArrayList(this.buttonShowLog, this.buttonClearLog));
 			return;
 		}
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
 		
-		if(this.buttonShowTrades.isMouseOver(mouseX,mouseY))
+		IconAndButtonUtil.renderButtonTooltips(matrixStack, mouseX, mouseY, this.buttons);
+
+		for(int i = 0; i < trader.getTradeCount(); i++)
 		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.opentrades"), mouseX, mouseY);
-		}
-		else if(this.buttonCollectMoney.active && this.buttonCollectMoney.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.collectcoins", this.container.tileEntity.getStoredMoney().getString()), mouseX, mouseY);
-		}
-		else if(this.buttonStoreMoney.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.storecoins"), mouseX, mouseY);
-		}
-		else if(this.buttonShowLog.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.show"), mouseX, mouseY);
-		}
-		else if(this.buttonClearLog.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.log.clear"), mouseX, mouseY);
-		}
-		else if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
-		}
-		else if(this.buttonOpenSettings.isMouseOver(mouseX, mouseY))
-		{
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.settings"), mouseX, mouseY);
-		}
-		else
-		{
-			FluidTraderTileEntity tileEntity = this.container.tileEntity;
-			for(int i = 0; i < tileEntity.getTradeCount(); i++)
-			{
-				int result = FluidTradeButton.tryRenderTooltip(matrixStack, this, i, tileEntity, this.guiLeft + FluidTraderUtil.getButtonPosX(tileEntity, i) + 32, this.guiTop + FluidTraderUtil.getButtonPosY(tileEntity, i), mouseX, mouseY, true);
-				if(result == -2 && this.container.player.inventory.getItemStack().isEmpty() && this.container.hasPermission(Permissions.EDIT_TRADES))
-					this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_edit"), mouseX, mouseY);
-			}
+			int result = FluidTradeButton.tryRenderTooltip(matrixStack, this, i, trader, this.guiLeft + FluidTraderUtil.getButtonPosX(trader, i) + 32, this.guiTop + FluidTraderUtil.getButtonPosY(trader, i), mouseX, mouseY, true);
+			if(result == -2 && this.container.player.inventory.getItemStack().isEmpty() && this.container.hasPermission(Permissions.EDIT_TRADES))
+				this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_edit"), mouseX, mouseY);
 		}
 		
 	}
 	
 	public void tick()
 	{
+		
+		IFluidTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+		{
+			this.container.player.closeScreen();
+			return;
+		}
+		
 		if(!this.container.hasPermission(Permissions.OPEN_STORAGE))
 		{
 			this.PressTradesButton(this.buttonShowTrades);
@@ -275,16 +249,14 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		}
 		super.tick();
 		
-		this.container.tick();
-		
-		this.buttonCollectMoney.visible = (!this.container.tileEntity.getCoreSettings().isCreative() || this.container.tileEntity.getStoredMoney().getRawValue() > 0) && this.container.hasPermission(Permissions.COLLECT_COINS) && !this.container.tileEntity.getCoreSettings().hasBankAccount();
-		this.buttonCollectMoney.active = this.container.tileEntity.getStoredMoney().getRawValue() > 0;
+		this.buttonCollectMoney.visible = (!trader.getCoreSettings().isCreative() || trader.getStoredMoney().getRawValue() > 0) && this.container.hasPermission(Permissions.COLLECT_COINS) && !trader.getCoreSettings().hasBankAccount();
+		this.buttonCollectMoney.active = trader.getStoredMoney().getRawValue() > 0;
 		
 		this.buttonOpenSettings.visible = this.container.hasPermission(Permissions.EDIT_SETTINGS);
 		this.buttonTradeRules.visible = this.container.hasPermission(Permissions.EDIT_TRADE_RULES);
 		
 		this.buttonStoreMoney.visible = this.container.HasCoinsToAdd();
-		this.buttonClearLog.visible = this.container.tileEntity.getLogger().logText.size() > 0 && this.container.hasPermission(Permissions.CLEAR_LOGS);
+		this.buttonClearLog.visible = trader.getLogger().logText.size() > 0 && this.container.hasPermission(Permissions.CLEAR_LOGS);
 		
 		boolean visible = this.container.hasPermission(Permissions.EDIT_TRADES);
 		this.tradePriceButtons.forEach(button -> button.visible = visible);
@@ -295,13 +267,14 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
+		IFluidTrader trader = this.container.getTrader();
 		ItemStack heldItem = this.container.player.inventory.getItemStack();
-		int tradeCount = this.container.tileEntity.getTradeCount();
+		int tradeCount = trader.getTradeCount();
 		for(int i = 0; i < tradeCount; ++i)
 		{
-			FluidTradeData trade = this.container.tileEntity.getTrade(i);
-			int buttonX = this.guiLeft + FluidTraderUtil.getButtonPosX(this.container.tileEntity, i) + 32;
-			int buttonY = this.guiTop + FluidTraderUtil.getButtonPosY(this.container.tileEntity, i);
+			FluidTradeData trade = trader.getTrade(i);
+			int buttonX = this.guiLeft + FluidTraderUtil.getButtonPosX(trader, i) + 32;
+			int buttonY = this.guiTop + FluidTraderUtil.getButtonPosY(trader, i);
 			//Interact with the bucket/product
 			if(FluidTradeButton.isMouseOverBucket(buttonX, buttonY, (int)mouseX, (int)mouseY) && this.container.hasPermission(Permissions.EDIT_TRADES))
 			{
@@ -316,7 +289,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 				{
 					//If held item is empty, set the product to empty
 					trade.setProduct(FluidStack.EMPTY);
-					LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct(this.container.tileEntity.getPos(), i, FluidStack.EMPTY));
+					trader.sendSetTradeFluidMessage(i, FluidStack.EMPTY);
 					return true;
 				}
 				else
@@ -326,7 +299,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 					AtomicBoolean consume = new AtomicBoolean(false);
 					FluidUtil.getFluidContained(heldItem).ifPresent(fluid->{
 						trade.setProduct(fluid);
-						LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct(this.container.tileEntity.getPos(), index, fluid));
+						trader.sendSetTradeFluidMessage(index, fluid);
 						consume.set(true);
 					});
 					if(consume.get())
@@ -351,7 +324,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 				{
 					if(FluidTradeButton.isMouseOverIcon(icon, buttonX, buttonY, (int)mouseX, (int)mouseY))
 					{
-						LCTechPacketHandler.instance.sendToServer(new MessageToggleFluidIcon(this.container.tileEntity.getPos(), i, icon));
+						trader.sendToggleIconMessage(i, icon);
 					}
 				}
 			}
@@ -362,7 +335,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 
 	private void PressTradesButton(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenTrades(this.container.tileEntity.getPos()));
+		this.container.getTrader().sendOpenTraderMessage();
 	}
 	
 	private void PressCollectionButton(Button button)
@@ -389,10 +362,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 		if(tradePriceButtons.contains(button))
 			tradeIndex = tradePriceButtons.indexOf(button);
 		
-		this.minecraft.displayGuiScreen(new TradeFluidPriceScreen(() -> this.container.tileEntity, tradeIndex, this.playerInventory.player,
-				TradeFluidPriceScreen.SAVEDATA_TILEENTITY(this.container.tileEntity),
-				TradeFluidPriceScreen.OPENSTORAGE_TILEENTITY(this.container.tileEntity),
-				TradeFluidPriceScreen.UPDATETRADERULES_TILEENTITY(this.container.tileEntity, tradeIndex)));
+		this.minecraft.displayGuiScreen(new TradeFluidPriceScreen(this.container::getTrader, tradeIndex));
 	}
 	
 	private void PressLogButton(Button button)
@@ -402,18 +372,18 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 	
 	private void PressClearLogButton(Button button)
 	{
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageClearLogger(this.container.tileEntity.getPos()));
+		this.container.getTrader().sendClearLogMessage();
 	}
 	
 	private void PressTradeRulesButton(Button button)
 	{
-		this.minecraft.displayGuiScreen(new TradeRuleScreen(this.container.tileEntity.GetRuleScreenBackHandler()));
+		this.minecraft.displayGuiScreen(new TradeRuleScreen(this.container.getTrader().getRuleScreenHandler()));
 	}
 	
 	private void PressSettingsButton(Button button)
 	{
 		this.container.player.closeScreen();
-		this.minecraft.displayGuiScreen(new TraderSettingsScreen(() -> this.container.tileEntity, (player) -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.container.tileEntity.getPos()))));
+		this.minecraft.displayGuiScreen(new TraderSettingsScreen(this.container::getTrader, (player) -> this.container.getTrader().sendOpenStorageMessage()));
 	}
 	
 }

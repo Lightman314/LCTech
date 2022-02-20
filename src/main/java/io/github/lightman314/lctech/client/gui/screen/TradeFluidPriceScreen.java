@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.gui.screen;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.google.common.base.Supplier;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -9,11 +8,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
-import io.github.lightman314.lctech.network.LCTechPacketHandler;
-import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidPrice;
-import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidPrice2;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
@@ -23,10 +17,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
-import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
-import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
@@ -37,8 +28,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Color;
 import net.minecraft.util.text.Style;
@@ -51,8 +40,8 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	private int xSize = 176;
 	private int ySize = 88 + CoinValueInput.HEIGHT;
 	
-	PlayerEntity player;
 	Supplier<IFluidTrader> trader;
+	public IFluidTrader getTrader() { return this.trader.get(); }
 	Supplier<FluidTradeData> trade;
 	int tradeIndex;
 	TradeDirection localDirection;
@@ -72,37 +61,18 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	Button buttonTradeRules;
 	
 	CoinValueInput priceInput;
-	
-	final Consumer<TradePriceData> saveData;
-	final Consumer<PlayerEntity> openStorage;
-	final Consumer<List<TradeRule>> updateTradeRules;
-	
-	public static final Consumer<TradePriceData> SAVEDATA_TILEENTITY(TileEntity tileEntity) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice(tileEntity.getPos(), data.tradeIndex, data.cost, data.type, data.quantity, data.canDrain, data.canFill)); }
-	public static final Consumer<PlayerEntity> OPENSTORAGE_TILEENTITY(TileEntity tileEntity) { return (player) -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(tileEntity.getPos())); }
-	public static final Consumer<List<TradeRule>> UPDATETRADERULES_TILEENTITY(TileEntity tileEntity, int tradeIndex) { return (newRules) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(tileEntity.getPos(), newRules, tradeIndex)); }
-	
-	public static final Consumer<TradePriceData> SAVEDATA_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(traderData.getTraderID(), data.tradeIndex, data.cost, data.type, data.quantity, data.canFill)); }
-	public static final Consumer<PlayerEntity> OPENSTORAGE_UNIVERSAL(UniversalTraderData traderData) { return (data) -> LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(traderData.getTraderID())); }
-	public static final Consumer<List<TradeRule>> UPDATETRADERULES_UNIVERSAL(UniversalTraderData traderData, int tradeIndex) { return (newRules) -> LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules2(traderData.getTraderID(), newRules, tradeIndex)); }
-	
-	public TradeFluidPriceScreen(Supplier<IFluidTrader> trader, int tradeIndex, PlayerEntity player, 
-			Consumer<TradePriceData> saveData, Consumer<PlayerEntity> openStorage, Consumer<List<TradeRule>> updateTradeRules) {
+
+	public TradeFluidPriceScreen(Supplier<IFluidTrader> trader, int tradeIndex) {
 		super(new TranslationTextComponent("gui.lightmanscurrency.changeprice"));
 		this.trader = trader;
 		this.tradeIndex = tradeIndex;
 		this.trade = () -> this.trader.get().getTrade(this.tradeIndex);
-		this.player = player;
 		//Store local copies of togglable data
 		FluidTradeData localTrade = this.trade.get();
 		this.localDirection = localTrade.getTradeDirection();
 		this.localDrainable = localTrade.canDrainExternally();
 		this.localFillable = localTrade.canFillExternally();
 		this.localQuantity = localTrade.getBucketQuantity();
-		
-		//Save various functions
-		this.saveData = saveData;
-		this.openStorage = openStorage;
-		this.updateTradeRules = updateTradeRules;
 	}
 	
 	protected void init()
@@ -116,14 +86,14 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.buttonSetSell = this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 6, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.sale"), this::SetTradeType));
 		this.buttonSetPurchase = this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 6, 50, 21, new TranslationTextComponent("gui.button.lightmanscurrency.tradedirection.purchase"), this::SetTradeType));
 		
-		this.buttonAddBucket = this.addButton(new IconButton(guiLeft + 59, guiTop + CoinValueInput.HEIGHT + 6, this::PressQuantityButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
-		this.buttonRemoveBucket = this.addButton(new IconButton(guiLeft + 98, guiTop + CoinValueInput.HEIGHT + 6, this::PressQuantityButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 32, 0)));
+		this.buttonAddBucket = this.addButton(new IconButton(guiLeft + 59, guiTop + CoinValueInput.HEIGHT + 6, this::PressQuantityButton, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
+		this.buttonRemoveBucket = this.addButton(new IconButton(guiLeft + 98, guiTop + CoinValueInput.HEIGHT + 6, this::PressQuantityButton, IconData.of(GUI_TEXTURE, this.xSize + 32, 0)));
 		
 		this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.save"), this::PressSaveButton));
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		//this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
-		this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
-		this.buttonTradeRules.visible = this.trader.get().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules = this.addButton(IconAndButtonUtil.tradeRuleButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton));
+		this.buttonTradeRules.visible = this.getTrader().hasPermission(this.minecraft.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.buttonToggleDrainable = this.addButton(new PlainButton(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleDrainButton, GUI_TEXTURE, this.xSize, 16));
 		this.buttonToggleDrainable.visible = this.trader.get().drainCapable();
@@ -136,16 +106,22 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	public void tick()
 	{
 		
+		if(this.trader.get() == null)
+		{
+			this.minecraft.displayGuiScreen(null);
+			return;
+		}
+		
 		this.buttonSetSell.active = this.localDirection != TradeDirection.SALE;
 		this.buttonSetPurchase.active = this.localDirection != TradeDirection.PURCHASE;
 
 		this.buttonToggleDrainable.setResource(GUI_TEXTURE, this.xSize + (this.localDrainable ? 0 : 10), 16);
 		this.buttonToggleFillable.setResource(GUI_TEXTURE, this.xSize + (this.localFillable ? 20 : 30), 16);
 		
-		this.buttonAddBucket.active = this.localQuantity < FluidTradeData.MAX_BUCKET_QUANTITY;
+		this.buttonAddBucket.active = this.localQuantity < this.trade.get().getMaxBucketQuantity();
 		this.buttonRemoveBucket.active = this.localQuantity > 1;
 		
-		this.buttonTradeRules.visible = this.trader.get().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
+		this.buttonTradeRules.visible = this.trader.get().hasPermission(this.minecraft.player, Permissions.EDIT_TRADE_RULES);
 		
 		super.tick();
 		this.priceInput.tick();
@@ -156,6 +132,12 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	@Override
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		if(this.trader.get() == null)
+		{
+			this.minecraft.displayGuiScreen(null);
+			return;
+		}
 		
 		this.renderBackground(matrixStack);
 		
@@ -181,9 +163,9 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.font.drawString(matrixStack, quantityText, startX + 1 + (176 / 2) - (textWidth / 2), startY + CoinValueInput.HEIGHT + 12, 0xFFFFFF);
 		
 		//Mouse over for buttons
-		if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
-		else if(this.buttonToggleDrainable.isMouseOver(mouseX, mouseY))
+		IconAndButtonUtil.renderButtonTooltips(matrixStack, mouseX, mouseY, this.buttons);
+		
+		if(this.buttonToggleDrainable.isMouseOver(mouseX, mouseY))
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drainable.wordy"), mouseX, mouseY);
 		else if(this.buttonToggleFillable.isMouseOver(mouseX, mouseY))
 			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fillable.wordy"), mouseX, mouseY);
@@ -209,12 +191,12 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void SaveChanges()
 	{
-		this.saveData.accept(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), this.localDirection, this.localQuantity, this.localDrainable, this.localFillable));
+		this.getTrader().sendPriceMessage(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), this.localDirection, this.localQuantity, this.localDrainable, this.localFillable));
 	}
 	
 	private void PressBackButton(Button button)
 	{
-		this.openStorage.accept(this.player);
+		this.getTrader().sendOpenStorageMessage();
 	}
 	
 	private void PressToggleDrainButton(Button button)
@@ -232,7 +214,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		int deltaQuantity = button == this.buttonAddBucket ? 1 : -1;
 		if(deltaQuantity < 0 && this.localQuantity <= 1)
 			return;
-		else if(deltaQuantity > 1 && this.localQuantity >= FluidTradeData.MAX_BUCKET_QUANTITY)
+		else if(deltaQuantity > 1 && this.localQuantity >= this.trade.get().getMaxBucketQuantity())
 			return;
 		this.localQuantity += deltaQuantity;
 	}
@@ -263,39 +245,31 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	private void PressTradeRuleButton(Button button)
 	{
 		SaveChanges();
-		this.minecraft.displayGuiScreen(new TradeRuleScreen(GetRuleScreenBackHandler()));
+		this.minecraft.displayGuiScreen(new TradeRuleScreen(this.getRuleScreenHandler()));
 	}
 	
-	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new CloseRuleHandler(this.trader, this.tradeIndex, this.player, this.saveData, this.openStorage, this.updateTradeRules); }
+	public ITradeRuleScreenHandler getRuleScreenHandler() { return new CloseRuleHandler(this.trader, this.tradeIndex); }
 	
 	private static class CloseRuleHandler implements ITradeRuleScreenHandler
 	{
 		final Supplier<IFluidTrader> trader;
 		final int tradeIndex;
-		final PlayerEntity player;
-		final Consumer<TradePriceData> saveData;
-		final Consumer<PlayerEntity> openStorage;
-		final Consumer<List<TradeRule>> updateTradeRules;
 		
-		public CloseRuleHandler(Supplier<IFluidTrader> trader, int tradeIndex, PlayerEntity player, Consumer<TradePriceData> saveData, Consumer<PlayerEntity> openStorage, Consumer<List<TradeRule>> updateTradeRules)
+		public CloseRuleHandler(Supplier<IFluidTrader> trader, int tradeIndex)
 		{
 			this.trader = trader;
 			this.tradeIndex = tradeIndex;
-			this.player = player;
-			this.saveData = saveData;
-			this.openStorage = openStorage;
-			this.updateTradeRules = updateTradeRules;
 		}
 		
 		public ITradeRuleHandler ruleHandler() { return this.trader.get().getTrade(this.tradeIndex); }
 		
 		public void reopenLastScreen() {
-			Minecraft.getInstance().displayGuiScreen(new TradeFluidPriceScreen(this.trader, this.tradeIndex, this.player, this.saveData, this.openStorage, this.updateTradeRules));
+			Minecraft.getInstance().displayGuiScreen(new TradeFluidPriceScreen(this.trader, this.tradeIndex));
 		}
 		
 		public void updateServer(List<TradeRule> newRules)
 		{
-			this.updateTradeRules.accept(newRules);
+			this.trader.get().sendUpdateTradeRuleMessage(this.tradeIndex, newRules);
 		}
 		
 	}

@@ -8,7 +8,10 @@ import io.github.lightman314.lctech.container.*;
 import io.github.lightman314.lctech.container.EnergyTraderContainer.EnergyTraderContainerCR;
 import io.github.lightman314.lctech.container.EnergyTraderContainer.EnergyTraderContainerUniversal;
 import io.github.lightman314.lctech.container.EnergyTraderStorageContainer.EnergyTraderStorageContainerUniversal;
-import io.github.lightman314.lctech.tileentities.*;
+import io.github.lightman314.lctech.container.FluidEditContainer.UniversalFluidEditContainer;
+import io.github.lightman314.lctech.container.FluidTraderContainer.FluidTraderContainerCR;
+import io.github.lightman314.lctech.container.FluidTraderContainer.FluidTraderContainerUniversal;
+import io.github.lightman314.lctech.container.FluidTraderStorageContainer.FluidTraderStorageContainerUniversal;
 import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
@@ -24,39 +27,31 @@ public class ModContainers {
 	private static final List<ContainerType<?>> CONTAINER_TYPES = new ArrayList<>();
 	
 	public static final ContainerType<FluidTraderContainer> FLUID_TRADER = register("fluid_trader", (IContainerFactory<FluidTraderContainer>)(windowId, playerInventory, data) -> {
-		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new FluidTraderContainer(windowId, playerInventory, tileEntity);
+		return new FluidTraderContainer(windowId, playerInventory, data.readBlockPos());
+	});
+	public static final ContainerType<FluidTraderContainerCR> FLUID_TRADER_CR = register("fluid_trader_cr", (IContainerFactory<FluidTraderContainerCR>)(windowId, playerInventory, data) -> {
+		BlockPos traderPos = data.readBlockPos();
+		CashRegisterTileEntity registerEntity = (CashRegisterTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
+		return new FluidTraderContainerCR(windowId, playerInventory, traderPos, registerEntity);
+	});
+	public static final ContainerType<FluidTraderContainerUniversal> UNIVERSAL_FLUID_TRADER = register("universal_fluid_trader", (IContainerFactory<FluidTraderContainerUniversal>)(windowId, playerInventory, data)->{
+		return new FluidTraderContainerUniversal(windowId, playerInventory, data.readUniqueId());
 	});
 	
 	public static final ContainerType<FluidTraderStorageContainer> FLUID_TRADER_STORAGE = register("fluid_trader_storage", (IContainerFactory<FluidTraderStorageContainer>)(windowId, playerInventory, data) ->{
-		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new FluidTraderStorageContainer(windowId, playerInventory, tileEntity);
+		return new FluidTraderStorageContainer(windowId, playerInventory, data.readBlockPos());
+	});
+	public static final ContainerType<FluidTraderStorageContainerUniversal> UNIVERSAL_FLUID_TRADER_STORAGE = register("universal_fluid_trader_storage", (IContainerFactory<FluidTraderStorageContainerUniversal>)(windowId, playerInventory, data)->{
+		return new FluidTraderStorageContainerUniversal(windowId, playerInventory, data.readUniqueId());
 	});
 	
-	public static final ContainerType<FluidTraderContainerCR> FLUID_TRADER_CR = register("fluid_trader_cr", (IContainerFactory<FluidTraderContainerCR>)(windowId, playerInventory, data) -> {
-		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		CashRegisterTileEntity registerEntity = (CashRegisterTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		return new FluidTraderContainerCR(windowId, playerInventory, tileEntity, registerEntity);
-	});
 	
 	public static final ContainerType<FluidEditContainer> FLUID_EDIT = register("fluid_edit", (IContainerFactory<FluidEditContainer>)(windowId, playerInventory, data) ->{
-		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		
-		return new FluidEditContainer(windowId, playerInventory, () -> tileEntity, data.readInt());
-	});
-	
-	public static final ContainerType<UniversalFluidTraderContainer> UNIVERSAL_FLUID_TRADER = register("universal_fluid_trader", (IContainerFactory<UniversalFluidTraderContainer>)(windowId, playerInventory, data)->{
-		return new UniversalFluidTraderContainer(windowId, playerInventory, data.readUniqueId());
-	});
-	
-	public static final ContainerType<UniversalFluidTraderStorageContainer> UNIVERSAL_FLUID_TRADER_STORAGE = register("universal_fluid_trader_storage", (IContainerFactory<UniversalFluidTraderStorageContainer>)(windowId, playerInventory, data)->{
-		return new UniversalFluidTraderStorageContainer(windowId, playerInventory, data.readUniqueId());
+		return new FluidEditContainer(windowId, playerInventory, data.readBlockPos(), data.readInt());
 	});
 	
 	public static final ContainerType<UniversalFluidEditContainer> UNIVERSAL_FLUID_EDIT = register("universal_fluid_edit", (IContainerFactory<UniversalFluidEditContainer>)(windowId, playerInventory, data) ->{
-		FluidTraderTileEntity tileEntity = (FluidTraderTileEntity)playerInventory.player.world.getTileEntity(data.readBlockPos());
-		
-		return new UniversalFluidEditContainer(windowId, playerInventory, () -> tileEntity, data.readInt());
+		return new UniversalFluidEditContainer(windowId, playerInventory, data.readUniqueId(), data.readInt());
 	});
 	
 	public static final ContainerType<EnergyTraderContainer> ENERGY_TRADER = register("energy_trader", (IContainerFactory<EnergyTraderContainer>)(windowId, playerInventory, data) ->{

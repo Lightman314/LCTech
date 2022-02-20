@@ -148,7 +148,7 @@ public class EnergyTradeButton extends Button{
 		
 		List<ITextComponent> tooltips = Lists.newArrayList();
 		//Energy Amount, Selling/Purchasing
-		tooltips.add(new TranslationTextComponent("gui.lctech.energytrade.tooltip." + trade.getTradeDirection().name().toLowerCase(), EnergyUtil.formatEnergyAmount(trade.getAmount())));
+		tooltips.add(new TranslationTextComponent("gui.lctech.energytrade.tooltip." + trade.getTradeDirection().name().toLowerCase(), new StringTextComponent(EnergyUtil.formatEnergyAmount(trade.getAmount())).mergeStyle(TextFormatting.GOLD)));
 		//Stock
 		tooltips.add(new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock", trader.getCoreSettings().isCreative() ? new TranslationTextComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new StringTextComponent("" + trade.getStock(trader, getPlayer())).mergeStyle(TextFormatting.GOLD)));
 		

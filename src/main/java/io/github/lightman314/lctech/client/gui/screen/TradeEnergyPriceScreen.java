@@ -14,8 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScree
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradeRuleScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
@@ -87,7 +86,7 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 		this.addButton(new Button(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.save"), this::PressSaveButton));
 		this.addButton(new Button(guiLeft + 120, guiTop + CoinValueInput.HEIGHT + 62, 50, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressBackButton));
 		//this.addButton(new Button(guiLeft + 63, guiTop + CoinValueInput.HEIGHT + 62, 51, 20, new TranslationTextComponent("gui.button.lightmanscurrency.free"), this::PressFreeButton));
-		this.buttonTradeRules = this.addButton(new IconButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
+		this.buttonTradeRules = this.addButton(IconAndButtonUtil.tradeRuleButton(guiLeft + this.xSize, guiTop + CoinValueInput.HEIGHT, this::PressTradeRuleButton));
 		this.buttonTradeRules.visible = this.trader.get().getCoreSettings().hasPermission(this.player, Permissions.EDIT_TRADE_RULES);
 		
 		this.amountInput = this.addListener(new TextFieldWidget(this.font, guiLeft + 20, guiTop + CoinValueInput.HEIGHT + 30, 120, 20, new StringTextComponent("")));
@@ -99,6 +98,12 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 
 	public void tick()
 	{
+		
+		if(this.trader.get() == null)
+		{
+			this.minecraft.displayGuiScreen(null);
+			return;
+		}
 		
 		this.buttonSetSell.active = this.localDirection != TradeDirection.SALE;
 		this.buttonSetPurchase.active = this.localDirection != TradeDirection.PURCHASE;
@@ -117,6 +122,12 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
 		
+		if(this.trader.get() == null)
+		{
+			this.minecraft.displayGuiScreen(null);
+			return;
+		}
+		
 		this.renderBackground(matrixStack);
 		
 		Minecraft.getInstance().getTextureManager().bindTexture(GUI_TEXTURE);
@@ -132,8 +143,7 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 		this.font.drawString(matrixStack, EnergyUtil.ENERGY_UNIT, startX + 144, startY + CoinValueInput.HEIGHT + 34, 0xFFFFFF);
 		
 		//Mouse over for buttons
-		if(this.buttonTradeRules.isMouseOver(mouseX, mouseY))
-			this.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lightmanscurrency.trader.traderules"), mouseX, mouseY);
+		IconAndButtonUtil.renderButtonTooltips(matrixStack, mouseX, mouseY, this.buttons);
 		
 	}
 	

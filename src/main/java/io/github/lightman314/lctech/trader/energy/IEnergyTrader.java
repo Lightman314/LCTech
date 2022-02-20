@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.client.gui.screen.TradeEnergyPriceScreen;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
@@ -37,7 +38,7 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 		return ALLOWED_UPGRADES.contains(type);
 	}
 
-	public static final int DEFAULT_MAX_ENERGY = 100000;
+	public static int getDefaultMaxEnergy() { return TechConfig.SERVER.energyTraderDefaultStorage.get(); }
 	
 	//Trade
 	public EnergyTradeData getTrade(int tradeIndex);
@@ -81,9 +82,6 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 	public void reapplyUpgrades();
 	public void markUpgradesDirty();
 	//Open menu functions
-	public void sendOpenTraderMessage();
-	public void sendOpenStorageMessage();
-	public void sendClearLogMessage();
 	public ITradeRuleScreenHandler getRuleScreenHandler();
 	public void sendPriceMessage(TradeEnergyPriceScreen.TradePriceData priceData);
 	public void sendUpdateTradeRuleMessage(List<TradeRule> newRules);

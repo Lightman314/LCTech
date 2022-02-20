@@ -108,7 +108,7 @@ public class FluidTankItem extends BlockItem{
 		{
 			FluidTankBlock block = ((FluidTankItem)stack.getItem()).getTankBlock();
 			if(block != null)
-				return block.tankCapacity;
+				return block.getTankCapacity();
 		}
 		return FluidTankTileEntity.DEFAULT_CAPACITY;
 	}

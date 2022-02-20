@@ -5,6 +5,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blocks.*;
 import io.github.lightman314.lctech.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -31,7 +32,7 @@ public class ModBlocks {
 	
 	//Fluid Tanks
 	public static final BlockItemPair IRON_TANK = register("iron_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
-			10 * FluidAttributes.BUCKET_VOLUME,
+			() -> TechConfig.SERVER.ironTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 			Block.Properties.create(Material.GLASS)
 			.harvestTool(ToolType.PICKAXE)
 			.notSolid()
@@ -39,7 +40,7 @@ public class ModBlocks {
 			.sound(SoundType.GLASS)
 			));
 	public static final BlockItemPair GOLD_TANK = register("gold_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
-			25 * FluidAttributes.BUCKET_VOLUME,
+			() -> TechConfig.SERVER.goldTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 			Block.Properties.create(Material.GLASS)
 			.harvestTool(ToolType.PICKAXE)
 			.notSolid()

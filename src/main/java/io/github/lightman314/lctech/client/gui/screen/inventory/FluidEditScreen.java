@@ -11,9 +11,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.container.FluidEditContainer;
+import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ItemEditScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
@@ -47,6 +47,12 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 	@SuppressWarnings("deprecation")
 	protected void drawGuiContainerBackgroundLayer(MatrixStack matrix, float partialTicks, int mouseX, int mouseY)
 	{
+		
+		IFluidTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+			return;
+		
 		RenderSystem.color4f(1f, 1f, 1f, 1f);
 		minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
 		int startX = (this.width - xSize) / 2;
@@ -56,7 +62,7 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 		this.blit(matrix, startX, startY, 0, 0, this.xSize, this.ySize);
 		
 		//Render the fake trade button
-		FluidTradeButton.renderFluidTradeButton(matrix, this, font, startX, startY - FluidTradeButton.HEIGHT, this.container.tradeIndex, this.container.traderSource.get(), false, true, false);
+		FluidTradeButton.renderFluidTradeButton(matrix, this, font, startX, startY - FluidTradeButton.HEIGHT, this.container.tradeIndex, trader, false, true, false);
 		
 	}
 	
@@ -78,8 +84,8 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 		
 		//Initialize thie buttons
 		//Page Buttons
-		this.buttonPageLeft = this.addButton(new IconButton(this.guiLeft - 20, this.guiTop, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.xSize, 0)));
-		this.buttonPageRight = this.addButton(new IconButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton, this.font, IconData.of(GUI_TEXTURE, this.xSize + 16, 0)));
+		this.buttonPageLeft = this.addButton(IconAndButtonUtil.leftButton(this.guiLeft - 20, this.guiTop, this::PressPageButton));
+		this.buttonPageRight = this.addButton(IconAndButtonUtil.rightButton(this.guiLeft + this.xSize, this.guiTop, this::PressPageButton));
 		
 		//Close Button
 		this.addButton(new Button(this.guiLeft + 7, this.guiTop + 129, 162, 20, new TranslationTextComponent("gui.button.lightmanscurrency.back"), this::PressCloseButton));
@@ -89,19 +95,34 @@ public class FluidEditScreen extends ContainerScreen<FluidEditContainer>{
 	@Override
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks)
 	{
+		
+		IFluidTrader trader = this.container.getTrader();
+		
+		if(trader == null)
+		{
+			this.container.player.closeScreen();
+			return;
+		}
+		
 		this.renderBackground(matrixStack);
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		this.renderHoveredTooltip(matrixStack, mouseX, mouseY);
 		
 		this.searchField.render(matrixStack, mouseX, mouseY, partialTicks);
 		
-		FluidTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, this.container.traderSource.get(), this.guiLeft, this.guiTop - FluidTradeButton.HEIGHT, mouseX, mouseY, true);
+		FluidTradeButton.tryRenderTooltip(matrixStack, this, this.container.tradeIndex, trader, this.guiLeft, this.guiTop - FluidTradeButton.HEIGHT, mouseX, mouseY, true);
 		
 	}
 	
 	@Override
 	public void tick()
 	{
+		
+		if(this.container.getTrader() == null)
+		{
+			this.container.player.closeScreen();
+			return;
+		}
 		
 		this.searchField.tick();
 		

@@ -25,12 +25,15 @@ public class ClientProxy extends CommonProxy{
 		
 		//Register Screens
 		ScreenManager.registerFactory(ModContainers.FLUID_TRADER, FluidTraderScreen::new);
+		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_CR, FluidTraderScreen::new);
+		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER, FluidTraderScreen::new);
+		
 		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
-		ScreenManager.registerFactory(ModContainers.FLUID_TRADER_CR, FluidTraderScreenCR::new);
+		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
+		
 		ScreenManager.registerFactory(ModContainers.FLUID_EDIT, FluidEditScreen::new);
-		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER, UniversalFluidTraderScreen::new);
-		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_TRADER_STORAGE, UniversalFluidTraderStorageScreen::new);
 		ScreenManager.registerFactory(ModContainers.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
+		
 		ScreenManager.registerFactory(ModContainers.ENERGY_TRADER, EnergyTraderScreen::new);
 		ScreenManager.registerFactory(ModContainers.ENERGY_TRADER_CR, EnergyTraderScreen::new);
 		ScreenManager.registerFactory(ModContainers.ENERGY_TRADER_UNIVERSAL, EnergyTraderScreen::new);

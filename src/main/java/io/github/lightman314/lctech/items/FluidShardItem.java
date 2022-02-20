@@ -52,14 +52,14 @@ public class FluidShardItem extends Item{
 	
 	public FluidShardItem(Properties properties)
 	{
-		super(properties);
+		super(properties.maxStackSize(1));
 		this.renderData = RENDER_DATA;
 		SHARD_ITEMS.add(this);
 	}
 	
 	public FluidShardItem(Properties properties, FluidRenderData renderData)
 	{
-		super(properties);
+		super(properties.maxStackSize(1));
 		this.renderData = renderData;
 		SHARD_ITEMS.add(this);
 	}
@@ -72,7 +72,7 @@ public class FluidShardItem extends Item{
 		if(!fluid.isEmpty())
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
-			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + fluid.getAmount() + "mB"));
+			tooltip.add(new StringTextComponent(TextFormatting.GRAY.toString() + FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB"));
 		}
 	}
 	
