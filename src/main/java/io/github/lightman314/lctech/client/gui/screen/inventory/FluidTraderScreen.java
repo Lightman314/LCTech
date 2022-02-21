@@ -161,7 +161,7 @@ public class FluidTraderScreen extends ContainerScreen<FluidTraderContainer>{
 		if(this.container.isUniversal())
 		{
 			int tradeHeight = FluidTraderUtil.getTradeDisplayHeight(this.container.getTrader());
-			this.buttonBack = this.addButton(IconAndButtonUtil.backToTerminalButton(this.guiLeft - 20 + tradeHeight, this.guiTop + tradeHeight - 20, this::PressBackButton));
+			this.buttonBack = this.addButton(IconAndButtonUtil.backToTerminalButton(this.guiLeft - 20 + tradeOffset, this.guiTop + tradeHeight - 20, this::PressBackButton));
 		}
 		
 		if(this.container.isCashRegister() && this.container.getTotalCRSize() > 1)
