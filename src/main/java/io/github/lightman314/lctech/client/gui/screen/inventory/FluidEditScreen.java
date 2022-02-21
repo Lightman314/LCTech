@@ -54,14 +54,12 @@ public class FluidEditScreen extends AbstractContainerScreen<FluidEditMenu>{
 		
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		int startX = (this.width - width) / 2;
-		int startY = (this.height - height) / 2;
 		
 		//Render the BG
-		this.blit(poseStack, startX, startY, 0, 0, this.width, this.height);
+		this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 		
 		//Render the fake trade button
-		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, startX, startY - FluidTradeButton.HEIGHT, this.menu.tradeIndex, trader, false, true, false);
+		FluidTradeButton.renderFluidTradeButton(poseStack, this, font, this.leftPos, this.topPos - FluidTradeButton.HEIGHT, this.menu.tradeIndex, trader, false, true, false);
 		
 	}
 	

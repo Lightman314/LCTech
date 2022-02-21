@@ -159,7 +159,7 @@ public class FluidTraderScreen extends AbstractContainerScreen<FluidTraderMenu>{
 		if(this.menu.isUniversal())
 		{
 			int tradeHeight = FluidTraderUtil.getTradeDisplayHeight(this.menu.getTrader());
-			this.buttonBack = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos - 20 + tradeHeight, this.topPos + tradeHeight - 20, this::PressBackButton));
+			this.buttonBack = this.addRenderableWidget(IconAndButtonUtil.backToTerminalButton(this.leftPos - 20 + tradeOffset, this.topPos + tradeHeight - 20, this::PressBackButton));
 		}
 		
 		if(this.menu.isCashRegister() && this.menu.getTotalCRSize() > 1)
