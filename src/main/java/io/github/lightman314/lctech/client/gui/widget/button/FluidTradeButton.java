@@ -17,9 +17,9 @@ import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -121,7 +121,7 @@ public class FluidTradeButton extends Button{
 		//Draw drain & fill icons
 		if(trader.drainCapable())
 			screen.blit(poseStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrainExternally() ? 0 : 10, HEIGHT * 4,  10, 10);
-		if(storageMode)
+		if(trader.drainCapable() && storageMode)
 			screen.blit(poseStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFillExternally() ? 20 : 30, HEIGHT * 4, 10, 10);
 		
 		//Collect data
@@ -211,7 +211,7 @@ public class FluidTradeButton extends Button{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
 			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrainExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canDrainExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 		}
-		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY))
+		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY) && trader.drainCapable())
 		{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
 			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFillExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canFillExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);

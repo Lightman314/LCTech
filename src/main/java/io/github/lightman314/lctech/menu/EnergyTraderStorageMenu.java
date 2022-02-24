@@ -20,11 +20,11 @@ import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContaine
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;

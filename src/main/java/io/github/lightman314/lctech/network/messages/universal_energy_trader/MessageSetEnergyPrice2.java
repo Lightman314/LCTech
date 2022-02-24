@@ -7,9 +7,9 @@ import io.github.lightman314.lctech.common.universaldata.UniversalEnergyTraderDa
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;

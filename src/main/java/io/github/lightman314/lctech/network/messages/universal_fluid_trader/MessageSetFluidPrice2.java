@@ -7,9 +7,9 @@ import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderDat
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
@@ -21,23 +21,21 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	CoinValue price;
 	TradeDirection tradeType;
 	int quantity;
-	boolean canFill;
 	
 	public MessageSetFluidPrice2() {};
 	
-	public MessageSetFluidPrice2(UUID traderID, int tradeIndex, CoinValue price, TradeDirection tradeType, int quantity, boolean canFill)
+	public MessageSetFluidPrice2(UUID traderID, int tradeIndex, CoinValue price, TradeDirection tradeType, int quantity)
 	{
 		this.traderID = traderID;
 		this.tradeIndex = tradeIndex;
 		this.price = price;
 		this.tradeType = tradeType;
 		this.quantity = quantity;
-		this.canFill = canFill;
 	}
 	
 	@Override
 	public MessageSetFluidPrice2 decode(FriendlyByteBuf buffer) {
-		return new MessageSetFluidPrice2(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readNbt()), FluidTradeData.loadTradeType(buffer.readUtf()), buffer.readInt(), buffer.readBoolean());
+		return new MessageSetFluidPrice2(buffer.readUUID(), buffer.readInt(), new CoinValue(buffer.readNbt()), FluidTradeData.loadTradeType(buffer.readUtf()), buffer.readInt());
 	}
 
 	@Override
@@ -47,8 +45,6 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 		buffer.writeNbt(message.price.writeToNBT(new CompoundTag(), CoinValue.DEFAULT_KEY));
 		buffer.writeUtf(message.tradeType.name());
 		buffer.writeInt(message.quantity);
-		buffer.writeBoolean(message.canFill);
-		
 	}
 
 	@Override
@@ -64,7 +60,7 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 				trade.setTradeDirection(message.tradeType);
 				trade.setBucketQuantity(message.quantity);
 				trade.setDrainableExternally(false);
-				trade.setFillableExternally(message.canFill);
+				trade.setFillableExternally(false);
 				
 				fluidTrader.markTradesDirty();
 				

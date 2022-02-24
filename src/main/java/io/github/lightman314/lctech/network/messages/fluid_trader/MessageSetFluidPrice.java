@@ -4,9 +4,9 @@ import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;

@@ -314,7 +314,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 				}
 			}
 			//Interact with the drain/fill buttons
-			if(this.menu.hasPermission(FluidPermissions.EDIT_DRAINABILITY))
+			if(this.menu.hasPermission(FluidPermissions.EDIT_DRAINABILITY) && trader.drainCapable())
 			{
 				for(int icon = 0; icon <= 1; icon++)
 				{

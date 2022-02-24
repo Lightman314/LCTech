@@ -46,7 +46,6 @@ public class LCTechPacketHandler {
 		 register(MessageSetFluidTradeRules2.class, new MessageSetFluidTradeRules2());
 		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
 		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
-		 register(MessageToggleFluidIcon2.class, new MessageToggleFluidIcon2());
 		 
 		 //Energy Traders
 		 register(MessageSetEnergyPrice.class, new MessageSetEnergyPrice());

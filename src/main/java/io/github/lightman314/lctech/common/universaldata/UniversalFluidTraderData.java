@@ -1,9 +1,12 @@
 package io.github.lightman314.lctech.common.universaldata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
@@ -16,11 +19,11 @@ import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidPrice2;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeProduct2;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageToggleFluidIcon2;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
@@ -29,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
@@ -61,7 +65,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
 
-	public static final int TRADELIMIT = FluidTraderBlockEntity.TRADE_LIMIT;
+	public static final int TRADE_LIMIT = FluidTraderBlockEntity.TRADE_LIMIT;
 	
 	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
 	
@@ -92,7 +96,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public UniversalFluidTraderData(PlayerReference owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount) {
 		super(owner, pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADELIMIT);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
 		this.trades = FluidTradeData.listOfSize(tradeCount);
 	}
 	
@@ -100,7 +104,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public void read(CompoundTag compound)
 	{
 		if(compound.contains("TradeLimit", Tag.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADELIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADE_LIMIT);
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
@@ -170,7 +174,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		return this.tradeCount;
 	}
 	
-	public int getTradeCountLimit() { return TRADELIMIT; }
+	public int getTradeCountLimit() { return TRADE_LIMIT; }
 
 	public void requestAddOrRemoveTrade(boolean isAdd)
 	{
@@ -178,7 +182,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	}
 	
 	public void addTrade(Player requestor) {
-		if(this.tradeCount >= TRADELIMIT)
+		if(this.tradeCount >= TRADE_LIMIT)
 			return;
 		if(!TradingOffice.isAdminPlayer(requestor))
 		{
@@ -216,7 +220,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADELIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
 		List<FluidTradeData> oldTrades = this.trades;
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 		//Write the old trade data into the array
@@ -429,20 +433,122 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	}
 	@Override
 	public void sendToggleIconMessage(int tradeIndex, int icon) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageToggleFluidIcon2(this.getTraderID(), tradeIndex, icon));
+		//Do nothing
 	}
 	
 	@Override
 	public void sendPriceMessage(TradePriceData priceData) {
 		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(this.getTraderID(), priceData.tradeIndex, priceData.cost, priceData.type, priceData.quantity, priceData.canFill));
+			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(this.getTraderID(), priceData.tradeIndex, priceData.cost, priceData.type, priceData.quantity));
 	}
 	
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
 		if(this.isClient())
 			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules2(this.getTraderID(), newRules, tradeIndex));
+	}
+
+	@Override
+	public CompoundTag getPersistentData() {
+		CompoundTag compound = new CompoundTag();
+		ITradeRuleHandler.savePersistentRuleData(compound, this, this.trades);
+		this.logger.write(compound);
+		return compound;
+	}
+
+	@Override
+	public void loadPersistentData(CompoundTag compound) {
+		ITradeRuleHandler.readPersistentRuleData(compound, this, this.trades);
+		this.logger.read(compound);
+	}
+	
+	@Override
+	public void loadFromJson(JsonObject json) throws Exception {
+		super.loadFromJson(json);
+		
+		if(!json.has("Trades"))
+			throw new Exception("Fluid Trader must have a trade list.");
+		JsonArray tradeList = json.get("Trades").getAsJsonArray();
+		
+		this.trades = new ArrayList<>();
+		for(int i = 0; i < tradeList.size() && this.trades.size() < TRADE_LIMIT; ++i)
+		{
+			try {
+				
+				JsonObject tradeData = tradeList.get(i).getAsJsonObject();
+				
+				FluidTradeData newTrade = new FluidTradeData();
+				
+				//Product
+				JsonObject product = tradeData.get("Product").getAsJsonObject();
+				newTrade.setProduct(FluidItemUtil.parseFluidStack(product));
+				//Trade Type
+				if(tradeData.has("TradeType"))
+					newTrade.setTradeDirection(FluidTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
+				//Price
+				newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
+				//Tank
+				if(newTrade.isSale())
+				{
+					FluidStack fluid = newTrade.getProduct();
+					if(!fluid.isEmpty())
+						fluid.setAmount(newTrade.getTankCapacity());
+					newTrade.setTankContents(fluid);
+				}
+				//Quantity
+				if(tradeData.has("Quantity"))
+					newTrade.setBucketQuantity(tradeData.get("Quantity").getAsInt());
+				//Trade Rules
+				if(tradeData.has("TradeRules"))
+				{
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
+				}
+				
+				this.trades.add(newTrade);
+				
+			} catch(Exception e) { LCTech.LOGGER.error("Error parsing fluid trade at index " + i, e); }
+		}
+		
+		if(this.trades.size() <= 0)
+			throw new Exception("Trader has no valid trades!");
+		
+		this.tradeCount = this.trades.size();
+		
+		if(json.has("TradeRules"))
+		{
+			this.tradeRules = TradeRule.Parse(json.get("TradeRules").getAsJsonArray());
+		}
+		
+	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		super.saveToJson(json);
+		
+		JsonArray trades = new JsonArray();
+		for(FluidTradeData trade : this.trades)
+		{
+			if(trade.isValid())
+			{
+				JsonObject tradeData = new JsonObject();
+				
+				tradeData.addProperty("TradeType", trade.getTradeDirection().name());
+				tradeData.add("Price", trade.getCost().toJson());
+				tradeData.add("Product", FluidItemUtil.convertFluidStack(trade.getProduct()));
+				tradeData.addProperty("Quantity", trade.getBucketQuantity());
+				
+				if(trade.getRules().size() > 0)
+					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
+				
+				trades.add(tradeData);
+			}
+		}
+		json.add("Trades", trades);
+		
+		if(this.tradeRules.size() > 0)
+			json.add("TradeRules", TradeRule.saveRulesToJson(this.tradeRules));
+		
+		return json;
 	}
 
 }

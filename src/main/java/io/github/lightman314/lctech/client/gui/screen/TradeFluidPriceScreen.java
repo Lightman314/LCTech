@@ -18,11 +18,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
@@ -100,6 +100,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		this.buttonToggleDrainable = this.addRenderableWidget(new PlainButton(guiLeft + 7, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleDrainButton, GUI_TEXTURE, this.xSize, 16));
 		this.buttonToggleDrainable.visible = this.trader.get().drainCapable();
 		this.buttonToggleFillable = this.addRenderableWidget(new PlainButton(guiLeft + 95, guiTop + CoinValueInput.HEIGHT + 37, 10, 10, this::PressToggleFillButton, GUI_TEXTURE, this.xSize + 20, 16));
+		this.buttonToggleFillable.visible = this.trader.get().drainCapable();
 		
 		tick();
 		
@@ -152,8 +153,10 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		
 		//Render the Drainable & Fillable text
 		if(this.trader.get().drainCapable())
+		{
 			this.font.draw(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drainable").setStyle(Style.EMPTY.withColor(this.localDrainable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR)), startX + 18, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
-		this.font.draw(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fillable").setStyle(Style.EMPTY.withColor(this.localFillable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR)), startX + 106, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
+			this.font.draw(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fillable").setStyle(Style.EMPTY.withColor(this.localFillable ? FluidTradeButton.ENABLED_COLOR : FluidTradeButton.DISABLED_COLOR)), startX + 106, startY + CoinValueInput.HEIGHT + 38, 0xFFFFFF);
+		}
 		
 		//Render the local quantity text
 		String quantityText = this.localQuantity + "B";

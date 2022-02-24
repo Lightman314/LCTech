@@ -13,6 +13,7 @@ import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRNextTrader;
 import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRSkipTo;
@@ -20,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCol
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

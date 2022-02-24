@@ -1,9 +1,12 @@
 package io.github.lightman314.lctech.common.universaldata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.EnergyTraderBlockEntity;
@@ -25,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.common.universal_traders.data.Uni
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
@@ -519,6 +523,97 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	public Component getDefaultName() {
 		return new TranslatableComponent("gui.lctech.universaltrader.energy");
 	}
+
+	@Override
+	public CompoundTag getPersistentData() {
+		CompoundTag compound = new CompoundTag();
+		ITradeRuleHandler.savePersistentRuleData(compound, this, this.trades);
+		this.logger.write(compound);
+		return compound;
+	}
+
+	@Override
+	public void loadPersistentData(CompoundTag compound) {
+		ITradeRuleHandler.readPersistentRuleData(compound, this, this.trades);
+		this.logger.read(compound);
+	}
+	
+	@Override
+	public void loadFromJson(JsonObject json) throws Exception{
+		super.loadFromJson(json);
+		
+		if(!json.has("Trades"))
+			throw new Exception("Energy Trader must have a trade list.");
+		
+		JsonArray tradeList = json.get("Trades").getAsJsonArray();
+		this.trades = new ArrayList<>();
+		for(int i = 0; i < tradeList.size() && this.trades.size() < TRADE_LIMIT; ++i)
+		{
+			try {
+				
+				JsonObject tradeData = tradeList.get(i).getAsJsonObject();
+				EnergyTradeData newTrade = new EnergyTradeData();
+				//Trade Type
+				if(tradeData.has("TradeType"))
+					newTrade.setTradeDirection(EnergyTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
+				//Quantity
+				newTrade.setAmount(tradeData.get("Quantity").getAsInt());
+				//Price
+				newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
+				//Trade Rules
+				if(tradeData.has("TradeRules"))
+				{
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
+				}
+				
+				this.trades.add(newTrade);
+				
+			} catch(Exception e) { LCTech.LOGGER.error("Error parsing energy trade at index " + i, e); }
+		}
+		
+		if(this.trades.size() <= 0)
+			throw new Exception("Trader has no valid trades!");
+		
+		this.tradeCount = this.trades.size();
+		
+		this.energyStorage = this.getMaxEnergy();
+		
+		if(json.has("TradeRules"))
+		{
+			this.tradeRules = TradeRule.Parse(json.get("TradeRules").getAsJsonArray());
+		}
+		
+	}
+	
+	@Override
+	public JsonObject saveToJson(JsonObject json) {
+		super.saveToJson(json);
+		
+		JsonArray trades = new JsonArray();
+		for(EnergyTradeData trade : this.trades)
+		{
+			if(trade.isValid())
+			{
+				JsonObject tradeData = new JsonObject();
+				tradeData.addProperty("TradeType", trade.getTradeDirection().name());
+				tradeData.add("Price", trade.getCost().toJson());
+				tradeData.addProperty("Quantity", trade.getAmount());
+				
+				if(trade.getRules().size() > 0)
+					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
+				
+				trades.add(tradeData);
+			}
+		}
+		json.add("Trades", trades);
+		
+		if(this.tradeRules.size() > 0)
+			json.add("TradeRules", TradeRule.saveRulesToJson(this.tradeRules));
+		
+		return json;
+	}
+	
+	
 	
 	
 }
