@@ -17,9 +17,9 @@ import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ItemTradeButton;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -119,7 +119,7 @@ public class FluidTradeButton extends Button{
 		//Draw drain & fill icons
 		if(trader.drainCapable())
 			screen.blit(matrixStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrainExternally() ? 0 : 10, HEIGHT * 4,  10, 10);
-		if(storageMode)
+		if(trader.drainCapable() && storageMode)
 			screen.blit(matrixStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFillExternally() ? 20 : 30, HEIGHT * 4, 10, 10);
 		
 		//Collect data
@@ -207,7 +207,7 @@ public class FluidTradeButton extends Button{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
 			screen.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrainExternally() ? "enabled" : "disabled")).mergeStyle(Style.EMPTY.setColor(Color.fromInt(trade.canDrainExternally() ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);
 		}
-		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY))
+		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY) && trader.drainCapable())
 		{
 			FluidTradeData trade = trader.getTrade(tradeIndex);
 			screen.renderTooltip(matrixStack, new TranslationTextComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFillExternally() ? "enabled" : "disabled")).mergeStyle(Style.EMPTY.setColor(Color.fromInt(trade.canFillExternally() ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);

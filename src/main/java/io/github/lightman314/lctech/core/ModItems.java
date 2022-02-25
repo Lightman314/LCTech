@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -23,9 +24,9 @@ public class ModItems {
 	public static final Item FLUID_SHARD = register("fluid_shard", new FluidShardItem(new Item.Properties().maxStackSize(1)));
 	
 	//Fluid Upgrades
-	public static final Item FLUID_CAPACITY_UPGRADE_1 = register("fluid_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity1.get(), new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item FLUID_CAPACITY_UPGRADE_2 = register("fluid_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity2.get(), new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item FLUID_CAPACITY_UPGRADE_3 = register("fluid_capacity_upgrade_3", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity3.get(), new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item FLUID_CAPACITY_UPGRADE_1 = register("fluid_capacity_upgrade_1", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity1.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item FLUID_CAPACITY_UPGRADE_2 = register("fluid_capacity_upgrade_2", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity2.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item FLUID_CAPACITY_UPGRADE_3 = register("fluid_capacity_upgrade_3", new CapacityUpgradeItem(UpgradeType.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity3.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));
 	
 	//Battery Item
 	public static final Item BATTERY = register("battery", new BatteryItem(() -> TechConfig.SERVER.batteryCapacity.get(), new Item.Properties().group(LightmansCurrency.MACHINE_GROUP)));

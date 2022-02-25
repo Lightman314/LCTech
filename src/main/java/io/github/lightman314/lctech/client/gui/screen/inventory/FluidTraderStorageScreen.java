@@ -317,7 +317,7 @@ public class FluidTraderStorageScreen extends ContainerScreen<FluidTraderStorage
 					return true;
 				}
 			}
-			if(this.container.hasPermission(FluidPermissions.EDIT_DRAINABILITY))
+			if(this.container.hasPermission(FluidPermissions.EDIT_DRAINABILITY) && trader.drainCapable())
 			{
 				//Interact with the drain/fill buttons
 				for(int icon = 0; icon <= 1; icon++)

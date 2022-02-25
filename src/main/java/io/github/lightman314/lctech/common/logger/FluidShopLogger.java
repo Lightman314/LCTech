@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.api.TextLogger;
-import io.github.lightman314.lightmanscurrency.util.MoneyUtil.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -26,7 +26,7 @@ public class FluidShopLogger extends TextLogger{
 		ITextComponent fluidName = FluidFormatUtil.getFluidName(trade.getProduct());
 		
 		ITextComponent fluidText = new TranslationTextComponent("log.shoplog.fluid.fluidformat",trade.getProduct().getAmount(), fluidName);
-		ITextComponent cost = new StringTextComponent("§e" + pricePaid.getString());
+		ITextComponent cost = getCostText(pricePaid);
 		
 		AddLog(new TranslationTextComponent("log.shoplog.fluid.format",creativeText, playerName, boughtText, fluidText, cost));
 		
