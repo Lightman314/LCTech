@@ -156,7 +156,7 @@ public class FluidTradeButton extends Button{
 		//Render an empty bucket if the product is empty
 		ItemStack bucketStack = FluidItemUtil.getFluidDisplayItem(trade.getProduct());
 		bucketStack.setCount(trade.getBucketQuantity());
-		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y, true);
+		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y);
 		//Render the fluid tank
 		if(!trade.getTankContents().isEmpty())
 		{

@@ -234,5 +234,14 @@ public class EnergyTradeData extends TradeData {
 		return tradeData;
 	}
 	
+	@Override
+	public boolean AcceptableDifferences(TradeComparisonResult differences) {
+		return false;
+	}
+	
+	@Override
+	public TradeComparisonResult compare(TradeData otherTrade) {
+		return new TradeComparisonResult();
+	}
 
 }
