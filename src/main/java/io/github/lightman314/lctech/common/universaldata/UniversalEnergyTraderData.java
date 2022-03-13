@@ -24,6 +24,7 @@ import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
@@ -500,19 +501,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 
 	@Override
-	public ResourceLocation IconLocation() {
-		return new ResourceLocation(LCTech.MODID, "textures/gui/universal_trader_icons.png");
-	}
-
-	@Override
-	public int IconPositionX() {
-		return 16;
-	}
-
-	@Override
-	public int IconPositionY() {
-		return 0;
-	}
+	public IconData getIcon() { return IconData.of(new ResourceLocation(LCTech.MODID, "textures/gui/universal_trader_icons.png"), 16, 0); }
 
 	@Override
 	public ResourceLocation getTraderType() {

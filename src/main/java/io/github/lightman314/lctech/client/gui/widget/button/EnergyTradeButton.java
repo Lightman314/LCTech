@@ -118,7 +118,7 @@ public class EnergyTradeButton extends Button{
 		}
 		
 		//Render the trade text
-		String tradeText = ItemTradeButton.getTradeText(cost, trade.getCost().isFree(), isValid, hasStock, hasSpace, hasPermission);
+		String tradeText = ItemTradeButton.getTradeText(cost, isValid, hasStock, hasSpace, hasPermission);
 		int textColor = ItemTradeButton.getTradeTextColor(isValid, canAfford, hasStock, hasPermission, hasDiscount);
 		int stringLength = font.width(tradeText);
 		font.draw(poseStack, tradeText, x + WIDTH / 2 - stringLength / 2, y + TEXTPOS_1, textColor);

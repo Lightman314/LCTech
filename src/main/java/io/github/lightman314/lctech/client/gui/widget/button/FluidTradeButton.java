@@ -149,7 +149,7 @@ public class FluidTradeButton extends Button{
 		}
 		//Render the trade text
 		//Run the Item Trade Button variant of get trade text/color as no significant changes have been made
-		String tradeText = ItemTradeButton.getTradeText(cost, trade.getCost().isFree(), isValid, hasStock, hasSpace, hasPermission);
+		String tradeText = ItemTradeButton.getTradeText(cost, isValid, hasStock, hasSpace, hasPermission);
 		int textColor = ItemTradeButton.getTradeTextColor(trade.isValid(), canAfford, hasStock, hasPermission, hasDiscount);
 		int stringLength = font.width(tradeText);
 		font.draw(poseStack, tradeText, x + TEXTPOS_X - stringLength, y + TEXTPOS_Y, textColor);
@@ -158,7 +158,7 @@ public class FluidTradeButton extends Button{
 		//Render an empty bucket if the product is empty
 		ItemStack bucketStack = FluidItemUtil.getFluidDisplayItem(trade.getProduct());
 		bucketStack.setCount(trade.getBucketQuantity());
-		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y, true);
+		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y);
 		//Render the fluid tank
 		if(!trade.getTankContents().isEmpty())
 		{

@@ -439,5 +439,13 @@ public class FluidTradeData extends TradeData implements IFluidHandler{
 		resource.setAmount(maxDrain);
 		return this.drain(resource, action);
 	}
+	@Override
+	public boolean AcceptableDifferences(TradeComparisonResult differences) {
+		return false;
+	}
+	@Override
+	public TradeComparisonResult compare(TradeData otherTrade) {
+		return new TradeComparisonResult();
+	}
 	
 }
