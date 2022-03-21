@@ -1,7 +1,5 @@
 package io.github.lightman314.lctech.client.gui.screen;
 
-import java.util.List;
-
 import com.google.common.base.Supplier;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -22,12 +20,12 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.Color;
 import net.minecraft.util.text.Style;
@@ -270,9 +268,9 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 			Minecraft.getInstance().displayGuiScreen(new TradeFluidPriceScreen(this.trader, this.tradeIndex));
 		}
 		
-		public void updateServer(List<TradeRule> newRules)
+		public void updateServer(ResourceLocation type, CompoundNBT updateInfo)
 		{
-			this.trader.get().sendUpdateTradeRuleMessage(this.tradeIndex, newRules);
+			this.trader.get().sendUpdateTradeRuleMessage(this.tradeIndex, type, updateInfo);
 		}
 		
 	}

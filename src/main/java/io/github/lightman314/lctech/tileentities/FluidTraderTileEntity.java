@@ -21,7 +21,6 @@ import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidPrice;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeProduct;
-import io.github.lightman314.lctech.network.messages.fluid_trader.MessageSetFluidTradeRules;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageToggleFluidIcon;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
@@ -36,6 +35,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
@@ -59,6 +59,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -490,12 +491,6 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 				Block.spawnAsEntity(world, pos, this.upgradeInventory.getStackInSlot(i));
 		}
 	}
-	
-	@Override
-	public void addRule(TradeRule rule) {
-		this.tradeRules.add(rule);
-		this.markRulesDirty();
-	}
 
 	@Override
 	public void afterTrade(PostTradeEvent event) {
@@ -526,20 +521,6 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 			CompoundNBT compound = this.writeRules(new CompoundNBT());
 			TileEntityUtil.sendUpdatePacket(this, compound);
 		}
-	}
-
-	@Override
-	public void removeRule(TradeRule rule) {
-		if(this.tradeRules.contains(rule))
-		{
-			this.tradeRules.remove(rule);
-			this.markRulesDirty();
-		}
-	}
-
-	@Override
-	public void setRules(List<TradeRule> rules) {
-		this.tradeRules = rules;
 	}
 
 	@Override
@@ -587,8 +568,8 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 		}
 
 		@Override
-		public void updateServer(List<TradeRule> newRules) {
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(this.tileEntity.pos, newRules));
+		public void updateServer(ResourceLocation type, CompoundNBT updateInfo) {
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.tileEntity.pos, type, updateInfo));
 		}
 		
 	}
@@ -653,9 +634,28 @@ public class FluidTraderTileEntity extends TraderTileEntity implements IFluidTra
 	}
 
 	@Override
-	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo) {
 		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules(this.pos, newRules, tradeIndex));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.pos, tradeIndex, type, updateInfo));
+	}
+	
+	@Override
+	public void receiveTradeRuleMessage(PlayerEntity player, int index, ResourceLocation ruleType, CompoundNBT updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
+		}
 	}
 	
 }

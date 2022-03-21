@@ -16,7 +16,6 @@ import io.github.lightman314.lctech.container.EnergyTraderStorageContainer;
 import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyPrice2;
-import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyTradeRules2;
 import io.github.lightman314.lctech.tileentities.EnergyTraderTileEntity;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
@@ -35,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.network.message.logger.MessageCle
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
@@ -321,13 +321,6 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	public void markUpgradesDirty() { this.markDirty(this::writeUpgradeInventory); }
 	
 	@Override
-	public void addRule(TradeRule rule)
-	{
-		this.tradeRules.add(rule);
-		this.markRulesDirty();
-	}
-	
-	@Override
 	public void afterTrade(PostTradeEvent event) {
 		this.tradeRules.forEach(rule -> rule.afterTrade(event));
 	}
@@ -348,23 +341,6 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	
 	@Override
 	public void markRulesDirty() { this.markDirty(this::writeRules); }
-	
-	@Override
-	public void removeRule(TradeRule rule)
-	{
-		if(this.tradeRules.contains(rule))
-		{
-			this.tradeRules.remove(rule);
-			this.markRulesDirty();
-		}
-	}
-	
-	@Override
-	public void setRules(List<TradeRule> rules)
-	{
-		this.tradeRules = rules;
-		this.markRulesDirty();
-	}
 	
 	@Override
 	public void tradeCost(TradeCostEvent event) {
@@ -482,8 +458,8 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		}
 
 		@Override
-		public void updateServer(List<TradeRule> newRules) {
-			this.trader.sendUpdateTradeRuleMessage(newRules);
+		public void updateServer(ResourceLocation type, CompoundNBT updateInfo) {
+			this.trader.sendUpdateTradeRuleMessage(-1, type, updateInfo);
 		}
 		
 	}
@@ -495,9 +471,9 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 	
 	@Override
-	public void sendUpdateTradeRuleMessage(List<TradeRule> newRules) {
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo) {
 		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyTradeRules2(this.getTraderID(), newRules));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.getTraderID(), tradeIndex, type, updateInfo));
 	}
 
 	@Override
@@ -602,5 +578,23 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		return json;
 	}
 	
+	@Override
+	public void receiveTradeRuleMessage(PlayerEntity player, int index, ResourceLocation ruleType, CompoundNBT updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
+		}
+	}
 	
 }

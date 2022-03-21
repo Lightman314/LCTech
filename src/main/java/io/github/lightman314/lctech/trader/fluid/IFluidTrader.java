@@ -23,17 +23,19 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidStack;
 
-public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ILoggerSupport<FluidShopLogger> {
+public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<FluidShopLogger> {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.FLUID_CAPACITY);
 	
@@ -58,7 +60,7 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid);
 	public void sendToggleIconMessage(int tradeIndex, int icon);
 	public void sendPriceMessage(TradeFluidPriceScreen.TradePriceData priceData);
-	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules);
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo);
 	
 	default PreTradeEvent runPreTradeEvent(PlayerEntity player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)

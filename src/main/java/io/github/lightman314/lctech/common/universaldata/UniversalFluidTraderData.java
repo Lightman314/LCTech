@@ -17,7 +17,6 @@ import io.github.lightman314.lctech.container.FluidTraderStorageContainer;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidPrice2;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeProduct2;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeRules2;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageToggleFluidIcon2;
 import io.github.lightman314.lctech.tileentities.FluidTraderTileEntity;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
@@ -38,6 +37,7 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
+import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
@@ -368,25 +368,6 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public List<TradeRule> getRules() { return this.tradeRules; }
 	
 	@Override
-	public void setRules(List<TradeRule> newRules) { this.tradeRules = newRules; }
-	
-	@Override
-	public void addRule(TradeRule newRule) {
-		if(newRule == null)
-			return;
-		//Confirm a lack of duplicate rules
-		for(int i = 0; i < this.tradeRules.size(); i++)
-		{
-			if(newRule.type == this.tradeRules.get(i).type)
-				return;
-		}
-		this.tradeRules.add(newRule);
-	}
-
-	@Override
-	public void removeRule(TradeRule rule) { if(this.tradeRules.contains(rule)) this.tradeRules.remove(rule); }
-
-	@Override
 	public void clearRules() { this.tradeRules.clear(); }
 
 	@Override
@@ -412,8 +393,8 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		public void reopenLastScreen() { LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.traderID)); }
 		
 		@Override
-		public void updateServer(List<TradeRule> newRules) {
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules2(this.traderID, newRules));
+		public void updateServer(ResourceLocation type, CompoundNBT updateInfo) {
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.traderID, type, updateInfo));
 		}
 		
 	}
@@ -436,9 +417,9 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	}
 
 	@Override
-	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules) {
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo) {
 		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeRules2(this.getTraderID(), newRules, tradeIndex));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.getTraderID(), tradeIndex, type, updateInfo));
 	}
 	
 	@Override
@@ -542,6 +523,25 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 			json.add("TradeRules", TradeRule.saveRulesToJson(this.tradeRules));
 
 		return json;
+	}
+	
+	@Override
+	public void receiveTradeRuleMessage(PlayerEntity player, int index, ResourceLocation ruleType, CompoundNBT updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
+		}
 	}
 
 }

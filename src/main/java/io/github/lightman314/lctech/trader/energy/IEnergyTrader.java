@@ -20,17 +20,19 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeRule;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ILoggerSupport<EnergyShopLogger> {
+public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<EnergyShopLogger> {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.ENERGY_CAPACITY);
 	
@@ -84,7 +86,7 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 	//Open menu functions
 	public ITradeRuleScreenHandler getRuleScreenHandler();
 	public void sendPriceMessage(TradeEnergyPriceScreen.TradePriceData priceData);
-	public void sendUpdateTradeRuleMessage(List<TradeRule> newRules);
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo);
 	
 	default PreTradeEvent runPreTradeEvent(PlayerEntity player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)

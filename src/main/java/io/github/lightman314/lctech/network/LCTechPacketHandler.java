@@ -33,7 +33,6 @@ public class LCTechPacketHandler {
 		 //Fluid Traders
 		 register(MessageSetFluidTradeProduct.class, new MessageSetFluidTradeProduct());
 		 register(MessageFluidTradeTankInteraction.class, new MessageFluidTradeTankInteraction());
-		 register(MessageSetFluidTradeRules.class, new MessageSetFluidTradeRules());
 		 register(MessageSetFluidPrice.class, new MessageSetFluidPrice());
 		 register(MessageFluidEditOpen.class, new MessageFluidEditOpen());
 		 register(MessageFluidEditClose.class, new MessageFluidEditClose());
@@ -41,18 +40,15 @@ public class LCTechPacketHandler {
 		 register(MessageToggleFluidIcon.class, new MessageToggleFluidIcon());
 		 
 		 //Universal Fluid Traders
-		 register(MessageSetFluidTradeRules2.class, new MessageSetFluidTradeRules2());
 		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
 		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
 		 register(MessageToggleFluidIcon2.class, new MessageToggleFluidIcon2());
 		 
 		 //Energy Traders
 		 register(MessageSetEnergyPrice.class, new MessageSetEnergyPrice());
-		 register(MessageSetEnergyTradeRules.class, new MessageSetEnergyTradeRules());
 
 		 //Universal Energy Traders
 		 register(MessageSetEnergyPrice2.class, new MessageSetEnergyPrice2());
-		 register(MessageSetEnergyTradeRules2.class, new MessageSetEnergyTradeRules2());
 		 
 	}
 	

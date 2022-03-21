@@ -15,7 +15,6 @@ import io.github.lightman314.lctech.core.ModTileEntities;
 import io.github.lightman314.lctech.items.UpgradeItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyPrice;
-import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyTradeRules;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
@@ -32,6 +31,7 @@ import io.github.lightman314.lightmanscurrency.network.message.logger.MessageCle
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
+import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
 import io.github.lightman314.lightmanscurrency.tileentity.CashRegisterTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.TraderTileEntity;
 import io.github.lightman314.lightmanscurrency.tileentity.ItemInterfaceTileEntity.IItemHandlerBlock;
@@ -56,6 +56,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -414,13 +415,6 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 	}
 	
 	@Override
-	public void addRule(TradeRule rule)
-	{
-		this.tradeRules.add(rule);
-		this.markRulesDirty();
-	}
-	
-	@Override
 	public void afterTrade(PostTradeEvent event) {
 		this.tradeRules.forEach(rule -> rule.afterTrade(event));
 	}
@@ -452,20 +446,6 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 	}
 	
 	@Override
-	public void removeRule(TradeRule rule) {
-		if(this.tradeRules.contains(rule))
-		{
-			this.tradeRules.remove(rule);
-			this.markRulesDirty();
-		}
-	}
-	
-	@Override
-	public void setRules(List<TradeRule> rules) {
-		this.tradeRules = rules;
-	}
-	
-	@Override
 	public void tradeCost(TradeCostEvent event) {
 		this.tradeRules.forEach(rule -> rule.tradeCost(event));
 	}
@@ -489,31 +469,6 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 			CompoundNBT compound = this.writeLogger(new CompoundNBT());
 			TileEntityUtil.sendUpdatePacket(this, this.superWrite(compound));
 		}
-	}
-	
-	public ITradeRuleScreenHandler GetRuleScreenBackHandler() { return new TraderScreenHandler(this); }
-	
-	private static class TraderScreenHandler implements ITradeRuleScreenHandler
-	{
-		private EnergyTraderTileEntity blockEntity;
-		
-		public TraderScreenHandler(EnergyTraderTileEntity blockEntity) { this.blockEntity = blockEntity; }
-		
-		@Override
-		public void reopenLastScreen() {
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage(this.blockEntity.pos));
-		}
-		
-		@Override
-		public ITradeRuleHandler ruleHandler() {
-			return this.blockEntity;
-		}
-		
-		@Override
-		public void updateServer(List<TradeRule> newRules) {
-			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyTradeRules(this.blockEntity.pos, newRules));
-		}
-		
 	}
 	
 	@Override
@@ -675,8 +630,8 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 		}
 
 		@Override
-		public void updateServer(List<TradeRule> newRules) {
-			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyTradeRules(this.blockEntity.pos, newRules));
+		public void updateServer(ResourceLocation type, CompoundNBT updateInfo) {
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.blockEntity.pos, type, updateInfo));
 		}
 		
 	}
@@ -688,9 +643,9 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 	}
 
 	@Override
-	public void sendUpdateTradeRuleMessage(List<TradeRule> newRules) {
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundNBT updateInfo) {
 		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyTradeRules(this.pos, newRules));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.pos, tradeIndex, type, updateInfo));
 	}
 
 	@Override
@@ -722,6 +677,25 @@ public class EnergyTraderTileEntity extends TraderTileEntity implements IEnergyT
 					}
 				}
 			}
+		}
+	}
+	
+	@Override
+	public void receiveTradeRuleMessage(PlayerEntity player, int index, ResourceLocation ruleType, CompoundNBT updateInfo) {
+		if(!this.hasPermission(player, Permissions.EDIT_TRADE_RULES))
+		{
+			Settings.PermissionWarning(player, "edit trade rule", Permissions.EDIT_TRADE_RULES);
+			return;
+		}
+		if(index >= 0)
+		{
+			this.getTrade(index).updateRule(ruleType, updateInfo);
+			this.markTradesDirty();
+		}
+		else
+		{
+			this.updateRule(ruleType, updateInfo);
+			this.markRulesDirty();
 		}
 	}
 	
