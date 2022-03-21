@@ -24,8 +24,10 @@ import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -33,7 +35,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidStack;
 
-public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ILoggerSupport<FluidShopLogger>{
+public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<FluidShopLogger>{
 	
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.FLUID_CAPACITY);
 	
@@ -58,7 +60,7 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid);
 	public void sendToggleIconMessage(int tradeIndex, int icon);
 	public void sendPriceMessage(TradeFluidPriceScreen.TradePriceData priceData);
-	public void sendUpdateTradeRuleMessage(int tradeIndex, List<TradeRule> newRules);
+	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo);
 	
 	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)

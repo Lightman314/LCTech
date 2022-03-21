@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18-0.0.3.1'
+version = '1.18-0.0.3.2'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -41,7 +41,7 @@ dependencies {
 	
     minecraft 'net.minecraftforge:forge:1.18.1-39.0.45'
     
-    compileOnly 'curse.maven:lightmanscurrency-472521:3683249'
+    compileOnly 'curse.maven:lightmanscurrency-472521:3707384'
     
 }
 

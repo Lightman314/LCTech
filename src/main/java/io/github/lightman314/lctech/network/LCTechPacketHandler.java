@@ -1,11 +1,9 @@
 package io.github.lightman314.lctech.network;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyPrice;
-import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyTradeRules;
+import io.github.lightman314.lctech.network.messages.energy_trader.*;
 import io.github.lightman314.lctech.network.messages.fluid_trader.*;
-import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyPrice2;
-import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyTradeRules2;
+import io.github.lightman314.lctech.network.messages.universal_energy_trader.*;
 import io.github.lightman314.lctech.network.messages.universal_fluid_trader.*;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +33,6 @@ public class LCTechPacketHandler {
 		 //Fluid Traders
 		 register(MessageSetFluidTradeProduct.class, new MessageSetFluidTradeProduct());
 		 register(MessageFluidTradeTankInteraction.class, new MessageFluidTradeTankInteraction());
-		 register(MessageSetFluidTradeRules.class, new MessageSetFluidTradeRules());
 		 register(MessageSetFluidPrice.class, new MessageSetFluidPrice());
 		 register(MessageFluidEditOpen.class, new MessageFluidEditOpen());
 		 register(MessageFluidEditClose.class, new MessageFluidEditClose());
@@ -43,17 +40,14 @@ public class LCTechPacketHandler {
 		 register(MessageToggleFluidIcon.class, new MessageToggleFluidIcon());
 		 
 		 //Universal Fluid Traders
-		 register(MessageSetFluidTradeRules2.class, new MessageSetFluidTradeRules2());
 		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
 		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
 		 
 		 //Energy Traders
 		 register(MessageSetEnergyPrice.class, new MessageSetEnergyPrice());
-		 register(MessageSetEnergyTradeRules.class, new MessageSetEnergyTradeRules());
 		 
 		 //Universal Energy Traders
 		 register(MessageSetEnergyPrice2.class, new MessageSetEnergyPrice2());
-		 register(MessageSetEnergyTradeRules2.class, new MessageSetEnergyTradeRules2());
 		 
 	}
 	
