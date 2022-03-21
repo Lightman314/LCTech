@@ -40,7 +40,7 @@ An expansion mod that adds traders for fluids & some forms of energy.
 [[dependencies.lctech]] #optional
     modId="forge"
     mandatory=true
-    versionRange="[38,)"
+    versionRange="[40,)"
     ordering="NONE"
     side="BOTH"
 # Here's another dependency
@@ -53,6 +53,6 @@ An expansion mod that adds traders for fluids & some forms of energy.
 [[dependencies.lctech]]
     modId="lightmanscurrency"
     mandatory=true
-    versionRange="[1.18-1.0.5.5,)"
+    versionRange="[1.18.2-1.0.5.5,)"
     ordering="AFTER"
     side="BOTH"

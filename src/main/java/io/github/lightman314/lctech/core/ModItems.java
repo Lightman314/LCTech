@@ -4,18 +4,15 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.items.*;
 import io.github.lightman314.lctech.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//@Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModItems {
 	
 	private static final List<Item> ITEMS = Lists.newArrayList();
@@ -44,7 +41,7 @@ public class ModItems {
 		return item;
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerItems(final RegistryEvent.Register<Item> event)
 	{
 		ITEMS.forEach(item -> event.getRegistry().register(item));

@@ -1,5 +1,8 @@
 package io.github.lightman314.lctech;
 
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -16,6 +19,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.common.universaldata.UniversalEnergyTraderData;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lctech.common.universaldata.traderSearching.FluidTraderSearchFilter;
+import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
@@ -47,6 +51,12 @@ public class LCTech
 
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, TechConfig.serverSpec);
+        
+        //Register Blocks & Items (1.18.2 thing)
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModItems::registerItems);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModBlocks::registerItems);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, ModBlocks::registerBlocks);
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, ModBlockEntities::registerTypes);
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);

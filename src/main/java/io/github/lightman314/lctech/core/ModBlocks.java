@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blocks.*;
 import io.github.lightman314.lctech.blocks.traderblocks.*;
@@ -18,11 +17,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+//@Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlocks {
 	
 	private enum BlockItemType { NORMAL, FLUID_TANK }
@@ -125,14 +122,14 @@ public class ModBlocks {
 		return new BlockItemPair(block,null);
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerBlocks(final RegistryEvent.Register<Block> event)
 	{
 		BLOCKS.forEach(block -> event.getRegistry().register(block));
 		BLOCKS.clear();
 	}
 	
-	@SubscribeEvent
+	//@SubscribeEvent
 	public static void registerItems(final RegistryEvent.Register<Item> event)
 	{
 		ITEMS.forEach(item -> event.getRegistry().register(item));
