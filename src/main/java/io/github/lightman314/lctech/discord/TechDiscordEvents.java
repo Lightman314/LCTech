@@ -9,6 +9,7 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordPostTradeEvent;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -188,8 +189,7 @@ public class TechDiscordEvents {
 				if(fluidTrade.getStock((IFluidTrader)d.event.getTrader()) < 1)
 				{
 					//Need to add local copy of message manager for currency messages to Lightman's Currency to fix out of stock message
-					d.addPendingMessage("OUT OF STOCK");
-					//this.addPendingMessage(linkedUser, MessageManager.M_NOTIFICATION_OUTOFSTOCK.get());
+					d.addPendingMessage(CurrencyMessages.M_NOTIFICATION_OUTOFSTOCK.get());
 				}
 			}
 		}
@@ -229,8 +229,7 @@ public class TechDiscordEvents {
 				if(energyTrade.getStock((IEnergyTrader)d.event.getTrader()) < 1)
 				{
 					//Need to add local copy of message manager for currency messages to Lightman's Currency to fix out of stock message
-					d.addPendingMessage("OUT OF STOCK");
-					//this.addPendingMessage(linkedUser, MessageManager.M_NOTIFICATION_OUTOFSTOCK.get());
+					d.addPendingMessage(CurrencyMessages.M_NOTIFICATION_OUTOFSTOCK.get());
 				}
 			}
 		}
