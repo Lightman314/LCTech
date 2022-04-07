@@ -27,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+@Deprecated
 public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTraderStorageMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/energy_trader_storage.png");
@@ -294,7 +295,7 @@ public class EnergyTraderStorageScreen extends AbstractContainerScreen<EnergyTra
 	
 	private void PressTradeRulesButton(Button button)
 	{
-		this.minecraft.setScreen(new TradeRuleScreen(this.menu.getTrader().getRuleScreenHandler()));
+		this.minecraft.setScreen(new TradeRuleScreen(this.menu.getTrader().getRuleScreenHandler(-1)));
 	}
 	
 	private void PressSettingsButton(Button button)

@@ -10,24 +10,18 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.EnergyTraderBlockEntity;
-import io.github.lightman314.lctech.client.gui.screen.TradeEnergyPriceScreen.TradePriceData;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
-import io.github.lightman314.lctech.items.UpgradeItem;
-import io.github.lightman314.lctech.menu.EnergyTraderMenu;
-import io.github.lightman314.lctech.menu.EnergyTraderStorageMenu;
-import io.github.lightman314.lctech.network.LCTechPacketHandler;
-import io.github.lightman314.lctech.network.messages.universal_energy_trader.MessageSetEnergyPrice2;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
-import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearUniversalLogger;
@@ -41,6 +35,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
@@ -52,11 +47,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -186,6 +178,8 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	
 	public List<EnergyTradeData> getAllTrades() { return this.trades; }
 	
+	public List<EnergyTradeData> getTradeInfo() { return this.trades; }
+	
 	public TradeEnergyHandler getEnergyHandler() { return this.energyHandler; }
 	
 	public void requestAddOrRemoveTrade(boolean isAdd)
@@ -246,7 +240,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	
 	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(); }
 	
-	@Override
+	/*@Override
 	public MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this);
 	}
@@ -289,7 +283,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		public Component getDisplayName() {
 			return this.trader.getName();
 		}
-	}
+	}*/
 	
 	@Override
 	public int GetCurrentVersion()
@@ -439,13 +433,14 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 	
 	@Override
-	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TradeRuleScreenHandler(this, tradeIndex); }
 	
 	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler
 	{
 		private UniversalEnergyTraderData trader;
+		private final int tradeIndex;
 		
-		public TradeRuleScreenHandler(UniversalEnergyTraderData trader) { this.trader = trader; }
+		public TradeRuleScreenHandler(UniversalEnergyTraderData trader, int tradeIndex) { this.trader = trader; this.tradeIndex = tradeIndex; }
 
 		@Override
 		public void reopenLastScreen() {
@@ -454,7 +449,9 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 
 		@Override
 		public ITradeRuleHandler ruleHandler() {
-			return this.trader;
+			if(this.tradeIndex < 0)
+				return this.trader;
+			return this.trader.getTrade(this.tradeIndex);
 		}
 
 		@Override
@@ -464,11 +461,11 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		
 	}
 	
-	@Override
+	/*@Override
 	public void sendPriceMessage(TradePriceData priceData) {
 		if(this.isClient())
 			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyPrice2(this.getTraderID(), priceData.tradeIndex, priceData.cost, priceData.type, priceData.amount));
-	}
+	}*/
 	
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {

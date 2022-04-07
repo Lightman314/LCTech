@@ -3,18 +3,12 @@ package io.github.lightman314.lctech.trader.fluid;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 
 public class TradeFluidHandler{
 
@@ -35,10 +29,6 @@ public class TradeFluidHandler{
 			this.externalHandlers.put(relativeDirection, new ExternalFluidHandler(this.trader, relativeDirection));
 		return this.externalHandlers.get(relativeDirection);
 	}
-
-	public void resetDrainableTank() {
-		this.externalHandlers.forEach((relDir,handler) -> handler.resetDrainableTank());
-	}
 	
 	public static class ExternalFluidHandler implements IFluidHandler
 	{
@@ -46,44 +36,41 @@ public class TradeFluidHandler{
 		protected final IFluidTrader trader;
 		protected final Direction relativeDirection;
 		
-		private FluidTradeData drainableTank = null;
-		
 		protected ExternalFluidHandler(IFluidTrader trader, Direction relativeDirection) { this.trader = trader; this.relativeDirection = relativeDirection; }
 
 		public final boolean isCreative() { return this.trader.getCoreSettings().isCreative(); }
-		public final int getTradeCount() { return this.trader.getTradeCount(); }
-		public final FluidTradeData getTrade(int tradeIndex) { return this.trader.getTrade(tradeIndex); }
-		public final void markTradesDirty() {	this.trader.markTradesDirty(); }
+		public final int getTankCount() { return this.trader.getStorage().getContents().size(); }
+		public final FluidEntry getTankEntry(FluidStack fluid) { return this.trader.getStorage().getTank(fluid); }
+		public final FluidEntry getTankEntry(int tank) { return (tank < 0 || tank >= this.trader.getStorage().getContents().size()) ? null : this.trader.getStorage().getContents().get(tank); }
+		public final void markStorageDirty() {	this.trader.getStorage().clearInvalidTanks(); this.trader.markStorageDirty(); }
 		
-		public void resetDrainableTank() { this.drainableTank = this.getValidDrainTrade(FluidStack.EMPTY); }
-		
-		public FluidTradeData getValidDrainTrade(FluidStack resource)
+		public FluidEntry getValidDrainTank(FluidStack resource)
 		{
-			for(int i = 0; i < this.getTradeCount(); i++)
+			for(FluidEntry entry : this.trader.getStorage().getContents())
 			{
-				FluidTradeData trade = this.getTrade(i);
-				if(!trade.getTankContents().isEmpty())
+				if(!entry.filter.isEmpty())
 				{
 					//Can drain sales trades if a pending drain has been made
-					if(trade.hasPendingDrain() && (trade.getTankContents().isFluidEqual(resource) || resource.isEmpty()))
-						return trade;
+					if(entry.hasPendingDrain() && (entry.filter.isFluidEqual(resource) || resource.isEmpty()))
+						return entry;
 					//Can also drain purchase trades if draining is enabled.
-					if(trade.isPurchase() && trade.canDrainExternally() && (trade.getTankContents().isFluidEqual(resource) || resource.isEmpty()))
-						return trade;
+					if(this.allowAutoDraining(entry.filter) && entry.drainable)
+						return entry;
 				}
 			}
 			return null;
 		}
 		
-		public FluidTradeData getValidFillTrade(FluidStack resource)
-		{
-			for(int i = 0; i < this.getTradeCount(); i++)
+		private boolean allowAutoDraining(FluidStack fluid) {
+			if(fluid.isEmpty())
+				return false;
+			for(int i = 0; i < this.trader.getTradeCount(); ++i)
 			{
-				FluidTradeData trade = this.getTrade(i);
-				if(trade.canFillExternally() && trade.getProduct().isFluidEqual(resource) && trade.validTankContents() && trade.getTankSpace() > 0)
-					return trade;
+				FluidTradeData trade = this.trader.getTrade(i);
+				if(trade.isSale() && trade.getProduct().isFluidEqual(fluid))
+					return false;
 			}
-			return null;
+			return true;
 		}
 		
 		@Override
@@ -93,34 +80,14 @@ public class TradeFluidHandler{
 		
 		@Override
 		public FluidStack getFluidInTank(int tank) {
-			//Set to only display the contents of the drainable tank to fix the create pump issue.
-			//Was originally just "return this.getTrade(tank).getTankContents();"
-			//Should be a perfectly reasonable return function, especially since the value is supposed to never be modified,
-			//The purpose of this function seems to be more of a read-only query just in case something like waila wants to know what fluids are in the tank, etc.
-			//If you want to see if you can drain/fill your specific (or any) fluid, that's what the fill/drain with FluidAction.SIMULATE are for.
-			if(drainableTank == null)
-				this.resetDrainableTank();
-			FluidTradeData trade = this.getTrade(tank);
-			if(trade == this.drainableTank)	
-			{
-				if(trade.hasPendingDrain())
-				{
-					FluidStack drainableTank = trade.getTankContents();
-					if(!drainableTank.isEmpty())
-						drainableTank.setAmount(trade.getPendingDrain());
-					return drainableTank;
-				}
-				else if(trade.isPurchase() && trade.canDrainExternally())
-				{
-					return trade.getTankContents();
-				}
-			}
+			if(tank >= 0 && tank < this.trader.getStorage().getContents().size())
+				return this.trader.getStorage().getContents().get(tank).getTankContents();
 			return FluidStack.EMPTY;
 		}
 
 		@Override
 		public int getTankCapacity(int tank) {
-			return this.getTrade(tank).getTankCapacity();
+			return this.trader.getTankCapacity();
 		}
 		
 		protected final boolean canFill() {
@@ -131,30 +98,25 @@ public class TradeFluidHandler{
 		public boolean isFluidValid(int tank, FluidStack stack) {
 			if(!this.canFill())
 				return false;
-			return this.getTrade(tank).canFillExternally(stack);
+			FluidEntry entry = this.getTankEntry(tank);
+			if(entry == null)
+				return false;
+			return entry.fillable && entry.filter.isFluidEqual(stack);
 		}
 		
 		@Override
 		public int fill(FluidStack resource, FluidAction action) {
 			if(!this.canFill())
 				return 0;
-			FluidTradeData trade = this.getValidFillTrade(resource);
-			if(trade != null)
+			FluidEntry tank = this.getTankEntry(resource);
+			if(tank != null)
 			{
 				//Fill the tank
-				int fillAmount = MathUtil.clamp(resource.getAmount(), 0, trade.getTankSpace());
+				int fillAmount = MathUtil.clamp(resource.getAmount(), 0, this.trader.getStorage().getFillableAmount(resource));
 				if(action.execute())
 				{
-					FluidStack tank = trade.getTankContents();
-					if(tank.isEmpty())
-					{
-						tank = resource.copy();
-						tank.setAmount(fillAmount);
-					}
-					else
-						tank.grow(fillAmount);
-					trade.setTankContents(tank);
-					this.markTradesDirty();
+					tank.addAmount(fillAmount);
+					this.markStorageDirty();
 				}
 				return fillAmount;
 			}
@@ -171,16 +133,16 @@ public class TradeFluidHandler{
 				return FluidStack.EMPTY;
 			if(resource.isEmpty())
 				return FluidStack.EMPTY;
-			FluidTradeData trade = getValidDrainTrade(resource);
-			if(trade != null)
+			FluidEntry tank = this.getValidDrainTank(resource);
+			if(tank != null)
 			{
 				int drainAmount = 0;
-				if(trade.hasPendingDrain()) //Limit drain amount to pending drain
-					drainAmount = MathUtil.clamp(resource.getAmount(), 0, this.isCreative() ? trade.getPendingDrain() : Math.min(trade.getPendingDrain(), trade.getTankContents().getAmount()));
+				if(tank.hasPendingDrain()) //Limit drain amount to pending drain
+					drainAmount = Math.min(resource.getAmount(), this.isCreative() ? tank.getPendingDrain() : Math.min(tank.getPendingDrain(), tank.getStoredAmount()));
 				else //Allow full drainage, as this is a purchase tank drainage
-					drainAmount = MathUtil.clamp(resource.getAmount(), 0, trade.getTankContents().getAmount());
+					drainAmount = Math.min(resource.getAmount(), tank.getTankContents().getAmount());
 				
-				FluidStack returnStack = trade.getTankContents();
+				FluidStack returnStack = tank.filter.copy();
 				returnStack.setAmount(drainAmount);
 				
 				if(action.execute())
@@ -188,15 +150,11 @@ public class TradeFluidHandler{
 					//If creative, don't modify the tank
 					if(!this.isCreative())
 					{
-						FluidStack tank = trade.getTankContents();
-						tank.shrink(drainAmount);
-						if(tank.isEmpty())
-							tank = FluidStack.EMPTY;
-						trade.setTankContents(tank);
+						tank.removeAmount(drainAmount);
 					}
-					if(trade.hasPendingDrain())
-						trade.shrinkPendingDrain(drainAmount);
-					this.markTradesDirty();
+					if(tank.hasPendingDrain())
+						tank.removePendingDrain(drainAmount);
+					this.markStorageDirty();
 				}
 				
 				return returnStack;
@@ -209,16 +167,16 @@ public class TradeFluidHandler{
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(!this.canDrain())
 				return FluidStack.EMPTY;
-			FluidTradeData trade = getValidDrainTrade(FluidStack.EMPTY);
-			if(trade != null)
+			FluidEntry tank = getValidDrainTank(FluidStack.EMPTY);
+			if(tank != null)
 			{
 				int drainAmount = 0;
-				if(trade.hasPendingDrain()) //Limit drain amount to pending drain
-					drainAmount = MathUtil.clamp(maxDrain, 0, this.isCreative() ? trade.getPendingDrain() : Math.min(trade.getPendingDrain(), trade.getTankContents().getAmount()));
+				if(tank.hasPendingDrain()) //Limit drain amount to pending drain
+					drainAmount = Math.min(maxDrain, this.isCreative() ? tank.getPendingDrain() : Math.min(tank.getPendingDrain(), tank.getTankContents().getAmount()));
 				else //Allow full drainage, as this is a purchase tank drainage
-					drainAmount = MathUtil.clamp(maxDrain, 0, trade.getTankContents().getAmount());
+					drainAmount = Math.min(maxDrain, tank.getTankContents().getAmount());
 				
-				FluidStack returnStack = trade.getTankContents();
+				FluidStack returnStack = tank.filter.copy();
 				returnStack.setAmount(drainAmount);
 				
 				if(action.execute())
@@ -226,15 +184,11 @@ public class TradeFluidHandler{
 					//If creative, don't modify the tank
 					if(!this.isCreative())
 					{
-						FluidStack tank = trade.getTankContents();
-						tank.shrink(drainAmount);
-						if(tank.isEmpty())
-							tank = FluidStack.EMPTY;
-						trade.setTankContents(tank);
+						tank.removeAmount(drainAmount);
 					}
-					if(trade.hasPendingDrain())
-						trade.shrinkPendingDrain(drainAmount);
-					this.markTradesDirty();
+					if(tank.hasPendingDrain())
+						tank.removePendingDrain(drainAmount);
+					this.markStorageDirty();
 				}
 				
 				return returnStack;
@@ -246,7 +200,8 @@ public class TradeFluidHandler{
 	}
 	
 	//Run when the player clicks on the tank gui with a held item on both client and server.
-	public void OnPlayerInteraction(AbstractContainerMenu menu, Player player, int tradeIndex)
+	//Removed, as this will be handled in the FluidStorageTab.
+	/*public void OnPlayerInteraction(AbstractContainerMenu menu, Player player, int tradeIndex)
 	{
 		ItemStack heldStack = menu.getCarried();
 		if(heldStack.isEmpty()) //If held stack is empty, do nothing
@@ -299,6 +254,6 @@ public class TradeFluidHandler{
 				
 		}
 		
-	}
+	}*/
 	
 }

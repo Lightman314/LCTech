@@ -7,9 +7,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lctech.menu.slots.BatteryInputSlot;
-import io.github.lightman314.lctech.menu.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
@@ -20,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContaine
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -39,6 +38,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+@Deprecated
 public class EnergyTraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu {
 	
 	private final Supplier<IEnergyTrader> traderSource;
@@ -54,7 +54,7 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	//World Constructor
 	public EnergyTraderStorageMenu(int windowID, Inventory inventory, BlockPos traderPosition)
 	{
-		this(ModMenus.ENERGY_TRADER_STORAGE, windowID, inventory, traderPosition);
+		this(/*ModMenus.ENERGY_TRADER_STORAGE*/null, windowID, inventory, traderPosition);
 	}
 	
 	protected EnergyTraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, BlockPos traderPosition)
@@ -280,7 +280,7 @@ public class EnergyTraderStorageMenu extends AbstractContainerMenu implements IT
 	public static class EnergyTraderStorageMenuUniversal extends EnergyTraderStorageMenu {
 
 		public EnergyTraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.ENERGY_TRADER_STORAGE_UNIVERSAL, windowID, inventory, () -> {
+			super(/*ModMenus.ENERGY_TRADER_STORAGE_UNIVERSAL*/null, windowID, inventory, () -> {
 				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);

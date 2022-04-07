@@ -32,6 +32,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+@Deprecated
 public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/fluidtradeprice.png");
@@ -69,8 +70,8 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 		//Store local copies of togglable data
 		FluidTradeData localTrade = this.trade.get();
 		this.localDirection = localTrade.getTradeDirection();
-		this.localDrainable = localTrade.canDrainExternally();
-		this.localFillable = localTrade.canFillExternally();
+		//this.localDrainable = localTrade.canDrainExternally();
+		//this.localFillable = localTrade.canFillExternally();
 		this.localQuantity = localTrade.getBucketQuantity();
 	}
 	
@@ -190,7 +191,7 @@ public class TradeFluidPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void SaveChanges()
 	{
-		this.getTrader().sendPriceMessage(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), this.localDirection, this.localQuantity, this.localDrainable, this.localFillable));
+		//this.getTrader().sendPriceMessage(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), this.localDirection, this.localQuantity, this.localDrainable, this.localFillable));
 	}
 	
 	private void PressBackButton(Button button)

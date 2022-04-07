@@ -15,8 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
-import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRNextTrader;
-import io.github.lightman314.lightmanscurrency.network.message.cashregister.MessageCRSkipTo;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageExecuteTrade;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -25,11 +23,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
+@Deprecated
 public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/energy_trader.png");
@@ -110,7 +108,7 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 		this.buttonBack.visible = this.menu.isUniversal();
 		
 		//Cash Register Widget(s)
-		if(this.menu.isCashRegister() && this.menu.getCashRegister().getPairedTraderSize() > 1)
+		/*if(this.menu.isCashRegister() && this.menu.getCashRegister().getPairedTraderSize() > 1)
 		{
 			this.buttonLeft = this.addRenderableWidget(IconAndButtonUtil.leftButton(this.leftPos - 20, this.topPos, this::PressArrowButton));
 			this.buttonRight = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageWidth, this.topPos, this::PressArrowButton));
@@ -121,7 +119,7 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 			
 			this.buttonSkipToPage = this.addRenderableWidget(IconAndButtonUtil.rightButton(this.leftPos + this.imageWidth - 68, this.topPos - 20, this::PressPageSkipButton));
 			this.buttonSkipToPage.active = false;
-		}
+		}*/
 		
 		this.initTradeButtons();
 		
@@ -226,7 +224,7 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 		int tradeIndex = 0;
 		if(tradeButtons.contains(button))
 			tradeIndex = tradeButtons.indexOf(button);
-		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(tradeIndex));
+		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageExecuteTrade(0, tradeIndex));
 	}
 	
 	private void PressBackButton(Button button)
@@ -234,7 +232,7 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 		this.minecraft.setScreen(new TradingTerminalScreen());
 	}
 
-	private void PressArrowButton(Button button)
+	/*private void PressArrowButton(Button button)
 	{
 		int direction = 1;
 		if(button == this.buttonLeft)
@@ -247,7 +245,7 @@ public class EnergyTraderScreen extends AbstractContainerScreen<EnergyTraderMenu
 	{
 		int page = this.getPageInput();
 		LightmansCurrencyPacketHandler.instance.sendToServer(new MessageCRSkipTo(page));
-	}
+	}*/
 	
 	private int getPageInput()
 	{

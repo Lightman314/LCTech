@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageFluidEditSet implements IMessage<MessageFluidEditSet>{
 	
 	private ItemStack item;

@@ -14,6 +14,7 @@ import net.minecraftforge.fluids.FluidUtil;
 public class FluidInputSlot extends Slot{
 
 	public static final ResourceLocation EMPTY_FLUID_SLOT = new ResourceLocation(LCTech.MODID, "items/empty_fluid_slot");
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_FLUID_SLOT);
 	
 	public FluidInputSlot(Container inventory, int index, int x, int y)
 	{
@@ -31,7 +32,7 @@ public class FluidInputSlot extends Slot{
 	
 	@Override
 	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_FLUID_SLOT);
+		return BACKGROUND;
 	}
 	
 }

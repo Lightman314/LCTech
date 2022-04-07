@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.common;
 import io.github.lightman314.lctech.client.gui.widget.button.FluidTradeButton;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 
+@Deprecated
 public class FluidTraderUtil {
 
 	public static final int TRADEBUTTON_VERT_SPACER = 4;

@@ -51,7 +51,7 @@ public class FluidRenderUtil {
 			float maxV = sprite.getV1();
 			float deltaU = maxU - minU;
 			float deltaV = maxV - minV;
-			double tankLevel = percent * height;
+			double tankLevel = Math.min(1d, percent) * height;
 			int waterColor = tank.getFluid().getAttributes().getColor(tank);
 			float red = (float)(waterColor >> 16 & 255) / 255.0f;
 			float green = (float)(waterColor >> 8 & 255) / 255.0f;

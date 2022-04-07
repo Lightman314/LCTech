@@ -3,6 +3,7 @@
     "block.lctech.fluid_tap_bundle": "Fluid Tap Bundle",
     "block.lctech.iron_tank": "Iron Tank",
     "block.lctech.gold_tank": "Gold Tank",
+    "block.lctech.diamond_tank": "Diamond Tank",
     "block.lctech.fluid_trader_server_sml": "Small Fluid Trading Server",
     "block.lctech.fluid_trader_server_med": "Medium Fluid Trading Server",
     "block.lctech.fluid_trader_server_lrg": "Large Fluid Trading Server",
@@ -31,6 +32,8 @@
     "gui.lctech.energytrade.tooltip.sale": "§6Selling §r%s",
     "gui.lctech.energytrade.tooltip.purchase": "§6Purchasing §r%s",
     "gui.lctech.energytrade.pending_drain": "Waiting to drain %s.",
+    
+    "tooltip.lightmanscurrency.nooutputcontainer": "Invalid output container.",
     
     "tooltip.lctech.fluid_tank.capacity": "Holds up to %smB",
     "tooltip.lctech.trader.fluid_edit": "Click to Set Fluid",

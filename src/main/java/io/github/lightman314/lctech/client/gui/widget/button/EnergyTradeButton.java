@@ -28,6 +28,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+@Deprecated
 public class EnergyTradeButton extends Button{
 
 	public static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/energy_trader_buttons.png");
@@ -114,7 +115,7 @@ public class EnergyTradeButton extends Button{
 			//Permission
 			hasPermission = !trader.runPreTradeEvent(player, tradeIndex).isCanceled();
 			//CanAfford
-			canAfford = canAfford(trader, tradeIndex, availableCoins, batterySlot) && trade.canTransferEnergy(trader, batterySlot);
+			//canAfford = canAfford(trader, tradeIndex, availableCoins, batterySlot) && trade.canTransferEnergy(trader, batterySlot);
 		}
 		
 		//Render the trade text
@@ -175,7 +176,7 @@ public class EnergyTradeButton extends Button{
 		}
 		else if(trade.isPurchase())
 		{
-			return trade.canTransferEnergy(trader, batterySlot);
+			//return trade.canTransferEnergy(trader, batterySlot);
 		}
 		return true;
 	}

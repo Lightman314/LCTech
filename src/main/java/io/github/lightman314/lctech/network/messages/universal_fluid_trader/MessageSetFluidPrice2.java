@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 	
 	UUID traderID;
@@ -59,8 +60,8 @@ public class MessageSetFluidPrice2 implements IMessage<MessageSetFluidPrice2>{
 				trade.setCost(message.price);
 				trade.setTradeDirection(message.tradeType);
 				trade.setBucketQuantity(message.quantity);
-				trade.setDrainableExternally(false);
-				trade.setFillableExternally(false);
+				//trade.setDrainableExternally(false);
+				//trade.setFillableExternally(false);
 				
 				fluidTrader.markTradesDirty();
 				

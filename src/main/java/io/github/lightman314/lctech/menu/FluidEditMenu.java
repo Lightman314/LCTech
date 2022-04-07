@@ -6,7 +6,6 @@ import java.util.UUID;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditClose;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditSet;
@@ -37,6 +36,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.registries.ForgeRegistries;
 
+@Deprecated
 public class FluidEditMenu extends AbstractContainerMenu{
 
 	private static final List<Fluid> BLACKLISTED_FLUIDS = Lists.newArrayList(Fluids.EMPTY);
@@ -66,7 +66,7 @@ public class FluidEditMenu extends AbstractContainerMenu{
 	
 	public FluidEditMenu(int windowId, Inventory inventory, BlockPos traderPos, int tradeIndex)
 	{
-		this(ModMenus.FLUID_EDIT, windowId, inventory, tradeIndex, () -> {
+		this(/*ModMenus.FLUID_EDIT*/null, windowId, inventory, tradeIndex, () -> {
 			BlockEntity be = inventory.player.level.getBlockEntity(traderPos);
 			if(be instanceof IFluidTrader)
 				return (IFluidTrader)be;
@@ -231,7 +231,7 @@ public class FluidEditMenu extends AbstractContainerMenu{
 	public static class UniversalFluidEditMenu extends FluidEditMenu
 	{
 		public UniversalFluidEditMenu(int windowID, Inventory inventory, UUID traderID, int tradeIndex) {
-			super(ModMenus.UNIVERSAL_FLUID_EDIT, windowID, inventory, tradeIndex, () ->{
+			super(/*ModMenus.UNIVERSAL_FLUID_EDIT*/null, windowID, inventory, tradeIndex, () ->{
 				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);

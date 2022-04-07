@@ -8,7 +8,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
@@ -27,13 +26,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+@Deprecated
 public class FluidTradeButton extends Button{
 	
 	public static final ResourceLocation TRADE_TEXTURES = new ResourceLocation(LCTech.MODID, "textures/gui/container/fluid_trader_buttons.png");
@@ -119,17 +118,17 @@ public class FluidTradeButton extends Button{
 		//Draw Button BG
 		screen.blit(poseStack, x, y, xOffset, yOffset, WIDTH, HEIGHT);
 		//Draw drain & fill icons
-		if(trader.drainCapable())
+		/*if(trader.drainCapable())
 			screen.blit(poseStack, x + ICONPOS_X, y + DRAINICON_Y, trade.canDrainExternally() ? 0 : 10, HEIGHT * 4,  10, 10);
 		if(trader.drainCapable() && storageMode)
-			screen.blit(poseStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFillExternally() ? 20 : 30, HEIGHT * 4, 10, 10);
+			screen.blit(poseStack, x + ICONPOS_X, y + FILLICON_Y, trade.canFillExternally() ? 20 : 30, HEIGHT * 4, 10, 10);*/
 		
 		//Collect data
 		boolean hasPermission = forceActive ? true : false;
 		boolean hasDiscount = false;
 		boolean isValid = forceActive ? true : trade.isValid();
 		boolean hasStock = forceActive ? true : trade.hasStock(trader, getPlayer()) || trader.getCoreSettings().isCreative();
-		boolean hasSpace = forceActive ? true : trade.hasSpace() || trader.getCoreSettings().isCreative();
+		boolean hasSpace = forceActive ? true : trade.hasSpace(trader) || trader.getCoreSettings().isCreative();
 		boolean canAfford = forceActive ? true : false;
 		CoinValue cost = trade.getCost();
 		if(!forceActive)
@@ -144,7 +143,7 @@ public class FluidTradeButton extends Button{
 			//Permission
 			hasPermission = !trader.runPreTradeEvent(player, tradeIndex).isCanceled();
 			//CanAfford
-			canAfford = canAfford(trader, tradeIndex, availableCoins, bucketSlot) && trade.canTransferFluids(bucketSlot);
+			canAfford = canAfford(trader, tradeIndex, availableCoins, bucketSlot);// && trade.canTransferFluids(bucketSlot);
 			
 		}
 		//Render the trade text
@@ -160,11 +159,11 @@ public class FluidTradeButton extends Button{
 		bucketStack.setCount(trade.getBucketQuantity());
 		ItemRenderUtil.drawItemStack(screen, font, bucketStack, x + BUCKETPOS_X, y + BUCKETPOS_Y);
 		//Render the fluid tank
-		if(!trade.getTankContents().isEmpty())
+		/*if(!trade.getTankContents().isEmpty())
 		{
 			//Shader reset in drawFluidTankInGUI function, as drawItemStack changes it in some way shape or form.
 			FluidRenderUtil.drawFluidTankInGUI(trade.getTankContents(), x + TANKPOS_X, y + TANKPOS_Y, TANK_SIZE_X, TANK_SIZE_Y, trade.getTankFillPercent());
-		}
+		}*/
 		
 		//Draw Button Overlay
 		//Reset render system color & shader
@@ -208,13 +207,13 @@ public class FluidTradeButton extends Button{
 		}
 		else if(isMouseOverIcon(0, x, y, mouseX, mouseY) && trader.drainCapable())
 		{
-			FluidTradeData trade = trader.getTrade(tradeIndex);
-			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrainExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canDrainExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+			//FluidTradeData trade = trader.getTrade(tradeIndex);
+			//screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (trade.canDrainExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canDrainExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 		}
 		else if(storageMode && isMouseOverIcon(1, x, y, mouseX, mouseY) && trader.drainCapable())
 		{
-			FluidTradeData trade = trader.getTrade(tradeIndex);
-			screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFillExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canFillExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+			//FluidTradeData trade = trader.getTrade(tradeIndex);
+			//screen.renderTooltip(matrixStack, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (trade.canFillExternally() ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(trade.canFillExternally() ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 		}
 		return 0;
 	}
@@ -266,7 +265,7 @@ public class FluidTradeButton extends Button{
 	public static List<Component> getTooltipForTank(Screen screen, FluidTradeData trade, boolean storageMode)
 	{
 		List<Component> tooltips = Lists.newArrayList();
-		if(trade.getTankContents().isEmpty())
+		/*if(trade.getTankContents().isEmpty())
 		{
 			tooltips.add(new TranslatableComponent("gui.lctech.nofluid").withStyle(ChatFormatting.GRAY));
 		}
@@ -283,7 +282,7 @@ public class FluidTradeButton extends Button{
 			}
 			if(storageMode)
 				tooltips.add(new TranslatableComponent("tooltip.lctech.trader.fluid.fill_tank"));
-		}
+		}*/
 		return tooltips;
 		
 	}
@@ -307,7 +306,7 @@ public class FluidTradeButton extends Button{
 		}
 		else if(trade.isPurchase())
 		{
-			return trade.canTransferFluids(bucketSlot);
+			//return trade.canTransferFluids(bucketSlot);
 		}
 		return true;
 	}

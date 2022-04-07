@@ -11,6 +11,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetFluidTradeProduct2 implements IMessage<MessageSetFluidTradeProduct2>{
 	
 	UUID traderID;

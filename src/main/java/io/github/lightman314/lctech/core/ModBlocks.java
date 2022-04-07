@@ -40,6 +40,12 @@ public class ModBlocks {
 			.strength(3.0f, 5.0f)
 			.sound(SoundType.GLASS)
 			));
+	public static final BlockItemPair DIAMOND_TANK = register("diamond_tank", BlockItemType.FLUID_TANK, LightmansCurrency.MACHINE_GROUP, new FluidTankBlock(
+			() -> TechConfig.SERVER.diamondTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
+			Block.Properties.of(Material.GLASS)
+			.strength(3.0f, 5.0f)
+			.sound(SoundType.GLASS)
+			));
 	
 	//Fluid traders
 	public static final BlockItemPair FLUID_TAP = register("fluid_tap", LightmansCurrency.TRADING_GROUP, new FluidTapBlock(

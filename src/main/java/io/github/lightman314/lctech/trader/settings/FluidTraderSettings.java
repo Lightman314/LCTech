@@ -32,6 +32,14 @@ public class FluidTraderSettings extends Settings{
 	public DirectionalSettings getInputSides() { return this.inputSides; }
 	DirectionalSettings outputSides = new DirectionalSettings();
 	public DirectionalSettings getOutputSides() { return this.outputSides; }
+	public boolean hasOutputSide() {
+		for(Direction side : Direction.values())
+		{
+			if(this.outputSides.get(side))
+				return true;
+		}
+		return false;
+	}
 	
 	public CompoundTag toggleInputSide(Player requestor, Direction side)
 	{

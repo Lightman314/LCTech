@@ -36,6 +36,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
+@Deprecated
 public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTraderStorageMenu>{
 
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/container/fluid_trader_storage.png");
@@ -285,17 +286,17 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 				{
 					//If held item is empty, set the product to empty
 					trade.setProduct(FluidStack.EMPTY);
-					trader.sendSetTradeFluidMessage(i, FluidStack.EMPTY);
+					//trader.sendSetTradeFluidMessage(i, FluidStack.EMPTY);
 					return true;
 				}
 				else
 				{
 					//If the held item is not empty, set the product to the fluid in the players hand
-					final int index = i;
+					//final int index = i;
 					AtomicBoolean consume = new AtomicBoolean(false);
 					FluidUtil.getFluidContained(heldItem).ifPresent(fluid->{
 						trade.setProduct(fluid);
-						trader.sendSetTradeFluidMessage(index, fluid);
+						//trader.sendSetTradeFluidMessage(index, fluid);
 						consume.set(true);
 					});
 					if(consume.get())
@@ -320,7 +321,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 				{
 					if(FluidTradeButton.isMouseOverIcon(icon, buttonX, buttonY, (int)mouseX, (int)mouseY))
 					{
-						trader.sendToggleIconMessage(i, icon);
+						//trader.sendToggleIconMessage(i, icon);
 					}
 				}
 			}
@@ -372,7 +373,7 @@ public class FluidTraderStorageScreen extends AbstractContainerScreen<FluidTrade
 	
 	private void PressTradeRulesButton(Button button)
 	{
-		this.minecraft.setScreen(new TradeRuleScreen(this.menu.getTrader().getRuleScreenHandler()));
+		this.minecraft.setScreen(new TradeRuleScreen(this.menu.getTrader().getRuleScreenHandler(-1)));
 	}
 	
 	private void PressSettingsButton(Button button)

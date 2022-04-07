@@ -15,7 +15,7 @@ public class ModBlockEntities {
 	private static final List<BlockEntityType<?>> TILE_ENTITY_TYPES = new ArrayList<>();
 	
 	//Fluid Tank
-	public static final BlockEntityType<FluidTankBlockEntity> FLUID_TANK = buildType("fluid_tank", BlockEntityType.Builder.of(FluidTankBlockEntity::new, ModBlocks.IRON_TANK.block, ModBlocks.GOLD_TANK.block));
+	public static final BlockEntityType<FluidTankBlockEntity> FLUID_TANK = buildType("fluid_tank", BlockEntityType.Builder.of(FluidTankBlockEntity::new, ModBlocks.IRON_TANK.block, ModBlocks.GOLD_TANK.block, ModBlocks.DIAMOND_TANK.block));
 	
 	//Fluid Trader
 	public static final BlockEntityType<FluidTraderBlockEntity> FLUID_TRADER = buildType("fluid_trader", BlockEntityType.Builder.of(FluidTraderBlockEntity::new, ModBlocks.FLUID_TAP.block, ModBlocks.FLUID_TAP_BUNDLE.block));

@@ -7,22 +7,14 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.client.gui.screen.TradeEnergyPriceScreen.TradePriceData;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
 import io.github.lightman314.lctech.core.ModBlockEntities;
-import io.github.lightman314.lctech.items.UpgradeItem;
-import io.github.lightman314.lctech.menu.EnergyTraderMenu;
-import io.github.lightman314.lctech.menu.EnergyTraderStorageMenu;
-import io.github.lightman314.lctech.network.LCTechPacketHandler;
-import io.github.lightman314.lctech.network.messages.energy_trader.MessageSetEnergyPrice;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
-import io.github.lightman314.lctech.upgrades.CapacityUpgrade;
 import io.github.lightman314.lctech.util.DirectionalUtil;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
-import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEntity.IItemHandlerBlock;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
@@ -30,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScree
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHandler;
 import io.github.lightman314.lightmanscurrency.network.message.logger.MessageClearLogger;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
@@ -41,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -48,14 +42,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -121,6 +111,8 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	
 	public List<EnergyTradeData> getAllTrades() { return this.trades; }
 	
+	public List<EnergyTradeData> getTradeInfo() { return this.trades; }
+	
 	public TradeEnergyHandler getEnergyHandler() { return this.energyHandler; }
 	
 	public void requestAddOrRemoveTrade(boolean isAdd)
@@ -177,8 +169,8 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 		}
 	}
 	
-	@Override
-	public void forceReopen(List<Player> users) { }
+	/*@Override
+	public void forceReopen(List<Player> users) { }*/
 	
 	public List<Settings> getAdditionalSettings() { return Lists.newArrayList(this.energySettings); }
 	
@@ -263,7 +255,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 		
 	}
 	
-	@Override
+	/*@Override
 	public MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this);
 	}
@@ -340,7 +332,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 			return this.blockEntity.getName();
 		}
 		
-	}
+	}*/
 	
 	@Override
 	public int GetCurrentVersion()
@@ -607,13 +599,14 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	}
 
 	@Override
-	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TradeRuleScreenHandler(this); }
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TradeRuleScreenHandler(this, tradeIndex); }
 	
 	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler
 	{
 		private EnergyTraderBlockEntity blockEntity;
+		private final int tradeIndex;
 		
-		public TradeRuleScreenHandler(EnergyTraderBlockEntity blockEntity) { this.blockEntity = blockEntity; }
+		public TradeRuleScreenHandler(EnergyTraderBlockEntity blockEntity, int tradeIndex) { this.blockEntity = blockEntity; this.tradeIndex = tradeIndex; }
 
 		@Override
 		public void reopenLastScreen() {
@@ -622,7 +615,9 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 
 		@Override
 		public ITradeRuleHandler ruleHandler() {
-			return this.blockEntity;
+			if(this.tradeIndex < 0)
+				return this.blockEntity;
+			return this.blockEntity.getTrade(this.tradeIndex);
 		}
 
 		@Override
@@ -632,11 +627,11 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 		
 	}
 
-	@Override
+	/*@Override
 	public void sendPriceMessage(TradePriceData priceData) {
 		if(this.level.isClientSide)
 			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyPrice(this.worldPosition, priceData.tradeIndex, priceData.cost, priceData.type, priceData.amount));
-	}
+	}*/
 
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {

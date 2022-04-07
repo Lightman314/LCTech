@@ -7,18 +7,15 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lctech.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
@@ -37,6 +34,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+@Deprecated
 public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMenu{
 	
 	private final Supplier<IEnergyTrader> traderSource;
@@ -50,7 +48,7 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 	//World Constructor
 	public EnergyTraderMenu(int windowID, Inventory inventory, BlockPos traderPosition)
 	{
-		this(ModMenus.ENERGY_TRADER, windowID, inventory, traderPosition);
+		this(/*ModMenus.ENERGY_TRADER*/null, windowID, inventory, traderPosition);
 	}
 	
 	protected EnergyTraderMenu(MenuType<?> type, int windowID, Inventory inventory, BlockPos traderPosition)
@@ -234,7 +232,7 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 		
 	}
 	
-	public void ExecuteTrade(int tradeIndex)
+	public void ExecuteTrade(int trader, int tradeIndex)
 	{
 		if(this.getTrader() == null)
 		{
@@ -266,8 +264,8 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 			return;
 		
 		//Abort if the energy cannot be transferred properly
-		if(!trade.canTransferEnergy(this.getTrader(), this.getBatteryStack()))
-			return;
+		//if(!trade.canTransferEnergy(this.getTrader(), this.getBatteryStack()))
+		//	return;
 		
 		if(trade.isSale())
 		{
@@ -291,9 +289,9 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 		}
 		
 		//Transfer Energy
-		ItemStack newBattery = trade.transferEnergy(this.getTrader(), this.getBatteryStack());
-		this.batteryInventory.setItem(0, newBattery);
-		this.getTrader().markEnergyStorageDirty();
+		//ItemStack newBattery = trade.transferEnergy(this.getTrader(), this.getBatteryStack());
+		//this.batteryInventory.setItem(0, newBattery);
+		//this.getTrader().markEnergyStorageDirty();
 		
 		//Log the successful trade
 		this.getTrader().getLogger().AddLog(this.player, trade, price, this.getTrader().getCoreSettings().isCreative());
@@ -308,7 +306,7 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 	public static class EnergyTraderMenuUniversal extends EnergyTraderMenu {
 
 		public EnergyTraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.ENERGY_TRADER_UNIVERSAL, windowID, inventory, () -> {
+			super(/*ModMenus.ENERGY_TRADER_UNIVERSAL*/null, windowID, inventory, () -> {
 				UniversalTraderData data = null;
 				if(inventory.player.level.isClientSide)
 					data = ClientTradingOffice.getData(traderID);
@@ -327,15 +325,15 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 	
 	public boolean isUniversal() { return false; }
 	
-	public static class EnergyTraderMenuCR extends EnergyTraderMenu implements ITraderCashRegisterMenu{
-
-		private CashRegisterBlockEntity cashRegister;
+	public static class EnergyTraderMenuCR extends EnergyTraderMenu// implements ITraderCashRegisterMenu
+	{
+		//private CashRegisterBlockEntity cashRegister;
 		
 		public EnergyTraderMenuCR(int windowID, Inventory inventory, BlockPos traderPos, CashRegisterBlockEntity cashRegister) {
-			super(ModMenus.ENERGY_TRADER_CR, windowID, inventory, traderPos);
-			this.cashRegister = cashRegister;
+			super(/*ModMenus.ENERGY_TRADER_CR*/null, windowID, inventory, traderPos);
+			//this.cashRegister = cashRegister;
 		}
-		@Override
+		/*@Override
 		public boolean isCashRegister() { return true; }
 		
 		@Override
@@ -367,7 +365,7 @@ public class EnergyTraderMenu extends AbstractContainerMenu implements ITraderMe
 			if(previousIndex < 0)
 				previousIndex = this.cashRegister.getPairedTraderSize() - 1;
 			this.cashRegister.OpenContainer(previousIndex, index, 1, this.player);
-		}
+		}*/
 
 	}
 	

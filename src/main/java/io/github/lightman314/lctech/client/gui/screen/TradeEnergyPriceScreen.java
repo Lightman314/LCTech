@@ -33,6 +33,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
+@Deprecated
 public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 
 	private static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/energytradeprice.png");
@@ -161,7 +162,7 @@ public class TradeEnergyPriceScreen extends Screen implements ICoinValueInput{
 	
 	protected void SaveChanges()
 	{
-		this.trader.get().sendPriceMessage(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), this.localDirection, TextInputUtil.getIntegerValue(this.amountInput, 0)));
+		//this.trader.get().sendPriceMessage(new TradePriceData(this.tradeIndex, this.priceInput.getCoinValue(), this.localDirection, TextInputUtil.getIntegerValue(this.amountInput, 0)));
 	}
 	
 	private void PressBackButton(Button button)

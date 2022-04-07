@@ -50,7 +50,17 @@ public class EnergyTraderSettings extends Settings{
 	public DirectionalSettings getOutputSides() { return this.outputSides; }
 	private DrainMode drainMode = DrainMode.PURCHASES_ONLY;
 	public boolean isAlwaysDrainMode() { return this.drainMode == DrainMode.ALWAYS; }
-	public boolean isPurchaseDrainMode() { return this.drainMode == DrainMode.PURCHASES_ONLY; }
+	public boolean isPurchaseDrainMode() {
+		if(this.drainMode == DrainMode.PURCHASES_ONLY)
+		{
+			for(Direction side : Direction.values())
+			{
+				if(this.outputSides.get(side))
+					return true;
+			}
+		}
+		return false;
+	}
 	//private boolean exportEnergy = false;
 	//public boolean exportEnergy() { return this.exportEnergy; }
 	

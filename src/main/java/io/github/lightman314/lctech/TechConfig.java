@@ -17,6 +17,7 @@ public class TechConfig {
 		//Fluid Tanks
 		public final ForgeConfigSpec.IntValue ironTankCapacity;
 		public final ForgeConfigSpec.IntValue goldTankCapacity;
+		public final ForgeConfigSpec.IntValue diamondTankCapacity;
 		
 		//Fluid Upgrades
 		public final ForgeConfigSpec.IntValue fluidUpgradeCapacity1;
@@ -60,6 +61,9 @@ public class TechConfig {
 			
 			this.goldTankCapacity = builder.comment("The amount of fluid storage the Gold Tank can hold in Buckets (1,000mB).")
 					.defineInRange("goldTankCapacity", 25, 1, 1000);
+			
+			this.diamondTankCapacity = builder.comment("The amount of fluid storage the Diamond Tank can hold in Buckets (1,000mB).")
+					.defineInRange("diamondTankCapacity", 100, 1, 1000);
 			
 			builder.pop();
 			

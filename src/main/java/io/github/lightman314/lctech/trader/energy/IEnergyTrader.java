@@ -5,23 +5,30 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.TechConfig;
-import io.github.lightman314.lctech.client.gui.screen.TradeEnergyPriceScreen;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
+import io.github.lightman314.lctech.menu.traderstorage.AddRemoveTradeEditTab;
+import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyStorageTab;
+import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
-import io.github.lightman314.lctech.upgrades.UpgradeType;
-import io.github.lightman314.lctech.upgrades.UpgradeType.IUpgradeable;
+import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
+import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
+import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.rules.ITradeRuleHandler.ITradeRuleMessageHandler;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -34,7 +41,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<EnergyShopLogger> {
 
-	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(UpgradeType.ENERGY_CAPACITY);
+	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.ENERGY_CAPACITY);
 	
 	public default boolean allowUpgrade(UpgradeType type) {
 		return ALLOWED_UPGRADES.contains(type);
@@ -84,15 +91,14 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 	public void reapplyUpgrades();
 	public void markUpgradesDirty();
 	//Open menu functions
-	public ITradeRuleScreenHandler getRuleScreenHandler();
-	public void sendPriceMessage(TradeEnergyPriceScreen.TradePriceData priceData);
+	//public void sendPriceMessage(TradeEnergyPriceScreen.TradePriceData priceData);
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo);
 	
 	default PreTradeEvent runPreTradeEvent(Player player, int tradeIndex) { return this.runPreTradeEvent(PlayerReference.of(player), tradeIndex); }
 	default PreTradeEvent runPreTradeEvent(PlayerReference player, int tradeIndex)
 	{
 		EnergyTradeData trade = this.getTrade(tradeIndex);
-		PreTradeEvent event = new PreTradeEvent(player, trade, () -> this);
+		PreTradeEvent event = new PreTradeEvent(player, trade, this);
 		trade.beforeTrade(event);
 		if(this instanceof ITradeRuleHandler)
 			((ITradeRuleHandler)this).beforeTrade(event);
@@ -104,7 +110,7 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 	default TradeCostEvent runTradeCostEvent(PlayerReference player, int tradeIndex)
 	{
 		EnergyTradeData trade = this.getTrade(tradeIndex);
-		TradeCostEvent event = new TradeCostEvent(player, trade, () -> this);
+		TradeCostEvent event = new TradeCostEvent(player, trade, this);
 		trade.tradeCost(event);
 		if(this instanceof ITradeRuleHandler)
 			((ITradeRuleHandler)this).tradeCost(event);
@@ -116,7 +122,7 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 	default void runPostTradeEvent(PlayerReference player, int tradeIndex, CoinValue pricePaid)
 	{
 		EnergyTradeData trade = this.getTrade(tradeIndex);
-		PostTradeEvent event = new PostTradeEvent(player, trade, () -> this, pricePaid);
+		PostTradeEvent event = new PostTradeEvent(player, trade, this, pricePaid);
 		trade.afterTrade(event);
 		if(event.isDirty())
 		{
@@ -144,6 +150,123 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 			tooltip.add(new TranslatableComponent("gui.lctech.energytrade.pending_drain", EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(ChatFormatting.AQUA));
 		}
 		return tooltip;
+	}
+	
+	public default TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
+		
+		EnergyTradeData trade = this.getTrade(tradeIndex);
+		
+		if(trade == null || !trade.isValid())
+			return TradeResult.FAIL_INVALID_TRADE;
+		
+		if(!context.hasPlayerReference())
+			return TradeResult.FAIL_NULL;
+		
+		if(this.runPreTradeEvent(context.getPlayerReference(), tradeIndex).isCanceled())
+			return TradeResult.FAIL_TRADE_RULE_DENIAL;
+		
+		//Get the cost of the trade
+		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		
+		//Abort if not enough stock
+		if(!trade.hasStock(this, context.getPlayerReference()) && !this.getCoreSettings().isCreative())
+			return TradeResult.FAIL_OUT_OF_STOCK;
+		
+		if(trade.isSale())
+		{
+			
+			//Confirm that the energy can be output
+			if(!context.canFitEnergy(trade.getAmount()) && !(this.canDrainExternally() && this.getEnergySettings().isPurchaseDrainMode()))
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			
+			//Process the trades payment
+			if(!context.getPayment(price))
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			
+			//We have enough money, and the trade is valid. Execute the trade
+			//Give the energy
+			boolean drainStorage = true;
+			if(context.canFitEnergy(trade.getAmount()))
+				context.fillEnergy(trade.getAmount());
+			else //If nowhere to give the energy, add to the pending drain
+			{
+				this.addPendingDrain(trade.getAmount());
+				drainStorage = false;
+			}
+				
+			
+			//Ignore internal editing if this is creative
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Remove the purchased energy from storage
+				if(drainStorage)
+					this.shrinkEnergy(trade.getAmount());
+				
+				//Give the paid price to storage
+				this.addStoredMoney(price);					
+			}
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), tradeIndex, price);
+			
+			return TradeResult.SUCCESS;
+			
+		}
+		else if(trade.isPurchase())
+		{
+			//Abort if not enough energy to buy
+			if(!context.hasEnergy(trade.getAmount()))
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			
+			//Abort if not enough space to put the purchased fluid
+			if(!trade.hasSpace(this) && !this.getCoreSettings().isCreative())
+				return TradeResult.FAIL_NO_INPUT_SPACE;
+			
+			//Give the payment to the player
+			if(!context.givePayment(price))
+				return TradeResult.FAIL_NO_OUTPUT_SPACE;
+			
+			//We have enough money, and the trade is valid. Execute the trade
+			//Collect the product
+			if(!context.drainEnergy(trade.getAmount()))
+			{
+				//Failed somehow. Take the money back
+				context.getPayment(price);
+				return TradeResult.FAIL_CANNOT_AFFORD;
+			}
+			
+			//Ignore internal editing if this is creative
+			if(!this.getCoreSettings().isCreative())
+			{
+				//Put the purchased fluid in storage
+				this.addEnergy(trade.getAmount());
+				this.markEnergyStorageDirty();
+				//Remove the coins from storage
+				this.removeStoredMoney(price);
+			}
+			
+			//Push the post-trade event
+			this.runPostTradeEvent(context.getPlayerReference(), tradeIndex, price);
+			
+			return TradeResult.SUCCESS;
+			
+		}
+		
+		return TradeResult.FAIL_INVALID_TRADE;
+	}
+	
+	public default void addInteractionSlots(List<InteractionSlotData> interactionSlots) {
+		interactionSlots.add(EnergyInteractionSlot.INSTANCE);
+	}
+	
+	@Override
+	public default void initStorageTabs(TraderStorageMenu menu) {
+		//Override of basic tab
+		menu.setTab(TraderStorageTab.TAB_TRADE_BASIC, new AddRemoveTradeEditTab(menu));
+		//Storage tab
+		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new EnergyStorageTab(menu));
+		//Energy Trade interaction tab
+		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new EnergyTradeEditTab(menu));
 	}
 	
 }

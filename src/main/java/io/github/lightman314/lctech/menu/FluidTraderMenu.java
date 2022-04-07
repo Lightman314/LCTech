@@ -5,23 +5,17 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.core.ModMenus;
 import io.github.lightman314.lctech.menu.slots.FluidInputSlot;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderCashRegisterMenu;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
+import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
@@ -34,6 +28,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+@Deprecated
 public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMenu {
 
 	public final Player player;
@@ -45,7 +40,7 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 	
 	public FluidTraderMenu(int windowId, Inventory inventory, BlockPos traderPos)
 	{
-		this(ModMenus.FLUID_TRADER, windowId, inventory, traderPos);
+		this(/*ModMenus.FLUID_TRADER*/null, windowId, inventory, traderPos);
 	}
 	
 	protected FluidTraderMenu(MenuType<?> type, int windowId, Inventory inventory, BlockPos traderPos) {
@@ -248,95 +243,12 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 		
 	}
 	
-	public void ExecuteTrade(int tradeIndex)
+	public void ExecuteTrade(int trader, int tradeIndex)
 	{
 		
-		if(this.getTrader() == null)
-		{
-			this.player.closeContainer();
-			return;
-		}
-		
-		FluidTradeData trade = this.getTrader().getTrade(tradeIndex);
-		//Abort if the trade is null
-		if(trade == null)
-		{
-			LCTech.LOGGER.error("Trade at index " + tradeIndex + " is null. Cannot execute trade!");
-			return;
-		}
-		
-		//Abort if the trade is not valid
-		if(!trade.isValid())
-		{
-			LCTech.LOGGER.warn("Trade at index " + tradeIndex + " is not a valid trade. Cannot execute trade.");
-			return;
-		}
-		
-		//Check if the player is allowed to do the trade
-		if(this.getTrader().runPreTradeEvent(this.player, tradeIndex).isCanceled())
-			return;
-		
-		//Get the cost of the trade
-		CoinValue price = this.getTrader().runTradeCostEvent(this.player, tradeIndex).getCostResult();
-		
-		//Abort if not enough fluid in the tank
-		if(!trade.hasStock(this.getTrader(), PlayerReference.of(this.player)) && !this.getTrader().getCoreSettings().isCreative())
-		{
-			LCTech.LOGGER.debug("Not enough fluid to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
-			return;
-		}
-		//Abort if the tank doesn't have enough space for the purchased fluid.
-		if(trade.isPurchase() && !(trade.hasSpace() || this.getTrader().getCoreSettings().isCreative()))
-		{
-			LCTech.LOGGER.debug("Not enough space in the fluid tank to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
-			return;
-		}
-		//Abort if the liquids cannot be transferred properly
-		if(!trade.canTransferFluids(this.bucketInventory.getItem(0)))
-		{
-			LCTech.LOGGER.debug("The fluids cannot be properly transfered for the trade at index " + tradeIndex + ". Cannot execute trade.");
-			return;
-		}
-		
-		if(trade.isSale())
-		{
-			//Process the trades payment
-			if(!MoneyUtil.ProcessPayment(this.coinSlots, this.player, price))
-			{
-				LCTech.LOGGER.debug("Not enough money is present for the trade at index " + tradeIndex + ". Cannot execute trade.");
-				return;
-			}
-			if(!this.getTrader().getCoreSettings().isCreative())
-			{
-				//Add the stored money to the trader
-				this.getTrader().addStoredMoney(price);
-			}
-				
-		}
-		else if(trade.isPurchase())
-		{
-			//Put the payment in the purchasers wallet, coin slot, etc.
-			MoneyUtil.ProcessChange(this.coinSlots, this.player, price);
-			
-			if(!this.getTrader().getCoreSettings().isCreative())
-			{
-				//Remove the stored money to the trader
-				this.getTrader().removeStoredMoney(price);
-			}
-			
-		}
-		
-		//Transfer Fluids
-		ItemStack newBucket = trade.transferFluids(this.bucketInventory.getItem(0), this.getTrader().getCoreSettings().isCreative());
-		this.bucketInventory.setItem(0, newBucket);
-		this.getTrader().markTradesDirty();
-		
-		//Log the successful trade
-		this.getTrader().getLogger().AddLog(player, trade, price, this.getTrader().getCoreSettings().isCreative());
-		this.getTrader().markLoggerDirty();
-		
-		//Post the trade success event
-		this.getTrader().runPostTradeEvent(this.player, tradeIndex, price);
+		IFluidTrader ft = this.getTrader();
+		if(ft != null)
+			ft.ExecuteTrade(TradeContext.create(ft, this.player).build(), tradeIndex);
 		
 	}
 	
@@ -344,7 +256,7 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 	public static class FluidTraderMenuUniversal extends FluidTraderMenu
 	{
 		public FluidTraderMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.UNIVERSAL_FLUID_TRADER, windowID, inventory, IFluidTrader.UniversalSource(inventory.player.level, traderID));
+			super(/*ModMenus.UNIVERSAL_FLUID_TRADER*/null, windowID, inventory, IFluidTrader.UniversalSource(inventory.player.level, traderID));
 		}
 		
 		@Override
@@ -353,17 +265,17 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 	
 	public boolean isUniversal() { return false; }
 	
-	public static class FluidTraderMenuCR extends FluidTraderMenu implements ITraderCashRegisterMenu
+	public static class FluidTraderMenuCR extends FluidTraderMenu// implements ITraderCashRegisterMenu
 	{
 		
 		CashRegisterBlockEntity cashRegister;
 		
 		public FluidTraderMenuCR(int windowID, Inventory inventory, BlockPos traderPos, CashRegisterBlockEntity cashRegister) {
-			super(ModMenus.FLUID_TRADER_CR, windowID, inventory, traderPos);
+			super(/*ModMenus.FLUID_TRADER_CR*/null, windowID, inventory, traderPos);
 			this.cashRegister = cashRegister;
 		}
 		
-		@Override
+		/*@Override
 		public boolean isCashRegister() { return true; }
 		
 		@Override
@@ -395,7 +307,7 @@ public class FluidTraderMenu extends AbstractContainerMenu implements ITraderMen
 			if(previousIndex < 0)
 				previousIndex = this.cashRegister.getPairedTraderSize() - 1;
 			this.cashRegister.OpenContainer(previousIndex, index, 1, this.player);
-		}
+		}*/
 		
 	}
 	

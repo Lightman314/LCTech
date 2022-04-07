@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-0.0.3.3'
+version = '1.18.2-0.0.4.0'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -22,7 +22,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'official', version: '1.18.1'
+    mappings channel: 'official', version: '1.18.2'
     runs {
     
     }
@@ -41,7 +41,7 @@ dependencies {
 	
     minecraft 'net.minecraftforge:forge:1.18.2-40.0.18'
     
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:3708440')
+    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:3737802')
     
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3708402')
     

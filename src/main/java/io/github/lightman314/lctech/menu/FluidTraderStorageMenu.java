@@ -7,8 +7,6 @@ import java.util.function.Supplier;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.common.FluidTraderUtil;
-import io.github.lightman314.lctech.core.ModMenus;
-import io.github.lightman314.lctech.menu.slots.UpgradeInputSlot;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.messages.fluid_trader.MessageFluidEditOpen;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
@@ -17,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.menus.interfaces.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
@@ -32,6 +31,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+@Deprecated
 public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITraderStorageMenu{
 
 	public final Player player;
@@ -42,7 +42,7 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 	final Container coinSlots;
 	
 	public FluidTraderStorageMenu(int windowId, Inventory inventory, BlockPos traderPos) {
-		this(ModMenus.FLUID_TRADER_STORAGE, windowId, inventory, IFluidTrader.BlockEntitySource(inventory.player.level, traderPos));
+		this(/*ModMenus.FLUID_TRADER_STORAGE*/null, windowId, inventory, IFluidTrader.BlockEntitySource(inventory.player.level, traderPos));
 	}
 	
 	protected FluidTraderStorageMenu(MenuType<?> type, int windowId, Inventory inventory, Supplier<IFluidTrader> traderSource) {
@@ -94,7 +94,7 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 	 */
 	public void PlayerTankInteraction(int tradeIndex)
 	{
-		this.getTrader().getFluidHandler().OnPlayerInteraction(this, this.player, tradeIndex);
+		//this.getTrader().getFluidHandler().OnPlayerInteraction(this, this.player, tradeIndex);
 	}
 	
 	public int getStorageBottom()
@@ -170,8 +170,9 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 	
 	private void OnUpgradeSlotChanged()
 	{
-		this.getTrader().reapplyUpgrades();
-		this.getTrader().markTradesDirty();
+		//this.getTrader().reapplyUpgrades();
+		this.getTrader().markUpgradesDirty();
+		//this.getTrader().markTradesDirty();
 	}
 	
 	public void openFluidEditScreenForTrade(int tradeIndex)
@@ -182,7 +183,7 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 		}
 		else
 		{
-			this.getTrader().openFluidEditMenu(this.player, tradeIndex);
+			//this.getTrader().openFluidEditMenu(this.player, tradeIndex);
 		}
 	}
 	
@@ -253,7 +254,7 @@ public class FluidTraderStorageMenu extends AbstractContainerMenu implements ITr
 	public static class FluidTraderStorageMenuUniversal extends FluidTraderStorageMenu
 	{
 		public FluidTraderStorageMenuUniversal(int windowID, Inventory inventory, UUID traderID) {
-			super(ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE, windowID, inventory, IFluidTrader.UniversalSource(inventory.player.level, traderID));
+			super(/*ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE*/null, windowID, inventory, IFluidTrader.UniversalSource(inventory.player.level, traderID));
 		}
 	}
 	

@@ -1,11 +1,6 @@
 package io.github.lightman314.lctech.network;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.network.messages.energy_trader.*;
-import io.github.lightman314.lctech.network.messages.fluid_trader.*;
-import io.github.lightman314.lctech.network.messages.universal_energy_trader.*;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.*;
-import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +14,7 @@ public class LCTechPacketHandler {
 	public static final String PROTOCOL_VERSION = "1";
 	
 	public static SimpleChannel instance;
-	private static int nextId = 0;
+	//private static int nextId = 0;
 	
 	public static void init()
 	{
@@ -31,7 +26,7 @@ public class LCTechPacketHandler {
 				 .simpleChannel();
 		 
 		 //Fluid Traders
-		 register(MessageSetFluidTradeProduct.class, new MessageSetFluidTradeProduct());
+		 /*register(MessageSetFluidTradeProduct.class, new MessageSetFluidTradeProduct());
 		 register(MessageFluidTradeTankInteraction.class, new MessageFluidTradeTankInteraction());
 		 register(MessageSetFluidPrice.class, new MessageSetFluidPrice());
 		 register(MessageFluidEditOpen.class, new MessageFluidEditOpen());
@@ -47,14 +42,14 @@ public class LCTechPacketHandler {
 		 register(MessageSetEnergyPrice.class, new MessageSetEnergyPrice());
 		 
 		 //Universal Energy Traders
-		 register(MessageSetEnergyPrice2.class, new MessageSetEnergyPrice2());
+		 register(MessageSetEnergyPrice2.class, new MessageSetEnergyPrice2());*/
 		 
 	}
 	
-	private static <T> void register(Class<T> clazz, IMessage<T> message)
+	/*private static <T> void register(Class<T> clazz, IMessage<T> message)
 	{
 		instance.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
-	}
+	}*/
 	
 	public static PacketTarget getTarget(Player player)
 	{

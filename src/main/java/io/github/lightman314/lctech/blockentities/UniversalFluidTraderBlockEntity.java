@@ -2,8 +2,6 @@ package io.github.lightman314.lctech.blockentities;
 
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lctech.core.ModBlockEntities;
-import io.github.lightman314.lctech.items.FluidShardItem;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.blockentity.UniversalTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
@@ -39,12 +37,12 @@ public class UniversalFluidTraderBlockEntity extends UniversalTraderBlockEntity{
 		{
 			UniversalFluidTraderData fluidData = (UniversalFluidTraderData)data;
 			//Dump tank contents as a shard
-			for(int i = 0; i < fluidData.getTradeCount(); i++)
+			/*for(int i = 0; i < fluidData.getTradeCount(); i++)
 			{
 				FluidTradeData trade = fluidData.getTrade(i);
 				if(!trade.getTankContents().isEmpty())
 					Block.popResource(this.level, this.worldPosition, FluidShardItem.GetFluidShard(trade.getTankContents()));
-			}
+			}*/
 			//Dump upgrade data
 			for(int i = 0; i < fluidData.getUpgradeInventory().getContainerSize(); i++)
 			{

@@ -14,19 +14,19 @@ public class TradeEnergyHandler {
 	final IEnergyTrader trader;
 	final Map<Direction,IEnergyStorage> externalHandlers = new HashMap<>();
 	final IEnergyStorage batteryInteractable;
-	final IEnergyStorage tradeExecutor;
+	//final IEnergyStorage tradeExecutor;
 	
 	public TradeEnergyHandler(IEnergyTrader trader)
 	{
 		this.trader = trader;
 		this.batteryInteractable = new BatteryInteractionEnergyHandler(trader);
-		this.tradeExecutor = new TradeExecutionEnergyHandler(trader);
+		//this.tradeExecutor = new TradeExecutionEnergyHandler(trader);
 	}
 	
 	/**
 	 * Internal handler is for use by trade executions & player storage interactions.
 	 */
-	public IEnergyStorage getTradeExecutor() { return this.tradeExecutor; }
+	//public IEnergyStorage getTradeExecutor() { return this.tradeExecutor; }
 	
 	/**
 	 * Handler used for external interactions
@@ -185,7 +185,7 @@ public class TradeEnergyHandler {
 		
 	}
 	
-	private static class TradeExecutionEnergyHandler implements IEnergyStorage
+	/*private static class TradeExecutionEnergyHandler implements IEnergyStorage
 	{
 		protected final IEnergyTrader trader;
 		public final boolean isCreative() { return this.trader.getCoreSettings().isCreative(); }
@@ -238,10 +238,6 @@ public class TradeEnergyHandler {
 			return true;
 		}
 		
-	}
-	
-	
-	
-	
+	}*/
 	
 }

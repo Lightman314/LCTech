@@ -47,12 +47,11 @@ public class BatteryItem extends Item implements IBatteryItem{
 	}
 
 	public int getBarWidth(ItemStack stack) {
-		return Math.round((float)IBatteryItem.getStoredEnergy(stack) * 13.0F / (float)this.getMaxEnergyStorage(stack));
+		return Math.round((float)Math.min(IBatteryItem.getStoredEnergy(stack), this.getMaxEnergyStorage(stack)) * 13.0F / (float)this.getMaxEnergyStorage(stack));
 	}
 
 	public int getBarColor(ItemStack stack) {
 		return ChatFormatting.AQUA.getColor();
 	}
-	
 	
 }

@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 	
 	BlockPos pos;
@@ -69,8 +70,8 @@ public class MessageSetFluidPrice implements IMessage<MessageSetFluidPrice>{
 					trade.setCost(message.price);
 					trade.setTradeDirection(message.tradeType);
 					trade.setBucketQuantity(message.bucketCount);
-					trade.setDrainableExternally(message.canDrain);
-					trade.setFillableExternally(message.canFill);
+					//trade.setDrainableExternally(message.canDrain);
+					//trade.setFillableExternally(message.canFill);
 					
 					traderEntity.markTradesDirty();
 					

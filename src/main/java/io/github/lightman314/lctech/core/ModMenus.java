@@ -4,29 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.menu.*;
-import io.github.lightman314.lctech.menu.EnergyTraderMenu.EnergyTraderMenuCR;
-import io.github.lightman314.lctech.menu.EnergyTraderMenu.EnergyTraderMenuUniversal;
-import io.github.lightman314.lctech.menu.EnergyTraderStorageMenu.EnergyTraderStorageMenuUniversal;
-import io.github.lightman314.lctech.menu.FluidEditMenu.UniversalFluidEditMenu;
-import io.github.lightman314.lctech.menu.FluidTraderMenu.FluidTraderMenuCR;
-import io.github.lightman314.lctech.menu.FluidTraderMenu.FluidTraderMenuUniversal;
-import io.github.lightman314.lctech.menu.FluidTraderStorageMenu.FluidTraderStorageMenuUniversal;
-import io.github.lightman314.lightmanscurrency.blockentity.CashRegisterBlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.IContainerFactory;
 
 @Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModMenus {
 
 	private static final List<MenuType<?>> CONTAINER_TYPES = new ArrayList<>();
 	
-	public static final MenuType<FluidTraderMenu> FLUID_TRADER = register("fluid_trader", (IContainerFactory<FluidTraderMenu>)(windowId, playerInventory, data) -> {
+	/*public static final MenuType<FluidTraderMenu> FLUID_TRADER = register("fluid_trader", (IContainerFactory<FluidTraderMenu>)(windowId, playerInventory, data) -> {
 		return new FluidTraderMenu(windowId, playerInventory, data.readBlockPos());
 	});
 	public static final MenuType<FluidTraderMenuCR> FLUID_TRADER_CR = register("fluid_trader_cr", (IContainerFactory<FluidTraderMenuCR>)(windowId, playerInventory, data) -> {
@@ -70,15 +58,15 @@ public class ModMenus {
 	
 	public static final MenuType<EnergyTraderStorageMenuUniversal> ENERGY_TRADER_STORAGE_UNIVERSAL = register("energy_trader_storage_universal", (IContainerFactory<EnergyTraderStorageMenuUniversal>)(windowId, playerInventory, data) ->{
 		return new EnergyTraderStorageMenuUniversal(windowId, playerInventory, data.readUUID());
-	});
+	});*/
 	
-	private static <T extends AbstractContainerMenu> MenuType<T> register(String key, MenuType.MenuSupplier<T> factory)
+	/*private static <T extends AbstractContainerMenu> MenuType<T> register(String key, MenuType.MenuSupplier<T> factory)
 	{
 		MenuType<T> type = new MenuType<>(factory);
 		type.setRegistryName(key);
 		CONTAINER_TYPES.add(type);
 		return type;
-	}
+	}*/
 	
 	@SubscribeEvent
 	public static void registerTypes(final RegistryEvent.Register<MenuType<?>> event)

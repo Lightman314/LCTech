@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -35,6 +36,12 @@ public interface IBatteryItem {
 		if(tag.contains("Battery", Tag.TAG_INT))
 			return tag.getInt("Battery");
 		return 0;
+	}
+	
+	public static <T extends IBatteryItem & ItemLike> ItemStack getFullBattery(T item) {
+		ItemStack newStack = new ItemStack(item);
+		newStack.getOrCreateTag().putInt("Battery", item.getMaxEnergyStorage(newStack));
+		return newStack;
 	}
 	
 	public static class BatteryEnergyStorage implements IEnergyStorage, ICapabilityProvider

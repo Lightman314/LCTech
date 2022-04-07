@@ -3,7 +3,6 @@ package io.github.lightman314.lctech.network.messages.fluid_trader;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.network.IMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageToggleFluidIcon implements IMessage<MessageToggleFluidIcon>{
 	
 	BlockPos pos;
@@ -47,7 +47,7 @@ public class MessageToggleFluidIcon implements IMessage<MessageToggleFluidIcon>{
 				BlockEntity blockEntity = player.level.getBlockEntity(message.pos);
 				if(blockEntity instanceof FluidTraderBlockEntity)
 				{
-					FluidTraderBlockEntity traderEntity = (FluidTraderBlockEntity)blockEntity;
+					/*FluidTraderBlockEntity traderEntity = (FluidTraderBlockEntity)blockEntity;
 					FluidTradeData trade = traderEntity.getTrade(message.tradeIndex);
 					switch(message.icon)
 					{
@@ -58,7 +58,7 @@ public class MessageToggleFluidIcon implements IMessage<MessageToggleFluidIcon>{
 						trade.setFillableExternally(!trade.canFillExternally());
 						break;
 					}
-					traderEntity.markTradesDirty();
+					traderEntity.markTradesDirty();*/
 				}
 			}
 		});

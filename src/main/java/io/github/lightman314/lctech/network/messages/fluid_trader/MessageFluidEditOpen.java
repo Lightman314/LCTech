@@ -8,6 +8,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageFluidEditOpen implements IMessage<MessageFluidEditOpen>{
 	
 	int tradeIndex;

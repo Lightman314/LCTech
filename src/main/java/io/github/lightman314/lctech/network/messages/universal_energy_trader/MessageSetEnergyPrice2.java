@@ -14,6 +14,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetEnergyPrice2 implements IMessage<MessageSetEnergyPrice2>{
 	
 	UUID traderID;

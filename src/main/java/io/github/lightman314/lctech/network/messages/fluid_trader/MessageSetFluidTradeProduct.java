@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+@Deprecated
 public class MessageSetFluidTradeProduct implements IMessage<MessageSetFluidTradeProduct>{
 	
 	BlockPos pos;

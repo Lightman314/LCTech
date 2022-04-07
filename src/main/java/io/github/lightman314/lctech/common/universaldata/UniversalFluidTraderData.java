@@ -10,16 +10,10 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
-import io.github.lightman314.lctech.client.gui.screen.TradeFluidPriceScreen.TradePriceData;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
-import io.github.lightman314.lctech.menu.FluidEditMenu;
-import io.github.lightman314.lctech.menu.FluidTraderMenu;
-import io.github.lightman314.lctech.menu.FluidTraderStorageMenu;
-import io.github.lightman314.lctech.network.LCTechPacketHandler;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidPrice2;
-import io.github.lightman314.lctech.network.messages.universal_fluid_trader.MessageSetFluidTradeProduct2;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
+import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
@@ -49,20 +43,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.NetworkHooks;
 
 public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
 
@@ -76,18 +63,17 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	FluidTraderSettings fluidSettings = new FluidTraderSettings(this, this::markFluidSettingsDirty, this::sendSettingsUpdateToServer);
 	
+	TraderFluidStorage storage = new TraderFluidStorage(this);
+	public TraderFluidStorage getStorage() { return this.storage; }
+	public void markStorageDirty() { this.markDirty(this::writeStorage); }
+	
 	int tradeCount = 1;
 	List<FluidTradeData> trades = null;
 	
 	Container upgradeInventory = new SimpleContainer(5);
 	public Container getUpgradeInventory() { return this.upgradeInventory; }
+	public void markUpgradesDirty() { this.markDirty(this::writeUpgrades); }
 	
-	public void reapplyUpgrades() {this.reapplyUpgrades(true); }
-	private void reapplyUpgrades(boolean markDirty) {
-		this.trades.forEach(trade -> trade.applyUpgrades(this, this.upgradeInventory));
-		if(markDirty)
-			this.markTradesDirty();
-	}
 	
 	private final FluidShopLogger logger = new FluidShopLogger();
 	
@@ -110,6 +96,11 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
 		
+		if(compound.contains("FluidStorage"))
+			this.storage.load(compound, "FluidStorage");
+		else if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
+			this.storage.loadFromTrades(compound.getList(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST));
+		
 		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 		
@@ -123,7 +114,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		
 		super.read(compound);
 		
-		this.reapplyUpgrades(false);
+		//this.reapplyUpgrades(false);
 		
 	}
 	
@@ -131,6 +122,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public CompoundTag write(CompoundTag compound)
 	{
 		this.writeTrades(compound);
+        this.writeStorage(compound);
 		this.writeUpgrades(compound);
 		this.writeLogger(compound);
 		this.writeRules(compound);
@@ -143,6 +135,12 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	{
 		compound.putInt("TradeLimit", this.trades.size());
 		FluidTradeData.WriteNBTList(this.trades, compound);
+		return compound;
+	}
+	
+	protected final CompoundTag writeStorage(CompoundTag compound)
+	{
+		this.storage.save(compound, "FluidStorage");
 		return compound;
 	}
 	
@@ -191,7 +189,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 			return;
 		}
 		this.overrideTradeCount(this.tradeCount + 1);
-		this.forceReopen();
+		//this.forceReopen();
 	}
 	
 	public void removeTrade(Player requestor) {
@@ -203,9 +201,10 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 			return;
 		}
 		this.overrideTradeCount(this.tradeCount - 1);
-		this.forceReopen();
+		//this.forceReopen();
 	}
 	
+	/*@Override
 	protected void forceReopen(List<Player> users)
 	{
 		for(Player player : users)
@@ -215,7 +214,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 			else if(player.containerMenu instanceof FluidTraderStorageMenu)
 				this.openStorageMenu(player);
 		}
-	}
+	}*/
 	
 	public void overrideTradeCount(int newTradeCount)
 	{
@@ -247,6 +246,8 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		return this.trades;
 	}
 	
+	public List<FluidTradeData> getTradeInfo() { return this.trades; }
+	
 	public void markTradesDirty() { this.markDirty(this::writeTrades); }
 
 	public FluidTraderSettings getFluidSettings()
@@ -277,7 +278,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		return new TranslatableComponent("gui.lctech.universaltrader.fluid");
 	}
 	
-	@Override
+	/*@Override
 	protected MenuProvider getTradeMenuProvider() {
 		return new TraderProvider(this.getTraderID());
 	}
@@ -338,7 +339,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		}
 		@Override
 		public Component getDisplayName() { return new TextComponent(""); }
-	}
+	}*/
 	
 	@Override
 	public IconData getIcon() { return IconData.of(new ResourceLocation(LCTech.MODID, "textures/gui/universal_trader_icons.png"), 0, 0); }
@@ -374,11 +375,12 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	@Override
 	public void markRulesDirty() { this.markDirty(this::writeRules); }
 	
-	public ITradeRuleScreenHandler getRuleScreenHandler() { return new TradeRuleScreenHandler(this.getTraderID()); }
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TradeRuleScreenHandler(this.getTraderID(), tradeIndex); }
 	
 	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler{
 		private final UUID traderID;
-		public TradeRuleScreenHandler(UUID traderID) { this.traderID = traderID; }
+		private final int tradeIndex;
+		public TradeRuleScreenHandler(UUID traderID, int tradeIndex) { this.traderID = traderID; this.tradeIndex = tradeIndex; }
 		
 		private UniversalFluidTraderData getData() {
 			UniversalTraderData data = ClientTradingOffice.getData(this.traderID);
@@ -388,7 +390,11 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		}
 		
 		@Override
-		public ITradeRuleHandler ruleHandler() { return this.getData(); }
+		public ITradeRuleHandler ruleHandler() {
+			if(this.tradeIndex < 0)
+				return this.getData();
+			return this.getData().getTrade(this.tradeIndex);
+		}
 		
 		@Override
 		public void reopenLastScreen() { LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.traderID)); }
@@ -400,7 +406,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		
 	}
 	
-	@Override
+	/*@Override
 	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid) {
 		if(this.isClient())
 			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct2(this.getTraderID(), tradeIndex, newFluid));
@@ -408,13 +414,13 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	@Override
 	public void sendToggleIconMessage(int tradeIndex, int icon) {
 		//Do nothing
-	}
+	}*/
 	
-	@Override
+	/*@Override
 	public void sendPriceMessage(TradePriceData priceData) {
 		if(this.isClient())
 			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(this.getTraderID(), priceData.tradeIndex, priceData.cost, priceData.type, priceData.quantity));
-	}
+	}*/
 	
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {
@@ -462,13 +468,13 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 				//Price
 				newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
 				//Tank
-				if(newTrade.isSale())
+				/*if(newTrade.isSale())
 				{
 					FluidStack fluid = newTrade.getProduct();
 					if(!fluid.isEmpty())
 						fluid.setAmount(newTrade.getTankCapacity());
 					newTrade.setTankContents(fluid);
-				}
+				}*/
 				//Quantity
 				if(tradeData.has("Quantity"))
 					newTrade.setBucketQuantity(tradeData.get("Quantity").getAsInt());
