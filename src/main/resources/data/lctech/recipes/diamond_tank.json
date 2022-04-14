@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":[
+    "igi",
+    "g g",
+    "igi"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:diamond"
+    },
+    "g": {
+      "item": "minecraft:glass"
+    }
+  },
+  "result": {
+    "item": "lctech:diamond_tank"
+  }
+}
