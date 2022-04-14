@@ -18,7 +18,6 @@ import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.api.ILoggerSupport;
-import io.github.lightman314.lightmanscurrency.client.ClientTradingOffice;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
@@ -375,52 +374,29 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	@Override
 	public void markRulesDirty() { this.markDirty(this::writeRules); }
 	
-	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TradeRuleScreenHandler(this.getTraderID(), tradeIndex); }
+	public ITradeRuleScreenHandler getRuleScreenHandler(int tradeIndex) { return new TradeRuleScreenHandler(this, tradeIndex); }
 	
 	private static class TradeRuleScreenHandler implements ITradeRuleScreenHandler{
-		private final UUID traderID;
+		private final UniversalFluidTraderData trader;
 		private final int tradeIndex;
-		public TradeRuleScreenHandler(UUID traderID, int tradeIndex) { this.traderID = traderID; this.tradeIndex = tradeIndex; }
-		
-		private UniversalFluidTraderData getData() {
-			UniversalTraderData data = ClientTradingOffice.getData(this.traderID);
-			if(data instanceof UniversalFluidTraderData)
-				return (UniversalFluidTraderData)data;
-			return null;
-		}
+		public TradeRuleScreenHandler(UniversalFluidTraderData trader, int tradeIndex) { this.trader = trader; this.tradeIndex = tradeIndex; }
 		
 		@Override
 		public ITradeRuleHandler ruleHandler() {
 			if(this.tradeIndex < 0)
-				return this.getData();
-			return this.getData().getTrade(this.tradeIndex);
+				return this.trader;
+			return this.trader.getTrade(this.tradeIndex);
 		}
 		
 		@Override
-		public void reopenLastScreen() { LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.traderID)); }
+		public void reopenLastScreen() { LightmansCurrencyPacketHandler.instance.sendToServer(new MessageOpenStorage2(this.trader.getTraderID())); }
 		
 		@Override
 		public void updateServer(ResourceLocation type, CompoundTag updateInfo) {
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule2(this.traderID, type, updateInfo));
+			this.trader.sendUpdateTradeRuleMessage(this.tradeIndex, type, updateInfo);
 		}
 		
 	}
-	
-	/*@Override
-	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct2(this.getTraderID(), tradeIndex, newFluid));
-	}
-	@Override
-	public void sendToggleIconMessage(int tradeIndex, int icon) {
-		//Do nothing
-	}*/
-	
-	/*@Override
-	public void sendPriceMessage(TradePriceData priceData) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice2(this.getTraderID(), priceData.tradeIndex, priceData.cost, priceData.type, priceData.quantity));
-	}*/
 	
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {

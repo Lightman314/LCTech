@@ -456,16 +456,10 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 
 		@Override
 		public void updateServer(ResourceLocation type, CompoundTag updateInfo) {
-			this.trader.sendUpdateTradeRuleMessage(-1, type, updateInfo);
+			this.trader.sendUpdateTradeRuleMessage(this.tradeIndex, type, updateInfo);
 		}
 		
 	}
-	
-	/*@Override
-	public void sendPriceMessage(TradePriceData priceData) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetEnergyPrice2(this.getTraderID(), priceData.tradeIndex, priceData.cost, priceData.type, priceData.amount));
-	}*/
 	
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {

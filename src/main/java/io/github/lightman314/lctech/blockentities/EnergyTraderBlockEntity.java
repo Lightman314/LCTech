@@ -622,7 +622,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 
 		@Override
 		public void updateServer(ResourceLocation type, CompoundTag updateInfo) {
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.blockEntity.worldPosition, type, updateInfo));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.blockEntity.worldPosition, this.tradeIndex, type, updateInfo));
 		}
 		
 	}

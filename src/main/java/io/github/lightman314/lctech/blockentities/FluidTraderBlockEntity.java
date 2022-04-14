@@ -565,7 +565,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 
 		@Override
 		public void updateServer(ResourceLocation type, CompoundTag updateInfo) {
-			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.blockEntity.worldPosition, type, updateInfo));
+			LightmansCurrencyPacketHandler.instance.sendToServer(new MessageUpdateTradeRule(this.blockEntity.worldPosition, this.tradeIndex, type, updateInfo));
 		}
 		
 	}
@@ -610,24 +610,6 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		//Otherwise return none
 		return super.getCapability(cap, side);
     }
-	
-	/*@Override
-	public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidTradeProduct(this.worldPosition, tradeIndex, newFluid));
-	}
-	
-	@Override
-	public void sendToggleIconMessage(int tradeIndex, int icon) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageToggleFluidIcon(this.worldPosition, tradeIndex, icon));
-	}
-	
-	@Override
-	public void sendPriceMessage(TradePriceData priceData) {
-		if(this.isClient())
-			LCTechPacketHandler.instance.sendToServer(new MessageSetFluidPrice(this.worldPosition, priceData.tradeIndex, priceData.cost, priceData.type, priceData.quantity, priceData.canDrain, priceData.canFill));
-	}*/
 	
 	@Override
 	public void sendUpdateTradeRuleMessage(int tradeIndex, ResourceLocation type, CompoundTag updateInfo) {
