@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.blocks.IFluidTankBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;

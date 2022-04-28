@@ -3,7 +3,7 @@ package io.github.lightman314.lctech.blocks;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
 import net.minecraft.core.BlockPos;

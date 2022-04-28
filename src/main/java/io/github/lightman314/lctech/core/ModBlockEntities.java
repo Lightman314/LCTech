@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 
-//@Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModBlockEntities {
 	
 	private static final List<BlockEntityType<?>> TILE_ENTITY_TYPES = new ArrayList<>();
@@ -29,6 +28,11 @@ public class ModBlockEntities {
 	//Universal Energy Trader
 	public static final BlockEntityType<UniversalEnergyTraderBlockEntity> UNIVERSAL_ENERGY_TRADER = buildType("universal_energy_trader", BlockEntityType.Builder.of(UniversalEnergyTraderBlockEntity::new, ModBlocks.ENERGY_SERVER.block));
 	
+	//Fluid Trader Interface
+	public static final BlockEntityType<FluidTraderInterfaceBlockEntity> TRADER_INTERFACE_FLUID = buildType("trader_interface_fluid", BlockEntityType.Builder.of(FluidTraderInterfaceBlockEntity::new, ModBlocks.FLUID_TRADER_INTERFACE.block));
+	
+	//Energy Trader Interface
+	public static final BlockEntityType<EnergyTraderInterfaceBlockEntity> TRADER_INTERFACE_ENERGY = buildType("trader_interface_energy", BlockEntityType.Builder.of(EnergyTraderInterfaceBlockEntity::new, ModBlocks.ENERGY_TRADER_INTERFACE.block));	
 	
 	private static <T extends BlockEntity> BlockEntityType<T> buildType(String id, BlockEntityType.Builder<T> builder)
 	{
@@ -38,7 +42,6 @@ public class ModBlockEntities {
 		return type;
 	}
 	
-	//@SubscribeEvent
 	public static void registerTypes(final RegistryEvent.Register<BlockEntityType<?>> event)
 	{
 		TILE_ENTITY_TYPES.forEach(type -> event.getRegistry().register(type));

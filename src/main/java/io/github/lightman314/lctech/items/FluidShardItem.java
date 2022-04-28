@@ -6,8 +6,8 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;

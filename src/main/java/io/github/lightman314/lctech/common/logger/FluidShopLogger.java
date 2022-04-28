@@ -6,11 +6,11 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.api.TextLogger;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.entity.player.Player;
 
 public class FluidShopLogger extends TextLogger{
 
@@ -18,10 +18,10 @@ public class FluidShopLogger extends TextLogger{
 		super("FluidShopHistory");
 	}
 	
-	public void AddLog(Player player, FluidTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
+	public void AddLog(PlayerReference player, FluidTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
 	{
 		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
-		Component playerName = new TextComponent(player.getName().getString()).withStyle(ChatFormatting.GREEN);
+		Component playerName = new TextComponent(player.lastKnownName()).withStyle(ChatFormatting.GREEN);
 		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeDirection().name().toLowerCase());
 		
 		Component fluidName = FluidFormatUtil.getFluidName(trade.getProduct());

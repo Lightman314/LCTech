@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;

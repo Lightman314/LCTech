@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
 import io.github.lightman314.lctech.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.blocks.IFluidTankBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidTankItem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;

@@ -1,11 +1,7 @@
 package io.github.lightman314.lctech.client.util;
 
-import java.util.EnumMap;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -354,82 +350,8 @@ public class FluidRenderUtil {
 		
 	}
 	
-	public static class FluidSides
-	{
-		
-		private static final List<Direction> BLACKLISTED_SIDES = ImmutableList.of();
-		
-		public static final FluidSides ALL = new FluidSides(Direction.values());
-		public static FluidSides Create(Direction... sides) { return new FluidSides(sides); }
-		
-		private final EnumMap<Direction,Boolean> map = new EnumMap<>(Direction.class);
-		
-		private FluidSides(Direction... sides)
-		{
-			Stream.of(Direction.values()).forEach(direction -> this.map.put(direction, false));
-			Stream.of(sides).forEach(direction -> {
-				if(!BLACKLISTED_SIDES.contains(direction))
-					this.map.put(direction, true);
-			});
-		}
-		
-		public boolean test(Direction direction)
-		{
-			return this.map.get(direction);
-		}
-		
-		public void forEach(Consumer<Direction> consumer)
-		{
-			for(Direction side : Direction.values())
-			{
-				if(test(side))
-					consumer.accept(side);
-			}
-		}
-		
-	}
 	
-	public static class FluidRenderData
-	{
-		
-		public final float x;
-		public final float y;
-		public final float z;
-		public final float width;
-		private final float height;
-		public final float getHeight()
-		{
-			return height * fillPercent;
-		}
-		public final float depth;
-		public final FluidSides sides;
-		
-		private float fillPercent = 1f;
-		public void setFillPercent(float fillPercent) { this.fillPercent = MathUtil.clamp(fillPercent, 0f, 1f); }
-		
-		public FluidRenderData(float x, float y, float z, float width, float height, float depth, FluidSides sides)
-		{
-			this.x = x;
-			this.y = y;
-			this.z = z;
-			this.width = width;
-			this.height = height;
-			this.depth = depth;
-			this.sides = sides;
-		}
-		
-		public static FluidRenderData CreateFluidRender(float x, float y, float z, float width, float height, float depth)
-		{
-			return CreateFluidRender(x, y, z, width, height, depth, FluidSides.ALL);
-		}
-		
-		public static FluidRenderData CreateFluidRender(float x, float y, float z, float width, float height, float depth, FluidSides sides)
-		{
-			return new FluidRenderData(x/16f, y/16f, z/16f, width/16f, height/16f, depth/16f, sides);
-		}
-		
-	}
-	
+
 	
 	
 }

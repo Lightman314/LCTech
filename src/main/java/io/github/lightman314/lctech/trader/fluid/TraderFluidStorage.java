@@ -3,7 +3,6 @@ package io.github.lightman314.lctech.trader.fluid;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -12,11 +11,11 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class TraderFluidStorage implements IFluidHandler {
 	
-	private final IFluidTrader trader;
+	private final ITraderFluidFilter filter;
 	List<FluidEntry> tanks = new ArrayList<>();
 	public List<FluidEntry> getContents() { return this.tanks; }
 	
-	public TraderFluidStorage(IFluidTrader trader) { this.trader = trader; }
+	public TraderFluidStorage(ITraderFluidFilter filter) { this.filter = filter; }
 	
 	public CompoundTag save(CompoundTag compound, String tag) {
 		ListTag list = new ListTag();
@@ -133,50 +132,48 @@ public class TraderFluidStorage implements IFluidHandler {
 	public boolean allowFluid(FluidStack fluid) {
 		if(fluid.isEmpty())
 			return false;
-		for(FluidTradeData trade : this.trader.getAllTrades())
-		{
-			if(trade.getProduct().isFluidEqual(fluid))
-				return true;
-		}
-		return false;
+		return filter.isFluidRelevant(fluid);
 	}
 	
 	/**
 	 * Call after a trades product is changed, so that we can remove any empty & invalid tanks, and create any new tanks for the new product.
 	 */
-	public void refactorTanks() {
-		for(FluidTradeData trade : this.trader.getAllTrades())
+	public boolean refactorTanks() {
+		boolean result = false;
+		for(FluidStack fluid : this.filter.getRelevantFluids())
 		{
-			if(!trade.getProduct().isEmpty())
+			FluidEntry entry = this.getTank(fluid);
+			if(entry == null)
 			{
-				FluidEntry entry = this.getTank(trade.getProduct());
-				if(entry == null)
-				{
-					FluidEntry newEntry = new FluidEntry(this, trade.getProduct(), 0, 0, false, false);
-					this.tanks.add(newEntry);
-				}
+				FluidEntry newEntry = new FluidEntry(this, fluid, 0, 0, false, false);
+				this.tanks.add(newEntry);
+				result = true;
 			}
 		}
-		this.clearInvalidTanks();
+		return this.clearInvalidTanks() || result;
 	}
 	
 	/**
 	 * Call after a tank is drained to see if we can remove a now-empty & invalid tank from the list of tanks.
 	 */
-	public void clearInvalidTanks() {
+	public boolean clearInvalidTanks() {
+		boolean result = false;
 		for(int i = 0; i < this.tanks.size(); ++i) {
 			FluidEntry entry = this.tanks.get(i);
 			if(entry.filter.isEmpty())
 			{
 				this.tanks.remove(i);
 				i--;
+				result = true;
 			}
 			else if(entry.isEmpty() && !this.allowFluid(entry.filter))
 			{
 				this.tanks.remove(i);
 				i--;
+				result = true;
 			}
 		}
+		return result;
 	}
 	
 	/**
@@ -222,9 +219,9 @@ public class TraderFluidStorage implements IFluidHandler {
 	}
 
 	@Override
-	public int getTankCapacity(int tank) { return this.trader.getTankCapacity(); }
+	public int getTankCapacity(int tank) { return this.getTankCapacity(); }
 	
-	public int getTankCapacity() { return this.trader.getTankCapacity(); }
+	public int getTankCapacity() { return this.filter.getTankCapacity(); }
 
 	@Override
 	public boolean isFluidValid(int tank, FluidStack stack) {
@@ -235,7 +232,7 @@ public class TraderFluidStorage implements IFluidHandler {
 
 	@Override
 	public FluidStack drain(FluidStack resource, FluidAction action) {
-		/*int drainableAmount = Math.min(resource.getAmount(), this.getAvailableFluidCount(resource));
+		int drainableAmount = Math.min(resource.getAmount(), this.getAvailableFluidCount(resource));
 		if(drainableAmount <= 0)
 			return FluidStack.EMPTY;
 		FluidStack drainedFluid = resource.copy();
@@ -243,16 +240,13 @@ public class TraderFluidStorage implements IFluidHandler {
 		if(action.execute())
 		{
 			this.drain(drainedFluid);
-			this.trader.markStorageDirty();
 		}
-		return drainedFluid;*/
-		//Should never drain directly. Only use for filling.
-		return FluidStack.EMPTY;
+		return drainedFluid;
 	}
 
 	@Override
 	public FluidStack drain(int maxDrain, FluidAction action) {
-		//Should never drain directly.
+		//Should never drain without a defined fluid.
 		return FluidStack.EMPTY;
 	}
 	
@@ -268,6 +262,20 @@ public class TraderFluidStorage implements IFluidHandler {
 			this.forceFillTank(fillStack);
 		}
 		return fillAmount;
+	}
+	
+	public interface ITraderFluidFilter
+	{
+		public default boolean isFluidRelevant(FluidStack fluid) {
+			for(FluidStack f : this.getRelevantFluids())
+			{
+				if(f.isFluidEqual(fluid))
+					return true;
+			}
+			return false;
+		}
+		public List<FluidStack> getRelevantFluids();
+		public int getTankCapacity();
 	}
 
 	public static class FluidEntry implements IFluidHandler

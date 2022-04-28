@@ -1,17 +1,22 @@
 package io.github.lightman314.lctech.blocks.traderblocks;
 
+import java.util.List;
+
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.core.ModBlockEntities;
+import io.github.lightman314.lctech.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderBlock{
 
@@ -53,5 +58,8 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 			return this.makeTrader(pos, state);
 		return new DummyBlockEntity(pos, state);
 	}
+	
+	@Override
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechTooltips.FLUID_TRADER; }
 	
 }

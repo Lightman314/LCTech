@@ -3,6 +3,7 @@ package io.github.lightman314.lctech;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fluids.FluidAttributes;
 
 public class TechConfig {
 
@@ -24,6 +25,9 @@ public class TechConfig {
 		public final ForgeConfigSpec.IntValue fluidUpgradeCapacity2;
 		public final ForgeConfigSpec.IntValue fluidUpgradeCapacity3;
 		
+		//Fluid Trader Interface
+		public final ForgeConfigSpec.IntValue fluidRestockSpeed;
+		
 		//Energy
 		//Energy Trader
 		public final ForgeConfigSpec.IntValue energyTraderDefaultStorage;
@@ -37,6 +41,9 @@ public class TechConfig {
 		public final ForgeConfigSpec.IntValue energyUpgradeCapacity1;
 		public final ForgeConfigSpec.IntValue energyUpgradeCapacity2;
 		public final ForgeConfigSpec.IntValue energyUpgradeCapacity3;
+		
+		//Energy Trader Interface
+		public final ForgeConfigSpec.IntValue energyRestockSpeed;
 		
 		Server(ForgeConfigSpec.Builder builder)
 		{
@@ -79,6 +86,13 @@ public class TechConfig {
 					.defineInRange("upgradeCapacity3", 100, 1, 1000);
 			
 			builder.pop();
+			
+			builder.comment("Fluid Trader Interface Settings").push("interface");
+			
+			this.fluidRestockSpeed = builder.comment("The amount of fluid in mB that can be drained or restocked in a single drain tick (once per second).")
+					.defineInRange("restockRate", 10 * FluidAttributes.BUCKET_VOLUME, FluidAttributes.BUCKET_VOLUME, Integer.MAX_VALUE);
+			
+			builder.pop();
 			builder.pop();
 			
 			builder.comment("Energy Settings").push("energy");
@@ -116,6 +130,12 @@ public class TechConfig {
 			
 			builder.pop();
 			
+			builder.comment("Energy Interface Settings").push("interface");
+			
+			this.energyRestockSpeed = builder.comment("The amount of FE that can be drained or restocked in a single drain tick (once per second).")
+					.defineInRange("restockRate", 100000, 1000, Integer.MAX_VALUE);
+			
+			builder.pop();
 			builder.pop();
 			
 		}

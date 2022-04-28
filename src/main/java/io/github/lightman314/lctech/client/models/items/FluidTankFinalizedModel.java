@@ -5,8 +5,8 @@ import java.util.Random;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;

@@ -19,10 +19,13 @@ import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMe
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
+import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeComparisonResult.ProductComparisonResult;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -124,90 +127,6 @@ public class EnergyTradeData extends TradeData {
 		return super.isValid() && this.amount > 0;
 	}
 	
-	/**
-	 * Confirms that the battery stack can receive or extract the energy required to carry out this trade.
-	 * Does NOT confirm that the trader has enough energy in stock, or enough space to hold the relevant energy.
-	 * Returns true for sales if external purchase draining is allowed.
-	 */
-	/*public boolean canTransferEnergy(IEnergyTrader trader, ItemStack batteryStack)
-	{
-		if(!this.isValid())
-			return false;
-		if(this.isSale())
-		{
-			//if(!this.hasStock(trader) && !trader.getCoreSettings().isCreative())
-			//	return false;
-			if(trader.canDrainExternally() && trader.getEnergySettings().isPurchaseDrainMode())
-				return true;
-			//Check the battery stack for an energy handler that can hold the output amount
-			if(!batteryStack.isEmpty())
-			{
-				AtomicBoolean passes = new AtomicBoolean(false);
-				EnergyUtil.getEnergyHandler(batteryStack).ifPresent(energyHandler ->{
-					passes.set(energyHandler.receiveEnergy(this.amount, true) == this.amount);
-				});
-				return passes.get();
-			}
-		}
-		else if(this.isPurchase())
-		{
-			if(batteryStack.isEmpty())
-				return false;
-			if(this.amount > 0)
-			{
-				AtomicBoolean passes = new AtomicBoolean(false);
-				EnergyUtil.getEnergyHandler(batteryStack).ifPresent(energyHandler ->{
-					passes.set(energyHandler.extractEnergy(this.amount, true) == this.amount);
-				});
-				return passes.get();
-			}
-		}
-		return false;
-	}
-	
-	@Deprecated
-	public ItemStack transferEnergy(IEnergyTrader trader, ItemStack batteryStack)
-	{
-		if(!this.canTransferEnergy(trader, batteryStack))
-		{
-			LCTech.LOGGER.error("Attmpted to transfer energy trade energy without confirming that you can.");
-			return batteryStack;
-		}
-		if(this.isSale())
-		{
-			AtomicBoolean canFillNormally = new AtomicBoolean(false);
-			EnergyUtil.getEnergyHandler(batteryStack).ifPresent(energyHandler ->{
-				canFillNormally.set(energyHandler.receiveEnergy(this.amount, true) == this.amount);
-			});
-			if(canFillNormally.get())
-			{
-				EnergyActionResult result = EnergyUtil.tryFillContainer(batteryStack, trader.getEnergyHandler().getTradeExecutor(), this.amount, true);
-				return result.getResult();
-			}
-			else if(trader.canDrainExternally() && trader.getEnergySettings().isPurchaseDrainMode())
-			{
-				trader.addPendingDrain(this.amount);
-				return batteryStack;
-			}
-			else
-			{
-				LCTech.LOGGER.error("Flagged as being able to transfer energy for the sale, but the battery stack cannot accept the fluid, and this trader does not allow external drains.");
-				return batteryStack;
-			}
-		}
-		else if(this.isPurchase())
-		{
-			EnergyActionResult result = EnergyUtil.tryEmptyContainer(batteryStack, trader.getEnergyHandler().getTradeExecutor(), this.amount, true);
-			return result.getResult();
-		}
-		else
-		{
-			LCTech.LOGGER.error("Energy Trade type " + this.tradeDirection.name() + " is not a valid TradeDirection for energy transfer.");
-			return batteryStack;
-		}
-	}*/
-	
-	
 	@Override
 	public CompoundTag getAsNBT()
 	{
@@ -288,14 +207,98 @@ public class EnergyTradeData extends TradeData {
 		return tradeData;
 	}
 	
-	@Override
-	public boolean AcceptableDifferences(TradeComparisonResult differences) {
-		return false;
+	public static EnergyTradeData loadData(CompoundTag compound) {
+		EnergyTradeData trade = new EnergyTradeData();
+		trade.loadFromNBT(compound);
+		return trade;
 	}
 	
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) {
-		return new TradeComparisonResult();
+		TradeComparisonResult result = new TradeComparisonResult();
+		if(otherTrade instanceof EnergyTradeData)
+		{
+			EnergyTradeData otherEnergyTrade = (EnergyTradeData)otherTrade;
+			//Flag as compatible
+			result.setCompatible();
+			//Compare product
+			result.addProductResult(ProductComparisonResult.CompareEnergy(this.getAmount(), otherEnergyTrade.getAmount()));
+			//Compare prices
+			result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+			//Compare types
+			result.setTypeResult(this.tradeDirection == otherEnergyTrade.tradeDirection);
+		}
+		//Return the comparison results
+		return result;
+	}
+	
+	@Override
+	public boolean AcceptableDifferences(TradeComparisonResult result) {
+		//Confirm the types match
+		if(!result.TypeMatches() || !result.isCompatible())
+			return false;
+		//Comfirm the product is acceptable
+		if(result.getProductResultCount() <= 0)
+			return false;
+		//Product result
+		ProductComparisonResult productResult = result.getProductResult(0);
+		if(productResult.SameProductType() && productResult.SameProductNBT())
+		{
+			if(this.isSale())
+			{
+				//Product should be greater than or equal to pass
+				if(productResult.ProductQuantityDifference() > 0)
+					return false;
+			}
+			else if(this.isPurchase())
+			{
+				//Purchase product should be less than or equal to pass
+				if(productResult.ProductQuantityDifference() < 0)
+					return false;
+			}
+		}
+		else //Somehow it's a different kind of energy? Well if they are flagged as not a match, I guess they don't match.
+			return false;
+		//Product is acceptable, now check the price
+		if(this.isSale() && result.isPriceExpensive())
+			return false;
+		if(this.isPurchase() && result.isPriceCheaper())
+			return false;
+		
+		//Product, price, and types are all acceptable
+		return true;
+	}
+	
+	@Override
+	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
+		List<Component> list = new ArrayList<>();
+		//Price check
+		if(!differences.PriceMatches())
+		{
+			//Price difference (intended - actual = difference)
+			long difference = differences.priceDifference();
+			if(difference < 0) //More expensive
+				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+			else //Cheaper
+				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+		}
+		if(differences.getProductResultCount() > 0)
+		{
+			Component directionName = this.isSale() ? new TranslatableComponent("gui.lctech.interface.difference.product.sale") : new TranslatableComponent("gui.lctech.interface.difference.product.purchase");
+			ProductComparisonResult productCheck = differences.getProductResult(0);
+			if(!productCheck.SameProductType())
+				list.add(new TranslatableComponent("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+			if(!productCheck.SameProductQuantity())
+			{
+				int quantityDifference = productCheck.ProductQuantityDifference();
+				if(quantityDifference < 0) //More items
+					list.add(new TranslatableComponent("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+				else //Less items
+					list.add(new TranslatableComponent("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+			}
+		}
+		
+		return list;
 	}
 	
 	@Override

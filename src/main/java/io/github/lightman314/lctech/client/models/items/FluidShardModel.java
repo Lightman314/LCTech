@@ -6,7 +6,7 @@ import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;

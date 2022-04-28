@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blocks.*;
 import io.github.lightman314.lctech.blocks.traderblocks.*;
+import io.github.lightman314.lctech.blocks.traderinterface.*;
 import io.github.lightman314.lctech.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.BlockItemPair;
@@ -87,6 +88,13 @@ public class ModBlocks {
 			.sound(SoundType.METAL)
 			));
 	
+	//Fluid Trader Interface
+	public static final BlockItemPair FLUID_TRADER_INTERFACE = register("fluid_trader_interface", LightmansCurrency.MACHINE_GROUP, new FluidTraderInterfaceBlock(
+			Block.Properties.of(Material.METAL)
+			.strength(5.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
 	//Energy Trader
 	public static final BlockItemPair BATTERY_SHOP = register("battery_shop", LightmansCurrency.TRADING_GROUP, new EnergyTraderBlock(
 			Block.Properties.of(Material.METAL)
@@ -98,6 +106,13 @@ public class ModBlocks {
 	public static final BlockItemPair ENERGY_SERVER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, new EnergyTraderServerBlock(
 			Block.Properties.of(Material.METAL)
 			.strength(3.0f, Float.POSITIVE_INFINITY)
+			.sound(SoundType.METAL)
+			));
+	
+	//Energy Trader Interface
+	public static final BlockItemPair ENERGY_TRADER_INTERFACE = register("energy_trader_interface", LightmansCurrency.MACHINE_GROUP, new EnergyTraderInterfaceBlock(
+			Block.Properties.of(Material.METAL)
+			.strength(5.0f, Float.POSITIVE_INFINITY)
 			.sound(SoundType.METAL)
 			));
 	

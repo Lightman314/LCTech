@@ -1,5 +1,6 @@
 package io.github.lightman314.lctech.trader.fluid;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -11,6 +12,7 @@ import io.github.lightman314.lctech.common.logger.FluidShopLogger;
 import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.FluidEntry;
+import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.ITraderFluidFilter;
 import io.github.lightman314.lctech.trader.settings.FluidTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
@@ -25,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.trader.ITradeSource;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -45,8 +48,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidStack;
 
-public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<FluidShopLogger>{
+public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<FluidShopLogger>, ITraderFluidFilter, ITradeSource<FluidTradeData>{
 	
 	public static int getDefaultTankCapacity() { return TechConfig.SERVER.fluidTraderDefaultStorage.get() * FluidAttributes.BUCKET_VOLUME; }
 	
@@ -97,6 +101,27 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 		}
 		return tankCapacity;
 	}
+	public default List<FluidStack> getRelevantFluids() {
+		List<FluidStack> result = new ArrayList<>();
+		for(FluidTradeData trade : this.getAllTrades())
+		{
+			FluidStack product = trade.getProduct();
+			if(!product.isEmpty() && !IsInList(result, product))
+				result.add(product);
+		}
+		return result;
+	}
+	public static boolean IsInList(List<FluidStack> list, FluidStack fluid) {
+		if(fluid.isEmpty())
+			return true;
+		for(FluidStack query : list)
+		{
+			if(query.isFluidEqual(fluid))
+				return true;
+		}
+		return false;
+	}
+	
 	//Client send messages
 	//public ITradeRuleScreenHandler getRuleScreenHandler();
 	//public void sendSetTradeFluidMessage(int tradeIndex, FluidStack newFluid);
@@ -214,6 +239,10 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 				this.markStorageDirty();
 			}
 			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
+			this.markLoggerDirty();
+			
 			//Ignore internal editing if this is creative
 			if(!this.getCoreSettings().isCreative())
 			{
@@ -256,6 +285,10 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 				context.getPayment(price);
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.isCreative());
+			this.markLoggerDirty();
 			
 			//Ignore internal editing if this is creative
 			if(!this.getCoreSettings().isCreative())

@@ -3,8 +3,8 @@ package io.github.lightman314.lctech.client.renderer.tileentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

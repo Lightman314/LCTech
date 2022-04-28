@@ -8,17 +8,20 @@ import com.google.common.collect.Maps;
 
 import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidRenderUtil.FluidSides;
+import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.core.ModBlockEntities;
+import io.github.lightman314.lctech.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidTraderBlock{
 
@@ -115,5 +118,8 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 		}
 		return list;
 	}
+	
+	@Override
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechTooltips.FLUID_TRADER; }
 	
 }

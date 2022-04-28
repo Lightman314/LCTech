@@ -7,9 +7,11 @@ import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.util.EnergyUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -52,6 +54,14 @@ public class BatteryItem extends Item implements IBatteryItem{
 
 	public int getBarColor(ItemStack stack) {
 		return ChatFormatting.AQUA.getColor();
+	}
+	
+	@Override
+	 public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
+		if (this.allowdedIn(tab)) {
+			list.add(new ItemStack(this));
+			list.add(IBatteryItem.getFullBattery(this));
+		}
 	}
 	
 }

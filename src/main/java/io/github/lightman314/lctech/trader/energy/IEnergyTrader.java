@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.trader.ITradeSource;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.common.InteractionSlotData;
 import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
@@ -39,7 +40,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<EnergyShopLogger> {
+public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<EnergyShopLogger>, ITradeSource<EnergyTradeData> {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.ENERGY_CAPACITY);
 	
@@ -193,14 +194,20 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 				this.addPendingDrain(trade.getAmount());
 				drainStorage = false;
 			}
-				
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.isCreative());
+			this.markLoggerDirty();
 			
 			//Ignore internal editing if this is creative
 			if(!this.getCoreSettings().isCreative())
 			{
 				//Remove the purchased energy from storage
 				if(drainStorage)
+				{
 					this.shrinkEnergy(trade.getAmount());
+					this.markEnergyStorageDirty();
+				}
 				
 				//Give the paid price to storage
 				this.addStoredMoney(price);					
@@ -234,6 +241,10 @@ public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler,
 				context.getPayment(price);
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
+			
+			//Log the successful trade
+			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.isCreative());
+			this.markLoggerDirty();
 			
 			//Ignore internal editing if this is creative
 			if(!this.getCoreSettings().isCreative())
