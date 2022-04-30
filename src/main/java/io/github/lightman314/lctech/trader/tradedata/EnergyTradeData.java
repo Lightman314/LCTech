@@ -14,7 +14,7 @@ import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry.TextFormatting;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.trades_basic.BasicTradeEditTab;
@@ -39,7 +39,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EnergyTradeData extends TradeData {
-	
 	
 	int amount = 0;
 	public int getAmount() { return this.amount; }
