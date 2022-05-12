@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.blockentity.ItemInterfaceBlockEnt
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.TradeCostEvent;
@@ -29,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAdd
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenTrades;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -59,8 +61,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnergyTrader, ILoggerSupport<EnergyShopLogger>{
 
-	public static final int TRADE_LIMIT = 4;
-	
 	int tradeCount = 1;
 	
 	TradeEnergyHandler energyHandler = new TradeEnergyHandler(this);
@@ -95,11 +95,11 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	}
 
 	public int getTradeCount() {
-		return MathUtil.clamp(this.tradeCount, 1, TRADE_LIMIT);
+		return MathUtil.clamp(this.tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 	}
 	
 	public int getTradeCountLimit() {
-		return TRADE_LIMIT;
+		return DEFAULT_TRADE_LIMIT;
 	}
 	
 	public EnergyTradeData getTrade(int tradeIndex)
@@ -124,8 +124,14 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	{
 		if(this.level.isClientSide)
 			return;
-		if(this.tradeCount >= TRADE_LIMIT)
+		if(this.tradeCount >= ITrader.GLOBAL_TRADE_LIMIT)
 			return;
+		
+		if(this.tradeCount >= IEnergyTrader.DEFAULT_TRADE_LIMIT && !TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "add creative trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		
 		if(!this.hasPermission(requestor, Permissions.EDIT_TRADES))
 		{
@@ -154,7 +160,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		List<EnergyTradeData> oldTrades = this.trades;
 		this.trades = EnergyTradeData.listOfSize(this.tradeCount);
 		//Write the old trade data into the array

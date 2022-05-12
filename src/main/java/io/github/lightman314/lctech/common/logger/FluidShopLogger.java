@@ -26,7 +26,7 @@ public class FluidShopLogger extends TextLogger{
 		
 		Component fluidName = FluidFormatUtil.getFluidName(trade.getProduct());
 		
-		Component fluidText = new TranslatableComponent("log.shoplog.fluid.fluidformat",trade.getProduct().getAmount(), fluidName);
+		Component fluidText = new TranslatableComponent("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(trade.getQuantity()), fluidName);
 		Component cost = getCostText(pricePaid);
 		
 		AddLog(new TranslatableComponent("log.shoplog.fluid.format",creativeText, playerName, boughtText, fluidText, cost));

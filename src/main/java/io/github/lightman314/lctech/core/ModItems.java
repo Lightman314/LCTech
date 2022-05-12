@@ -1,52 +1,49 @@
 package io.github.lightman314.lctech.core;
 
-import java.util.List;
-
-import com.google.common.collect.Lists;
-
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.items.*;
 import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.items.CapacityUpgradeItem;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.registries.ObjectHolder;
 
-//@Mod.EventBusSubscriber(modid = LCTech.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@ObjectHolder(LCTech.MODID)
 public class ModItems {
 	
-	private static final List<Item> ITEMS = Lists.newArrayList();
+	public static void init() {
+		
+		ModRegistries.ITEMS.register("fluid_shard", () -> new FluidShardItem(new Item.Properties()));
+		
+		ModRegistries.ITEMS.register("fluid_capacity_upgrade_1", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity1.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("fluid_capacity_upgrade_2", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity2.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("fluid_capacity_upgrade_3", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity3.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		
+		ModRegistries.ITEMS.register("battery", () -> new BatteryItem(() -> TechConfig.SERVER.batteryCapacity.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("battery_large", () -> new BatteryItem(() -> TechConfig.SERVER.largeBatteryCapacity.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		
+		ModRegistries.ITEMS.register("energy_capacity_upgrade_1", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity1.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("energy_capacity_upgrade_2", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity2.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("energy_capacity_upgrade_3", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity3.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+	}
 	
 	//Fluid Shard
-	public static final Item FLUID_SHARD = register("fluid_shard", new FluidShardItem(new Item.Properties()));
+	public static final Item FLUID_SHARD = null;
 	
 	//Fluid Upgrades
-	public static final Item FLUID_CAPACITY_UPGRADE_1 = register("fluid_capacity_upgrade_1", new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity1.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item FLUID_CAPACITY_UPGRADE_2 = register("fluid_capacity_upgrade_2", new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity2.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item FLUID_CAPACITY_UPGRADE_3 = register("fluid_capacity_upgrade_3", new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity3.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+	public static final Item FLUID_CAPACITY_UPGRADE_1 = null;
+	public static final Item FLUID_CAPACITY_UPGRADE_2 = null;
+	public static final Item FLUID_CAPACITY_UPGRADE_3 = null;
 	
 	//Battery Item
-	public static final BatteryItem BATTERY = register("battery", new BatteryItem(() -> TechConfig.SERVER.batteryCapacity.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-	public static final BatteryItem BATTERY_LARGE = register("battery_large", new BatteryItem(() -> TechConfig.SERVER.largeBatteryCapacity.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+	public static final BatteryItem BATTERY = null;
+	public static final BatteryItem BATTERY_LARGE = null;
 	
 	//Energy Upgrades
-	public static final Item ENERGY_CAPACITY_UPGRADE_1 = register("energy_capacity_upgrade_1", new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity1.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item ENERGY_CAPACITY_UPGRADE_2 = register("energy_capacity_upgrade_2", new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity2.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-	public static final Item ENERGY_CAPACITY_UPGRADE_3 = register("energy_capacity_upgrade_3", new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity3.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-	
-	private static <T extends Item> T register(String name, T item)
-	{
-		item.setRegistryName(name);
-		ITEMS.add(item);
-		return item;
-	}
-	
-	//@SubscribeEvent
-	public static void registerItems(final RegistryEvent.Register<Item> event)
-	{
-		ITEMS.forEach(item -> event.getRegistry().register(item));
-		ITEMS.clear();
-	}
+	public static final Item ENERGY_CAPACITY_UPGRADE_1 = null;
+	public static final Item ENERGY_CAPACITY_UPGRADE_2 = null;
+	public static final Item ENERGY_CAPACITY_UPGRADE_3 = null;
 	
 }

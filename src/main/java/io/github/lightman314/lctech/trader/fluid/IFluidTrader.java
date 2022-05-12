@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
+import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.FluidEntry;
@@ -243,6 +244,9 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.getCoreSettings().isCreative());
 			this.markLoggerDirty();
 			
+			//Post the notification
+			this.getCoreSettings().pushNotification(() -> new FluidTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			
 			//Ignore internal editing if this is creative
 			if(!this.getCoreSettings().isCreative())
 			{
@@ -289,6 +293,9 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 			//Log the successful trade
 			this.getLogger().AddLog(context.getPlayerReference(), trade, price, this.isCreative());
 			this.markLoggerDirty();
+			
+			//Post the notification
+			this.getCoreSettings().pushNotification(() -> new FluidTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
 			
 			//Ignore internal editing if this is creative
 			if(!this.getCoreSettings().isCreative())

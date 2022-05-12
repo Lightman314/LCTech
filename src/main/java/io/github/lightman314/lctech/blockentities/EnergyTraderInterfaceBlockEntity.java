@@ -87,10 +87,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public List<InteractionType> getBlacklistedInteractions() { return Lists.newArrayList(InteractionType.RESTOCK_AND_DRAIN); }
 	
 	@Override
-	public TradeContext getTradeContext() {
-		if(this.getInteractionType().trades)
-			return TradeContext.create(this.getTrader(), this.getOwner()).withBankAccount(this.getAccountReference()).withEnergyHandler(this.energyHandler.tradeHandler).build();
-		return TradeContext.createStorageMode(this.getTrader());
+	public TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext) {
+		return baseContext.withEnergyHandler(this.energyHandler.tradeHandler);
 	}
 	
 	@Override

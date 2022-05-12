@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.menu.traderstorage.AddRemoveTradeEditTab;
+import io.github.lightman314.lctech.trader.ITradeCountTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.BasicTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -34,10 +35,15 @@ public class AddRemoveTradeEditClientTab extends BasicTradeEditClientTab<AddRemo
 		super.tick();
 		
 		ITrader trader = this.menu.getTrader();
-		if(trader != null)
+		if(trader instanceof ITradeCountTrader)
 		{
-			this.buttonAddTrade.active = trader.getTradeCount() < trader.getTradeCountLimit();
+			this.buttonAddTrade.active = trader.getTradeCount() < ((ITradeCountTrader)trader).getTradeCountLimit();
 			this.buttonRemoveTrade.active = trader.getTradeCount() > 1;
+		}
+		else
+		{
+			this.buttonAddTrade.visible = false;
+			this.buttonRemoveTrade.visible = false;
 		}
 		
 	}

@@ -1,8 +1,5 @@
 package io.github.lightman314.lctech;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -16,26 +13,27 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
+import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.common.universaldata.UniversalEnergyTraderData;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lctech.common.universaldata.traderSearching.FluidTraderSearchFilter;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModItems;
+import io.github.lightman314.lctech.core.ModRegistries;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod("lctech")
 public class LCTech
 {
 	
 	public static final String MODID = "lctech";
-	
-	//private static boolean lightmansCurrencyLoaded = false;
 	
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	
@@ -52,11 +50,13 @@ public class LCTech
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, TechConfig.serverSpec);
         
-        //Register Blocks & Items (1.18.2 thing)
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModItems::registerItems);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Item.class, ModBlocks::registerItems);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Block.class, ModBlocks::registerBlocks);
-        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(BlockEntityType.class, ModBlockEntities::registerTypes);
+        //.Setup Deferred Registries
+        ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
+        
+        //Pre-register items/blocks
+        ModItems.init();
+        ModBlocks.init();
+        ModBlockEntities.init();
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -73,6 +73,10 @@ public class LCTech
         //Register the universal data deserializer
         TradingOffice.RegisterDataType(UniversalFluidTraderData.TYPE, UniversalFluidTraderData::new);
         TradingOffice.RegisterDataType(UniversalEnergyTraderData.TYPE, UniversalEnergyTraderData::new);
+        
+        //Register custom notification types
+        Notification.register(FluidTradeNotification.TYPE, FluidTradeNotification::new);
+        Notification.register(EnergyTradeNotification.TYPE, EnergyTradeNotification::new);
         
         //Add our items/blocks to the creative tab sorting
         try {

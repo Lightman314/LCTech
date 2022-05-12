@@ -22,6 +22,11 @@ import net.minecraft.world.phys.BlockHitResult;
 
 public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlock, EntityBlock{
 	
+	public static final int SMALL_SERVER_COUNT = 2;
+	public static final int MEDIUM_SERVER_COUNT = 2;
+	public static final int LARGE_SERVER_COUNT = 2;
+	public static final int EXTRA_LARGE_SERVER_COUNT = 2;
+	
 	final int tradeCount;
 	
 	public FluidTraderServerBlock(int tradeCount, Properties properties)

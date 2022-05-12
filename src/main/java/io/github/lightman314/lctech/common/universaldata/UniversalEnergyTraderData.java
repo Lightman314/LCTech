@@ -9,14 +9,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.blockentities.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
+import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.energy.TradeEnergyHandler;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.ITradeRuleScreenHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.events.TradeEvent.PreTradeEvent;
@@ -29,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.network.message.universal_trader.
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenTrades2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
@@ -50,12 +52,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public class UniversalEnergyTraderData extends UniversalTraderData implements IEnergyTrader{
-
-	public static final int TRADE_LIMIT = EnergyTraderBlockEntity.TRADE_LIMIT;
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"energy_trader");
 	
@@ -87,6 +88,9 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	{
 		super(owner, pos, level, traderID);
 	}
+	
+	@Override
+	protected ItemLike getCategoryItem() { return ModBlocks.ENERGY_SERVER; }
 	
 	@Override
 	public void read(CompoundTag compound)
@@ -168,8 +172,6 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	
 	public int getTradeCount() { return this.tradeCount; }
 	
-	public int getTradeCountLimit() { return TRADE_LIMIT; }
-	
 	public EnergyTradeData getTrade(int tradeIndex) {
 		if(tradeIndex >= 0 && tradeIndex < this.trades.size())
 			return this.trades.get(tradeIndex);
@@ -191,8 +193,14 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	{
 		if(this.isClient())
 			return;
-		if(this.tradeCount >= TRADE_LIMIT)
+		if(this.tradeCount >= ITrader.GLOBAL_TRADE_LIMIT)
 			return;
+		
+		if(this.tradeCount >= IEnergyTrader.DEFAULT_TRADE_LIMIT && !TradingOffice.isAdminPlayer(requestor))
+		{
+			Settings.PermissionWarning(requestor, "add creative trade slot", Permissions.ADMIN_MODE);
+			return;
+		}
 		
 		if(!this.hasPermission(requestor, Permissions.EDIT_TRADES))
 		{
@@ -221,7 +229,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		List<EnergyTradeData> oldTrades = this.trades;
 		this.trades = EnergyTradeData.listOfSize(this.tradeCount);
 		//Write the old trade data into the array
@@ -503,7 +511,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		
 		JsonArray tradeList = json.get("Trades").getAsJsonArray();
 		this.trades = new ArrayList<>();
-		for(int i = 0; i < tradeList.size() && this.trades.size() < TRADE_LIMIT; ++i)
+		for(int i = 0; i < tradeList.size() && this.trades.size() < ITrader.GLOBAL_TRADE_LIMIT; ++i)
 		{
 			try {
 				

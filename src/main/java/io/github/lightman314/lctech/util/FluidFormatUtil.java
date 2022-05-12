@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Rarity;
@@ -18,12 +17,12 @@ public class FluidFormatUtil {
 		return new DecimalFormat().format(amount);
 	}
 	
-	public static Component getFluidName(FluidStack fluid)
+	public static MutableComponent getFluidName(FluidStack fluid)
 	{
 		return getFluidName(fluid, null);
 	}
 	
-	public static Component getFluidName(FluidStack fluid, @Nullable ChatFormatting colorOverride)
+	public static MutableComponent getFluidName(FluidStack fluid, @Nullable ChatFormatting colorOverride)
 	{
 		MutableComponent component = new TranslatableComponent(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).color);
 		if(colorOverride != null && fluid.getFluid().getAttributes().getRarity(fluid) == Rarity.COMMON)

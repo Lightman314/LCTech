@@ -9,8 +9,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
+import io.github.lightman314.lctech.blocks.FluidTraderServerBlock;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
+import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
@@ -30,6 +31,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageAddOrRemoveTrade2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageOpenStorage2;
 import io.github.lightman314.lightmanscurrency.network.message.universal_trader.MessageUpdateTradeRule2;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
@@ -48,11 +50,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
 public class UniversalFluidTraderData extends UniversalTraderData implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
-
-	public static final int TRADE_LIMIT = FluidTraderBlockEntity.TRADE_LIMIT;
 	
 	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
 	
@@ -82,15 +83,27 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	
 	public UniversalFluidTraderData(PlayerReference owner, BlockPos pos, ResourceKey<Level> world, UUID traderID, int tradeCount) {
 		super(owner, pos, world, traderID);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		this.trades = FluidTradeData.listOfSize(tradeCount);
+	}
+	
+	@Override
+	protected ItemLike getCategoryItem() {
+		int tradeCount = this.isCreative() ? ITrader.GLOBAL_TRADE_LIMIT : this.getTradeCount();
+		if(tradeCount <= FluidTraderServerBlock.SMALL_SERVER_COUNT)
+			return ModBlocks.FLUID_SERVER_SML;
+		else if(tradeCount <= FluidTraderServerBlock.MEDIUM_SERVER_COUNT)
+			return ModBlocks.FLUID_SERVER_MED;
+		else if(tradeCount <= FluidTraderServerBlock.LARGE_SERVER_COUNT)
+			return ModBlocks.FLUID_SERVER_LRG;
+		return ModBlocks.FLUID_SERVER_XLRG;
 	}
 	
 	@Override
 	public void read(CompoundTag compound)
 	{
 		if(compound.contains("TradeLimit", Tag.TAG_INT))
-			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, TRADE_LIMIT);
+			this.tradeCount = MathUtil.clamp(compound.getInt("TradeLimit"), 1, ITrader.GLOBAL_TRADE_LIMIT);
 		
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
@@ -171,8 +184,6 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public int getTradeCount() {
 		return this.tradeCount;
 	}
-	
-	public int getTradeCountLimit() { return TRADE_LIMIT; }
 
 	public void requestAddOrRemoveTrade(boolean isAdd)
 	{
@@ -180,7 +191,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	}
 	
 	public void addTrade(Player requestor) {
-		if(this.tradeCount >= TRADE_LIMIT)
+		if(this.tradeCount >= ITrader.GLOBAL_TRADE_LIMIT)
 			return;
 		if(!TradingOffice.isAdminPlayer(requestor))
 		{
@@ -219,7 +230,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		List<FluidTradeData> oldTrades = this.trades;
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 		//Write the old trade data into the array
@@ -427,7 +438,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		JsonArray tradeList = json.get("Trades").getAsJsonArray();
 		
 		this.trades = new ArrayList<>();
-		for(int i = 0; i < tradeList.size() && this.trades.size() < TRADE_LIMIT; ++i)
+		for(int i = 0; i < tradeList.size() && this.trades.size() < ITrader.GLOBAL_TRADE_LIMIT; ++i)
 		{
 			try {
 				

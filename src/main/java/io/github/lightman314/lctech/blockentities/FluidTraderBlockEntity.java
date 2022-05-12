@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageAddOrRemoveTrade;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageOpenStorage;
 import io.github.lightman314.lightmanscurrency.network.message.trader.MessageUpdateTradeRule;
+import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.settings.Settings;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.ItemTradeData;
@@ -58,8 +59,6 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidTrader, ILoggerSupport<FluidShopLogger>{
-	
-	public static final int TRADE_LIMIT = 8;
 	
 	int tradeCount = 1;
 	
@@ -118,7 +117,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	protected FluidTraderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int tradeCount)
 	{
 		super(type, pos, state);
-		this.tradeCount = MathUtil.clamp(tradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 	}
 	
@@ -132,10 +131,8 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	
 	public int getTradeCount()
 	{
-		return MathUtil.clamp(this.tradeCount, 1, TRADE_LIMIT);
+		return MathUtil.clamp(this.tradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 	}
-	
-	public int getTradeCountLimit() { return TRADE_LIMIT; }
 	
 	public FluidTradeData getTrade(int tradeIndex)
 	{
@@ -161,7 +158,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	public void addTrade(Player requestor) {
 		if(this.level.isClientSide)
 			return;
-		if(this.tradeCount >= TRADE_LIMIT)
+		if(this.tradeCount >= ITrader.GLOBAL_TRADE_LIMIT)
 			return;
 		
 		if(!TradingOffice.isAdminPlayer(requestor))
@@ -205,7 +202,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	{
 		if(this.tradeCount == newTradeCount)
 			return;
-		this.tradeCount = MathUtil.clamp(newTradeCount, 1, TRADE_LIMIT);
+		this.tradeCount = MathUtil.clamp(newTradeCount, 1, ITrader.GLOBAL_TRADE_LIMIT);
 		List<FluidTradeData> oldTrades = this.trades;
 		this.trades = FluidTradeData.listOfSize(this.tradeCount);
 		//Write the old trade data into the array

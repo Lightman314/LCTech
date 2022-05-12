@@ -78,10 +78,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	public TradeContext getTradeContext() {
-		if(this.getInteractionType().trades)
-			return TradeContext.create(this.getTrader(), this.getOwner()).withBankAccount(this.getAccountReference()).withFluidHandler(this.fluidBuffer).build();
-		return TradeContext.createStorageMode(this.getTrader());
+	public TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext) {
+		return baseContext.withFluidHandler(this.fluidBuffer);
 	}
 	
 	public boolean allowInput(FluidStack fluid) {

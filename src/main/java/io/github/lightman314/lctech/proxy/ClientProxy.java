@@ -15,11 +15,11 @@ public class ClientProxy extends CommonProxy{
 	{
 		
 		//Set Render Layers
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP.block, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP_BUNDLE.block, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.IRON_TANK.block, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK.block, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DIAMOND_TANK.block, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP_BUNDLE, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.IRON_TANK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DIAMOND_TANK, RenderType.cutout());
 		
 		//Register Screens
 		/*MenuScreens.register(ModMenus.FLUID_TRADER, FluidTraderScreen::new);
