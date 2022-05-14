@@ -111,6 +111,12 @@ public class FluidTradeEditTab extends TraderStorageTab{
 		{
 			trade.setProduct(fluid);
 			this.menu.getTrader().markTradesDirty();
+			if(this.menu.getTrader() instanceof IFluidTrader)
+			{
+				IFluidTrader fluidTrader = (IFluidTrader)this.menu.getTrader();
+				if(fluidTrader.getStorage().refactorTanks())
+					fluidTrader.markStorageDirty();
+			}
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
