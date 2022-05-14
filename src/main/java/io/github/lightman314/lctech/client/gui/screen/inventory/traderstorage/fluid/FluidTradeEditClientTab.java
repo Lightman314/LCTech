@@ -109,6 +109,9 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		
 		this.validateRenderables();
 		
+		if(this.fluidEditScroll.visible)
+			this.fluidEditScroll.beforeWidgetRender(mouseY);
+		
 		//Render the local quantity text
 		if(this.selection >= 0)
 		{
@@ -219,6 +222,13 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
+		this.fluidEditScroll.onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.fluidEditScroll.onMouseReleased(mouseX, mouseY, button);
 		return false;
 	}
 	

@@ -112,6 +112,7 @@ public interface IFluidTrader extends ITrader, IUpgradeable, ITradeRuleHandler, 
 		}
 		return result;
 	}
+	
 	public static boolean IsInList(List<FluidStack> list, FluidStack fluid) {
 		if(fluid.isEmpty())
 			return true;

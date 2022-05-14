@@ -487,8 +487,8 @@ public class FluidTradeData extends TradeData {
 					{
 						this.setProduct(heldFluid);
 						trader.markTradesDirty();
-						trader.getStorage().refactorTanks();
-						trader.markStorageDirty();
+						if(trader.getStorage().refactorTanks())
+							trader.markStorageDirty();
 					}
 					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
 				}
@@ -522,8 +522,8 @@ public class FluidTradeData extends TradeData {
 					{
 						this.setProduct(heldFluid);
 						trader.markTradesDirty();
-						trader.getStorage().refactorTanks();
-						trader.markStorageDirty();
+						if(trader.getStorage().refactorTanks())
+							trader.markStorageDirty();
 					}
 					tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
 				}

@@ -46,6 +46,7 @@ public class TraderFluidStorage implements IFluidHandler {
 					this.tanks.add(tank);
 			}
 		}
+		this.refactorTanks();
 	}
 	
 	public void loadFromTrades(ListTag fluidTradeList) {

@@ -182,21 +182,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 			return;
 		}
 		this.overrideTradeCount(this.tradeCount - 1);
-		//this.forceReopen();
 	}
-	
-	/*@Override
-	protected void forceReopen(List<Player> users) {
-		for(Player player : users)
-		{
-			if(player.containerMenu instanceof FluidTraderStorageMenu)
-				this.openStorageMenu(player);
-			else if(player.containerMenu instanceof FluidTraderMenuCR)
-				this.openCashRegisterTradeMenu(player, ((FluidTraderMenuCR)player.containerMenu).getCashRegister());
-			else if(player.containerMenu instanceof FluidTraderMenu)
-				this.openTradeMenu(player);
-		}
-	}*/
 	
 	public void overrideTradeCount(int newTradeCount)
 	{
@@ -280,13 +266,13 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 		if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(this.tradeCount, compound);
 		
+		if(compound.contains("UpgradeInventory",Tag.TAG_LIST))
+			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
+		
 		if(compound.contains("FluidStorage"))
 			this.storage.load(compound, "FluidStorage");
 		else if(compound.contains(ItemTradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.storage.loadFromTrades(compound.getList(ItemTradeData.DEFAULT_KEY, Tag.TAG_COMPOUND));
-			
-		if(compound.contains("UpgradeInventory",Tag.TAG_LIST))
-			this.upgradeInventory = InventoryUtil.loadAllItems("UpgradeInventory", compound, 5);
 			
 		if(compound.contains("FluidSettings", Tag.TAG_COMPOUND))
 			this.fluidSettings.load(compound.getCompound("FluidSettings"));

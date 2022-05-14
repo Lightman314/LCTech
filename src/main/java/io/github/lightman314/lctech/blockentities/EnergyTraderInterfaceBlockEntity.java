@@ -11,7 +11,9 @@ import io.github.lightman314.lctech.menu.traderinterface.energy.EnergyStorageTab
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
+import io.github.lightman314.lctech.util.DirectionalUtil;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
@@ -25,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
@@ -32,7 +35,9 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements IUpgradeable{
 
@@ -198,6 +203,31 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 					{
 						this.interactWithTrader();
 						this.setEnergyBufferDirty();
+					}
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void serverTick() {
+		super.serverTick();
+		//Push energy out
+		if(this.energyStorage > 0)
+		{
+			for(Direction direction : Direction.values())
+			{
+				if(this.energyHandler.getOutputSides().get(direction) && this.energyStorage > 0)
+				{
+					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? DirectionalUtil.getTrueSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
+					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
+					if(be != null)
+					{
+						be.getCapability(CapabilityEnergy.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
+							int extractedAmount = energyHandler.receiveEnergy(this.energyStorage, false);
+							if(extractedAmount > 0) //Automatically marks the energy storage dirty
+								this.drainStoredEnergy(extractedAmount);
+						});
 					}
 				}
 			}

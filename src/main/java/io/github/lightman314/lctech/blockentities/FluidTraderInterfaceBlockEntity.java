@@ -203,10 +203,10 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	public void load(CompoundTag compound) {
 		super.load(compound);
-		if(compound.contains("Storage"))
-			this.fluidBuffer.load(compound, "Storage");
 		if(compound.contains("Upgrades",Tag.TAG_LIST))
 			this.upgradeInventory = InventoryUtil.loadAllItems("Upgrades", compound, 5);
+		if(compound.contains("Storage"))
+			this.fluidBuffer.load(compound, "Storage");
 	}
 	
 	@Override

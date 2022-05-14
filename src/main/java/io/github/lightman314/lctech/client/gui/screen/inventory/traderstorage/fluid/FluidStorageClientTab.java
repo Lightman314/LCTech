@@ -49,6 +49,8 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 
 	int scroll = 0;
 	
+	ScrollBarWidget scrollBar;
+	
 	@Override
 	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 
@@ -64,7 +66,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	@Override
 	public void onOpen() {
 		
-		this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * TANKS), this.screen.getGuiTop() + Y_OFFSET, 90, this));
+		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * TANKS), this.screen.getGuiTop() + Y_OFFSET, 90, this));
 		
 		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
 		
@@ -74,6 +76,8 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		
+		this.scrollBar.beforeWidgetRender(mouseY);
 		
 		if(this.menu.getTrader() instanceof IFluidTrader)
 		{
@@ -275,6 +279,13 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				return true;
 			}
 		}
+		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
 		return false;
 	}
 

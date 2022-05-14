@@ -94,6 +94,8 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 		
 		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
+		this.scrollBar.beforeWidgetRender(mouseY);
+		
 		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
 		{
 			//Validate the scroll
@@ -237,6 +239,13 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				return true;
 			}
 		}
+		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
+		return false;
+	}
+	
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
 		return false;
 	}
 	
