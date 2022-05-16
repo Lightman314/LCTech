@@ -1,14 +1,11 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "group": "fluid_capacity_upgrades",
-  "ingredients": [
-    {
-      "item": "lctech:fluid_capacity_upgrade_2"
-    },
-    {
-      "item": "minecraft:diamond"
-    }
-  ],
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "lctech:fluid_capacity_upgrade_2"
+  },
+  "addition": {
+    "item": "minecraft:diamond"
+  },
   "result": {
     "item": "lctech:fluid_capacity_upgrade_3"
   }

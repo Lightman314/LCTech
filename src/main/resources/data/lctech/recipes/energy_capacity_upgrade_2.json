@@ -1,14 +1,11 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "group": "energy_capacity_upgrades",
-  "ingredients": [
-    {
-      "item": "lctech:energy_capacity_upgrade_1"
-    },
-    {
-      "item": "minecraft:gold_ingot"
-    }
-  ],
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "lctech:energy_capacity_upgrade_1"
+  },
+  "addition": {
+    "item": "minecraft:gold_ingot"
+  },
   "result": {
     "item": "lctech:energy_capacity_upgrade_2"
   }

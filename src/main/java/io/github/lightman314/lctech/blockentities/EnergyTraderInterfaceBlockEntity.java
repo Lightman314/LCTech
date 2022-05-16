@@ -198,8 +198,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 				}
 				else if(trade.isPurchase())
 				{
-					//Confirm that we have enough of the fluid in storage to buy the fluid
-					if(this.energyStorage > trade.getAmount())
+					//Confirm that we have enough of the energy in storage to sell the energy
+					if(this.energyStorage >= trade.getAmount())
 					{
 						this.interactWithTrader();
 						this.setEnergyBufferDirty();

@@ -1,18 +1,10 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "group": "fluid_capacity_upgrades",
-  "pattern":[
-    " g ",
-    "gbg",
-    " g "
-  ],
-  "key": {
-    "b": {
-      "item": "minecraft:bucket"
-    },
-    "g": {
-      "item": "minecraft:glass"
-    }
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "minecraft:bucket"
+  },
+  "addition": {
+    "item": "minecraft:iron_ingot"
   },
   "result": {
     "item": "lctech:fluid_capacity_upgrade_1"

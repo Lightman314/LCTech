@@ -396,10 +396,13 @@ public class EnergyTradeData extends TradeData {
 		if(context.hasTrader() && context.getTrader() instanceof IEnergyTrader)
 		{
 			IEnergyTrader trader = (IEnergyTrader)context.getTrader();
-			if(this.getStock(context) <= 0)
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
-			if(!this.hasSpace(trader))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+			if(!trader.isCreative())
+			{
+				if(this.getStock(context) <= 0)
+					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+				if(!this.hasSpace(trader))
+					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+			}
 			if(!this.canAfford(context))
 				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
 		}
