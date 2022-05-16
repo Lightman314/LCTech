@@ -53,6 +53,6 @@ An expansion mod that adds traders for fluids & some forms of energy.
 [[dependencies.lctech]]
     modId="lightmanscurrency"
     mandatory=true
-    versionRange="[1.18.2-1.1.3.0,)"
+    versionRange="[1.18.2-1.1.3.3,)"
     ordering="AFTER"
     side="BOTH"

@@ -49,23 +49,17 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
+		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
-			for(int i = 0; i < be.getUpgradeInventory().getContainerSize(); ++i)
-			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(be.getUpgradeInventory(), i, 176, 18 + 18 * i, be, this::onUpgradeModified);
-				upgradeSlot.active = false;
-				addSlot.apply(upgradeSlot);
-				this.slots.add(upgradeSlot);
-			}
+			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			upgradeSlot.active = false;
+			addSlot.apply(upgradeSlot);
+			this.slots.add(upgradeSlot);
 		}
 	}
 	
 	private void onUpgradeModified() {
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity) {
-			((FluidTraderInterfaceBlockEntity)this.menu.getBE()).setUpgradesDirty();
-		}
+		this.menu.getBE().setUpgradeSlotsDirty();
 	}
 	
 	public void interactWithTank(int tank, boolean shiftHeld) {

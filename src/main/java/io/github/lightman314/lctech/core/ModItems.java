@@ -17,16 +17,16 @@ public class ModItems {
 		
 		ModRegistries.ITEMS.register("fluid_shard", () -> new FluidShardItem(new Item.Properties()));
 		
-		ModRegistries.ITEMS.register("fluid_capacity_upgrade_1", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity1.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		ModRegistries.ITEMS.register("fluid_capacity_upgrade_2", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity2.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		ModRegistries.ITEMS.register("fluid_capacity_upgrade_3", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity3.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("fluid_capacity_upgrade_1", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity1.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("fluid_capacity_upgrade_2", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity2.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("fluid_capacity_upgrade_3", () -> new CapacityUpgradeItem(TechUpgradeTypes.FLUID_CAPACITY, () -> TechConfig.SERVER.fluidUpgradeCapacity3.get() * FluidAttributes.BUCKET_VOLUME, new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
 		
 		ModRegistries.ITEMS.register("battery", () -> new BatteryItem(() -> TechConfig.SERVER.batteryCapacity.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		ModRegistries.ITEMS.register("battery_large", () -> new BatteryItem(() -> TechConfig.SERVER.largeBatteryCapacity.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
 		
-		ModRegistries.ITEMS.register("energy_capacity_upgrade_1", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity1.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		ModRegistries.ITEMS.register("energy_capacity_upgrade_2", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity2.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
-		ModRegistries.ITEMS.register("energy_capacity_upgrade_3", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity3.get(), new Item.Properties().tab(LightmansCurrency.MACHINE_GROUP)));
+		ModRegistries.ITEMS.register("energy_capacity_upgrade_1", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity1.get(), new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("energy_capacity_upgrade_2", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity2.get(), new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
+		ModRegistries.ITEMS.register("energy_capacity_upgrade_3", () -> new CapacityUpgradeItem(TechUpgradeTypes.ENERGY_CAPACITY, () -> TechConfig.SERVER.energyUpgradeCapacity3.get(), new Item.Properties().tab(LightmansCurrency.UPGRADE_GROUP)));
 	}
 	
 	//Fluid Shard

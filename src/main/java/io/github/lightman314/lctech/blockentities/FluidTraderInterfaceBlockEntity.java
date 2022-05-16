@@ -23,36 +23,26 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter, IUpgradeable {
+public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.FLUID_CAPACITY);
-	
-	public boolean allowUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
 	
 	private TraderFluidStorage fluidBuffer = new TraderFluidStorage(this);
 	public TraderFluidStorage getFluidBuffer() { return this.fluidBuffer; }
 	
 	FluidInterfaceHandler fluidHandler;
 	public FluidInterfaceHandler getFluidHandler() { return this.fluidHandler; }
-	
-	Container upgradeInventory = new SimpleContainer(5);
-	public Container getUpgradeInventory() { return this.upgradeInventory; }
 	
 	private int refactorTimer = 0;
 	
@@ -175,16 +165,10 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	protected void saveAdditional(CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveFluidBuffer(compound);
-		this.saveUpgradeSlots(compound);
 	}
 	
 	protected final CompoundTag saveFluidBuffer(CompoundTag compound) {
 		this.fluidBuffer.save(compound, "Storage");
-		return compound;
-	}
-	
-	protected final CompoundTag saveUpgradeSlots(CompoundTag compound) {
-		InventoryUtil.saveAllItems("Upgrades", compound, this.upgradeInventory);
 		return compound;
 	}
 	
@@ -203,8 +187,6 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	public void load(CompoundTag compound) {
 		super.load(compound);
-		if(compound.contains("Upgrades",Tag.TAG_LIST))
-			this.upgradeInventory = InventoryUtil.loadAllItems("Upgrades", compound, 5);
 		if(compound.contains("Storage"))
 			this.fluidBuffer.load(compound, "Storage");
 	}
@@ -328,22 +310,20 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	public void dumpContents(Level level, BlockPos pos) {
+	public void dumpAdditionalContents(Level level, BlockPos pos) {
 		//Dump the extra fluids if present
 		this.fluidBuffer.getContents().forEach(entry ->{
 			if(!entry.getTankContents().isEmpty())
 				Block.popResource(level, pos, FluidShardItem.GetFluidShard(entry.getTankContents()));
 		});
-		//Dump the upgrade items if present
-		for(int i = 0; i < this.upgradeInventory.getContainerSize(); i++)
-		{
-			if(!this.upgradeInventory.getItem(i).isEmpty())
-				Block.popResource(level, pos, this.upgradeInventory.getItem(i));
-		}
 	}
 	
 	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new FluidStorageTab(menu));
 	}
+	
+	@Override
+	public boolean allowAdditionalUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
+	
 }

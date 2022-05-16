@@ -83,12 +83,15 @@ public class LCTech
         	LightmansCurrency.MACHINE_GROUP.addToSortingList(Lists.newArrayList(
             		ModBlocks.IRON_TANK, ModBlocks.GOLD_TANK, ModBlocks.DIAMOND_TANK,
             		ModBlocks.FLUID_TRADER_INTERFACE,
-            		ModItems.FLUID_CAPACITY_UPGRADE_1, ModItems.FLUID_CAPACITY_UPGRADE_2, ModItems.FLUID_CAPACITY_UPGRADE_3,
             		ModItems.BATTERY, ModItems.BATTERY_LARGE,
-            		ModBlocks.ENERGY_TRADER_INTERFACE,
-            		ModItems.ENERGY_CAPACITY_UPGRADE_1, ModItems.ENERGY_CAPACITY_UPGRADE_2, ModItems.ENERGY_CAPACITY_UPGRADE_3
+            		ModBlocks.ENERGY_TRADER_INTERFACE
             		));
             
+        	LightmansCurrency.UPGRADE_GROUP.addToSortingList(Lists.newArrayList(
+        			ModItems.FLUID_CAPACITY_UPGRADE_1, ModItems.FLUID_CAPACITY_UPGRADE_2, ModItems.FLUID_CAPACITY_UPGRADE_3,
+        			ModItems.ENERGY_CAPACITY_UPGRADE_1, ModItems.ENERGY_CAPACITY_UPGRADE_2, ModItems.ENERGY_CAPACITY_UPGRADE_3
+        			));
+        	
             LightmansCurrency.TRADING_GROUP.addToSortingList(Lists.newArrayList(
             		ModBlocks.FLUID_TAP, ModBlocks.FLUID_TAP_BUNDLE,
             		ModBlocks.FLUID_SERVER_SML, ModBlocks.FLUID_SERVER_MED, ModBlocks.FLUID_SERVER_LRG, ModBlocks.FLUID_SERVER_XLRG,

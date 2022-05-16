@@ -10,7 +10,6 @@ import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput.ICoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -21,19 +20,14 @@ import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.ITrader;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Widget;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, ICoinValueInput, IFluidEditListener{
+public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener{
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 71;
@@ -77,7 +71,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
-		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiTop() + 40, new TextComponent(""), trade == null ? CoinValue.EMPTY : trade.getCost(), this));
+		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, new TextComponent(""), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.priceSelection.drawBG = false;
 		this.priceSelection.init();
 		
@@ -232,21 +226,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		return false;
 	}
 	
-	@Override
-	public <T extends GuiEventListener & Widget & NarratableEntry> T addCustomWidget(T button) {
-		if(button instanceof AbstractWidget)
-			this.screen.addRenderableTabWidget((AbstractWidget)button);
-		return button;
-	}
-	
-	@Override
-	public int getWidth() { return this.screen.width; }
-
-	@Override
-	public Font getFont() { return this.font; }
-	
-	@Override
-	public void OnCoinValueChanged(CoinValueInput input) { this.commonTab.setPrice(input.getCoinValue()); }
+	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
 	
 	public FluidTradeData getTrade() { return this.commonTab.getTrade(); }
 	

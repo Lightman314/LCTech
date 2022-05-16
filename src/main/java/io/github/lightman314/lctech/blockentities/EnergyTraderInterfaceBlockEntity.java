@@ -23,27 +23,19 @@ import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.energy.CapabilityEnergy;
 
-public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements IUpgradeable{
+public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.ENERGY_CAPACITY);
-	
-	public boolean allowUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
 	
 	EnergyInterfaceHandler energyHandler;
 	public EnergyInterfaceHandler getEnergyHandler() { return this.energyHandler; }
@@ -80,8 +72,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		return capacity;
 	}
 	
-	Container upgradeInventory = new SimpleContainer(5);
-	public Container getUpgradeInventory() { return this.upgradeInventory; }
+	//Container upgradeInventory = new SimpleContainer(5);
+	//public Container getUpgradeInventory() { return this.upgradeInventory; }
 	
 	public EnergyTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.TRADER_INTERFACE_ENERGY, pos, state);
@@ -103,16 +95,10 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public void saveAdditional(CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveEnergyBuffer(compound);
-		this.saveUpgradeSlots(compound);
 	}
 	
 	protected final CompoundTag saveEnergyBuffer(CompoundTag compound) {
 		compound.putInt("Energy", this.energyStorage);
-		return compound;
-	}
-	
-	protected final CompoundTag saveUpgradeSlots(CompoundTag compound) {
-		InventoryUtil.saveAllItems("Upgrades", compound, this.upgradeInventory);
 		return compound;
 	}
 	
@@ -122,19 +108,11 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 			BlockEntityUtil.sendUpdatePacket(this, this.saveEnergyBuffer(new CompoundTag()));
 	}
 	
-	public void setUpgradesDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag()));
-	}
-	
 	@Override
 	public void load(CompoundTag compound) {
 		super.load(compound);
 		if(compound.contains("Energy"))
 			this.energyStorage = compound.getInt("Energy");
-		if(compound.contains("Upgrades",Tag.TAG_LIST))
-			this.upgradeInventory = InventoryUtil.loadAllItems("Upgrades", compound, 5);
 	}
 	
 	@Override
@@ -235,18 +213,14 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	public void dumpContents(Level level, BlockPos pos) {
-		//Dump the upgrade items if present
-		for(int i = 0; i < this.upgradeInventory.getContainerSize(); i++)
-		{
-			if(!this.upgradeInventory.getItem(i).isEmpty())
-				Block.popResource(level, pos, this.upgradeInventory.getItem(i));
-		}
-	}
+	public void dumpAdditionalContents(Level level, BlockPos pos) { }
 	
 	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new EnergyStorageTab(menu));
 	}
+	
+	@Override
+	public boolean allowAdditionalUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
 	
 }
