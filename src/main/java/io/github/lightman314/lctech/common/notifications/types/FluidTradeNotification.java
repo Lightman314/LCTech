@@ -59,7 +59,7 @@ public class FluidTradeNotification extends Notification{
 		
 		Component cost = new TextComponent(this.cost.getString("0"));
 		
-		return new TranslatableComponent("notifications.message.fluid_trade", this.traderData.getTraderName(), this.customer, boughtText, fluidText, cost);
+		return new TranslatableComponent("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
 		
 	}
 	

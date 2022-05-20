@@ -94,7 +94,7 @@
     "log.shoplog.fluid.fluidformat": "%1$smB of %2$s",
     "log.shoplog.energy.format": "%1$s%2$s %3$s %4$s for %5$s",
     
-    "notifications.message.fluid_trade": "%1$s: %2$s %3$s %4$s for %5$s",
-    "notifications.message.energy_trade": "%1$s: %2$s %3$s %4$s for %5$s"
+    "notifications.message.fluid_trade": "%1$s %2$s %3$s for %4$s",
+    "notifications.message.energy_trade": "%1$s %2$s %3$s for %4$s"
     
 }

@@ -51,7 +51,8 @@ public class EnergyTradeNotification extends Notification {
 		
 		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
 		
-		return new TranslatableComponent("notifications.message.energy_trade", this.traderData.getTraderName(), this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
+		return new TranslatableComponent("notifications.message.energy_trade", this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
+		
 	}
 	
 	@Override
