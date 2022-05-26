@@ -128,7 +128,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	@Override
 	protected void drainTick() {
 		IEnergyTrader trader = this.getEnergyTrader();
-		if(trader != null && trader.hasPermission(this.getOwner(), Permissions.INTERACTION_LINK))
+		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			int drainableAmount = Math.min(this.getMaxEnergy() - this.getStoredEnergy(), trader.getAvailableEnergy());
 			if(drainableAmount > 0)
@@ -144,7 +144,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	@Override
 	protected void restockTick() {
 		IEnergyTrader trader = this.getEnergyTrader();
-		if(trader != null && trader.hasPermission(this.getOwner(), Permissions.INTERACTION_LINK))
+		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			int restockableAmount = Math.min(this.getStoredEnergy(), trader.getMaxEnergy() - trader.getTotalEnergy());
 			if(restockableAmount > 0)

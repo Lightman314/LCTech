@@ -216,7 +216,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	protected void drainTick() {
 		IFluidTrader trader = this.getFluidTrader();
-		if(trader != null && trader.hasPermission(this.getOwner(), Permissions.INTERACTION_LINK))
+		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
@@ -249,7 +249,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	protected void restockTick() {
 		IFluidTrader trader = this.getFluidTrader();
-		if(trader != null && trader.hasPermission(this.getOwner(), Permissions.INTERACTION_LINK))
+		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;

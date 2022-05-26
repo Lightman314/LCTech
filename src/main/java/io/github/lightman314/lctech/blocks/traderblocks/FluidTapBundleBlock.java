@@ -12,7 +12,6 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.tooltips.TechTooltips;
-import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -49,13 +48,6 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 	@Override
 	protected BlockEntityType<?> traderType() {
 		return ModBlockEntities.FLUID_TRADER;
-	}
-
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		if(this.shouldMakeTrader(state))
-			return this.makeTrader(pos, state);
-		return new DummyBlockEntity(pos, state);
 	}
 	
 	@Override

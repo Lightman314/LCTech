@@ -5,7 +5,6 @@ import java.util.List;
 import io.github.lightman314.lctech.blockentities.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.tooltips.TechTooltips;
-import io.github.lightman314.lightmanscurrency.blockentity.DummyBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -25,13 +24,6 @@ public class EnergyTraderBlock extends TraderBlockRotatable {
 	public EnergyTraderBlock(Properties properties, VoxelShape shape)
 	{
 		super(properties, shape);
-	}
-
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		if(this.shouldMakeTrader(state))
-			return this.makeTrader(pos, state);
-		return new DummyBlockEntity(pos, state);
 	}
 
 	@Override
