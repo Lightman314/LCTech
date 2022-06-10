@@ -40,7 +40,7 @@ public class FluidItemUtil {
 	
 	public static JsonObject convertFluidStack(FluidStack fluid) {
 		JsonObject json = new JsonObject();
-		json.addProperty("id", fluid.getFluid().getRegistryName().toString());
+		json.addProperty("id", ForgeRegistries.FLUIDS.getKey(fluid.getFluid()).toString());
 		json.addProperty("amount", fluid.getAmount());
 		if(fluid.hasTag())
 		{

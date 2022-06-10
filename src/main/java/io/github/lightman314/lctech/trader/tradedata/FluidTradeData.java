@@ -31,8 +31,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
@@ -314,27 +312,27 @@ public class FluidTradeData extends TradeData {
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? new TranslatableComponent("gui.lctech.interface.difference.product.sale") : new TranslatableComponent("gui.lctech.interface.difference.product.purchase");
+			Component directionName = this.isSale() ? Component.translatable("gui.lctech.interface.difference.product.sale") : Component.translatable("gui.lctech.interface.difference.product.purchase");
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(new TranslatableComponent("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT())
-					list.add(new TranslatableComponent("gui.lctech.interface.fluid.difference.fluidnbt"));
+					list.add(Component.translatable("gui.lctech.interface.fluid.difference.fluidnbt"));
 				else if(!productCheck.SameProductQuantity())
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference < 0) //More items
-						list.add(new TranslatableComponent("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+						list.add(Component.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
 					else //Less items
-						list.add(new TranslatableComponent("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+						list.add(Component.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(ChatFormatting.RED));
 				}
 			}
 		}
@@ -345,7 +343,7 @@ public class FluidTradeData extends TradeData {
 	@Override
 	public List<DisplayEntry> getInputDisplays(TradeContext context) {
 		if(this.isSale())
-			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.price_edit")) : null));
+			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
 		if(this.isPurchase())
 			return this.getFluidEntry(context);
 		return null;
@@ -358,7 +356,7 @@ public class FluidTradeData extends TradeData {
 		if(this.isSale())
 			return this.getFluidEntry(context);
 		if(this.isPurchase())
-			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(new TranslatableComponent("tooltip.lightmanscurrency.trader.price_edit")) : null));
+			return Lists.newArrayList(DisplayEntry.of(this.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
 		return null;
 	}
 	
@@ -367,10 +365,10 @@ public class FluidTradeData extends TradeData {
 		if(!this.product.isEmpty())
 			entries.add(DisplayEntry.of(this.getFilledBucket(), this.bucketQuantity, getFluidTooltip(context)));
 		else if(context.isStorageMode)
-			entries.add(DisplayEntry.of(FluidInputSlot.BACKGROUND, Lists.newArrayList(new TranslatableComponent("tooltip.lctech.trader.fluid_edit"))));
+			entries.add(DisplayEntry.of(FluidInputSlot.BACKGROUND, Lists.newArrayList(Component.translatable("tooltip.lctech.trader.fluid_edit"))));
 		//Add drainage entry if draining is allowed
 		if(this.allowsDrainage(context))
-			entries.add(SpriteDisplayEntry.of(FluidStorageClientTab.GUI_TEXTURE, 0, 0, 8, 8, Lists.newArrayList(new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drainable"))));
+			entries.add(SpriteDisplayEntry.of(FluidStorageClientTab.GUI_TEXTURE, 0, 0, 8, 8, Lists.newArrayList(Component.translatable("tooltip.lctech.trader.fluid_settings.drainable"))));
 		return entries;
 	}
 	
@@ -381,13 +379,13 @@ public class FluidTradeData extends TradeData {
 		List<Component> tooltips = Lists.newArrayList();
 		
 		//Fluid Name
-		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip." + getTradeDirection().name().toLowerCase(), FluidFormatUtil.getFluidName(product, ChatFormatting.GOLD)));
+		tooltips.add(Component.translatable("gui.lctech.fluidtrade.tooltip." + getTradeDirection().name().toLowerCase(), FluidFormatUtil.getFluidName(product, ChatFormatting.GOLD)));
 		//Quantity
-		tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.tooltip.quantity", getBucketQuantity(), FluidFormatUtil.formatFluidAmount(this.getQuantity())).withStyle(ChatFormatting.GOLD));
+		tooltips.add(Component.translatable("gui.lctech.fluidtrade.tooltip.quantity", getBucketQuantity(), FluidFormatUtil.formatFluidAmount(this.getQuantity())).withStyle(ChatFormatting.GOLD));
 		//Stock
 		if(context.hasTrader())
 		{
-			tooltips.add(new TranslatableComponent("tooltip.lightmanscurrency.trader.stock", context.getTrader().getCoreSettings().isCreative() ? new TranslatableComponent("tooltip.lightmanscurrency.trader.stock.infinite") : new TextComponent("§6" + this.getStock(context))));
+			tooltips.add(Component.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().getCoreSettings().isCreative() ? Component.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : Component.literal(String.valueOf(this.getStock(context))).withStyle(ChatFormatting.GOLD)));
 		}
 		
 		
@@ -442,15 +440,15 @@ public class FluidTradeData extends TradeData {
 			if(!trader.isCreative())
 			{
 				if(this.getStock(context) <= 0)
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofstock"));
 				if(!this.hasSpace(trader))
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofspace"));
 			}
 			if(!this.canAfford(context))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(Component.translatable("tooltip.lightmanscurrency.cannotafford"));
 		}
 		if(this.isSale() && !(context.canFitFluid(this.productOfQuantity()) || this.allowsDrainage(context)))
-			alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.nooutputcontainer"));
+			alerts.add(Component.translatable("tooltip.lightmanscurrency.nooutputcontainer"));
 		
 		this.addTradeRuleAlerts(alerts, context);
 		return alerts;

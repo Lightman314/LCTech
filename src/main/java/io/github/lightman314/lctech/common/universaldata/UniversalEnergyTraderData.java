@@ -45,7 +45,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -90,7 +90,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 	
 	@Override
-	protected ItemLike getCategoryItem() { return ModBlocks.ENERGY_SERVER; }
+	protected ItemLike getCategoryItem() { return ModBlocks.ENERGY_SERVER.get(); }
 	
 	@Override
 	public void read(CompoundTag compound)
@@ -484,8 +484,8 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 	
 	@Override
-	public Component getDefaultName() {
-		return new TranslatableComponent("gui.lctech.universaltrader.energy");
+	public MutableComponent getDefaultName() {
+		return Component.translatable("gui.lctech.universaltrader.energy");
 	}
 
 	@Override

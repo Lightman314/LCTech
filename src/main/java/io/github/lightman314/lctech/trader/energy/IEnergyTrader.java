@@ -35,8 +35,6 @@ import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType.IUpgradeable
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -151,10 +149,10 @@ public interface IEnergyTrader extends ITrader, ITradeCountTrader, IUpgradeable,
 	public static List<Component> getEnergyHoverTooltip(IEnergyTrader trader)
 	{
 		List<Component> tooltip = Lists.newArrayList();
-		tooltip.add(new TextComponent(EnergyUtil.formatEnergyAmount(trader.getTotalEnergy()) + "/" + EnergyUtil.formatEnergyAmount(trader.getMaxEnergy())).withStyle(ChatFormatting.AQUA));
+		tooltip.add(Component.literal(EnergyUtil.formatEnergyAmount(trader.getTotalEnergy()) + "/" + EnergyUtil.formatEnergyAmount(trader.getMaxEnergy())).withStyle(ChatFormatting.AQUA));
 		if(trader.getPendingDrain() > 0)
 		{
-			tooltip.add(new TranslatableComponent("gui.lctech.energytrade.pending_drain", EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(ChatFormatting.AQUA));
+			tooltip.add(Component.translatable("gui.lctech.energytrade.pending_drain", EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(ChatFormatting.AQUA));
 		}
 		return tooltip;
 	}

@@ -24,7 +24,7 @@ public class FluidTraderInterfaceBlock extends TraderInterfaceBlock {
 	
 	@Override
 	protected BlockEntityType<?> interfaceType() { 
-		return ModBlockEntities.TRADER_INTERFACE_FLUID;
+		return ModBlockEntities.TRADER_INTERFACE_FLUID.get();
 	}
 	
 	@Override

@@ -5,8 +5,8 @@ import java.text.DecimalFormat;
 import javax.annotation.Nullable;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -24,7 +24,7 @@ public class FluidFormatUtil {
 	
 	public static MutableComponent getFluidName(FluidStack fluid, @Nullable ChatFormatting colorOverride)
 	{
-		MutableComponent component = new TranslatableComponent(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).color);
+		MutableComponent component = Component.translatable(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).getStyleModifier());
 		if(colorOverride != null && fluid.getFluid().getAttributes().getRarity(fluid) == Rarity.COMMON)
 			component.withStyle(colorOverride);
 		return component;

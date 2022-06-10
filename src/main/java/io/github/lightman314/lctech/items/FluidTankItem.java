@@ -17,8 +17,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -34,6 +32,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class FluidTankItem extends BlockItem{
 	
@@ -42,7 +41,7 @@ public class FluidTankItem extends BlockItem{
 	public static final List<ModelResourceLocation> getTankModelList(){
 		List<ModelResourceLocation> list = Lists.newArrayList();
 		TANK_ITEMS.forEach(tankItem ->{
-			list.add(new ModelResourceLocation(tankItem.getRegistryName(),"inventory"));
+			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(tankItem),"inventory"));
 		});
 		return list;
 	}
@@ -62,11 +61,11 @@ public class FluidTankItem extends BlockItem{
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
 			int capacity = GetCapacity(stack);
-			tooltip.add(new TextComponent(FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB / " + FluidFormatUtil.formatFluidAmount(capacity) + "mB").withStyle(ChatFormatting.GRAY));
+			tooltip.add(Component.literal(FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB / " + FluidFormatUtil.formatFluidAmount(capacity) + "mB").withStyle(ChatFormatting.GRAY));
 		}
 		else
 		{
-			tooltip.add(new TranslatableComponent("tooltip.lctech.fluid_tank.capacity", FluidFormatUtil.formatFluidAmount(GetCapacity(stack))));
+			tooltip.add(Component.translatable("tooltip.lctech.fluid_tank.capacity", FluidFormatUtil.formatFluidAmount(GetCapacity(stack))));
 		}
 	}
 	
@@ -122,7 +121,7 @@ public class FluidTankItem extends BlockItem{
 		if(blockEntity == null)
 		{
 			//Return a default tank
-			ItemStack returnStack = new ItemStack(ModBlocks.IRON_TANK);
+			ItemStack returnStack = new ItemStack(ModBlocks.IRON_TANK.get());
 			InitTankData(returnStack);
 			return returnStack;
 		}

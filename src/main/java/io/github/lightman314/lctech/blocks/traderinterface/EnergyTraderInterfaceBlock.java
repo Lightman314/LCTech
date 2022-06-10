@@ -24,7 +24,7 @@ public class EnergyTraderInterfaceBlock extends TraderInterfaceBlock {
 	
 	@Override
 	protected BlockEntityType<?> interfaceType() { 
-		return ModBlockEntities.TRADER_INTERFACE_ENERGY;
+		return ModBlockEntities.TRADER_INTERFACE_ENERGY.get();
 	}
 	
 	@Override

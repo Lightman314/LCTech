@@ -51,7 +51,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandler{
 	
 	private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> this);
 	
-	public FluidTankBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.FLUID_TANK, pos, state); }
+	public FluidTankBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.FLUID_TANK.get(), pos, state); }
 	
 	protected FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
 	
@@ -138,6 +138,9 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandler{
 	public void loadFromItem(ItemStack stack)
 	{
 		this.tankContents = FluidTankItem.GetFluid(stack);
+		if(!this.level.isClientSide)
+			BlockEntityUtil.sendUpdatePacket(this);
+		this.setChanged();
 	}
 	
 	public FluidRenderData getRenderPosition()

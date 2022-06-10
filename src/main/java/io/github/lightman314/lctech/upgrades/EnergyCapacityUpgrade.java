@@ -8,14 +8,13 @@ import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class EnergyCapacityUpgrade extends CapacityUpgrade {
 	
 	@Override
 	public List<Component> getTooltip(UpgradeData data)
 	{
-		return Lists.newArrayList(new TranslatableComponent("tooltip.lctech.upgrade.energy_capacity", EnergyUtil.formatEnergyAmount(data.getIntValue(CapacityUpgrade.CAPACITY))).withStyle(ChatFormatting.BLUE));
+		return Lists.newArrayList(Component.translatable("tooltip.lctech.upgrade.energy_capacity", EnergyUtil.formatEnergyAmount(data.getIntValue(CapacityUpgrade.CAPACITY))).withStyle(ChatFormatting.BLUE));
 	}
 
 }

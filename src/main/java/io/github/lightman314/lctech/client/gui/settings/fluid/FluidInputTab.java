@@ -1,6 +1,5 @@
 package io.github.lightman314.lctech.client.gui.settings.fluid;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.trader.permissions.FluidPermissions;
@@ -12,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
 public class FluidInputTab extends SettingsTab{
@@ -33,10 +32,10 @@ public class FluidInputTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(Items.WATER_BUCKET); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lctech.settings.fluidinput"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lctech.settings.fluidinput"); }
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() { return ImmutableList.of(FluidPermissions.EDIT_INPUTS); }
+	public boolean canOpen() { return this.hasPermissions(FluidPermissions.EDIT_INPUTS); }
 	
 	@Override
 	public void initTab() {
@@ -55,8 +54,8 @@ public class FluidInputTab extends SettingsTab{
 		TraderSettingsScreen screen = this.getScreen();
 		
 		//Side Widget Labels
-		this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.fluidinput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
-		this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.fluidoutput.side"), screen.guiLeft() + 120, screen.guiTop() + 7, textColor);
+		this.getFont().draw(pose, Component.translatable("gui.lctech.settings.fluidinput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
+		this.getFont().draw(pose, Component.translatable("gui.lctech.settings.fluidoutput.side"), screen.guiLeft() + 120, screen.guiTop() + 7, textColor);
 		
 	}
 	

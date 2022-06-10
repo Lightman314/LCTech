@@ -10,9 +10,8 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class FluidTradeNotification extends Notification{
@@ -51,15 +50,15 @@ public class FluidTradeNotification extends Notification{
 	public Category getCategory() { return this.traderData; }
 	
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
-		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = Component.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
 		
-		Component fluidText = new TranslatableComponent("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
+		Component fluidText = Component.translatable("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
 		
-		Component cost = new TextComponent(this.cost.getString("0"));
+		Component cost = this.cost.getComponent("0");
 		
-		return new TranslatableComponent("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
+		return Component.translatable("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
 		
 	}
 	

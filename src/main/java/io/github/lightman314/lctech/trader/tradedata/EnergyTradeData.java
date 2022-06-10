@@ -31,8 +31,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -277,23 +275,23 @@ public class EnergyTradeData extends TradeData {
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(new TranslatableComponent("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? new TranslatableComponent("gui.lctech.interface.difference.product.sale") : new TranslatableComponent("gui.lctech.interface.difference.product.purchase");
+			Component directionName = this.isSale() ? Component.translatable("gui.lctech.interface.difference.product.sale") : Component.translatable("gui.lctech.interface.difference.product.purchase");
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(new TranslatableComponent("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				list.add(Component.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
 			if(!productCheck.SameProductQuantity())
 			{
 				int quantityDifference = productCheck.ProductQuantityDifference();
 				if(quantityDifference < 0) //More items
-					list.add(new TranslatableComponent("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(Component.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
 				else //Less items
-					list.add(new TranslatableComponent("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(Component.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
 			}
 		}
 		
@@ -320,7 +318,7 @@ public class EnergyTradeData extends TradeData {
 		return Lists.newArrayList(DisplayEntry.of(this.getCost(context)));
 	}
 	
-	private List<DisplayEntry> getProductEntry() { return Lists.newArrayList(DisplayEntry.of(new TextComponent(EnergyUtil.formatEnergyAmount(this.amount)), TextFormatting.create().centered().middle())); }
+	private List<DisplayEntry> getProductEntry() { return Lists.newArrayList(DisplayEntry.of(Component.literal(EnergyUtil.formatEnergyAmount(this.amount)), TextFormatting.create().centered().middle())); }
 	
 	@Override
 	public DisplayData inputDisplayArea(TradeContext context) {
@@ -361,7 +359,7 @@ public class EnergyTradeData extends TradeData {
 			Pair<Integer,Integer> arrowPos = this.alertPosition(context);
 			int width = this.tradeButtonWidth(context);
 			if(mouseX >= width - 10 && mouseX < width - 2 && mouseY >= arrowPos.getSecond() + 5 && mouseY < arrowPos.getSecond() + 13)
-				return Lists.newArrayList(new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drainable"));
+				return Lists.newArrayList(Component.translatable("tooltip.lctech.trader.fluid_settings.drainable"));
 		}
 		return null;
 	}
@@ -399,15 +397,15 @@ public class EnergyTradeData extends TradeData {
 			if(!trader.isCreative())
 			{
 				if(this.getStock(context) <= 0)
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofstock"));
 				if(!this.hasSpace(trader))
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofspace"));
 			}
 			if(!this.canAfford(context))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(Component.translatable("tooltip.lightmanscurrency.cannotafford"));
 		}
 		if(this.isSale() && !(context.canFitEnergy(this.amount) || this.allowsDrainage(context)))
-			alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.nooutputcontainer"));
+			alerts.add(Component.translatable("tooltip.lightmanscurrency.nooutputcontainer"));
 		
 		this.addTradeRuleAlerts(alerts, context);
 		return alerts;

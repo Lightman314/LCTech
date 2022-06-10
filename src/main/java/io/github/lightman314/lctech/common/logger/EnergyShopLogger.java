@@ -7,10 +7,7 @@ import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.api.TextLogger;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class EnergyShopLogger extends TextLogger {
 
@@ -20,13 +17,13 @@ public class EnergyShopLogger extends TextLogger {
 	
 	public void AddLog(PlayerReference player, EnergyTradeData trade, @Nonnull CoinValue pricePaid, boolean isCreative)
 	{
-		Component creativeText = isCreative ? new TranslatableComponent("log.shoplog.creative") : new TextComponent("");
-		Component playerName = new TextComponent(player.lastKnownName()).withStyle(ChatFormatting.GREEN);
-		Component boughtText = new TranslatableComponent("log.shoplog." + trade.getTradeDirection().name().toLowerCase());
+		Component creativeText = isCreative ? Component.translatable("log.shoplog.creative") : Component.empty();
+		Component playerName = getPlayerText(player);
+		Component boughtText = Component.translatable("log.shoplog." + trade.getTradeDirection().name().toLowerCase());
 		
 		Component cost = getCostText(pricePaid);
 		
-		AddLog(new TranslatableComponent("log.shoplog.energy.format", creativeText, playerName, boughtText, EnergyUtil.formatEnergyAmount(trade.getAmount()), cost));
+		AddLog(Component.translatable("log.shoplog.energy.format", creativeText, playerName, boughtText, EnergyUtil.formatEnergyAmount(trade.getAmount()), cost));
 		
 	}
 	

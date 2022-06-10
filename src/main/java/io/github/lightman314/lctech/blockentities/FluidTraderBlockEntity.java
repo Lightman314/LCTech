@@ -89,7 +89,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	 */
 	public FluidTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		this(ModBlockEntities.FLUID_TRADER, pos, state);
+		this(ModBlockEntities.FLUID_TRADER.get(), pos, state);
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	 */
 	public FluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)
 	{
-		this(ModBlockEntities.FLUID_TRADER, pos, state, tradeCount);
+		this(ModBlockEntities.FLUID_TRADER.get(), pos, state, tradeCount);
 	}
 	
 	/**

@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
-import java.util.Random;
 
 import com.google.common.collect.Lists;
 
@@ -13,6 +12,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -33,7 +33,7 @@ public class FluidTankFinalizedModel implements BakedModel{
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
+	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) {
 		if(side != null)
 		{
 			return parentModel.getQuads(state, side, rand);

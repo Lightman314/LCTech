@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,6 +18,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -41,7 +41,7 @@ public class FluidTankModel implements BakedModel {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand)
+	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand)
 	{
 		return this.baseFluidTankModel.getQuads(state, side, rand);
 	}
@@ -84,11 +84,11 @@ public class FluidTankModel implements BakedModel {
 		return this.baseFluidTankModel.getTransforms();
 	}
 	
-	@Override
+	/*@Override
 	@Nonnull
 	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
 		throw new AssertionError("FluidTankModel::getQuads(IModelData) should never be called");
-	}
+	}*/
 	
 	@Override
 	@Nonnull

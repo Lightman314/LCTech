@@ -18,7 +18,6 @@ import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotific
 import io.github.lightman314.lctech.common.universaldata.UniversalEnergyTraderData;
 import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
 import io.github.lightman314.lctech.common.universaldata.traderSearching.FluidTraderSearchFilter;
-import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.core.ModRegistries;
@@ -53,11 +52,6 @@ public class LCTech
         //.Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
         
-        //Pre-register items/blocks
-        ModItems.init();
-        ModBlocks.init();
-        ModBlockEntities.init();
-        
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         
@@ -81,21 +75,21 @@ public class LCTech
         //Add our items/blocks to the creative tab sorting
         try {
         	LightmansCurrency.MACHINE_GROUP.addToSortingList(Lists.newArrayList(
-            		ModBlocks.IRON_TANK, ModBlocks.GOLD_TANK, ModBlocks.DIAMOND_TANK,
-            		ModBlocks.FLUID_TRADER_INTERFACE,
-            		ModItems.BATTERY, ModItems.BATTERY_LARGE,
-            		ModBlocks.ENERGY_TRADER_INTERFACE
+            		ModBlocks.IRON_TANK.get(), ModBlocks.GOLD_TANK.get(), ModBlocks.DIAMOND_TANK.get(),
+            		ModBlocks.FLUID_TRADER_INTERFACE.get(),
+            		ModItems.BATTERY.get(), ModItems.BATTERY_LARGE.get(),
+            		ModBlocks.ENERGY_TRADER_INTERFACE.get()
             		));
             
         	LightmansCurrency.UPGRADE_GROUP.addToSortingList(Lists.newArrayList(
-        			ModItems.FLUID_CAPACITY_UPGRADE_1, ModItems.FLUID_CAPACITY_UPGRADE_2, ModItems.FLUID_CAPACITY_UPGRADE_3,
-        			ModItems.ENERGY_CAPACITY_UPGRADE_1, ModItems.ENERGY_CAPACITY_UPGRADE_2, ModItems.ENERGY_CAPACITY_UPGRADE_3
+        			ModItems.FLUID_CAPACITY_UPGRADE_1.get(), ModItems.FLUID_CAPACITY_UPGRADE_2.get(), ModItems.FLUID_CAPACITY_UPGRADE_3.get(),
+        			ModItems.ENERGY_CAPACITY_UPGRADE_1.get(), ModItems.ENERGY_CAPACITY_UPGRADE_2.get(), ModItems.ENERGY_CAPACITY_UPGRADE_3.get()
         			));
         	
             LightmansCurrency.TRADING_GROUP.addToSortingList(Lists.newArrayList(
-            		ModBlocks.FLUID_TAP, ModBlocks.FLUID_TAP_BUNDLE,
-            		ModBlocks.FLUID_SERVER_SML, ModBlocks.FLUID_SERVER_MED, ModBlocks.FLUID_SERVER_LRG, ModBlocks.FLUID_SERVER_XLRG,
-            		ModBlocks.BATTERY_SHOP, ModBlocks.ENERGY_SERVER
+            		ModBlocks.FLUID_TAP.get(), ModBlocks.FLUID_TAP_BUNDLE.get(),
+            		ModBlocks.FLUID_SERVER_SML.get(), ModBlocks.FLUID_SERVER_MED.get(), ModBlocks.FLUID_SERVER_LRG.get(), ModBlocks.FLUID_SERVER_XLRG.get(),
+            		ModBlocks.BATTERY_SHOP.get(), ModBlocks.ENERGY_SERVER.get()
             		));
             
         } catch(Exception e) {  }

@@ -3,7 +3,6 @@ package io.github.lightman314.lctech.core;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blocks.*;
 import io.github.lightman314.lctech.blocks.traderblocks.*;
@@ -17,11 +16,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.registries.ObjectHolder;
 import net.minecraftforge.registries.RegistryObject;
 
-@ObjectHolder(LCTech.MODID)
 public class ModBlocks {
+	
+	/**
+	 * Placeholder function to force the static class loading
+	 */
+	public static void init() { }
 	
 	private static BiFunction<Block,CreativeModeTab,Item> getDefaultGenerator() {
 		return (block, tab) -> {
@@ -40,83 +42,83 @@ public class ModBlocks {
 		};
 	}
 	
-	public static void init() {
+	static {
 		
-		register("iron_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
+		IRON_TANK = register("iron_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.ironTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
 				.sound(SoundType.GLASS)
 				));
-		register("gold_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
+		GOLD_TANK = register("gold_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.goldTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
 				.sound(SoundType.GLASS)
 				));
-		register("diamond_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
+		DIAMOND_TANK = register("diamond_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.diamondTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
 				.sound(SoundType.GLASS)
 				));
 		
-		register("fluid_tap", LightmansCurrency.TRADING_GROUP, () -> new FluidTapBlock(
+		FLUID_TAP = register("fluid_tap", LightmansCurrency.TRADING_GROUP, () -> new FluidTapBlock(
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS),
 				Block.box(4d, 0d, 4d, 12d, 16d, 12d)
 				));
-		register("fluid_tap_bundle", LightmansCurrency.TRADING_GROUP, () -> new FluidTapBundleBlock(
+		FLUID_TAP_BUNDLE = register("fluid_tap_bundle", LightmansCurrency.TRADING_GROUP, () -> new FluidTapBundleBlock(
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.GLASS)
 				));
 		
-		register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
+		FLUID_SERVER_SML = register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
 				FluidTraderServerBlock.SMALL_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
-		register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
+		FLUID_SERVER_MED = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
 				FluidTraderServerBlock.MEDIUM_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
-		register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
+		FLUID_SERVER_LRG = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
 				FluidTraderServerBlock.LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
-		register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
+		FLUID_SERVER_XLRG = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new FluidTraderServerBlock(
 				FluidTraderServerBlock.EXTRA_LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
 		
-		register("fluid_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new FluidTraderInterfaceBlock(
+		FLUID_TRADER_INTERFACE = register("fluid_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new FluidTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
 		
-		register("battery_shop", LightmansCurrency.TRADING_GROUP, () -> new EnergyTraderBlock(
+		BATTERY_SHOP = register("battery_shop", LightmansCurrency.TRADING_GROUP, () -> new EnergyTraderBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
 		
-		register("energy_trader_server", LightmansCurrency.TRADING_GROUP, () -> new EnergyTraderServerBlock(
+		ENERGY_SERVER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, () -> new EnergyTraderServerBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
 		
-		register("energy_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new EnergyTraderInterfaceBlock(
+		ENERGY_TRADER_INTERFACE = register("energy_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new EnergyTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
@@ -125,51 +127,47 @@ public class ModBlocks {
 	}
 	
 	//Fluid Tanks
-	public static final Block IRON_TANK = null;
-	public static final Block GOLD_TANK = null;
-	public static final Block DIAMOND_TANK = null;
+	public static final RegistryObject<Block> IRON_TANK;
+	public static final RegistryObject<Block> GOLD_TANK;
+	public static final RegistryObject<Block> DIAMOND_TANK;
 	
 	//Fluid traders
-	public static final Block FLUID_TAP = null;
+	public static final RegistryObject<Block> FLUID_TAP;
 	
-	public static final Block FLUID_TAP_BUNDLE = null;
+	public static final RegistryObject<Block> FLUID_TAP_BUNDLE;
 	
 	//Universal Fluid Traders
-	@ObjectHolder("fluid_trader_server_sml")
-	public static final Block FLUID_SERVER_SML = null;
-	@ObjectHolder("fluid_trader_server_med")
-	public static final Block FLUID_SERVER_MED = null;
-	@ObjectHolder("fluid_trader_server_lrg")
-	public static final Block FLUID_SERVER_LRG = null;
-	@ObjectHolder("fluid_trader_server_xlrg")
-	public static final Block FLUID_SERVER_XLRG = null;
+	public static final RegistryObject<Block> FLUID_SERVER_SML;
+	public static final RegistryObject<Block> FLUID_SERVER_MED;
+	public static final RegistryObject<Block> FLUID_SERVER_LRG;
+	public static final RegistryObject<Block> FLUID_SERVER_XLRG;
 	
 	//Fluid Trader Interface
-	public static final Block FLUID_TRADER_INTERFACE = null;
+	public static final RegistryObject<Block> FLUID_TRADER_INTERFACE;
 	
 	//Energy Trader
-	public static final Block BATTERY_SHOP = null;
+	public static final RegistryObject<Block> BATTERY_SHOP;
 	
 	//Universal Energy Trader
-	@ObjectHolder("energy_trader_server")
-	public static final Block ENERGY_SERVER = null;
+	public static final RegistryObject<Block> ENERGY_SERVER;
 	
 	//Energy Trader Interface
-	public static final Block ENERGY_TRADER_INTERFACE = null;
+	public static final RegistryObject<Block> ENERGY_TRADER_INTERFACE;
 	
 	/**
 	* Block Registration Code
 	*/
-	private static void register(String name, CreativeModeTab itemGroup, Supplier<Block> sup)
+	private static RegistryObject<Block> register(String name, CreativeModeTab itemGroup, Supplier<Block> sup)
 	{
-		register(name, itemGroup, getDefaultGenerator(), sup);
+		return register(name, itemGroup, getDefaultGenerator(), sup);
 	}
 	
-	private static void register(String name, CreativeModeTab itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> sup)
+	private static RegistryObject<Block> register(String name, CreativeModeTab itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> sup)
 	{
 		RegistryObject<Block> block = ModRegistries.BLOCKS.register(name, sup);
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get(), itemGroup));
+		return block;
 	}
 	
 }

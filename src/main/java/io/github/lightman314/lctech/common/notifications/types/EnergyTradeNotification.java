@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
 import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public class EnergyTradeNotification extends Notification {
@@ -47,11 +47,11 @@ public class EnergyTradeNotification extends Notification {
 	public Category getCategory() { return this.traderData; }
 	
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
-		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = Component.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
 		
-		return new TranslatableComponent("notifications.message.energy_trade", this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
+		return Component.translatable("notifications.message.energy_trade", this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
 		
 	}
 	

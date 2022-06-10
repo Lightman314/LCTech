@@ -44,7 +44,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -91,12 +91,12 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	protected ItemLike getCategoryItem() {
 		int tradeCount = this.isCreative() ? ITrader.GLOBAL_TRADE_LIMIT : this.getTradeCount();
 		if(tradeCount <= FluidTraderServerBlock.SMALL_SERVER_COUNT)
-			return ModBlocks.FLUID_SERVER_SML;
+			return ModBlocks.FLUID_SERVER_SML.get();
 		else if(tradeCount <= FluidTraderServerBlock.MEDIUM_SERVER_COUNT)
-			return ModBlocks.FLUID_SERVER_MED;
+			return ModBlocks.FLUID_SERVER_MED.get();
 		else if(tradeCount <= FluidTraderServerBlock.LARGE_SERVER_COUNT)
-			return ModBlocks.FLUID_SERVER_LRG;
-		return ModBlocks.FLUID_SERVER_XLRG;
+			return ModBlocks.FLUID_SERVER_LRG.get();
+		return ModBlocks.FLUID_SERVER_XLRG.get();
 	}
 	
 	@Override
@@ -284,8 +284,8 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public ResourceLocation getTraderType() { return TYPE; }
 	
 	@Override
-	public Component getDefaultName() {
-		return new TranslatableComponent("gui.lctech.universaltrader.fluid");
+	public MutableComponent getDefaultName() {
+		return Component.translatable("gui.lctech.universaltrader.fluid");
 	}
 	
 	/*@Override

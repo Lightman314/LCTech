@@ -76,7 +76,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	//public Container getUpgradeInventory() { return this.upgradeInventory; }
 	
 	public EnergyTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.TRADER_INTERFACE_ENERGY, pos, state);
+		super(ModBlockEntities.TRADER_INTERFACE_ENERGY.get(), pos, state);
 		this.energyHandler = this.addHandler(new EnergyInterfaceHandler(this));
 	}
 	

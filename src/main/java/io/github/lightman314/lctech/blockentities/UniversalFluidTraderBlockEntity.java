@@ -15,7 +15,7 @@ public class UniversalFluidTraderBlockEntity extends UniversalTraderBlockEntity{
 	int tradeCount = 1;
 	public UniversalFluidTraderBlockEntity(BlockPos pos, BlockState state)
 	{
-		super(ModBlockEntities.UNIVERSAL_FLUID_TRADER, pos, state);
+		super(ModBlockEntities.UNIVERSAL_FLUID_TRADER.get(), pos, state);
 	}
 	
 	public UniversalFluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount)

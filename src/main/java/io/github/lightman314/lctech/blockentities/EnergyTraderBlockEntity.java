@@ -84,7 +84,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	 * Default Energy Trader Entity
 	 */
 	public EnergyTraderBlockEntity(BlockPos pos, BlockState state) {
-		this(ModBlockEntities.ENERGY_TRADER, pos, state);
+		this(ModBlockEntities.ENERGY_TRADER.get(), pos, state);
 	}
 	
 	/**

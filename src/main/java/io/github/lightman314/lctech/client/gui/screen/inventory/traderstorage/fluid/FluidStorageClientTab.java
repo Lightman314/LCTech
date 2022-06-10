@@ -28,9 +28,8 @@ import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorage
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 
@@ -55,7 +54,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.storage"); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -75,7 +74,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -140,11 +139,11 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				List<Component> tooltips = new ArrayList<>();
 				tooltips.add(FluidFormatUtil.getFluidName(entry.filter));
 				//'amount'/'capacity'mB
-				tooltips.add(new TextComponent(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
+				tooltips.add(Component.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
 				//Pending drain
 				if(entry.hasPendingDrain())
-					tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.pending_drain", FluidFormatUtil.formatFluidAmount(entry.getPendingDrain())));
-				tooltips.add(new TranslatableComponent("tooltip.lctech.trader.fluid.fill_tank"));
+					tooltips.add(Component.translatable("gui.lctech.fluidtrade.pending_drain", FluidFormatUtil.formatFluidAmount(entry.getPendingDrain())));
+				tooltips.add(Component.translatable("tooltip.lctech.trader.fluid.fill_tank"));
 				this.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
 				
 			}
@@ -157,9 +156,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 					return;
 				FluidEntry entry = storage.getContents().get(tank);
 				if(drainState)
-					this.screen.renderTooltip(pose, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (entry.drainable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.drainable ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+					this.screen.renderTooltip(pose, Component.translatable("tooltip.lctech.trader.fluid_settings.drain." + (entry.drainable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.drainable ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 				else
-					this.screen.renderTooltip(pose, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (entry.fillable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.fillable ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+					this.screen.renderTooltip(pose, Component.translatable("tooltip.lctech.trader.fluid_settings.fill." + (entry.fillable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.fillable ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
 			}
 		}
 	}

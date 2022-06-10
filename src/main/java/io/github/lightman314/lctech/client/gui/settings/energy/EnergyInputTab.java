@@ -1,6 +1,5 @@
 package io.github.lightman314.lctech.client.gui.settings.energy;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.core.ModItems;
@@ -14,8 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class EnergyInputTab extends SettingsTab{
 
@@ -38,10 +36,10 @@ public class EnergyInputTab extends SettingsTab{
 	public IconData getIcon() { return IconData.of(ModItems.BATTERY); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lctech.settings.energyinput"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lctech.settings.energyinput"); }
 	
 	@Override
-	public ImmutableList<String> requiredPermissions() { return ImmutableList.of(EnergyPermissions.EDIT_INPUTS); }
+	public boolean canOpen() { return this.hasPermissions(EnergyPermissions.EDIT_INPUTS); }
 	
 	@Override
 	public void initTab() {
@@ -51,7 +49,7 @@ public class EnergyInputTab extends SettingsTab{
 		this.inputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 20, screen.guiTop() + 25, () -> this.getSetting(EnergyTraderSettings.class).getInputSides(), this::ToggleInputSide, screen::addRenderableTabWidget);
 		this.outputWidget = new DirectionalSettingsWidget(screen.guiLeft() + 120, screen.guiTop() + 25, () -> this.getSetting(EnergyTraderSettings.class).getOutputSides(), this::ToggleOutputSide, screen::addRenderableTabWidget);
 		
-		this.buttonDrainMode = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 100, screen.xSize - 40, 20, new TextComponent(""), this::ToggleDrainMode));
+		this.buttonDrainMode = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 100, screen.xSize - 40, 20, Component.empty(), this::ToggleDrainMode));
 		//this.buttonOutputEnergy = screen.addRenderableTabWidget(new PlainButton(screen.guiLeft() + 20, screen.guiTop() + 140, 10, 10, this::ToggleExportEnergy, TraderSettingsScreen.GUI_TEXTURE, 10, 200));
 		
 		this.tick();
@@ -65,8 +63,8 @@ public class EnergyInputTab extends SettingsTab{
 		TraderSettingsScreen screen = this.getScreen();
 		
 		//Side Widget Labels
-		this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.energyinput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
-		this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.energyoutput.side"), screen.guiLeft() + 120, screen.guiTop() + 7, textColor);
+		this.getFont().draw(pose, Component.translatable("gui.lctech.settings.energyinput.side"), screen.guiLeft() + 20, screen.guiTop() + 7, textColor);
+		this.getFont().draw(pose, Component.translatable("gui.lctech.settings.energyoutput.side"), screen.guiLeft() + 120, screen.guiTop() + 7, textColor);
 		//this.getFont().draw(pose, new TranslatableComponent("gui.lctech.settings.energyoutput.export"), screen.guiLeft() + 35, screen.guiTop() + 140, textColor);
 		
 		this.updateOutputModeButton();
@@ -92,15 +90,15 @@ public class EnergyInputTab extends SettingsTab{
 	
 	private void updateOutputModeButton()
 	{
-		this.buttonDrainMode.setMessage(new TranslatableComponent("gui.lctech.settings.energy.drainmode", this.getOutputModeText()));
+		this.buttonDrainMode.setMessage(Component.translatable("gui.lctech.settings.energy.drainmode", this.getOutputModeText()));
 	}
 	
 	private Component getOutputModeText()
 	{
 		if(this.getSetting(EnergyTraderSettings.class).isAlwaysDrainMode())
-			return new TranslatableComponent("gui.lctech.settings.energy.drainmode.full");
+			return Component.translatable("gui.lctech.settings.energy.drainmode.full");
 		else
-			return new TranslatableComponent("gui.lctech.settings.energy.drainmode.sales");
+			return Component.translatable("gui.lctech.settings.energy.drainmode.sales");
 	}
 	
 	@Override

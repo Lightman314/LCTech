@@ -47,7 +47,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	private int refactorTimer = 0;
 	
 	public FluidTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.TRADER_INTERFACE_FLUID, pos, state);
+		super(ModBlockEntities.TRADER_INTERFACE_FLUID.get(), pos, state);
 		this.fluidHandler = this.addHandler(new FluidInterfaceHandler(this));
 	}
 	

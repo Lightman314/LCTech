@@ -28,8 +28,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 
@@ -59,7 +58,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"); }
+	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -92,7 +91,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	@Override
 	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -133,9 +132,9 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 			}
 			
 			//Render the input/output labels
-			this.font.draw(pose, new TranslatableComponent("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(new TranslatableComponent("gui.lctech.settings.fluidoutput.side"));
-			this.font.draw(pose, new TranslatableComponent("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			this.font.draw(pose, Component.translatable("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			int textWidth = this.font.width(Component.translatable("gui.lctech.settings.fluidoutput.side"));
+			this.font.draw(pose, Component.translatable("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
 			
 		}
 		
@@ -161,8 +160,8 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				List<Component> tooltips = new ArrayList<>();
 				tooltips.add(FluidFormatUtil.getFluidName(entry.filter));
 				//'amount'/'capacity'mB
-				tooltips.add(new TextComponent(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
-				tooltips.add(new TranslatableComponent("tooltip.lctech.trader.fluid.fill_tank"));
+				tooltips.add(Component.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
+				tooltips.add(Component.translatable("tooltip.lctech.trader.fluid.fill_tank"));
 				this.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
 			}
 		}

@@ -17,7 +17,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -32,6 +31,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class FluidShardItem extends Item{
 	
@@ -43,7 +43,7 @@ public class FluidShardItem extends Item{
 		
 		List<ModelResourceLocation> list = Lists.newArrayList();
 		SHARD_ITEMS.forEach(shardItem ->{
-			list.add(new ModelResourceLocation(shardItem.getRegistryName(),"inventory"));
+			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(shardItem),"inventory"));
 		});
 		return list;
 	}
@@ -72,7 +72,7 @@ public class FluidShardItem extends Item{
 		if(!fluid.isEmpty())
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
-			tooltip.add(new TextComponent(ChatFormatting.GRAY.toString() + FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB"));
+			tooltip.add(Component.literal(FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB").withStyle(ChatFormatting.GRAY));
 		}
 	}
 	
@@ -103,7 +103,7 @@ public class FluidShardItem extends Item{
 		if(stack.isEmpty())
 			return ItemStack.EMPTY;
 		
-		ItemStack returnStack = new ItemStack(ModItems.FLUID_SHARD);
+		ItemStack returnStack = new ItemStack(ModItems.FLUID_SHARD.get());
 		WriteTankData(returnStack, stack);
 		return returnStack;
 		

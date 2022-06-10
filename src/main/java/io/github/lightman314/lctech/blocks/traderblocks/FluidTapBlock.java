@@ -48,7 +48,7 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 
 	@Override
 	protected BlockEntityType<?> traderType() {
-		return ModBlockEntities.FLUID_TRADER;
+		return ModBlockEntities.FLUID_TRADER.get();
 	}
 	
 	@Override

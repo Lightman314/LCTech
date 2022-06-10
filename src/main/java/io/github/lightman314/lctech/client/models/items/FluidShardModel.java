@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,6 +15,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -34,11 +34,9 @@ public class FluidShardModel implements BakedModel {
 		this.baseFluidTankModel = baseFluidTankModel;
 	}
 	
-	
-	@Override
 	@SuppressWarnings("deprecation")
-	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand)
-	{
+	@Override
+	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) {
 		return this.baseFluidTankModel.getQuads(state, side, rand);
 	}
 	
@@ -80,11 +78,11 @@ public class FluidShardModel implements BakedModel {
 		return this.baseFluidTankModel.getTransforms();
 	}
 	
-	@Override
+	/*@Override
 	@Nonnull
 	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
 		throw new AssertionError("FluidShardModel::getQuads(IModelData) should never be called");
-	}
+	}*/
 	
 	@Override
 	@Nonnull
@@ -113,5 +111,7 @@ public class FluidShardModel implements BakedModel {
 		}
 		
 	}
+
+	
 	
 }

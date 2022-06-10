@@ -19,8 +19,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -53,7 +52,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	private final Font font;
 	
 	public FluidEditWidget(int x, int y, int columns, int rows, IFluidEditListener listener) {
-		super(x, y, columns * 18, rows * 18, new TextComponent(""));
+		super(x, y, columns * 18, rows * 18, Component.empty());
 		this.listener = listener;
 		
 		this.columns = columns;
@@ -112,7 +111,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 					this.searchResultFluids.add(fluid);
 				}
 				//Search the registry name
-				else if(fluid.getRegistryName().toString().contains(this.searchString)) {
+				else if(ForgeRegistries.FLUIDS.getKey(fluid).toString().contains(this.searchString)) {
 					this.searchResultFluids.add(fluid);
 				}
 			}
@@ -122,7 +121,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
