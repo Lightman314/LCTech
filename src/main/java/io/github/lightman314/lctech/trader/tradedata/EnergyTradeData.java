@@ -12,6 +12,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lctech.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil.TextFormatting;
@@ -389,27 +390,27 @@ public class EnergyTradeData extends TradeData {
 	}
 	
 	@Override
-	public List<Component> getAlerts(TradeContext context) {
+	public List<AlertData> getAlertData(TradeContext context) {
 		if(context.isStorageMode)
 			return null;
-		List<Component> alerts = new ArrayList<>();
+		List<AlertData> alerts = new ArrayList<>();
 		if(context.hasTrader() && context.getTrader() instanceof IEnergyTrader)
 		{
 			IEnergyTrader trader = (IEnergyTrader)context.getTrader();
 			if(!trader.isCreative())
 			{
 				if(this.getStock(context) <= 0)
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofstock"));
+					alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.outofstock")));
 				if(!this.hasSpace(trader))
-					alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.outofspace"));
+					alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.outofspace")));
 			}
 			if(!this.canAfford(context))
-				alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.cannotafford")));
 		}
 		if(this.isSale() && !(context.canFitEnergy(this.amount) || this.allowsDrainage(context)))
-			alerts.add(new TranslatableComponent("tooltip.lightmanscurrency.nooutputcontainer"));
+			alerts.add(AlertData.warn(new TranslatableComponent("tooltip.lightmanscurrency.nooutputcontainer")));
 		
-		this.addTradeRuleAlerts(alerts, context);
+		this.addTradeRuleAlertData(alerts, context);
 		return alerts;
 	}
 	
