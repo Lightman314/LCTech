@@ -13,6 +13,7 @@ import io.github.lightman314.lctech.client.gui.widget.button.trade.SpriteDisplay
 import io.github.lightman314.lctech.menu.slots.FluidInputSlot;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu.IClientMessage;
@@ -430,27 +431,27 @@ public class FluidTradeData extends TradeData {
 	}
 	
 	@Override
-	public List<Component> getAlerts(TradeContext context) {
+	public List<AlertData> getAlertData(TradeContext context) {
 		if(context.isStorageMode)
 			return null;
-		List<Component> alerts = new ArrayList<>();
+		List<AlertData> alerts = new ArrayList<>();
 		if(context.hasTrader() && context.getTrader() instanceof IFluidTrader)
 		{
 			IFluidTrader trader = (IFluidTrader)context.getTrader();
 			if(!trader.isCreative())
 			{
 				if(this.getStock(context) <= 0)
-					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofstock"));
+					alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.outofstock")));
 				if(!this.hasSpace(trader))
-					alerts.add(Component.translatable("tooltip.lightmanscurrency.outofspace"));
+					alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.outofspace")));
 			}
 			if(!this.canAfford(context))
-				alerts.add(Component.translatable("tooltip.lightmanscurrency.cannotafford"));
+				alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.cannotafford")));
 		}
 		if(this.isSale() && !(context.canFitFluid(this.productOfQuantity()) || this.allowsDrainage(context)))
-			alerts.add(Component.translatable("tooltip.lightmanscurrency.nooutputcontainer"));
+			alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.nooutputcontainer")));
 		
-		this.addTradeRuleAlerts(alerts, context);
+		this.addTradeRuleAlertData(alerts, context);
 		return alerts;
 	}
 	
@@ -490,7 +491,8 @@ public class FluidTradeData extends TradeData {
 						if(trader.getStorage().refactorTanks())
 							trader.markStorageDirty();
 					}
-					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+					if(tab.menu.isClient())
+						tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
 				}
 			}
 		}
@@ -525,7 +527,8 @@ public class FluidTradeData extends TradeData {
 						if(trader.getStorage().refactorTanks())
 							trader.markStorageDirty();
 					}
-					tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
+					if(tab.menu.isClient())
+						tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
 				}
 			}
 			else if(this.isPurchase())
