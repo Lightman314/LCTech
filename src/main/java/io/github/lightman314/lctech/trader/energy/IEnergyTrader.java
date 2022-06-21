@@ -7,10 +7,8 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.logger.EnergyShopLogger;
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
-import io.github.lightman314.lctech.menu.traderstorage.AddRemoveTradeEditTab;
 import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyTradeEditTab;
-import io.github.lightman314.lctech.trader.ITradeCountTrader;
 import io.github.lightman314.lctech.trader.settings.EnergyTraderSettings;
 import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
@@ -42,7 +40,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 
-public interface IEnergyTrader extends ITrader, ITradeCountTrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<EnergyShopLogger>, ITradeSource<EnergyTradeData> {
+public interface IEnergyTrader extends ITrader, IUpgradeable, ITradeRuleHandler, ITradeRuleMessageHandler, ILoggerSupport<EnergyShopLogger>, ITradeSource<EnergyTradeData> {
 
 	public static final int DEFAULT_TRADE_LIMIT = 4;
 	
@@ -54,8 +52,6 @@ public interface IEnergyTrader extends ITrader, ITradeCountTrader, IUpgradeable,
 	
 	public static int getDefaultMaxEnergy() { return TechConfig.SERVER.energyTraderDefaultStorage.get(); }
 	
-	//Trade Count Limit
-	public default int getTradeCountLimit() { return 4; }
 	//Trade
 	public EnergyTradeData getTrade(int tradeIndex);
 	public List<EnergyTradeData> getAllTrades();
@@ -147,6 +143,10 @@ public interface IEnergyTrader extends ITrader, ITradeCountTrader, IUpgradeable,
 		}
 		MinecraftForge.EVENT_BUS.post(event);
 	}
+	
+	//Trade Count
+	public default boolean canEditTradeCount() { return true; }
+	public default int getMaxTradeCount() { return 4; }
 	
 	public static List<Component> getEnergyHoverTooltip(IEnergyTrader trader)
 	{
@@ -284,8 +284,6 @@ public interface IEnergyTrader extends ITrader, ITradeCountTrader, IUpgradeable,
 	
 	@Override
 	public default void initStorageTabs(TraderStorageMenu menu) {
-		//Override of basic tab
-		menu.setTab(TraderStorageTab.TAB_TRADE_BASIC, new AddRemoveTradeEditTab(menu));
 		//Storage tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new EnergyStorageTab(menu));
 		//Energy Trade interaction tab
