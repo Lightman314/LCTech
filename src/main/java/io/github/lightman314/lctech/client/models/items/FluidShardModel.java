@@ -21,8 +21,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 
 public class FluidShardModel implements BakedModel {
 	
@@ -99,7 +99,7 @@ public class FluidShardModel implements BakedModel {
 		public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
 			FluidStack tank = FluidStack.EMPTY;
-			int capacity = FluidAttributes.BUCKET_VOLUME;
+			int capacity = FluidType.BUCKET_VOLUME;
 			FluidRenderData renderData = FluidShardItem.RENDER_DATA;
 			if(stack != null)
 			{

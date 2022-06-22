@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class FluidItemUtil {
@@ -24,18 +24,18 @@ public class FluidItemUtil {
 		Fluid fluid = fluidStack.getFluid();
 		if(fluid == Fluids.EMPTY)
 			return new ItemStack(Items.BUCKET);
-		ItemStack fluidItem = fluid.getAttributes().getBucket(fluidStack);
+		ItemStack fluidItem = fluid.getFluidType().getBucket(fluidStack);
 		if(!fluidItem.isEmpty())
 			return fluidItem;
 		//If the fluid has no bucket, return a fluid shard containing the fluid
 		FluidStack tempStack = fluidStack.copy();
-		tempStack.setAmount(FluidAttributes.BUCKET_VOLUME);
+		tempStack.setAmount(FluidType.BUCKET_VOLUME);
 		return FluidShardItem.GetFluidShard(tempStack);
 	}
 	
 	public static ItemStack getFluidDispayItem(Fluid fluid)
 	{
-		return getFluidDisplayItem(new FluidStack(fluid, FluidAttributes.BUCKET_VOLUME));
+		return getFluidDisplayItem(new FluidStack(fluid, FluidType.BUCKET_VOLUME));
 	}
 	
 	public static JsonObject convertFluidStack(FluidStack fluid) {

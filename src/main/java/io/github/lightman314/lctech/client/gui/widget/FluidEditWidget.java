@@ -22,8 +22,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class FluidEditWidget extends AbstractWidget implements IScrollable{
@@ -107,7 +107,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 			for(Fluid fluid : allFluids)
 			{
 				//Search the fluid name
-				if(fluid.getAttributes().getDisplayName(new FluidStack(fluid, FluidAttributes.BUCKET_VOLUME)).getString().toLowerCase().contains(this.searchString)) {
+				if(fluid.getFluidType().getDescription(new FluidStack(fluid, FluidType.BUCKET_VOLUME)).getString().toLowerCase().contains(this.searchString)) {
 					this.searchResultFluids.add(fluid);
 				}
 				//Search the registry name
@@ -213,7 +213,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 			hoveredSlot += this.scroll * this.columns;
 			if(hoveredSlot < this.searchResultFluids.size())
 			{
-				FluidStack fluid = new FluidStack(this.searchResultFluids.get(hoveredSlot), FluidAttributes.BUCKET_VOLUME);
+				FluidStack fluid = new FluidStack(this.searchResultFluids.get(hoveredSlot), FluidType.BUCKET_VOLUME);
 				this.listener.onFluidClicked(fluid);
 				return true;
 			}

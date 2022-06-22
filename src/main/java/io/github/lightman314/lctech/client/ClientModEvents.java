@@ -53,8 +53,9 @@ public class ClientModEvents {
 	public static void stitchTextures(TextureStitchEvent.Pre event)
 	{
 		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
-			//Add bucket slot backgrounds
+			//Add bucket slot background
 			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
+			//Add battery slot background
 			event.addSprite(BatteryInputSlot.EMPTY_BATTERY_SLOT);
 		}
 	}

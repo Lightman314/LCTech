@@ -15,7 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModBlocks {
@@ -45,19 +45,19 @@ public class ModBlocks {
 	static {
 		
 		IRON_TANK = register("iron_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
-				() -> TechConfig.SERVER.ironTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
+				() -> TechConfig.SERVER.ironTankCapacity.get() * FluidType.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
 				.sound(SoundType.GLASS)
 				));
 		GOLD_TANK = register("gold_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
-				() -> TechConfig.SERVER.goldTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
+				() -> TechConfig.SERVER.goldTankCapacity.get() * FluidType.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
 				.sound(SoundType.GLASS)
 				));
 		DIAMOND_TANK = register("diamond_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
-				() -> TechConfig.SERVER.diamondTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
+				() -> TechConfig.SERVER.diamondTankCapacity.get() * FluidType.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
 				.sound(SoundType.GLASS)

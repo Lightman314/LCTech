@@ -3,7 +3,7 @@ package io.github.lightman314.lctech;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidType;
 
 public class TechConfig {
 
@@ -90,7 +90,7 @@ public class TechConfig {
 			builder.comment("Fluid Trader Interface Settings").push("interface");
 			
 			this.fluidRestockSpeed = builder.comment("The amount of fluid in mB that can be drained or restocked in a single drain tick (once per second).")
-					.defineInRange("restockRate", 10 * FluidAttributes.BUCKET_VOLUME, FluidAttributes.BUCKET_VOLUME, Integer.MAX_VALUE);
+					.defineInRange("restockRate", 10 * FluidType.BUCKET_VOLUME, FluidType.BUCKET_VOLUME, Integer.MAX_VALUE);
 			
 			builder.pop();
 			builder.pop();

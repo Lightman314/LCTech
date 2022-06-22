@@ -26,8 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidActionResult;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -35,7 +35,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandler{
 
-	public static final int DEFAULT_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
+	public static final int DEFAULT_CAPACITY = 10 * FluidType.BUCKET_VOLUME;
 	
 	FluidStack tankContents = FluidStack.EMPTY;
 	public FluidStack getTankContents() { return this.tankContents; }

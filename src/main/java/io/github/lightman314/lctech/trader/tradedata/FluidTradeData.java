@@ -35,7 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
@@ -54,7 +54,7 @@ public class FluidTradeData extends TradeData {
 	public void setProduct(FluidStack newProduct) {
 		this.product = newProduct.copy();
 		if(this.product.getFluid() != Fluids.EMPTY)
-			this.product.setAmount(FluidAttributes.BUCKET_VOLUME);
+			this.product.setAmount(FluidType.BUCKET_VOLUME);
 	}
 	public FluidStack productOfQuantity()
 	{
@@ -65,7 +65,7 @@ public class FluidTradeData extends TradeData {
 	}
 	
 	int bucketQuantity = 1;
-	public int getQuantity() { return this.bucketQuantity * FluidAttributes.BUCKET_VOLUME; }
+	public int getQuantity() { return this.bucketQuantity * FluidType.BUCKET_VOLUME; }
 	public int getBucketQuantity() { return this.bucketQuantity; }
 	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, this.getMaxBucketQuantity()); }
 	public int getMaxBucketQuantity() { return Math.max(1, TechConfig.SERVER.fluidTradeMaxQuantity.get()); }

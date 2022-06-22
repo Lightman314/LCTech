@@ -24,8 +24,8 @@ public class FluidFormatUtil {
 	
 	public static MutableComponent getFluidName(FluidStack fluid, @Nullable ChatFormatting colorOverride)
 	{
-		MutableComponent component = Component.translatable(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).getStyleModifier());
-		if(colorOverride != null && fluid.getFluid().getAttributes().getRarity(fluid) == Rarity.COMMON)
+		MutableComponent component = Component.translatable(fluid.getTranslationKey()).withStyle(fluid.getFluid().getFluidType().getRarity(fluid).getStyleModifier());
+		if(colorOverride != null && fluid.getFluid().getFluidType().getRarity(fluid) == Rarity.COMMON)
 			component.withStyle(colorOverride);
 		return component;
 	}

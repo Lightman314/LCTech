@@ -28,6 +28,8 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.IFluidTypeRenderProperties;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.fluids.FluidStack;
 
 @OnlyIn(Dist.CLIENT)
@@ -38,7 +40,8 @@ public class FluidRenderUtil {
 		if(tank == null || tank.isEmpty())
 			return;
 		
-		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tank.getFluid().getAttributes().getStillTexture());
+		IFluidTypeRenderProperties fluidRenderProperties = RenderProperties.get(tank.getFluid());
+		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderProperties.getStillTexture(tank));
 		if(sprite != null)
 		{	
 			float minU = sprite.getU0();
@@ -48,7 +51,7 @@ public class FluidRenderUtil {
 			float deltaU = maxU - minU;
 			float deltaV = maxV - minV;
 			double tankLevel = Math.min(1d, percent) * height;
-			int waterColor = tank.getFluid().getAttributes().getColor(tank);
+			int waterColor = fluidRenderProperties.getColorTint(tank);
 			float red = (float)(waterColor >> 16 & 255) / 255.0f;
 			float green = (float)(waterColor >> 8 & 255) / 255.0f;
 			float blue = (float)(waterColor & 255) / 255.0f;
@@ -100,8 +103,9 @@ public class FluidRenderUtil {
 		if(tank.isEmpty())
 			return;
 		
+		IFluidTypeRenderProperties fluidRenderProperties = RenderProperties.get(tank.getFluid());
 		TextureAtlasSprite sprite = ForgeHooksClient.getFluidSprites(world,  pos,  tank.getFluid().defaultFluidState())[0];
-		int waterColor = tank.getFluid().getAttributes().getColor(tank);
+		int waterColor = fluidRenderProperties.getColorTint(tank);
 		float red = (float)(waterColor >> 16 & 255) / 255.0f;
 		float green = (float)(waterColor >> 8 & 255) / 255.0f;
 		float blue = (float)(waterColor & 255) / 255.0f;
@@ -114,7 +118,7 @@ public class FluidRenderUtil {
 		float y2 = y + height;
 		float z2 = z + depth;
 		
-		if(tank.getFluid().getAttributes().isLighterThanAir())
+		if(tank.getFluid().getFluidType().isLighterThanAir())
 		{
 			//Change y cords to match the inverted rendering
 			y2 = top;
@@ -190,10 +194,11 @@ public class FluidRenderUtil {
 		if(tank.isEmpty())
 			return Lists.newArrayList();
 		
+		IFluidTypeRenderProperties fluidRenderProperties = RenderProperties.get(tank.getFluid());
 		//Get sprite
-		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tank.getFluid().getAttributes().getStillTexture());
+		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderProperties.getStillTexture(tank));
 		//Get color
-		int fluidColor = tank.getFluid().getAttributes().getColor(tank);
+		int fluidColor = fluidRenderProperties.getColorTint(tank);
 		if(fluidColor != 0xFFFFFFFF)
 		{
 			int red = fluidColor >> 16 & 255;
@@ -205,7 +210,7 @@ public class FluidRenderUtil {
 		double fillPercent = MathUtil.clamp((double)tank.getAmount() / (double)capacity, 0d, 1d);
 		renderData.setFillPercent((float)fillPercent);
 		
-		boolean inverted = tank.getFluid().getAttributes().isLighterThanAir();
+		boolean inverted = tank.getFluid().getFluidType().isLighterThanAir();
 		
 		final int ITEM_RENDER_LAYER0 = 0;
 		
