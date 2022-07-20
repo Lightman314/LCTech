@@ -2,7 +2,6 @@ package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
@@ -16,16 +15,13 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidTankModel implements BakedModel {
@@ -90,12 +86,12 @@ public class FluidTankModel implements BakedModel {
 		throw new AssertionError("FluidTankModel::getQuads(IModelData) should never be called");
 	}*/
 	
-	@Override
+	/*@Override
 	@Nonnull
 	public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData)
 	{
 		throw new AssertionError("FluidTankModel::getModelData should never be called");
-	}
+	}*/
 	
 	public class FluidTankItemOverrideList extends ItemOverrides{
 

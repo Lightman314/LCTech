@@ -10,7 +10,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public class ClientProxy extends CommonProxy{
 
+	
 	@Override
+	@SuppressWarnings("removal")
 	public void setupClient()
 	{
 		

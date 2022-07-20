@@ -81,10 +81,7 @@ public class FluidTraderServerBlock extends RotatableBlock implements ITraderBlo
 			if(tileEntity != null)
 			{
 				if(tileEntity.hasPermission(player, Permissions.OPEN_STORAGE))
-				{
-					tileEntity.updateNames(player);
 					tileEntity.openStorageMenu(player);
-				}
 			}
 		}
 		return InteractionResult.SUCCESS;

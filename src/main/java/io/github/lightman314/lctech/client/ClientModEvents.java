@@ -16,7 +16,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,13 +25,13 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientModEvents {
 
 	@SubscribeEvent
-	public static void onModelBakeEvent(ModelBakeEvent event)
+	public static void onModelBakeEvent(ModelEvent.BakingCompleted event)
 	{
 		FluidTankItem.getTankModelList().forEach(itemModelResourceLocation ->{
-			replaceModel(itemModelResourceLocation, event.getModelRegistry(), (existingModel) -> new FluidTankModel(existingModel));
+			replaceModel(itemModelResourceLocation, event.getModels(), (existingModel) -> new FluidTankModel(existingModel));
 		});
 		FluidShardItem.getShardModelList().forEach(itemModelResourceLocation ->{
-			replaceModel(itemModelResourceLocation, event.getModelRegistry(), (existingModel) -> new FluidShardModel(existingModel));
+			replaceModel(itemModelResourceLocation, event.getModels(), (existingModel) -> new FluidShardModel(existingModel));
 		});
 	}
 	

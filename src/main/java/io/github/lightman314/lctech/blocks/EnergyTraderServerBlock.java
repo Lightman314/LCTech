@@ -73,10 +73,7 @@ public class EnergyTraderServerBlock extends RotatableBlock implements ITraderBl
 			if(tileEntity != null)
 			{
 				if(tileEntity.hasPermission(player, Permissions.OPEN_STORAGE))
-				{
-					tileEntity.updateNames(player);
 					tileEntity.openStorageMenu(player);
-				}
 			}
 		}
 		return InteractionResult.SUCCESS;

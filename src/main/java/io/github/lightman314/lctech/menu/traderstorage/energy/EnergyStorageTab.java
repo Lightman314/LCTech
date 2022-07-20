@@ -105,7 +105,7 @@ public class EnergyStorageTab extends TraderStorageTab{
 	}
 	
 	@SubscribeEvent
-	public void onWorldTick(TickEvent.WorldTickEvent event)
+	public void onWorldTick(TickEvent.LevelTickEvent event)
 	{
 		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof IEnergyTrader)
 		{
