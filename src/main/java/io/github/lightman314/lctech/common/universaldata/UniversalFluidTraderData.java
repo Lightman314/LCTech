@@ -12,6 +12,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blocks.FluidTraderServerBlock;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
 import io.github.lightman314.lctech.core.ModBlocks;
+import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
@@ -50,6 +51,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
@@ -534,6 +536,22 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		{
 			this.updateRule(ruleType, updateInfo);
 			this.markRulesDirty();
+		}
+	}
+	
+	@Override
+	public void dumpContents(List<ItemStack> contents)
+	{
+		//Dump the extra fluids if present
+		this.storage.getContents().forEach(entry ->{
+			if(!entry.getTankContents().isEmpty())
+				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
+		});
+		//Dump the upgrade items if present
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); i++)
+		{
+			if(!this.upgradeInventory.getItem(i).isEmpty())
+				contents.add(this.upgradeInventory.getItem(i));
 		}
 	}
 

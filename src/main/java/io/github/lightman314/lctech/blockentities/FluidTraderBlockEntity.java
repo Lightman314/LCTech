@@ -47,7 +47,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -453,20 +453,18 @@ public class FluidTraderBlockEntity extends TraderBlockEntity implements IFluidT
 	}
 	
 	@Override
-	public void dumpContents(Level level, BlockPos pos)
+	public void dumpContents(List<ItemStack> contents)
 	{
-		//super.dumpContents dumps the coins automatically
-		super.dumpContents(level, pos);
 		//Dump the extra fluids if present
 		this.storage.getContents().forEach(entry ->{
 			if(!entry.getTankContents().isEmpty())
-				Block.popResource(level, pos, FluidShardItem.GetFluidShard(entry.getTankContents()));
+				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
 		});
 		//Dump the upgrade items if present
 		for(int i = 0; i < this.upgradeInventory.getContainerSize(); i++)
 		{
 			if(!this.upgradeInventory.getItem(i).isEmpty())
-				Block.popResource(level, pos, this.upgradeInventory.getItem(i));
+				contents.add(this.upgradeInventory.getItem(i));
 		}
 	}
 

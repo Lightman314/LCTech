@@ -595,6 +595,18 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 			this.markRulesDirty();
 		}
 	}
+
+	@Override
+	public void dumpContents(List<ItemStack> contents) {
+		
+		//Dump the upgrade items if present
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); ++i)
+		{
+			if(!this.upgradeInventory.getItem(i).isEmpty())
+				contents.add(this.upgradeInventory.getItem(i));
+		}
+		
+	}
 	
 	
 }

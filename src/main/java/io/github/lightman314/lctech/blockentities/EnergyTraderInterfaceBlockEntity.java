@@ -27,8 +27,9 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -213,14 +214,17 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	public void dumpAdditionalContents(Level level, BlockPos pos) { }
-	
-	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new EnergyStorageTab(menu));
 	}
 	
 	@Override
 	public boolean allowAdditionalUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
+	
+	@Override
+	public void dumpContents(List<ItemStack> contents) { }
+	
+	@Override
+	public MutableComponent getName() { return Component.translatable("block.lctech.energy_trader_interface"); }
 	
 }

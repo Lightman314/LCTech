@@ -49,8 +49,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -381,16 +379,14 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity implements IEnerg
 	}
 	
 	@Override
-	public void dumpContents(Level level, BlockPos pos)
+	public void dumpContents(List<ItemStack> contents)
 	{
-		//Dump coin contents, etc.
-		super.dumpContents(level, pos);
 		
 		//Dump the upgrade items if present
 		for(int i = 0; i < this.upgradeInventory.getContainerSize(); ++i)
 		{
 			if(!this.upgradeInventory.getItem(i).isEmpty())
-				Block.popResource(level,  pos,  this.upgradeInventory.getItem(i));
+				contents.add(this.upgradeInventory.getItem(i));
 		}
 		
 	}
