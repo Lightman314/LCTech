@@ -33,7 +33,7 @@ public class EnergyTraderBlock extends TraderBlockRotatable {
 
 	@Override
 	protected BlockEntityType<?> traderType() {
-		return ModBlockEntities.ENERGY_TRADER;
+		return ModBlockEntities.ENERGY_TRADER.get();
 	}
 	
 	@Override

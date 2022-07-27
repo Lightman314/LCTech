@@ -103,7 +103,7 @@ public class FluidShardItem extends Item{
 		if(stack.isEmpty())
 			return ItemStack.EMPTY;
 		
-		ItemStack returnStack = new ItemStack(ModItems.FLUID_SHARD);
+		ItemStack returnStack = new ItemStack(ModItems.FLUID_SHARD.get());
 		WriteTankData(returnStack, stack);
 		return returnStack;
 		

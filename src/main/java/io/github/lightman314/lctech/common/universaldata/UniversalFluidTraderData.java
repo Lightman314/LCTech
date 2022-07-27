@@ -12,6 +12,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blocks.FluidTraderServerBlock;
 import io.github.lightman314.lctech.common.logger.FluidShopLogger;
 import io.github.lightman314.lctech.core.ModBlocks;
+import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
 import io.github.lightman314.lctech.trader.fluid.TradeFluidHandler;
 import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
@@ -43,13 +44,14 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
@@ -91,12 +93,12 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	protected ItemLike getCategoryItem() {
 		int tradeCount = this.isCreative() ? ITrader.GLOBAL_TRADE_LIMIT : this.getTradeCount();
 		if(tradeCount <= FluidTraderServerBlock.SMALL_SERVER_COUNT)
-			return ModBlocks.FLUID_SERVER_SML;
+			return ModBlocks.FLUID_SERVER_SML.get();
 		else if(tradeCount <= FluidTraderServerBlock.MEDIUM_SERVER_COUNT)
-			return ModBlocks.FLUID_SERVER_MED;
+			return ModBlocks.FLUID_SERVER_MED.get();
 		else if(tradeCount <= FluidTraderServerBlock.LARGE_SERVER_COUNT)
-			return ModBlocks.FLUID_SERVER_LRG;
-		return ModBlocks.FLUID_SERVER_XLRG;
+			return ModBlocks.FLUID_SERVER_LRG.get();
+		return ModBlocks.FLUID_SERVER_XLRG.get();
 	}
 	
 	@Override
@@ -284,7 +286,7 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 	public ResourceLocation getTraderType() { return TYPE; }
 	
 	@Override
-	public Component getDefaultName() {
+	public MutableComponent getDefaultName() {
 		return new TranslatableComponent("gui.lctech.universaltrader.fluid");
 	}
 	
@@ -534,6 +536,22 @@ public class UniversalFluidTraderData extends UniversalTraderData implements IFl
 		{
 			this.updateRule(ruleType, updateInfo);
 			this.markRulesDirty();
+		}
+	}
+	
+	@Override
+	public void dumpContents(List<ItemStack> contents)
+	{
+		//Dump the extra fluids if present
+		this.storage.getContents().forEach(entry ->{
+			if(!entry.getTankContents().isEmpty())
+				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
+		});
+		//Dump the upgrade items if present
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); i++)
+		{
+			if(!this.upgradeInventory.getItem(i).isEmpty())
+				contents.add(this.upgradeInventory.getItem(i));
 		}
 	}
 

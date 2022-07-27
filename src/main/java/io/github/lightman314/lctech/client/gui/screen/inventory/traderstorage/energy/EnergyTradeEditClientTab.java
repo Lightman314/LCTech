@@ -30,7 +30,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	public EnergyTradeEditClientTab(TraderStorageScreen screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE.get()); }
 	
 	@Override
 	public Component getTooltip() { return new TextComponent(""); }

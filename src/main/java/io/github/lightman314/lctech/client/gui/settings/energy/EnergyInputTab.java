@@ -35,7 +35,7 @@ public class EnergyInputTab extends SettingsTab{
 	public int getColor() { return 0x00FFFF; }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.BATTERY); }
+	public IconData getIcon() { return IconData.of(ModItems.BATTERY.get()); }
 	
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lctech.settings.energyinput"); }

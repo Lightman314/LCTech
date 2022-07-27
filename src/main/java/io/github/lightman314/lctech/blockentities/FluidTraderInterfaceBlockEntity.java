@@ -28,9 +28,9 @@ import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -47,7 +47,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	private int refactorTimer = 0;
 	
 	public FluidTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.TRADER_INTERFACE_FLUID, pos, state);
+		super(ModBlockEntities.TRADER_INTERFACE_FLUID.get(), pos, state);
 		this.fluidHandler = this.addHandler(new FluidInterfaceHandler(this));
 	}
 	
@@ -310,20 +310,22 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	public void dumpAdditionalContents(Level level, BlockPos pos) {
-		//Dump the extra fluids if present
-		this.fluidBuffer.getContents().forEach(entry ->{
-			if(!entry.getTankContents().isEmpty())
-				Block.popResource(level, pos, FluidShardItem.GetFluidShard(entry.getTankContents()));
-		});
-	}
-	
-	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new FluidStorageTab(menu));
 	}
 	
 	@Override
 	public boolean allowAdditionalUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
+
+	@Override
+	public void dumpContents(List<ItemStack> contents) {
+		this.fluidBuffer.getContents().forEach(entry ->{
+			if(!entry.getTankContents().isEmpty())
+				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
+		});
+	}
+
+	@Override
+	public MutableComponent getName() { return new TranslatableComponent("block.lctech.fluid_trader_interface"); }
 	
 }

@@ -52,7 +52,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	ScrollBarWidget scrollBar;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
+	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK.get()); }
 
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }

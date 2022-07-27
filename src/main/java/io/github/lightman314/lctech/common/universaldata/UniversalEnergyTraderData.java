@@ -44,7 +44,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -90,7 +90,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 	
 	@Override
-	protected ItemLike getCategoryItem() { return ModBlocks.ENERGY_SERVER; }
+	protected ItemLike getCategoryItem() { return ModBlocks.ENERGY_SERVER.get(); }
 	
 	@Override
 	public void read(CompoundTag compound)
@@ -484,7 +484,7 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 	}
 	
 	@Override
-	public Component getDefaultName() {
+	public MutableComponent getDefaultName() {
 		return new TranslatableComponent("gui.lctech.universaltrader.energy");
 	}
 
@@ -596,5 +596,16 @@ public class UniversalEnergyTraderData extends UniversalTraderData implements IE
 		}
 	}
 	
+	@Override
+	public void dumpContents(List<ItemStack> contents) {
+
+		//Dump the upgrade items if present
+		for(int i = 0; i < this.upgradeInventory.getContainerSize(); ++i)
+		{
+			if(!this.upgradeInventory.getItem(i).isEmpty())
+				contents.add(this.upgradeInventory.getItem(i));
+		}
+
+	}
 	
 }

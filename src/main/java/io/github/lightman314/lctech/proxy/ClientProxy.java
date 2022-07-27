@@ -15,11 +15,11 @@ public class ClientProxy extends CommonProxy{
 	{
 		
 		//Set Render Layers
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP_BUNDLE, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.IRON_TANK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DIAMOND_TANK, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP.get(), RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.FLUID_TAP_BUNDLE.get(), RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.IRON_TANK.get(), RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK.get(), RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DIAMOND_TANK.get(), RenderType.cutout());
 		
 		//Register Screens
 		/*MenuScreens.register(ModMenus.FLUID_TRADER, FluidTraderScreen::new);
@@ -39,8 +39,8 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.ENERGY_TRADER_STORAGE_UNIVERSAL, EnergyTraderStorageScreen::new);*/
 		
 		//Register Tile Entity Renderers
-		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER, FluidTraderBlockEntityRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK, FluidTankTileEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER.get(), FluidTraderBlockEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK.get(), FluidTankTileEntityRenderer::new);
 		
 	}
 	

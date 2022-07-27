@@ -122,7 +122,7 @@ public class FluidTankItem extends BlockItem{
 		if(blockEntity == null)
 		{
 			//Return a default tank
-			ItemStack returnStack = new ItemStack(ModBlocks.IRON_TANK);
+			ItemStack returnStack = new ItemStack(ModBlocks.IRON_TANK.get());
 			InitTankData(returnStack);
 			return returnStack;
 		}

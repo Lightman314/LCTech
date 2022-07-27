@@ -31,7 +31,7 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	public EnergyStorageClientTab(TraderStorageScreen screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE)); }
+	public IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
 
 	@Override
 	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }
