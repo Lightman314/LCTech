@@ -11,9 +11,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public class FluidTraderServerBlock extends NetworkTraderBlock {
 	
 	public static final int SMALL_SERVER_COUNT = 2;
-	public static final int MEDIUM_SERVER_COUNT = 2;
-	public static final int LARGE_SERVER_COUNT = 2;
-	public static final int EXTRA_LARGE_SERVER_COUNT = 2;
+	public static final int MEDIUM_SERVER_COUNT = 4;
+	public static final int LARGE_SERVER_COUNT = 6;
+	public static final int EXTRA_LARGE_SERVER_COUNT = 8;
 	
 	final int tradeCount;
 	
