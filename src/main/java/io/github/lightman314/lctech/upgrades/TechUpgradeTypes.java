@@ -1,8 +1,9 @@
 package io.github.lightman314.lctech.upgrades;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
+import io.github.lightman314.lctech.upgrades.types.capacity.*;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;

@@ -9,11 +9,11 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
+import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidStorageTab;
-import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
@@ -78,13 +78,13 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
-		if(this.menu.getTrader() instanceof IFluidTrader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
 			//Validate the scroll
 			this.validateScroll();
 			//Render each tank
 			int index = this.scroll;
-			IFluidTrader trader = (IFluidTrader)this.menu.getTrader();
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			TraderFluidStorage storage = trader.getStorage();
 			int yPos = this.screen.getGuiTop() + Y_OFFSET;
 			for(int x = 0; x < TANKS && index < storage.getTanks(); ++x)
@@ -125,9 +125,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
-		if(this.menu.getTrader() instanceof IFluidTrader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
-			TraderFluidStorage storage = ((IFluidTrader)this.menu.getTrader()).getStorage();
+			TraderFluidStorage storage = ((FluidTraderData)this.menu.getTrader()).getStorage();
 			int hoveredSlot = this.isMouseOverTank(mouseX, mouseY);
 			if(hoveredSlot >= 0)
 			{
@@ -186,9 +186,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	
 	private Pair<Integer,Boolean> isMouseOverDrainFill(double mouseX, double mouseY)
 	{
-		if(this.menu.getTrader() instanceof IFluidTrader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
-			IFluidTrader trader = (IFluidTrader)this.menu.getTrader();
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(!trader.drainCapable())
 				return null;
 			int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
@@ -225,9 +225,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	}
 	
 	private int totalTankSlots() {
-		if(this.menu.getTrader() instanceof IFluidTrader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
-			return ((IFluidTrader)this.menu.getTrader()).getStorage().getTanks();
+			return ((FluidTraderData)this.menu.getTrader()).getStorage().getTanks();
 		}
 		return 0;
 	}
@@ -256,7 +256,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		
-		if(this.menu.getTrader() instanceof IFluidTrader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
 			int hoveredSlot = this.isMouseOverTank(mouseX, mouseY);
 			if(hoveredSlot >= 0)
@@ -270,7 +270,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 			{
 				int tank = hoveredToggle.getFirst() + this.scroll;
 				boolean drainState = hoveredToggle.getSecond();
-				TraderFluidStorage storage = ((IFluidTrader)this.menu.getTrader()).getStorage();
+				TraderFluidStorage storage = ((FluidTraderData)this.menu.getTrader()).getStorage();
 				if(tank < 0 || tank >= storage.getTanks())
 					return false;
 				boolean currentState = drainState ? storage.getContents().get(tank).drainable : storage.getContents().get(tank).fillable;

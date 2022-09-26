@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.blocks.traderblocks;
 
 import java.util.List;
 
-import io.github.lightman314.lctech.blockentities.EnergyTraderBlockEntity;
+import io.github.lightman314.lctech.blockentities.trader.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;

@@ -1,9 +1,14 @@
 package io.github.lightman314.lctech.core;
 
 import io.github.lightman314.lctech.blockentities.*;
+import io.github.lightman314.lctech.blockentities.old.UniversalEnergyTraderBlockEntity;
+import io.github.lightman314.lctech.blockentities.old.UniversalFluidTraderBlockEntity;
+import io.github.lightman314.lctech.blockentities.trader.EnergyTraderBlockEntity;
+import io.github.lightman314.lctech.blockentities.trader.FluidTraderBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 
+@SuppressWarnings("deprecation")
 public class ModBlockEntities {
 	
 	/**
@@ -39,9 +44,11 @@ public class ModBlockEntities {
 	public static final RegistryObject<BlockEntityType<EnergyTraderBlockEntity>> ENERGY_TRADER;
 	
 	//Universal Fluid Trader
+	@Deprecated
 	public static final RegistryObject<BlockEntityType<UniversalFluidTraderBlockEntity>> UNIVERSAL_FLUID_TRADER;
 	
 	//Universal Energy Trader
+	@Deprecated
 	public static final RegistryObject<BlockEntityType<UniversalEnergyTraderBlockEntity>> UNIVERSAL_ENERGY_TRADER;
 	
 	//Fluid Trader Interface

@@ -15,9 +15,9 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
-import io.github.lightman314.lctech.common.universaldata.UniversalEnergyTraderData;
-import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
-import io.github.lightman314.lctech.common.universaldata.traderSearching.FluidTraderSearchFilter;
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
+import io.github.lightman314.lctech.common.traders.terminal.traderSearching.FluidTraderSearchFilter;
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.core.ModRegistries;
@@ -25,8 +25,8 @@ import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.TradingOffice;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.traderSearching.TraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 
 @Mod("lctech")
 public class LCTech
@@ -65,8 +65,8 @@ public class LCTech
         TraderSearchFilter.addFilter(new FluidTraderSearchFilter());
         
         //Register the universal data deserializer
-        TradingOffice.RegisterDataType(UniversalFluidTraderData.TYPE, UniversalFluidTraderData::new);
-        TradingOffice.RegisterDataType(UniversalEnergyTraderData.TYPE, UniversalEnergyTraderData::new);
+        TraderData.register(FluidTraderData.TYPE, FluidTraderData::new);
+        TraderData.register(EnergyTraderData.TYPE, EnergyTraderData::new);
         
         //Register custom notification types
         Notification.register(FluidTradeNotification.TYPE, FluidTradeNotification::new);

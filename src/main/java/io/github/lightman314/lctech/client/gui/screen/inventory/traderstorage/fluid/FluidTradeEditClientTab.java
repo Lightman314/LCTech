@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget.IFluidEditListener;
+import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
 import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidTradeEditTab;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
@@ -15,16 +15,18 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 
 public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener{
 
@@ -77,13 +79,9 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.fluidEdit = this.screen.addRenderableTabWidget(new FluidEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
 		this.fluidEdit.init(this.screen::addRenderableTabWidget, this.screen::addTabListener);
 		
-		this.fluidEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.fluidEdit
-				));
+		this.fluidEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.fluidEdit));
 		this.fluidEditScroll.smallKnob = true;
 		
-		//this.customNameInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 13, this.screen.getGuiTop() + 38, this.screen.getXSize() - 26, 18, new TextComponent("")));
-		//if(this.selection >= 0 && this.selection < 2 && trade != null)
-		//	this.customNameInput.setValue(trade.getCustomName(this.selection));
 		this.buttonAddBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 74, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 32, 0)));
 		this.buttonRemoveBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 48, 0)));
 		
@@ -145,7 +143,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.priceSelection.visible = this.selection < 0;
 		if(this.priceSelection.visible)
 			this.priceSelection.tick();
-		this.fluidEdit.visible = this.selection >= 0;
+		this.fluidEdit.visible = this.selection >= 0 && this.getTrade().isPurchase();
 		
 		this.buttonAddBucket.visible = this.buttonRemoveBucket.visible = this.selection >= 0;
 		if(this.buttonAddBucket.visible)
@@ -176,24 +174,44 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	}
 	
 	@Override
-	public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof FluidTradeData)
 		{
 			FluidTradeData t = (FluidTradeData)trade;
+			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
-				this.changeSelection(index);
+			{
+				if(this.selection != index && FluidUtil.getFluidContained(heldItem).isEmpty())
+					this.changeSelection(index);
+				else
+				{
+					FluidUtil.getFluidContained(heldItem).ifPresent(fluid -> {
+						this.commonTab.setFluid(fluid);
+					});
+				}
+			}
 		}
 	}
 	
 	@Override
-	public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof FluidTradeData)
 		{
 			FluidTradeData t = (FluidTradeData)trade;
+			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
-				this.changeSelection(index);
+			{
+				if(this.selection != index && FluidUtil.getFluidContained(heldItem).isEmpty())
+					this.changeSelection(index);
+				else
+				{
+					FluidUtil.getFluidContained(heldItem).ifPresent(fluid -> {
+						this.commonTab.setFluid(fluid);
+					});
+				}
+			}
 			else if(t.isPurchase())
 				this.changeSelection(-1);
 		}
@@ -203,14 +221,12 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.selection = newSelection;
 		if(this.selection == -1)
 			this.priceSelection.setCoinValue(this.getTrade().getCost());
-		//if(this.selection >= 0 && this.selection < 2)
-		//	this.customNameInput.setValue(this.commonTab.getTrade().getCustomName(this.selection));
-		if(this.selection >= 0)
+		if(this.selection >= 0 && !this.getTrade().isSale())
 			this.fluidEdit.refreshSearch();
 	}
 	
 	@Override
-	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
+	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

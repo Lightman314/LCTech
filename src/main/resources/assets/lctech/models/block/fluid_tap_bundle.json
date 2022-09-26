@@ -1,5 +1,6 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "cutout",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
 		"particle": "lctech:blocks/fluid_tap_bundle",

@@ -7,9 +7,9 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public interface IBatteryItem {
@@ -111,7 +111,7 @@ public interface IBatteryItem {
 
 		@Override
 		public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-			return CapabilityEnergy.ENERGY.orEmpty(cap, this.optional);
+			return ForgeCapabilities.ENERGY.orEmpty(cap, this.optional);
 		}
 		
 	}

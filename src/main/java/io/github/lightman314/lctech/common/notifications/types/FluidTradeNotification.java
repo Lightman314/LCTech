@@ -1,13 +1,14 @@
 package io.github.lightman314.lctech.common.notifications.types;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -37,7 +38,7 @@ public class FluidTradeNotification extends Notification{
 		
 		this.cost = cost;
 		
-		this.customer = customer.lastKnownName();
+		this.customer = customer.getName(false);
 		
 	}
 	
@@ -47,7 +48,7 @@ public class FluidTradeNotification extends Notification{
 	protected ResourceLocation getType() { return TYPE; }
 	
 	@Override
-	public Category getCategory() { return this.traderData; }
+	public NotificationCategory getCategory() { return this.traderData; }
 	
 	@Override
 	public MutableComponent getMessage() {
@@ -69,7 +70,7 @@ public class FluidTradeNotification extends Notification{
 		compound.putInt("TradeType", this.tradeType.index);
 		compound.putString("Fluid", Component.Serializer.toJson(this.fluidName));
 		compound.putInt("FluidCount", this.fluidCount);
-		this.cost.writeToNBT(compound, "Price");
+		this.cost.save(compound, "Price");
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -81,7 +82,7 @@ public class FluidTradeNotification extends Notification{
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.fluidName = Component.Serializer.fromJson(compound.getString("Fluid"));
 		this.fluidCount = compound.getInt("FluidCount");
-		this.cost.readFromNBT(compound, "Price");
+		this.cost.load(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}

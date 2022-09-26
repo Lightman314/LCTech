@@ -3,15 +3,15 @@ package io.github.lightman314.lctech.menu.traderstorage.energy;
 import java.util.function.Function;
 
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyTradeEditClientTab;
-import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
-import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -32,9 +32,9 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 	int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public EnergyTradeData getTrade() {
-		if(this.menu.getTrader() instanceof IEnergyTrader)
+		if(this.menu.getTrader() instanceof EnergyTraderData)
 		{
-			IEnergyTrader trader = (IEnergyTrader)this.menu.getTrader();
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -96,7 +96,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.writeToNBT(message, "NewPrice");
+				price.save(message, "NewPrice");
 				this.menu.sendMessage(message);
 			}
 		}
@@ -115,7 +115,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 		else if(message.contains("NewPrice"))
 		{
 			CoinValue price = new CoinValue();
-			price.readFromNBT(message, "NewPrice");
+			price.load(message, "NewPrice");
 			this.setPrice(price);
 		}
 		else if(message.contains("NewType"))

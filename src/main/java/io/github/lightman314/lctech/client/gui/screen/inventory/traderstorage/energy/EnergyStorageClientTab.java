@@ -4,10 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.items.IBatteryItem;
 import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyStorageTab;
-import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -50,10 +50,10 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 		
 		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
-		if(this.menu.getTrader() instanceof IEnergyTrader)
+		if(this.menu.getTrader() instanceof EnergyTraderData)
 		{
 			
-			IEnergyTrader trader = (IEnergyTrader)this.menu.getTrader();
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			
 			//Render the slot bg for the upgrade/battery slots
 			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
@@ -83,9 +83,9 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getTrader() instanceof IEnergyTrader && this.isMouseOverEnergy(mouseX, mouseY))
+		if(this.menu.getTrader() instanceof EnergyTraderData && this.isMouseOverEnergy(mouseX, mouseY))
 		{
-			this.screen.renderComponentTooltip(pose, IEnergyTrader.getEnergyHoverTooltip((IEnergyTrader)this.menu.getTrader()), mouseX, mouseY);
+			this.screen.renderComponentTooltip(pose, EnergyTraderData.getEnergyHoverTooltip((EnergyTraderData)this.menu.getTrader()), mouseX, mouseY);
 		}
 		
 	}

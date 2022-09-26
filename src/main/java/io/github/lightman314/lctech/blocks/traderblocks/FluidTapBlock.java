@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.blocks.traderblocks;
 
 import java.util.List;
 
-import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
+import io.github.lightman314.lctech.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;

@@ -1,28 +1,28 @@
 package io.github.lightman314.lctech.blockentities;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blockentities.handler.EnergyInterfaceHandler;
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.menu.traderinterface.energy.EnergyStorageTab;
-import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
-import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
-import io.github.lightman314.lctech.util.DirectionalUtil;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,7 +32,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
@@ -46,7 +46,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public void addStoredEnergy(int amount) { this.energyStorage += amount; this.setEnergyBufferDirty(); }
 	public void drainStoredEnergy(int amount) { this.energyStorage -= amount; this.setEnergyBufferDirty(); }
 	public int getMaxEnergy() {
-		int defaultCapacity = IEnergyTrader.getDefaultMaxEnergy();
+		int defaultCapacity = EnergyTraderData.getDefaultMaxEnergy();
 		int capacity = defaultCapacity;
 		boolean baseStorageCompensation = false;
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
@@ -90,7 +90,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound); }
+	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound, false); }
 	
 	@Override
 	public void saveAdditional(CompoundTag compound) {
@@ -117,18 +117,18 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	public boolean validTraderType(UniversalTraderData trader) { return trader instanceof IEnergyTrader; }
+	public boolean validTraderType(TraderData trader) { return trader instanceof EnergyTraderData; }
 	
-	protected final IEnergyTrader getEnergyTrader() {
-		UniversalTraderData trader = this.getTrader();
-		if(trader instanceof IEnergyTrader)
-			return (IEnergyTrader)trader;
+	protected final EnergyTraderData getEnergyTrader() {
+		TraderData trader = this.getTrader();
+		if(trader instanceof EnergyTraderData)
+			return (EnergyTraderData)trader;
 		return null;
 	}
 	
 	@Override
 	protected void drainTick() {
-		IEnergyTrader trader = this.getEnergyTrader();
+		EnergyTraderData trader = this.getEnergyTrader();
 		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			int drainableAmount = Math.min(this.getMaxEnergy() - this.getStoredEnergy(), trader.getAvailableEnergy());
@@ -144,7 +144,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	
 	@Override
 	protected void restockTick() {
-		IEnergyTrader trader = this.getEnergyTrader();
+		EnergyTraderData trader = this.getEnergyTrader();
 		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			int restockableAmount = Math.min(this.getStoredEnergy(), trader.getMaxEnergy() - trader.getTotalEnergy());
@@ -198,11 +198,11 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 			{
 				if(this.energyHandler.getOutputSides().get(direction) && this.energyStorage > 0)
 				{
-					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? DirectionalUtil.getTrueSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
+					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? IRotatableBlock.getActualSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
 					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
 					if(be != null)
 					{
-						be.getCapability(CapabilityEnergy.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
+						be.getCapability(ForgeCapabilities.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
 							int extractedAmount = energyHandler.receiveEnergy(this.energyStorage, false);
 							if(extractedAmount > 0) //Automatically marks the energy storage dirty
 								this.drainStoredEnergy(extractedAmount);
@@ -214,6 +214,39 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
+	protected void hopperTick() {
+		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
+		for(Direction relativeSide : Direction.values())
+		{
+			if(this.energyHandler.getInputSides().get(relativeSide))
+			{
+				Direction actualSide = relativeSide;
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+				{
+					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
+					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
+				}
+				
+				BlockPos queryPos = this.worldPosition.relative(actualSide);
+				BlockEntity be = this.level.getBlockEntity(queryPos);
+				if(be != null)
+				{
+					be.getCapability(ForgeCapabilities.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
+						int extractedAmount = energyHandler.extractEnergy(this.getMaxEnergy() - this.energyStorage, false);
+						if(extractedAmount > 0)
+						{
+							this.energyStorage += extractedAmount;
+							markBufferDirty.set(true);
+						}
+					});
+				}
+			}
+		}
+		if(markBufferDirty.get())
+			this.setEnergyBufferDirty();
+	}
+	
+	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new EnergyStorageTab(menu));
 	}
@@ -222,7 +255,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public boolean allowAdditionalUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
 	
 	@Override
-	public void dumpContents(List<ItemStack> contents) { }
+	public void getAdditionalContents(List<ItemStack> contents) {}
 	
 	@Override
 	public MutableComponent getName() { return Component.translatable("block.lctech.energy_trader_interface"); }

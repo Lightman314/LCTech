@@ -3,15 +3,15 @@ package io.github.lightman314.lctech.menu.traderstorage.fluid;
 import java.util.function.Function;
 
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid.FluidTradeEditClientTab;
-import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
+import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -33,9 +33,9 @@ public class FluidTradeEditTab extends TraderStorageTab{
 	int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public FluidTradeData getTrade() {
-		if(this.menu.getTrader() instanceof IFluidTrader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
-			IFluidTrader trader = (IFluidTrader)this.menu.getTrader();
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -99,7 +99,7 @@ public class FluidTradeEditTab extends TraderStorageTab{
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.writeToNBT(message, "NewPrice");
+				price.save(message, "NewPrice");
 				this.menu.sendMessage(message);
 			}
 		}
@@ -111,9 +111,9 @@ public class FluidTradeEditTab extends TraderStorageTab{
 		{
 			trade.setProduct(fluid);
 			this.menu.getTrader().markTradesDirty();
-			if(this.menu.getTrader() instanceof IFluidTrader)
+			if(this.menu.getTrader() instanceof FluidTraderData)
 			{
-				IFluidTrader fluidTrader = (IFluidTrader)this.menu.getTrader();
+				FluidTraderData fluidTrader = (FluidTraderData)this.menu.getTrader();
 				if(fluidTrader.getStorage().refactorTanks())
 					fluidTrader.markStorageDirty();
 			}
@@ -145,7 +145,7 @@ public class FluidTradeEditTab extends TraderStorageTab{
 		else if(message.contains("NewPrice"))
 		{
 			CoinValue price = new CoinValue();
-			price.readFromNBT(message, "NewPrice");
+			price.load(message, "NewPrice");
 			this.setPrice(price);
 		}
 		else if(message.contains("NewType"))

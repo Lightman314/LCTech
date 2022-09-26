@@ -3,21 +3,22 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.e
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
 import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyTradeEditTab;
-import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
-import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.ITradeData;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.core.ModItems;
 import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.ITrader;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
@@ -58,7 +59,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		EnergyTradeData trade = this.commonTab.getTrade();
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
-		this.tradeDisplay.move(this.screen.getGuiLeft() + 22, this.screen.getGuiTop() + 18);
+		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
 		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, Component.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.priceSelection.drawBG = false;
 		this.priceSelection.init();
@@ -66,7 +67,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		this.quantityInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 75, this.screen.getXSize() - 42 - this.font.width(EnergyUtil.ENERGY_UNIT), 20, Component.empty()));
 		this.quantityInput.setValue(trade != null ? String.valueOf(trade.getAmount()): "");
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, Component.empty(), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 120, 72, 20, Component.empty(), this::ToggleTradeType));
 		
 	}
 	
@@ -82,9 +83,10 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		this.validateRenderables();
 		
 		//Render an arrow to the left of the selected position
-		RenderSystem.setShaderTexture(0, EnergyStorageClientTab.GUI_TEXTURE);
+		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.screen.blit(pose, this.screen.getGuiLeft() + 2, this.screen.getGuiTop() + this.getArrowPosition(), 36, 0, 18, 18);
+		
+		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 		
 		if(this.selection >= 0)
 			this.font.drawShadow(pose, EnergyUtil.ENERGY_UNIT, this.screen.getGuiLeft() + this.screen.getXSize() - 20 - this.font.width(EnergyUtil.ENERGY_UNIT), this.screen.getGuiTop() + 78, 0xFFFFFF);
@@ -92,19 +94,20 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 	
 	private int getArrowPosition() {
-		if(this.getTrade().isSale())
+		EnergyTradeData trade = this.getTrade();
+		if(this.selection < 0)
 		{
-			if(this.selection < 0)
-				return 18;
+			if(trade.isSale())
+				return this.screen.getGuiLeft() + 25;
 			else
-				return 35;
+				return this.screen.getGuiLeft() + 116;
 		}
 		else
 		{
-			if(this.selection < 0)
-				return 32;
+			if(trade.isSale())
+				return this.screen.getGuiLeft() + 99;
 			else
-				return 15;
+				return this.screen.getGuiLeft() + 41;
 		}
 	}
 	
@@ -117,8 +120,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		if(this.quantityInput.visible)
 		{
 			int maxSellAmount = Integer.MAX_VALUE;
-			if(this.menu.getTrader() instanceof IEnergyTrader)
-				maxSellAmount = ((IEnergyTrader)this.menu.getTrader()).getMaxEnergy();
+			if(this.menu.getTrader() instanceof EnergyTraderData)
+				maxSellAmount = ((EnergyTraderData)this.menu.getTrader()).getMaxEnergy();
 			TextInputUtil.whitelistInteger(this.quantityInput, 0, maxSellAmount);
 			int currentAmount = TextInputUtil.getIntegerValue(this.quantityInput);
 			if(currentAmount != this.getTrade().getAmount())
@@ -145,7 +148,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 	
 	@Override
-	public void onTradeButtonInputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof EnergyTradeData)
 		{
 			EnergyTradeData t = (EnergyTradeData)trade;
@@ -157,7 +160,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 	
 	@Override
-	public void onTradeButtonOutputInteraction(ITrader trader, ITradeData trade, int index, int mouseButton) {
+	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof EnergyTradeData)
 		{
 			EnergyTradeData t = (EnergyTradeData)trade;
@@ -177,7 +180,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 	
 	@Override
-	public void onTradeButtonInteraction(ITrader trader, ITradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
+	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

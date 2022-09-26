@@ -64,15 +64,12 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
 		
-		//Load the fluid list from the fluid registries
-		this.initFluidList();
-		
 		//Set the search to the default value to initialize the list
 		this.modifySearch("");
 		
 	}
 	
-	private void initFluidList() {
+	public static final void initFluidList() {
 		if(allFluids != null)
 			return;
 		

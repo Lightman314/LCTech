@@ -2,37 +2,43 @@ package io.github.lightman314.lctech.blockentities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blockentities.handler.FluidInterfaceHandler;
+import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
+import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
 import io.github.lightman314.lctech.core.ModBlockEntities;
 import io.github.lightman314.lctech.items.FluidShardItem;
 import io.github.lightman314.lctech.menu.traderinterface.fluid.FluidStorageTab;
-import io.github.lightman314.lctech.trader.fluid.IFluidTrader;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.ITraderFluidFilter;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.trader.common.TradeContext;
-import io.github.lightman314.lightmanscurrency.trader.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.upgrades.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
 
@@ -88,10 +94,10 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		else
 		{
 			//Scan all trades for sell fluids to restock
-			UniversalTraderData trader = this.getTrader();
-			if(trader instanceof IFluidTrader)
+			TraderData trader = this.getTrader();
+			if(trader instanceof FluidTraderData)
 			{
-				for(FluidTradeData trade : ((IFluidTrader) trader).getAllTrades())
+				for(FluidTradeData trade : ((FluidTraderData) trader).getAllTrades())
 				{
 					if(trade.isSale())
 					{
@@ -122,16 +128,16 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		}
 		else
 		{
-			UniversalTraderData trader = this.getTrader();
-			if(trader instanceof IFluidTrader)
-				return ((IFluidTrader)trader).getRelevantFluids();
+			TraderData trader = this.getTrader();
+			if(trader instanceof FluidTraderData)
+				return ((FluidTraderData)trader).getRelevantFluids();
 		}
 		return new ArrayList<>();
 	}
 	
 	@Override
 	public int getTankCapacity() {
-		int defaultCapacity = IFluidTrader.getDefaultTankCapacity();
+		int defaultCapacity = FluidTraderData.getDefaultTankCapacity();
 		int tankCapacity = defaultCapacity;
 		boolean baseStorageCompensation = false;
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
@@ -159,7 +165,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound); }
+	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound, false); }
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
@@ -192,12 +198,12 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	public boolean validTraderType(UniversalTraderData trader) { return trader instanceof IFluidTrader; }
+	public boolean validTraderType(TraderData trader) { return trader instanceof FluidTraderData; }
 	
-	protected final IFluidTrader getFluidTrader() {
-		UniversalTraderData trader = this.getTrader();
-		if(trader instanceof IFluidTrader)
-			return (IFluidTrader)trader;
+	protected final FluidTraderData getFluidTrader() {
+		TraderData trader = this.getTrader();
+		if(trader instanceof FluidTraderData)
+			return (FluidTraderData)trader;
 		return null;
 	}
 	
@@ -215,7 +221,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	
 	@Override
 	protected void drainTick() {
-		IFluidTrader trader = this.getFluidTrader();
+		FluidTraderData trader = this.getFluidTrader();
 		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			TraderFluidStorage storage = trader.getStorage();
@@ -248,7 +254,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	
 	@Override
 	protected void restockTick() {
-		IFluidTrader trader = this.getFluidTrader();
+		FluidTraderData trader = this.getFluidTrader();
 		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			TraderFluidStorage storage = trader.getStorage();
@@ -310,6 +316,48 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
+	protected void hopperTick() {
+		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
+		for(Direction relativeSide : Direction.values())
+		{
+			if(this.fluidHandler.getInputSides().get(relativeSide))
+			{
+				Direction actualSide = relativeSide;
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+				{
+					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
+					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
+				}
+				
+				BlockPos queryPos = this.worldPosition.relative(actualSide);
+				BlockEntity be = this.level.getBlockEntity(queryPos);
+				if(be != null)
+				{
+					be.getCapability(ForgeCapabilities.FLUID_HANDLER, actualSide.getOpposite()).ifPresent(fluidHandler -> {
+						boolean query = true;
+						for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
+						{
+							FluidStack stack = fluidHandler.getFluidInTank(i);
+							int fillableAmount = this.fluidBuffer.getFillableAmount(stack);
+							if(fillableAmount > 0)
+							{
+								query = false;
+								FluidStack drainStack = stack.copy();
+								drainStack.setAmount(fillableAmount);
+								FluidStack result = fluidHandler.drain(drainStack, FluidAction.EXECUTE);
+								this.fluidBuffer.forceFillTank(result);
+								markBufferDirty.set(true);
+							}
+						}
+					});
+				}
+			}
+		}
+		if(markBufferDirty.get())
+			this.setFluidBufferDirty();
+	}
+	
+	@Override
 	public void initMenuTabs(TraderInterfaceMenu menu) {
 		menu.setTab(TraderInterfaceTab.TAB_STORAGE, new FluidStorageTab(menu));
 	}
@@ -318,7 +366,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	public boolean allowAdditionalUpgrade(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
 
 	@Override
-	public void dumpContents(List<ItemStack> contents) {
+	public void getAdditionalContents(List<ItemStack> contents) {
 		this.fluidBuffer.getContents().forEach(entry ->{
 			if(!entry.getTankContents().isEmpty())
 				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
