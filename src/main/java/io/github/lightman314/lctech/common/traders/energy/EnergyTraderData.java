@@ -141,6 +141,8 @@ public class EnergyTraderData extends InputTraderData {
 		
 		if(compound.contains("Battery"))
 			this.energyStorage = compound.getInt("Battery");
+		if(compound.contains("PendingDrain"))
+			this.pendingDrain = compound.getInt("PendingDrain");
 		
 		if(compound.contains("DrainMode"))
 			this.drainMode = DrainMode.of(compound.getInt("DrainMode"));
