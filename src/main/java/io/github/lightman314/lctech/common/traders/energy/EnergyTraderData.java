@@ -53,8 +53,8 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 public class EnergyTraderData extends InputTraderData {
 
@@ -283,7 +283,7 @@ public class EnergyTraderData extends InputTraderData {
 	
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide) {
-		return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> this.getEnergyHandler().getExternalHandler(relativeSide)));
+		return CapabilityEnergy.ENERGY.orEmpty(cap, LazyOptional.of(() -> this.getEnergyHandler().getExternalHandler(relativeSide)));
 	}
 	
 	@Override

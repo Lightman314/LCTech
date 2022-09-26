@@ -32,7 +32,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
@@ -202,7 +202,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
 					if(be != null)
 					{
-						be.getCapability(ForgeCapabilities.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
+						be.getCapability(CapabilityEnergy.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
 							int extractedAmount = energyHandler.receiveEnergy(this.energyStorage, false);
 							if(extractedAmount > 0) //Automatically marks the energy storage dirty
 								this.drainStoredEnergy(extractedAmount);
@@ -231,7 +231,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 				BlockEntity be = this.level.getBlockEntity(queryPos);
 				if(be != null)
 				{
-					be.getCapability(ForgeCapabilities.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
+					be.getCapability(CapabilityEnergy.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
 						int extractedAmount = energyHandler.extractEnergy(this.getMaxEnergy() - this.energyStorage, false);
 						if(extractedAmount > 0)
 						{

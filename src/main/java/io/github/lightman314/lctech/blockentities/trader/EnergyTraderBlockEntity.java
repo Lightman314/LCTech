@@ -10,7 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.energy.CapabilityEnergy;
 
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
@@ -79,7 +79,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(actualSide));
 					if(be != null)
 					{
-						be.getCapability(ForgeCapabilities.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
+						be.getCapability(CapabilityEnergy.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
 							int extractedAmount = energyHandler.receiveEnergy(trader.getDrainableEnergy(), false);
 							if(extractedAmount > 0)
 							{

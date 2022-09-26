@@ -5,8 +5,8 @@ import java.text.DecimalFormat;
 import javax.annotation.Nonnull;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -18,7 +18,7 @@ public class EnergyUtil {
 	
 	public static LazyOptional<IEnergyStorage> getEnergyHandler(ItemStack itemStack)
 	{
-		return itemStack.getCapability(ForgeCapabilities.ENERGY);
+		return itemStack.getCapability(CapabilityEnergy.ENERGY);
 	}
 	
 	public static String formatEnergyAmount(int amount) { return formatEnergyAmount(amount, true); }

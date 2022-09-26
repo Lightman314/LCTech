@@ -50,8 +50,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -224,7 +224,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide) {
-		return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
+		return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
 	
 	@Override

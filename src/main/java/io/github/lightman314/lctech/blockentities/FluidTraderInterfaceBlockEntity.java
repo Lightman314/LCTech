@@ -36,8 +36,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
@@ -333,7 +333,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				BlockEntity be = this.level.getBlockEntity(queryPos);
 				if(be != null)
 				{
-					be.getCapability(ForgeCapabilities.FLUID_HANDLER, actualSide.getOpposite()).ifPresent(fluidHandler -> {
+					be.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, actualSide.getOpposite()).ifPresent(fluidHandler -> {
 						boolean query = true;
 						for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
 						{
