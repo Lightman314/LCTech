@@ -75,25 +75,25 @@ public class ModBlocks {
 				.sound(SoundType.GLASS)
 				));
 		
-		FLUID_SERVER_SML = register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_1 = register("fluid_trader_server_sml", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.SMALL_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
-		FLUID_SERVER_MED = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_2 = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.MEDIUM_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
-		FLUID_SERVER_LRG = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_3 = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
 				));
-		FLUID_SERVER_XLRG = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_4 = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.EXTRA_LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -112,7 +112,7 @@ public class ModBlocks {
 				.sound(SoundType.METAL)
 				));
 		
-		ENERGY_SERVER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, () -> new NetworkEnergyTraderBlock(
+		ENERGY_NETWORK_TRADER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, () -> new NetworkEnergyTraderBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
 				.sound(SoundType.METAL)
@@ -137,10 +137,10 @@ public class ModBlocks {
 	public static final RegistryObject<Block> FLUID_TAP_BUNDLE;
 	
 	//Universal Fluid Traders
-	public static final RegistryObject<Block> FLUID_SERVER_SML;
-	public static final RegistryObject<Block> FLUID_SERVER_MED;
-	public static final RegistryObject<Block> FLUID_SERVER_LRG;
-	public static final RegistryObject<Block> FLUID_SERVER_XLRG;
+	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_1;
+	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_2;
+	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_3;
+	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_4;
 	
 	//Fluid Trader Interface
 	public static final RegistryObject<Block> FLUID_TRADER_INTERFACE;
@@ -149,7 +149,7 @@ public class ModBlocks {
 	public static final RegistryObject<Block> BATTERY_SHOP;
 	
 	//Universal Energy Trader
-	public static final RegistryObject<Block> ENERGY_SERVER;
+	public static final RegistryObject<Block> ENERGY_NETWORK_TRADER;
 	
 	//Energy Trader Interface
 	public static final RegistryObject<Block> ENERGY_TRADER_INTERFACE;

@@ -88,8 +88,8 @@ public class LCTech
         	
             LightmansCurrency.TRADING_GROUP.addToSortingList(Lists.newArrayList(
             		ModBlocks.FLUID_TAP.get(), ModBlocks.FLUID_TAP_BUNDLE.get(),
-            		ModBlocks.FLUID_SERVER_SML.get(), ModBlocks.FLUID_SERVER_MED.get(), ModBlocks.FLUID_SERVER_LRG.get(), ModBlocks.FLUID_SERVER_XLRG.get(),
-            		ModBlocks.BATTERY_SHOP.get(), ModBlocks.ENERGY_SERVER.get()
+            		ModBlocks.FLUID_NETWORK_TRADER_1.get(), ModBlocks.FLUID_NETWORK_TRADER_2.get(), ModBlocks.FLUID_NETWORK_TRADER_3.get(), ModBlocks.FLUID_NETWORK_TRADER_4.get(),
+            		ModBlocks.BATTERY_SHOP.get(), ModBlocks.ENERGY_NETWORK_TRADER.get()
             		));
             
         } catch(Exception e) {  }
