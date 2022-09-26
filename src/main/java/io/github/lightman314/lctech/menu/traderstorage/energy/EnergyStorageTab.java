@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.menu.slots.BatteryInputSlot;
-import io.github.lightman314.lctech.trader.energy.IEnergyTrader;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
@@ -49,12 +49,12 @@ public class EnergyStorageTab extends TraderStorageTab{
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof IEnergyTrader)
+		if(this.menu.getTrader() instanceof EnergyTraderData)
 		{
-			IEnergyTrader trader = (IEnergyTrader)this.menu.getTrader();
-			for(int i = 0; i < trader.getUpgradeInventory().getContainerSize(); ++i)
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
+			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgradeInventory(), i, 176, 18 + 18 * i, trader, this::onUpgradeModified);
+				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
 				upgradeSlot.active = false;
 				addSlot.apply(upgradeSlot);
 				this.slots.add(upgradeSlot);
@@ -73,12 +73,6 @@ public class EnergyStorageTab extends TraderStorageTab{
 		
 		SimpleSlot.SetInactive(this.slots);
 		
-	}
-	
-	private void onUpgradeModified() {
-		if(this.menu.getTrader() instanceof IEnergyTrader) {
-			((IEnergyTrader)this.menu.getTrader()).markUpgradesDirty();
-		}
 	}
 
 	@Override
@@ -107,9 +101,9 @@ public class EnergyStorageTab extends TraderStorageTab{
 	@SubscribeEvent
 	public void onWorldTick(TickEvent.WorldTickEvent event)
 	{
-		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof IEnergyTrader)
+		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof EnergyTraderData)
 		{
-			IEnergyTrader trader = (IEnergyTrader)this.menu.getTrader();
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			if(!this.batterySlots.getItem(0).isEmpty() && this.batterySlots.getItem(1).isEmpty())
 			{
 				//Try to fill the energy storage with the battery, or vice-versa

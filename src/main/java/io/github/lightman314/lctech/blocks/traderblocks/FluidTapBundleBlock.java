@@ -6,7 +6,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import io.github.lightman314.lctech.blockentities.FluidTraderBlockEntity;
+import io.github.lightman314.lctech.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;

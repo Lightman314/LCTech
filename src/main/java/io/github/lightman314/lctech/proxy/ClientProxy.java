@@ -21,23 +21,6 @@ public class ClientProxy extends CommonProxy{
 		ItemBlockRenderTypes.setRenderLayer(ModBlocks.GOLD_TANK.get(), RenderType.cutout());
 		ItemBlockRenderTypes.setRenderLayer(ModBlocks.DIAMOND_TANK.get(), RenderType.cutout());
 		
-		//Register Screens
-		/*MenuScreens.register(ModMenus.FLUID_TRADER, FluidTraderScreen::new);
-		MenuScreens.register(ModMenus.FLUID_TRADER_CR, FluidTraderScreen::new);
-		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER, FluidTraderScreen::new);
-		
-		MenuScreens.register(ModMenus.FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
-		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_TRADER_STORAGE, FluidTraderStorageScreen::new);
-		
-		MenuScreens.register(ModMenus.FLUID_EDIT, FluidEditScreen::new);
-		MenuScreens.register(ModMenus.UNIVERSAL_FLUID_EDIT, FluidEditScreen::new);
-		
-		MenuScreens.register(ModMenus.ENERGY_TRADER, EnergyTraderScreen::new);
-		MenuScreens.register(ModMenus.ENERGY_TRADER_CR, EnergyTraderScreen::new);
-		MenuScreens.register(ModMenus.ENERGY_TRADER_UNIVERSAL, EnergyTraderScreen::new);
-		MenuScreens.register(ModMenus.ENERGY_TRADER_STORAGE, EnergyTraderStorageScreen::new);
-		MenuScreens.register(ModMenus.ENERGY_TRADER_STORAGE_UNIVERSAL, EnergyTraderStorageScreen::new);*/
-		
 		//Register Tile Entity Renderers
 		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER.get(), FluidTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK.get(), FluidTankTileEntityRenderer::new);

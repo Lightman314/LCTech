@@ -5,9 +5,9 @@ import java.util.Map;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.blockentities.FluidTraderInterfaceBlockEntity;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lightmanscurrency.trader.interfacing.handlers.ConfigurableSidedHandler;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
+import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;

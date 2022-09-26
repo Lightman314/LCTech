@@ -1,15 +1,17 @@
 package io.github.lightman314.lctech.common.notifications.types;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
+import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
 import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.trader.settings.PlayerReference;
-import io.github.lightman314.lightmanscurrency.trader.tradedata.TradeData.TradeDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -34,7 +36,7 @@ public class EnergyTradeNotification extends Notification {
 		
 		this.cost = cost;
 		
-		this.customer = customer.lastKnownName();
+		this.customer = customer.getName(false);
 		
 	}
 	
@@ -44,10 +46,10 @@ public class EnergyTradeNotification extends Notification {
 	public ResourceLocation getType() { return TYPE; }
 	
 	@Override
-	public Category getCategory() { return this.traderData; }
+	public NotificationCategory getCategory() { return this.traderData; }
 	
 	@Override
-	public Component getMessage() {
+	public MutableComponent getMessage() {
 		
 		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
 		
@@ -61,7 +63,7 @@ public class EnergyTradeNotification extends Notification {
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
 		compound.putInt("Quantity", this.quantity);
-		this.cost.writeToNBT(compound, "Price");
+		this.cost.save(compound, "Price");
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -72,7 +74,7 @@ public class EnergyTradeNotification extends Notification {
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.quantity = compound.getInt("Quantity");
-		this.cost.readFromNBT(compound, "Price");
+		this.cost.load(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}

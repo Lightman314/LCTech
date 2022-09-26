@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import io.github.lightman314.lctech.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.fluid.FluidStorageClientTab;
-import io.github.lightman314.lctech.trader.fluid.TraderFluidStorage.FluidEntry;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;

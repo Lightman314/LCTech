@@ -1,12 +1,12 @@
 package io.github.lightman314.lctech.discord;
 
-import io.github.lightman314.lctech.common.universaldata.UniversalEnergyTraderData;
-import io.github.lightman314.lctech.common.universaldata.UniversalFluidTraderData;
-import io.github.lightman314.lctech.trader.tradedata.EnergyTradeData;
-import io.github.lightman314.lctech.trader.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
+import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
+import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
 import io.github.lightman314.lctech.util.EnergyUtil;
 import io.github.lightman314.lctech.util.FluidFormatUtil;
-import io.github.lightman314.lightmanscurrency.common.universal_traders.data.UniversalTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.discord.events.DiscordTraderSearchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidStack;
@@ -17,10 +17,10 @@ public class TechDiscordEvents {
 
 	@SubscribeEvent
 	public static void onTraderSearch(DiscordTraderSearchEvent event) {
-		UniversalTraderData trader = event.getTrader();
-		if(trader instanceof UniversalFluidTraderData)
+		TraderData trader = event.getTrader();
+		if(trader instanceof FluidTraderData)
 		{
-			UniversalFluidTraderData fluidTrader = (UniversalFluidTraderData)trader;
+			FluidTraderData fluidTrader = (FluidTraderData)trader;
 			if(event.acceptTrader(fluidTrader))
 			{
 				boolean showStock = !fluidTrader.isCreative();
@@ -41,7 +41,7 @@ public class TechDiscordEvents {
 							{
 								if(firstTrade)
 								{
-									event.addToOutput("--" + fluidTrader.getCoreSettings().getOwnerName() + "'s **" + fluidTrader.getName().getString() + "**--");
+									event.addToOutput("--" + fluidTrader.getOwner().getOwnerName(false) + "'s **" + fluidTrader.getName().getString() + "**--");
 									firstTrade = false;
 								}
 								//Passed the search
@@ -61,7 +61,7 @@ public class TechDiscordEvents {
 							{
 								if(firstTrade)
 								{
-									event.addToOutput("--" + fluidTrader.getCoreSettings().getOwnerName() + "'s **" + fluidTrader.getName().getString() + "**--");
+									event.addToOutput("--" + fluidTrader.getOwner().getOwnerName(false) + "'s **" + fluidTrader.getName().getString() + "**--");
 									firstTrade = false;
 								}
 								String priceText = trade.getCost().getString();
@@ -74,9 +74,9 @@ public class TechDiscordEvents {
 				}
 			}
 		}
-		else if(trader instanceof UniversalEnergyTraderData)
+		else if(trader instanceof EnergyTraderData)
 		{
-			UniversalEnergyTraderData energyTrader = (UniversalEnergyTraderData)trader;
+			EnergyTraderData energyTrader = (EnergyTraderData)trader;
 			if(event.acceptTrader(energyTrader))
 			{
 				boolean showStock = !energyTrader.isCreative();
@@ -90,7 +90,7 @@ public class TechDiscordEvents {
 						{
 							if(firstTrade)
 							{
-								event.addToOutput("--" + energyTrader.getCoreSettings().getOwnerName() + "'s **" + energyTrader.getName().getString() + "**--");
+								event.addToOutput("--" + energyTrader.getOwner().getOwnerName(false) + "'s **" + energyTrader.getName().getString() + "**--");
 								firstTrade = false;
 							}
 							if(trade.isSale())
