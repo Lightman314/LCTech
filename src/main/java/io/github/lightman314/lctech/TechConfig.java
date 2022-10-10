@@ -7,6 +7,47 @@ import net.minecraftforge.fluids.FluidAttributes;
 
 public class TechConfig {
 
+	public static class Common
+	{
+		//Crafting
+		public final ForgeConfigSpec.BooleanValue canCraftFluidTraders;
+		public final ForgeConfigSpec.BooleanValue canCraftFluidTanks;
+		public final ForgeConfigSpec.BooleanValue canCraftEnergyTraders;
+		public final ForgeConfigSpec.BooleanValue canCraftBatteries;
+
+		Common(ForgeConfigSpec.Builder builder)
+		{
+			builder.comment("Common configuration settings").push("common");
+
+			builder.comment("Crafting Settings.").push("crafting");
+
+			this.canCraftFluidTraders = builder.comment("Whether Fluid Traders can be crafted.",
+					"Also affects crafting of fluid trader accessories (Fluid Trader Interface, Fluid Capacity Upgrades, etc.)",
+					"Disabling will not remove any existing Fluid Traders from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowFluidTraderCrafting", true);
+
+			this.canCraftFluidTanks = builder.comment("Whether Fluid Tanks can be crafted.",
+					"Disabling will not remove any existing fluid tanks from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowFluidTankCrafting", true);
+
+			this.canCraftEnergyTraders = builder.comment("Whether Energy Traders can be crafted.",
+					"Also affects crafting of energy trader accessories (Energy Trader Interface, Energy Capacity Upgrades, etc.)",
+					"Disabling will not remove any existing Energy Traders from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowEnergyTraderCrafting", true);
+
+			this.canCraftBatteries = builder.comment("Whether Batteries can be crafted.",
+					"Disabling will not remove any existing Batteries from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowBatteryCrafting", true);
+
+			builder.pop();
+
+		}
+	}
+	
 	public static class Server
 	{
 		
@@ -142,11 +183,17 @@ public class TechConfig {
 		
 	}
 	
+	public static final ForgeConfigSpec commonSpec;
+	public static final TechConfig.Common COMMON;
 	public static final ForgeConfigSpec serverSpec;
 	public static final TechConfig.Server SERVER;
 	
 	static
 	{
+		//Common
+		final Pair<Common,ForgeConfigSpec> commonPair = new ForgeConfigSpec.Builder().configure(Common::new);
+		commonSpec = commonPair.getRight();
+		COMMON = commonPair.getLeft();
 		//Server
 		final Pair<Server,ForgeConfigSpec> serverPair = new ForgeConfigSpec.Builder().configure(Server::new);
 		serverSpec = serverPair.getRight();

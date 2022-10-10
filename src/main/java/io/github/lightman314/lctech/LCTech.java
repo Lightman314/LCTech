@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +22,7 @@ import io.github.lightman314.lctech.common.traders.terminal.traderSearching.Flui
 import io.github.lightman314.lctech.core.ModBlocks;
 import io.github.lightman314.lctech.core.ModItems;
 import io.github.lightman314.lctech.core.ModRegistries;
+import io.github.lightman314.lctech.crafting.condition.TechCraftingConditions;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -47,13 +49,16 @@ public class LCTech
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
         //Register configs
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, TechConfig.commonSpec);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, TechConfig.serverSpec);
         
-        //Setup Deferred Registries
+        //.Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
         
-        //Register ourselves for server and other game events we are interested in
+        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+        //Register the proxy so that it can run custom events
+        MinecraftForge.EVENT_BUS.register(PROXY);
         
     }
 
@@ -71,6 +76,12 @@ public class LCTech
         //Register custom notification types
         Notification.register(FluidTradeNotification.TYPE, FluidTradeNotification::new);
         Notification.register(EnergyTradeNotification.TYPE, EnergyTradeNotification::new);
+        
+        //Register Crafting Conditions
+        CraftingHelper.register(TechCraftingConditions.FluidTrader.SERIALIZER);
+        CraftingHelper.register(TechCraftingConditions.FluidTank.SERIALIZER);
+        CraftingHelper.register(TechCraftingConditions.EnergyTrader.SERIALIZER);
+        CraftingHelper.register(TechCraftingConditions.Batteries.SERIALIZER);
         
         //Add our items/blocks to the creative tab sorting
         try {
@@ -92,7 +103,7 @@ public class LCTech
             		ModBlocks.BATTERY_SHOP.get(), ModBlocks.ENERGY_NETWORK_TRADER.get()
             		));
             
-        } catch(Exception e) {  }
+        } catch(Throwable t) { LOGGER.error("Error adding items to LC Creative Tabs.", t); }
         
         
     }

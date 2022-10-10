@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:network_trader_craftable"},{"type":"lctech:fluid_trader_craftable"}],
   "type": "minecraft:crafting_shaped",
   "group": "fluid_trader_server",
   "pattern":[

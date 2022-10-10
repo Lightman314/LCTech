@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lctech:batteries_craftable"}],
   "type": "minecraft:crafting_shaped",
   "pattern":[
     " i ",
