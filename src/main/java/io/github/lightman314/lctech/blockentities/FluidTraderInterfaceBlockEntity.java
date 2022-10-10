@@ -10,6 +10,7 @@ import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.blockentities.handler.FluidInterfaceHandler;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
+import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
 import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
 import io.github.lightman314.lctech.core.ModBlockEntities;
@@ -320,7 +321,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
 		for(Direction relativeSide : Direction.values())
 		{
-			if(this.fluidHandler.getInputSides().get(relativeSide))
+			if(this.fluidHandler.getInputSides().get(relativeSide) || this.fluidHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
@@ -334,19 +335,45 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				if(be != null)
 				{
 					be.getCapability(ForgeCapabilities.FLUID_HANDLER, actualSide.getOpposite()).ifPresent(fluidHandler -> {
-						boolean query = true;
-						for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
+						//Collect fluids from neighboring blocks
+						if(this.fluidHandler.getInputSides().get(relativeSide))
 						{
-							FluidStack stack = fluidHandler.getFluidInTank(i);
-							int fillableAmount = this.fluidBuffer.getFillableAmount(stack);
-							if(fillableAmount > 0)
+							boolean query = true;
+							for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
 							{
-								query = false;
-								FluidStack drainStack = stack.copy();
-								drainStack.setAmount(fillableAmount);
-								FluidStack result = fluidHandler.drain(drainStack, FluidAction.EXECUTE);
-								this.fluidBuffer.forceFillTank(result);
-								markBufferDirty.set(true);
+								FluidStack stack = fluidHandler.getFluidInTank(i);
+								int fillableAmount = this.fluidBuffer.getFillableAmount(stack);
+								if(fillableAmount > 0)
+								{
+									query = false;
+									FluidStack drainStack = stack.copy();
+									drainStack.setAmount(fillableAmount);
+									FluidStack result = fluidHandler.drain(drainStack, FluidAction.EXECUTE);
+									this.fluidBuffer.forceFillTank(result);
+									markBufferDirty.set(true);
+								}
+							}
+						}
+						//Output fluids to neighboring blocks
+						if(this.fluidHandler.getOutputSides().get(relativeSide))
+						{
+							List<FluidEntry> entries = this.fluidBuffer.getContents();
+							boolean query = true;
+							for(int i = 0; query && i < entries.size(); ++i)
+							{
+								FluidStack fluid = entries.get(i).getTankContents();
+								if(this.allowOutput(fluid))
+								{
+									int fillAmount = fluidHandler.fill(fluid.copy(), FluidAction.EXECUTE);
+									if(fillAmount > 0)
+									{
+										query = false;
+										if(!fluid.isEmpty())
+											fluid.setAmount(fillAmount);
+										this.fluidBuffer.drain(fluid);
+										markBufferDirty.set(true);
+									}
+								}
 							}
 						}
 					});

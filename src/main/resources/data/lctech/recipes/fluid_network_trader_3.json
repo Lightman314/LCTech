@@ -1,4 +1,5 @@
 {
+  "conditions":[{"type":"lightmanscurrency:network_trader_craftable"},{"type":"lctech:fluid_trader_craftable"}],
   "type": "minecraft:crafting_shaped",
   "group": "fluid_trader_server",
   "pattern":[
@@ -6,13 +7,13 @@
   ],
   "key": {
     "x": {
-      "item": "lctech:fluid_trader_server_lrg"
+      "item": "lctech:fluid_trader_server_med"
     },
     "t": {
       "item": "lctech:iron_tank"
     }
   },
   "result": {
-    "item": "lctech:fluid_trader_server_xlrg"
+    "item": "lctech:fluid_trader_server_lrg"
   }
 }

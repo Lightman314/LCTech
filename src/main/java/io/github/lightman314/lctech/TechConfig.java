@@ -7,6 +7,47 @@ import net.minecraftforge.fluids.FluidType;
 
 public class TechConfig {
 
+	public static class Common
+	{
+		//Crafting
+		public final ForgeConfigSpec.BooleanValue canCraftFluidTraders;
+		public final ForgeConfigSpec.BooleanValue canCraftFluidTanks;
+		public final ForgeConfigSpec.BooleanValue canCraftEnergyTraders;
+		public final ForgeConfigSpec.BooleanValue canCraftBatteries;
+		
+		Common(ForgeConfigSpec.Builder builder)
+		{
+			builder.comment("Common configuration settings").push("common");
+			
+			builder.comment("Crafting Settings.").push("crafting");
+			
+			this.canCraftFluidTraders = builder.comment("Whether Fluid Traders can be crafted.",
+					"Also affects crafting of fluid trader accessories (Fluid Trader Interface, Fluid Capacity Upgrades, etc.)",
+					"Disabling will not remove any existing Fluid Traders from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowFluidTraderCrafting", true);
+			
+			this.canCraftFluidTanks = builder.comment("Whether Fluid Tanks can be crafted.",
+					"Disabling will not remove any existing fluid tanks from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowFluidTankCrafting", true);
+			
+			this.canCraftEnergyTraders = builder.comment("Whether Energy Traders can be crafted.",
+					"Also affects crafting of energy trader accessories (Energy Trader Interface, Energy Capacity Upgrades, etc.)",
+					"Disabling will not remove any existing Energy Traders from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowEnergyTraderCrafting", true);
+			
+			this.canCraftBatteries = builder.comment("Whether Batteries can be crafted.",
+					"Disabling will not remove any existing Batteries from the world, nor prevent their use.",
+					"/reload required for changes to take effect.")
+					.define("allowBatteryCrafting", true);
+			
+			builder.pop();
+			
+		}
+	}
+	
 	public static class Server
 	{
 		
@@ -16,11 +57,13 @@ public class TechConfig {
 		public final ForgeConfigSpec.IntValue fluidTradeMaxQuantity;
 		
 		//Fluid Tanks
+		
 		public final ForgeConfigSpec.IntValue ironTankCapacity;
 		public final ForgeConfigSpec.IntValue goldTankCapacity;
 		public final ForgeConfigSpec.IntValue diamondTankCapacity;
 		
 		//Fluid Upgrades
+		
 		public final ForgeConfigSpec.IntValue fluidUpgradeCapacity1;
 		public final ForgeConfigSpec.IntValue fluidUpgradeCapacity2;
 		public final ForgeConfigSpec.IntValue fluidUpgradeCapacity3;
@@ -44,6 +87,8 @@ public class TechConfig {
 		
 		//Energy Trader Interface
 		public final ForgeConfigSpec.IntValue energyRestockSpeed;
+		
+		
 		
 		Server(ForgeConfigSpec.Builder builder)
 		{
@@ -88,6 +133,8 @@ public class TechConfig {
 			builder.pop();
 			
 			builder.comment("Fluid Trader Interface Settings").push("interface");
+			
+			
 			
 			this.fluidRestockSpeed = builder.comment("The amount of fluid in mB that can be drained or restocked in a single drain tick (once per second).")
 					.defineInRange("restockRate", 10 * FluidType.BUCKET_VOLUME, FluidType.BUCKET_VOLUME, Integer.MAX_VALUE);
@@ -142,11 +189,17 @@ public class TechConfig {
 		
 	}
 	
+	public static final ForgeConfigSpec commonSpec;
+	public static final TechConfig.Common COMMON;
 	public static final ForgeConfigSpec serverSpec;
 	public static final TechConfig.Server SERVER;
 	
 	static
 	{
+		//Server
+		final Pair<Common,ForgeConfigSpec> commonPair = new ForgeConfigSpec.Builder().configure(Common::new);
+		commonSpec = commonPair.getRight();
+		COMMON = commonPair.getLeft();
 		//Server
 		final Pair<Server,ForgeConfigSpec> serverPair = new ForgeConfigSpec.Builder().configure(Server::new);
 		serverSpec = serverPair.getRight();
