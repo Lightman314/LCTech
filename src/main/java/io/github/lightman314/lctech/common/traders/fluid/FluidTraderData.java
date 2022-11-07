@@ -21,10 +21,7 @@ import io.github.lightman314.lctech.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
@@ -56,7 +53,9 @@ import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 
-public class FluidTraderData extends InputTraderData implements ITraderFluidFilter {
+import javax.annotation.Nonnull;
+
+public class FluidTraderData extends InputTraderData implements ITraderFluidFilter, ITradeSource<FluidTradeData> {
 
 	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
 	
@@ -202,9 +201,8 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		for(int i = 0; i < this.getUpgrades().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -224,7 +222,8 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide) {
+	@Nonnull
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide) {
 		return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
 	
@@ -431,7 +430,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			} catch(Exception e) { LCTech.LOGGER.error("Error parsing fluid trade at index " + i, e); }
 		}
 		
-		if(this.trades.size() <= 0)
+		if(this.trades.size() == 0)
 			throw new Exception("Trader has no valid trades!");
 		
 	}
@@ -463,11 +462,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	protected void saveAdditionalPersistentData(CompoundTag compound) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
-		for(int i = 0; i < this.trades.size(); ++i)
-		{
+		for (FluidTradeData trade : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			FluidTradeData trade = this.trades.get(i);
-			if(TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
+			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
 		}

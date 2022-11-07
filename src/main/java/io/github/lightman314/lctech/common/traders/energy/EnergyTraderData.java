@@ -22,11 +22,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTa
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -58,7 +55,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 
-public class EnergyTraderData extends InputTraderData {
+import javax.annotation.Nonnull;
+
+public class EnergyTraderData extends InputTraderData implements ITradeSource<EnergyTradeData> {
 
 	public static final int DEFAULT_TRADE_LIMIT = 8;
 	
@@ -259,9 +258,8 @@ public class EnergyTraderData extends InputTraderData {
 		for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -286,7 +284,8 @@ public class EnergyTraderData extends InputTraderData {
 	public void markEnergyStorageDirty() { this.markDirty(this::saveEnergyStorage); }
 	
 	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction relativeSide) {
+	@Nonnull
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide) {
 		return CapabilityEnergy.ENERGY.orEmpty(cap, LazyOptional.of(() -> this.getEnergyHandler().getExternalHandler(relativeSide)));
 	}
 	
@@ -492,7 +491,7 @@ public class EnergyTraderData extends InputTraderData {
 			} catch(Exception e) { LCTech.LOGGER.error("Error parsing energy trade at index " + i, e); }
 		}
 		
-		if(this.trades.size() <= 0)
+		if(this.trades.size() == 0)
 			throw new Exception("Trader has no valid trades!");
 		
 		this.energyStorage = this.getMaxEnergy();
@@ -526,11 +525,10 @@ public class EnergyTraderData extends InputTraderData {
 	protected void saveAdditionalPersistentData(CompoundTag compound) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
-		for(int i = 0; i < this.trades.size(); ++i)
-		{
+		for (EnergyTradeData energyTradeData : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			EnergyTradeData trade = this.trades.get(i);
-			if(TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
+			EnergyTradeData trade = energyTradeData;
+			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
 		}
