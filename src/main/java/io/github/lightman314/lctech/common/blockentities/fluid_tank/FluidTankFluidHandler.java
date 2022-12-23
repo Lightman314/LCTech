@@ -17,13 +17,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
             return FluidStack.EMPTY;
         FluidStack contents = tanks.get(0).getTankContents().copy();
         if(contents.isEmpty())
-        {
-            //Check top tank to see if it's lighter than air, and thus filled upside down.
-            contents = tanks.get(tanks.size() - 1).getTankContents().copy();
-            if(contents.isEmpty())
-                return FluidStack.EMPTY;
-        }
-        //Don't need to bother reading tank contents upside down
+            return FluidStack.EMPTY;
         for(int i = 1; i < tanks.size(); ++i)
         {
             FluidStack tc = tanks.get(i).getTankContents().copy();
@@ -50,12 +44,8 @@ public class FluidTankFluidHandler implements IFluidHandler {
     public final void setTankContents(FluidStack newContents) {
         List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack();
         FluidStack fill = newContents.copy();
-        boolean lighterThanAir = fill.getFluid().getFluidType().isLighterThanAir();
-        int startIndex = lighterThanAir ? tanks.size() - 1 : 0;
-        int deltaIndex = lighterThanAir ? -1 : 1;
-        for(int i = startIndex; i < tanks.size() && i >= 0; i += deltaIndex)
+        for(FluidTankBlockEntity tank : tanks)
         {
-            FluidTankBlockEntity tank = tanks.get(i);
             if(fill.isEmpty())
                 tank.setTankContents(FluidStack.EMPTY);
             else
@@ -96,9 +86,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public @NotNull FluidStack getFluidInTank(int tank) {
-        return tank == 0 ? this.getTankContents() : FluidStack.EMPTY;
-    }
+    public @NotNull FluidStack getFluidInTank(int tank) { return tank == 0 ? this.getTankContents() : FluidStack.EMPTY; }
 
     @Override
     public int getTankCapacity(int tank) {
