@@ -4,11 +4,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lctech.blockentities.FluidTankBlockEntity;
-import io.github.lightman314.lctech.blocks.FluidTankBlock;
-import io.github.lightman314.lctech.blocks.IFluidTankBlock;
+import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
+import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
-import io.github.lightman314.lctech.items.FluidTankItem;
+import io.github.lightman314.lctech.common.items.FluidTankItem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -23,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidTankModel implements BakedModel {
 	
@@ -37,13 +37,13 @@ public class FluidTankModel implements BakedModel {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand)
+	public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand)
 	{
 		return this.baseFluidTankModel.getQuads(state, side, rand);
 	}
 	
 	@Override
-	public ItemOverrides getOverrides()
+	public @NotNull ItemOverrides getOverrides()
 	{
 		return this.fluidTankItemOverrideList;
 	}
@@ -70,51 +70,29 @@ public class FluidTankModel implements BakedModel {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public TextureAtlasSprite getParticleIcon() {
-		return this.baseFluidTankModel.getParticleIcon();
-	}
+	public @NotNull TextureAtlasSprite getParticleIcon() { return this.baseFluidTankModel.getParticleIcon(); }
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public ItemTransforms getTransforms() {
+	public @NotNull ItemTransforms getTransforms() {
 		return this.baseFluidTankModel.getTransforms();
 	}
 	
-	/*@Override
-	@Nonnull
-	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-		throw new AssertionError("FluidTankModel::getQuads(IModelData) should never be called");
-	}*/
-	
-	/*@Override
-	@Nonnull
-	public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData)
-	{
-		throw new AssertionError("FluidTankModel::getModelData should never be called");
-	}*/
-	
-	public class FluidTankItemOverrideList extends ItemOverrides{
+	public static class FluidTankItemOverrideList extends ItemOverrides{
 
 		public FluidTankItemOverrideList() { super(); }
 		
 		@Override
-		public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
+		public BakedModel resolve(@NotNull BakedModel model, @NotNull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
-			FluidStack tank = FluidStack.EMPTY;
-			int capacity = FluidTankBlockEntity.DEFAULT_CAPACITY;
 			FluidRenderData renderData = FluidTankBlock.RENDER_DATA;
-			if(stack != null)
+			FluidStack tank = FluidTankItem.GetFluid(stack);
+			int capacity = FluidTankItem.GetCapacity(stack);
+			if(stack.getItem() instanceof BlockItem)
 			{
-				tank = FluidTankItem.GetFluid(stack);
-				capacity = FluidTankItem.GetCapacity(stack);
-				if(stack.getItem() instanceof BlockItem)
-				{
-					Block block = ((BlockItem)stack.getItem()).getBlock();
-					if(block instanceof IFluidTankBlock)
-					{
-						renderData = ((IFluidTankBlock)block).getRenderData();
-					}
-				}
+				Block block = ((BlockItem)stack.getItem()).getBlock();
+				if(block instanceof IFluidTankBlock tankBlock)
+					renderData = tankBlock.getItemRenderData();
 			}
 			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
 		}

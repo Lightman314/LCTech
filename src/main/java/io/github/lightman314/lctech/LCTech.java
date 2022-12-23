@@ -19,10 +19,10 @@ import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotific
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.terminal.traderSearching.FluidTraderSearchFilter;
-import io.github.lightman314.lctech.core.ModBlocks;
-import io.github.lightman314.lctech.core.ModItems;
-import io.github.lightman314.lctech.core.ModRegistries;
-import io.github.lightman314.lctech.crafting.condition.TechCraftingConditions;
+import io.github.lightman314.lctech.common.core.ModBlocks;
+import io.github.lightman314.lctech.common.core.ModItems;
+import io.github.lightman314.lctech.common.core.ModRegistries;
+import io.github.lightman314.lctech.common.crafting.condition.TechCraftingConditions;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;

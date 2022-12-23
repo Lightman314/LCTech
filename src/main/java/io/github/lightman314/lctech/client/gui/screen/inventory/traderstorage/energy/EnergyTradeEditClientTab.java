@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
-import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyTradeEditTab;
-import io.github.lightman314.lctech.util.EnergyUtil;
+import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
+import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;

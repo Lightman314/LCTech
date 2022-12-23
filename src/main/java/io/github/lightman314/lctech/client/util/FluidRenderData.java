@@ -20,7 +20,7 @@ public class FluidRenderData
 	private float fillPercent = 1f;
 	public void setFillPercent(float fillPercent) { this.fillPercent = MathUtil.clamp(fillPercent, 0f, 1f); }
 	
-	public FluidRenderData(float x, float y, float z, float width, float height, float depth, FluidSides sides)
+	private FluidRenderData(float x, float y, float z, float width, float height, float depth, FluidSides sides)
 	{
 		this.x = x;
 		this.y = y;
@@ -30,7 +30,11 @@ public class FluidRenderData
 		this.depth = depth;
 		this.sides = sides;
 	}
-	
+
+	public FluidRenderData withSides(FluidSides sidesOverride) { return new FluidRenderData(this.x, this.y, this.z, this.width, this.height, this.depth, sidesOverride); }
+	public FluidRenderData withSides(boolean shouldOverride, FluidSides sidesOverride) { return shouldOverride ? this.withSides(sidesOverride) : this; }
+	public FluidRenderData withSides(boolean overrideFlag, FluidSides sidesOverride1, FluidSides sidesOverride2) { return overrideFlag ? this.withSides(sidesOverride1) : this.withSides(sidesOverride2); }
+
 	public static FluidRenderData CreateFluidRender(float x, float y, float z, float width, float height, float depth)
 	{
 		return CreateFluidRender(x, y, z, width, height, depth, FluidSides.ALL);

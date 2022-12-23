@@ -3,9 +3,9 @@
     "render_type": "cutout",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"particle": "lctech:blocks/fluid_tap_bundle",
-		"main": "lctech:blocks/fluid_tap_bundle",
-		"tap": "lctech:blocks/tap"
+		"particle": "lctech:block/fluid_tap_bundle",
+		"main": "lctech:block/fluid_tap_bundle",
+		"tap": "lctech:block/tap"
 	},
 	"elements": [
 		{

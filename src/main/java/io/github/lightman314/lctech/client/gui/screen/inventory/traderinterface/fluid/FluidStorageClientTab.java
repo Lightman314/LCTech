@@ -7,13 +7,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.blockentities.FluidTraderInterfaceBlockEntity;
+import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lctech.core.ModBlocks;
-import io.github.lightman314.lctech.menu.traderinterface.fluid.FluidStorageTab;
-import io.github.lightman314.lctech.util.FluidFormatUtil;
+import io.github.lightman314.lctech.common.core.ModBlocks;
+import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
+import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;

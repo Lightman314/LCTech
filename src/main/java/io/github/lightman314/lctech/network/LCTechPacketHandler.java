@@ -1,20 +1,29 @@
 package io.github.lightman314.lctech.network;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTankStackSync;
+import io.github.lightman314.lctech.network.message.fluid_tank.SMessageSyncTankStack;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 
 public class LCTechPacketHandler {
 	
 	public static final String PROTOCOL_VERSION = "1";
 	
 	public static SimpleChannel instance;
-	//private static int nextId = 0;
+	private static int nextId = 0;
 	
 	public static void init()
 	{
@@ -24,42 +33,17 @@ public class LCTechPacketHandler {
 				 .clientAcceptedVersions(PROTOCOL_VERSION::equals)
 				 .serverAcceptedVersions(PROTOCOL_VERSION::equals)
 				 .simpleChannel();
-		 
-		 //Fluid Traders
-		 /*register(MessageSetFluidTradeProduct.class, new MessageSetFluidTradeProduct());
-		 register(MessageFluidTradeTankInteraction.class, new MessageFluidTradeTankInteraction());
-		 register(MessageSetFluidPrice.class, new MessageSetFluidPrice());
-		 register(MessageFluidEditOpen.class, new MessageFluidEditOpen());
-		 register(MessageFluidEditClose.class, new MessageFluidEditClose());
-		 register(MessageFluidEditSet.class, new MessageFluidEditSet());
-		 register(MessageToggleFluidIcon.class, new MessageToggleFluidIcon());
-		 
-		 //Universal Fluid Traders
-		 register(MessageSetFluidTradeProduct2.class, new MessageSetFluidTradeProduct2());
-		 register(MessageSetFluidPrice2.class, new MessageSetFluidPrice2());
-		 
-		 //Energy Traders
-		 register(MessageSetEnergyPrice.class, new MessageSetEnergyPrice());
-		 
-		 //Universal Energy Traders
-		 register(MessageSetEnergyPrice2.class, new MessageSetEnergyPrice2());*/
-		 
+
+		 //Fluid Tanks
+		register(CMessageRequestTankStackSync.class, CMessageRequestTankStackSync::encode, CMessageRequestTankStackSync::decode, CMessageRequestTankStackSync::handle);
+		register(SMessageSyncTankStack.class, SMessageSyncTankStack::encode, SMessageSyncTankStack::decode, SMessageSyncTankStack::handle);
+
 	}
-	
-	/*private static <T> void register(Class<T> clazz, IMessage<T> message)
+
+	private static <T> void register(Class<T> clazz, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> handler)
 	{
-		instance.registerMessage(nextId++, clazz, message::encode, message::decode, message::handle);
-	}*/
-	
-	public static PacketTarget getTarget(Player player)
-	{
-		return getTarget((ServerPlayer)player);
+		instance.registerMessage(nextId++, clazz, encoder, decoder, handler);
 	}
-	
-	public static PacketTarget getTarget(ServerPlayer player)
-	{
-		return PacketDistributor.PLAYER.with(() -> player);
-	}
-	
+
 	
 }

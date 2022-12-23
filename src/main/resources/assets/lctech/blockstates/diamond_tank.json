@@ -1,7 +1,16 @@
 {
     "variants": {
-        "": {
-            "model": "lctech:block/diamond_tank"
+        "tank_state=solo": {
+            "model": "lctech:block/tank_diamond_solo"
+        },
+		"tank_state=top": {
+            "model": "lctech:block/tank_diamond_top"
+        },
+		"tank_state=middle": {
+            "model": "lctech:block/tank_diamond_middle"
+        },
+		"tank_state=bottom": {
+            "model": "lctech:block/tank_diamond_bottom"
         }
     }
 }

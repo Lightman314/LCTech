@@ -5,9 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lctech.core.ModItems;
-import io.github.lightman314.lctech.items.IBatteryItem;
-import io.github.lightman314.lctech.menu.traderstorage.energy.EnergyStorageTab;
+import io.github.lightman314.lctech.common.core.ModItems;
+import io.github.lightman314.lctech.common.items.IBatteryItem;
+import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStorageTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;

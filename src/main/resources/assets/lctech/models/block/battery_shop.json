@@ -2,9 +2,9 @@
 	"credit": "Made with Blockbench",
     "parent": "lightmanscurrency:block/block",
 	"textures": {
-		"top_bottom": "lctech:blocks/battery_shop_top_bottom",
-		"side": "lctech:blocks/battery_shop_side",
-		"screen": "lctech:blocks/battery_shop_screen",
+		"top_bottom": "lctech:block/battery_shop_top_bottom",
+		"side": "lctech:block/battery_shop_side",
+		"screen": "lctech:block/battery_shop_screen",
 		"particle": "#side"
 	},
 	"elements": [

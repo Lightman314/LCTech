@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lctech.menu.slots.FluidInputSlot;
+import io.github.lightman314.lctech.common.menu.slots.FluidInputSlot;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BucketItem;

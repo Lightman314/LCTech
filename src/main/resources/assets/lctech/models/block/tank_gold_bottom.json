@@ -1,0 +1,8 @@
+{
+    "parent": "lctech:block/tank_bottom",
+	"textures": {
+		"side": "lctech:block/tank_gold_side",
+		"top": "lctech:block/tank_gold_top",
+		"middle": "lctech:block/tank_gold_middle"
+	}
+}
