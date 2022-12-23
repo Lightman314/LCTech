@@ -1,10 +1,11 @@
 {
 	"credit": "Made with Blockbench",
+    "render_type": "cutout",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"tap": "lctech:blocks/tap",
-		"particle": "lctech:blocks/fluid_tap",
-		"main": "lctech:blocks/fluid_tap"
+		"tap": "lctech:block/tap",
+		"particle": "lctech:block/fluid_tap",
+		"main": "lctech:block/fluid_tap"
 	},
 	"elements": [
 		{

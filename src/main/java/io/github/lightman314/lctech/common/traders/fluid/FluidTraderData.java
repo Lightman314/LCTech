@@ -13,11 +13,11 @@ import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotific
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
 import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
-import io.github.lightman314.lctech.items.FluidShardItem;
-import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidStorageTab;
-import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidTradeEditTab;
-import io.github.lightman314.lctech.upgrades.TechUpgradeTypes;
-import io.github.lightman314.lctech.util.FluidItemUtil;
+import io.github.lightman314.lctech.common.items.FluidShardItem;
+import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorageTab;
+import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
+import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
+import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;

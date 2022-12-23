@@ -97,7 +97,7 @@ public class FluidRenderUtil {
 	public static void drawFluidInWorld(FluidStack tank, Level world, BlockPos pos, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, float x, float y, float z, float width, float top, float depth, float height, int light, FluidSides sides)
 	{
 		
-		if(tank.isEmpty())
+		if(tank == null || tank.isEmpty())
 			return;
 		
 		TextureAtlasSprite sprite = ForgeHooksClient.getFluidSprites(world,  pos,  tank.getFluid().defaultFluidState())[0];
@@ -234,52 +234,51 @@ public class FluidRenderUtil {
 			top = data.y + data.height;
 			bottom = top - data.getHeight();
 		}
-		
-		switch(face) {
-		case UP:
-			x1 = x2 = data.x + data.width;
-			x3 = x4 = data.x;
-			z1 = z4 = data.z + data.depth;
-			z2 = z3 = data.z;
-			y1 = y2 = y3 = y4 = top;
-			break;
-		case DOWN:
-			x1 = x2 = data.x + data.width;
-			x3 = x4 = data.x;
-			z1 = z4 = data.z;
-			z2 = z3 = data.z + data.depth;
-			y1 = y2 = y3 = y4 = bottom;
-			break;
-		case WEST:
-			z1 = z2 = data.z + data.depth;
-			z3 = z4 = data.z;
-			y1 = y4 = bottom;
-			y2 = y3 = top;
-			x1 = x2 = x3 = x4 = data.x;
-			break;
-		case EAST:
-			z1 = z2 = data.z;
-			z3 = z4 = data.z + data.depth;
-			y1 = y4 = bottom;
-			y2 = y3 = top;
-			x1 = x2 = x3 = x4 = data.x + data.width;
-			break;
-		case NORTH:
-			x1 = x2 = data.x;
-			x3 = x4 = data.x + data.width;
-			y1 = y4 = bottom;
-			y2 = y3 = top;
-			z1 = z2 = z3 = z4 = data.z;
-			break;
-		case SOUTH:
-			x1 = x2 = data.x + data.width;
-			x3 = x4 = data.x;
-			y1 = y4 = bottom;
-			y2 = y3 = top;
-			z1 = z2 = z3 = z4 = data.z + data.depth;
-			break;
-			default:
-				throw new AssertionError("Unexpected Direction in createBakedQuadForFace:" + face);
+
+		switch (face) {
+			case UP -> {
+				x1 = x2 = data.x + data.width;
+				x3 = x4 = data.x;
+				z1 = z4 = data.z + data.depth;
+				z2 = z3 = data.z;
+				y1 = y2 = y3 = y4 = top;
+			}
+			case DOWN -> {
+				x1 = x2 = data.x + data.width;
+				x3 = x4 = data.x;
+				z1 = z4 = data.z;
+				z2 = z3 = data.z + data.depth;
+				y1 = y2 = y3 = y4 = bottom;
+			}
+			case WEST -> {
+				z1 = z2 = data.z + data.depth;
+				z3 = z4 = data.z;
+				y1 = y4 = bottom;
+				y2 = y3 = top;
+				x1 = x2 = x3 = x4 = data.x;
+			}
+			case EAST -> {
+				z1 = z2 = data.z;
+				z3 = z4 = data.z + data.depth;
+				y1 = y4 = bottom;
+				y2 = y3 = top;
+				x1 = x2 = x3 = x4 = data.x + data.width;
+			}
+			case NORTH -> {
+				x1 = x2 = data.x;
+				x3 = x4 = data.x + data.width;
+				y1 = y4 = bottom;
+				y2 = y3 = top;
+				z1 = z2 = z3 = z4 = data.z;
+			}
+			case SOUTH -> {
+				x1 = x2 = data.x + data.width;
+				x3 = x4 = data.x;
+				y1 = y4 = bottom;
+				y2 = y3 = top;
+				z1 = z2 = z3 = z4 = data.z + data.depth;
+			}
+			default -> throw new AssertionError("Unexpected Direction in createBakedQuadForFace:" + face);
 		}
 		
 		// the order of the vertices on the face is (from the point of view of someone looking at the front face):

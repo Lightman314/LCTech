@@ -7,8 +7,8 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lctech.util.FluidFormatUtil;
-import io.github.lightman314.lctech.util.FluidItemUtil;
+import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;

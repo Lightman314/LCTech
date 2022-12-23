@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.client.renderer.tileentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lctech.blockentities.trader.FluidTraderBlockEntity;
+import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
@@ -11,16 +11,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<FluidTraderBlockEntity>{
 
-	public FluidTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context)
-	{
-		
-	}
+	public FluidTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
-	public void render(FluidTraderBlockEntity blockEntity, float partialTicket, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay)
+	public void render(FluidTraderBlockEntity blockEntity, float partialTicket, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int light, int overlay)
 	{
 		FluidTraderData fluidTrader = blockEntity.getTraderData();
 		if(fluidTrader != null)

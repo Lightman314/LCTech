@@ -1,7 +1,0 @@
-{
-    "parent": "lctech:block/tank",
-	"textures": {
-		"side": "lctech:blocks/diamond_tank_side",
-		"top": "lctech:blocks/diamond_tank_top"
-	}
-}

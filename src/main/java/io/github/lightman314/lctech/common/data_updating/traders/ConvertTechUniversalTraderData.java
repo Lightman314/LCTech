@@ -16,7 +16,7 @@ public class ConvertTechUniversalTraderData {
 	public static final ResourceLocation ENERGY_TYPE = new ResourceLocation(LCTech.MODID, "energy_trader");
 	
 	@SubscribeEvent
-	public static void convertTextTraders(ConvertUniversalTraderEvent event) {
+	public static void convertTechTraders(ConvertUniversalTraderEvent event) {
 		if(event.type.equals(FLUID_TYPE))
 		{
 			FluidTraderData newTrader = new FluidTraderData();

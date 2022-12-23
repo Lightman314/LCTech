@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lctech:items/fluid_shard"
+    "layer0": "lctech:item/fluid_shard"
   }
 }

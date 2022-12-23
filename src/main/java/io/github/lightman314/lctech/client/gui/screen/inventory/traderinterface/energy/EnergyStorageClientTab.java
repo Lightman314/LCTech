@@ -4,11 +4,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.blockentities.EnergyTraderInterfaceBlockEntity;
-import io.github.lightman314.lctech.core.ModItems;
-import io.github.lightman314.lctech.items.IBatteryItem;
-import io.github.lightman314.lctech.menu.traderinterface.energy.EnergyStorageTab;
-import io.github.lightman314.lctech.util.EnergyUtil;
+import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBlockEntity;
+import io.github.lightman314.lctech.common.core.ModItems;
+import io.github.lightman314.lctech.common.items.IBatteryItem;
+import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergyStorageTab;
+import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;

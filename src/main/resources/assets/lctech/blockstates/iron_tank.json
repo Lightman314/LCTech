@@ -1,7 +1,16 @@
 {
     "variants": {
-        "": {
-            "model": "lctech:block/iron_tank"
+        "tank_state=solo": {
+            "model": "lctech:block/tank_iron_solo"
+        },
+		"tank_state=top": {
+            "model": "lctech:block/tank_iron_top"
+        },
+		"tank_state=middle": {
+            "model": "lctech:block/tank_iron_middle"
+        },
+		"tank_state=bottom": {
+            "model": "lctech:block/tank_iron_bottom"
         }
     }
 }

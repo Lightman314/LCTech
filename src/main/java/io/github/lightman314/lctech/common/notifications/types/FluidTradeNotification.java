@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.common.notifications.types;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
-import io.github.lightman314.lctech.util.FluidFormatUtil;
+import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;

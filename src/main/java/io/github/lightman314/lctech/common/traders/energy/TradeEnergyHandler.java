@@ -3,8 +3,8 @@ package io.github.lightman314.lctech.common.traders.energy;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lightman314.lctech.util.EnergyUtil;
-import io.github.lightman314.lctech.util.EnergyUtil.EnergyActionResult;
+import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lctech.common.util.EnergyUtil.EnergyActionResult;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.energy.IEnergyStorage;

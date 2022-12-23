@@ -11,7 +11,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lctech.util.EnergyUtil;
+import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;

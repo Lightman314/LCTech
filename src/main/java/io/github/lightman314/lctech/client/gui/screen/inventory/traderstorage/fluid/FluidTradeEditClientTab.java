@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget.IFluidEditListener;
 import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
-import io.github.lightman314.lctech.menu.traderstorage.fluid.FluidTradeEditTab;
+import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
