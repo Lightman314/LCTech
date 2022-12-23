@@ -22,7 +22,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	@Override
 	public void onInit(TraderSettingsScreen screen) {
 		
-		this.buttonDrainMode = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 100, screen.xSize - 40, 20, Component.empty(), b -> this.ToggleDrainMode(screen)));
+		this.buttonDrainMode = screen.addRenderableTabWidget(Button.builder(Component.empty(), b -> this.ToggleDrainMode(screen)).pos(screen.guiLeft() + 20, screen.guiTop() + 100).size(screen.xSize - 40, 20).build());
 		
 		this.tick(screen);
 		
@@ -41,11 +41,8 @@ public class EnergyInputAddon extends InputTabAddon {
 	@Override
 	public void tick(TraderSettingsScreen screen) {
 		TraderData trader = screen.getTrader();
-		if(trader instanceof EnergyTraderData)
-		{
-			EnergyTraderData e = (EnergyTraderData)trader;
+		if(trader instanceof EnergyTraderData e)
 			this.buttonDrainMode.visible = e.drainCapable();
-		}
 		else
 			this.buttonDrainMode.visible = false;
 	}
@@ -58,9 +55,8 @@ public class EnergyInputAddon extends InputTabAddon {
 	private MutableComponent getOutputModeText(TraderSettingsScreen screen)
 	{
 		TraderData trader = screen.getTrader();
-		if(trader instanceof EnergyTraderData)
+		if(trader instanceof EnergyTraderData e)
 		{
-			EnergyTraderData e = (EnergyTraderData)trader;
 			if(e.isAlwaysDrainMode())
 				return Component.translatable("gui.lctech.settings.energy.drainmode.full");
 			else
@@ -76,9 +72,8 @@ public class EnergyInputAddon extends InputTabAddon {
 	private void ToggleDrainMode(TraderSettingsScreen screen)
 	{
 		TraderData trader = screen.getTrader();
-		if(trader instanceof EnergyTraderData)
+		if(trader instanceof EnergyTraderData e)
 		{
-			EnergyTraderData e = (EnergyTraderData)trader;
 			CompoundTag message = new CompoundTag();
 			message.putInt("NewEnergyDrainMode", e.getDrainMode().index + 1);
 			e.sendNetworkMessage(message);

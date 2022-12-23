@@ -24,13 +24,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements InteractionConsumer {
 
 	public EnergyTradeEditClientTab(TraderStorageScreen screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.empty(); }
@@ -67,7 +68,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		this.quantityInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 75, this.screen.getXSize() - 42 - this.font.width(EnergyUtil.ENERGY_UNIT), 20, Component.empty()));
 		this.quantityInput.setValue(trade != null ? String.valueOf(trade.getAmount()): "");
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 120, 72, 20, Component.empty(), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 120).size(72, 20).build());
 		
 	}
 	
@@ -149,9 +150,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof EnergyTradeData)
+		if(trade instanceof EnergyTradeData t)
 		{
-			EnergyTradeData t = (EnergyTradeData)trade;
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
@@ -161,9 +161,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof EnergyTradeData)
+		if(trade instanceof EnergyTradeData t)
 		{
-			EnergyTradeData t = (EnergyTradeData)trade;
 			if(t.isSale())
 				this.changeSelection(0);
 			else if(t.isPurchase())

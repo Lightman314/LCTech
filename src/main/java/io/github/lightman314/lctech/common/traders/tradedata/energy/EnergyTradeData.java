@@ -79,10 +79,9 @@ public class EnergyTradeData extends TradeData {
 		if(this.amount <= 0)
 			return 0;
 		
-		if(!context.hasTrader() || !(context.getTrader() instanceof EnergyTraderData))
+		if(!context.hasTrader() || !(context.getTrader() instanceof EnergyTraderData trader))
 			return 0;
-		
-		EnergyTraderData trader = (EnergyTraderData)context.getTrader();
+
 		if(trader.isCreative())
 			return 1;
 		
@@ -173,10 +172,8 @@ public class EnergyTradeData extends TradeData {
 	public static CompoundTag WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound, String tag)
 	{
 		ListTag list = new ListTag();
-		for(int i = 0; i < tradeList.size(); ++i)
-		{
-			list.add(tradeList.get(i).getAsNBT());
-		}
+		for (EnergyTradeData energyTradeData : tradeList)
+			list.add(energyTradeData.getAsNBT());
 		compound.put(tag, list);
 		return compound;
 	}
@@ -209,9 +206,8 @@ public class EnergyTradeData extends TradeData {
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
-		if(otherTrade instanceof EnergyTradeData)
+		if(otherTrade instanceof EnergyTradeData otherEnergyTrade)
 		{
-			EnergyTradeData otherEnergyTrade = (EnergyTradeData)otherTrade;
 			//Flag as compatible
 			result.setCompatible();
 			//Compare product
@@ -352,7 +348,7 @@ public class EnergyTradeData extends TradeData {
 			RenderSystem.setShaderTexture(0, EnergyStorageClientTab.GUI_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			Pair<Integer,Integer> arrowPos = this.arrowPosition(context);
-			button.blit(pose, button.x + arrowPos.getFirst(), button.y + arrowPos.getSecond() + 9, 36, 18, 8, 7);
+			button.blit(pose, button.getX() + arrowPos.getFirst(), button.getY() + arrowPos.getSecond() + 9, 36, 18, 8, 7);
 		}
 	}
 	
@@ -370,9 +366,8 @@ public class EnergyTradeData extends TradeData {
 	private boolean allowsDrainage(TradeContext context) {
 		if(context.isStorageMode || !this.isSale())
 			return false;
-		if(context.getTrader() instanceof EnergyTraderData)
+		if(context.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)context.getTrader();
 			return trader.canDrainExternally() && trader.isPurchaseDrainMode();
 		}
 		return false;
@@ -380,9 +375,8 @@ public class EnergyTradeData extends TradeData {
 	
 	@Override
 	protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-		if(context.hasTrader() && context.getTrader() instanceof EnergyTraderData)
+		if(context.hasTrader() && context.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)context.getTrader();
 			if(!trader.isCreative())
 			{
 				if(this.getStock(context) <= 0)
@@ -399,9 +393,8 @@ public class EnergyTradeData extends TradeData {
 	
 	@Override
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof EnergyTraderData)
+		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)tab.menu.getTrader();
 			int tradeIndex = trader.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
@@ -415,9 +408,8 @@ public class EnergyTradeData extends TradeData {
 	
 	@Override
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof EnergyTraderData)
+		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)tab.menu.getTrader();
 			int tradeIndex = trader.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;

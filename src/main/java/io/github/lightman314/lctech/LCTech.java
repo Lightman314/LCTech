@@ -12,20 +12,15 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.collect.Lists;
-
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.terminal.traderSearching.FluidTraderSearchFilter;
-import io.github.lightman314.lctech.common.core.ModBlocks;
-import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.core.ModRegistries;
 import io.github.lightman314.lctech.common.crafting.condition.TechCraftingConditions;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
@@ -82,30 +77,7 @@ public class LCTech
         CraftingHelper.register(TechCraftingConditions.FluidTank.SERIALIZER);
         CraftingHelper.register(TechCraftingConditions.EnergyTrader.SERIALIZER);
         CraftingHelper.register(TechCraftingConditions.Batteries.SERIALIZER);
-        
-        //Add our items/blocks to the creative tab sorting
-        try {
-        	LightmansCurrency.MACHINE_GROUP.addToSortingList(Lists.newArrayList(
-            		ModBlocks.IRON_TANK.get(), ModBlocks.GOLD_TANK.get(), ModBlocks.DIAMOND_TANK.get(),
-            		ModBlocks.FLUID_TRADER_INTERFACE.get(),
-            		ModItems.BATTERY.get(), ModItems.BATTERY_LARGE.get(),
-            		ModBlocks.ENERGY_TRADER_INTERFACE.get()
-            		));
-            
-        	LightmansCurrency.UPGRADE_GROUP.addToSortingList(Lists.newArrayList(
-        			ModItems.FLUID_CAPACITY_UPGRADE_1.get(), ModItems.FLUID_CAPACITY_UPGRADE_2.get(), ModItems.FLUID_CAPACITY_UPGRADE_3.get(),
-        			ModItems.ENERGY_CAPACITY_UPGRADE_1.get(), ModItems.ENERGY_CAPACITY_UPGRADE_2.get(), ModItems.ENERGY_CAPACITY_UPGRADE_3.get()
-        			));
-        	
-            LightmansCurrency.TRADING_GROUP.addToSortingList(Lists.newArrayList(
-            		ModBlocks.FLUID_TAP.get(), ModBlocks.FLUID_TAP_BUNDLE.get(),
-            		ModBlocks.FLUID_NETWORK_TRADER_1.get(), ModBlocks.FLUID_NETWORK_TRADER_2.get(), ModBlocks.FLUID_NETWORK_TRADER_3.get(), ModBlocks.FLUID_NETWORK_TRADER_4.get(),
-            		ModBlocks.BATTERY_SHOP.get(), ModBlocks.ENERGY_NETWORK_TRADER.get()
-            		));
-            
-        } catch(Throwable t) { LOGGER.error("Error adding items to LC Creative Tabs.", t); }
-        
-        
+
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {

@@ -27,6 +27,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener{
 
@@ -38,7 +39,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public FluidTradeEditClientTab(TraderStorageScreen screen, FluidTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.empty(); }
@@ -77,7 +78,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.priceSelection.init();
 		
 		this.fluidEdit = this.screen.addRenderableTabWidget(new FluidEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
-		this.fluidEdit.init(this.screen::addRenderableTabWidget, this.screen::addTabListener);
+		this.fluidEdit.init(this.screen::addRenderableTabWidget);
 		
 		this.fluidEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.fluidEdit));
 		this.fluidEditScroll.smallKnob = true;
@@ -85,7 +86,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.buttonAddBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 74, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 32, 0)));
 		this.buttonRemoveBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 48, 0)));
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, Component.empty(), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15).size(80, 20).build());
 		
 	}
 	
@@ -175,9 +176,8 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof FluidTradeData)
+		if(trade instanceof FluidTradeData t)
 		{
-			FluidTradeData t = (FluidTradeData)trade;
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 				this.changeSelection(-1);
@@ -187,9 +187,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 					this.changeSelection(index);
 				else
 				{
-					FluidUtil.getFluidContained(heldItem).ifPresent(fluid -> {
-						this.commonTab.setFluid(fluid);
-					});
+					FluidUtil.getFluidContained(heldItem).ifPresent(this.commonTab::setFluid);
 				}
 			}
 		}
@@ -197,9 +195,8 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof FluidTradeData)
+		if(trade instanceof FluidTradeData t)
 		{
-			FluidTradeData t = (FluidTradeData)trade;
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 			{
@@ -207,9 +204,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 					this.changeSelection(index);
 				else
 				{
-					FluidUtil.getFluidContained(heldItem).ifPresent(fluid -> {
-						this.commonTab.setFluid(fluid);
-					});
+					FluidUtil.getFluidContained(heldItem).ifPresent(this.commonTab::setFluid);
 				}
 			}
 			else if(t.isPurchase())

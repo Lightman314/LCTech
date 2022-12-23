@@ -11,7 +11,6 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -25,19 +24,20 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidEditWidget extends AbstractWidget implements IScrollable{
 
 	private static final List<Fluid> BLACKLISTED_FLUIDS = Lists.newArrayList(Fluids.EMPTY);
-	public static final void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
+	public static void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
 	
 	private int scroll = 0;
 	
-	private int columns;
-	private int rows;
+	private final int columns;
+	private final int rows;
 	
-	private int searchOffX;
-	private int searchOffY;
+	private final int searchOffX;
+	private final int searchOffY;
 	
 	private static List<Fluid> allFluids = null;
 	
@@ -69,7 +69,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		
 	}
 	
-	public static final void initFluidList() {
+	public static void initFluidList() {
 		if(allFluids != null)
 			return;
 		
@@ -117,16 +117,15 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 			this.searchResultFluids = allFluids;
 	}
 	
-	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
+	public void init(Function<EditBox,EditBox> addWidget) {
+		this.searchInput = addWidget.apply(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
-		
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.searchInput.visible = this.visible;
 		
 		if(!this.visible)
@@ -139,11 +138,11 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultFluids.size(); ++y)
 		{
-			int yPos = this.y + y * 18;
+			int yPos = this.getY() + y * 18;
 			for(int x = 0; x < this.columns && index < this.searchResultFluids.size(); ++x)
 			{
 				//Get the slot position
-				int xPos = this.x + x * 18;
+				int xPos = this.getX() + x * 18;
 				//Render the slot background
 				RenderSystem.setShaderTexture(0, ItemEditWidget.GUI_TEXTURE);
 				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -157,7 +156,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		//Render the search field
 		RenderSystem.setShaderTexture(0, ItemEditWidget.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.x + this.searchOffX, this.y + this.searchOffY, 18, 0, 90, 12);
+		this.blit(pose, this.getX() + this.searchOffX, this.getY() + this.searchOffY, 18, 0, 90, 12);
 		
 	}
 	
@@ -182,12 +181,12 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		
 		for(int x = 0; x < this.columns && foundColumn < 0; ++x)
 		{
-			if(mouseX >= this.x + x * 18 && mouseX < this.x + (x * 18) + 18)
+			if(mouseX >= this.getX() + x * 18 && mouseX < this.getX() + (x * 18) + 18)
 				foundColumn = x;
 		}
 		for(int y = 0; y < this.rows && foundRow < 0; ++y)
 		{
-			if(mouseY >= this.y + y * 18 && mouseY < this.y + (y * 18) + 18)
+			if(mouseY >= this.getY() + y * 18 && mouseY < this.getY() + (y * 18) + 18)
 				foundRow = y;
 		}
 		if(foundColumn < 0 || foundRow < 0)
@@ -196,12 +195,12 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	public interface IFluidEditListener {
-		public void onFluidClicked(FluidStack fluid);
+		void onFluidClicked(FluidStack fluid);
 	}
 	
 	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
-	
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
+
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);

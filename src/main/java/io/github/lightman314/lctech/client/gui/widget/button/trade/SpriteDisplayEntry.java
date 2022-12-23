@@ -36,8 +36,8 @@ public class SpriteDisplayEntry extends DisplayEntry{
 	
 	@Override
 	public boolean isMouseOver(int x, int y, DisplayData area, int mouseX, int mouseY) {
-		int left = this.getLeft(x + area.xOffset, area.width);
-		int top = this.getTop(y + area.yOffset, area.height);
+		int left = this.getLeft(x + area.xOffset(), area.width());
+		int top = this.getTop(y + area.yOffset(), area.height());
 		return mouseX >= left && mouseX < left + this.width && mouseY >= top && mouseY < top + this.height;
 	}
 
@@ -45,8 +45,8 @@ public class SpriteDisplayEntry extends DisplayEntry{
 	public void render(GuiComponent gui, PoseStack pose, int x, int y, DisplayData area) {
 		if(this.sprite == null)
 			return;
-		int left = this.getLeft(x + area.xOffset, area.width);
-		int top = this.getTop(y + area.yOffset, area.height);
+		int left = this.getLeft(x + area.xOffset(), area.width());
+		int top = this.getTop(y + area.yOffset(), area.height());
 		RenderSystem.setShaderTexture(0, this.sprite);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		gui.blit(pose, left, top, u, v, this.width, this.height);
