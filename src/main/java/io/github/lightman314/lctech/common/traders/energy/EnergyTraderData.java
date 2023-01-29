@@ -141,9 +141,9 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 			this.trades = EnergyTradeData.LoadNBTList(compound, !this.isPersistent());
 		
 		if(compound.contains("Battery"))
-			this.energyStorage = compound.getInt("Battery");
+			this.energyStorage = Math.max(0,compound.getInt("Battery"));
 		if(compound.contains("PendingDrain"))
-			this.pendingDrain = compound.getInt("PendingDrain");
+			this.pendingDrain = Math.max(0,compound.getInt("PendingDrain"));
 		
 		if(compound.contains("DrainMode"))
 			this.drainMode = DrainMode.of(compound.getInt("DrainMode"));
@@ -229,11 +229,12 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	public int getTradeStock(int tradeIndex) {
 		return this.getTrade(tradeIndex).getStock(this);
 	}
-	
-	public int getPendingDrain() { return this.pendingDrain; }
+
+	public int getPendingDrain() { return Math.max(this.pendingDrain,0); }
+	private void setPendingDrain(int amount) { this.pendingDrain = Math.max(amount, 0); }
 	public void addPendingDrain(int amount) { this.pendingDrain += amount; }
-	public void shrinkPendingDrain(int amount) { this.pendingDrain -= amount; }
-	
+	public void shrinkPendingDrain(int amount) { this.setPendingDrain(this.pendingDrain - amount); }
+
 	public int getAvailableEnergy() { return this.energyStorage - this.pendingDrain; }
 	public int getDrainableEnergy() {
 		if(this.isAlwaysDrainMode())
@@ -525,9 +526,8 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	protected void saveAdditionalPersistentData(CompoundTag compound) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
-		for (EnergyTradeData energyTradeData : this.trades) {
+		for (EnergyTradeData trade : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			EnergyTradeData trade = energyTradeData;
 			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
