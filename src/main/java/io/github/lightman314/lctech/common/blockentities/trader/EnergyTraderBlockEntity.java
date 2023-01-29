@@ -11,10 +11,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
-	protected boolean networkTrader = false;
+	protected boolean networkTrader;
 	
 	public EnergyTraderBlockEntity(BlockPos pos, BlockState state) { this(pos, state, false); }
 	public EnergyTraderBlockEntity(BlockPos pos, BlockState state, boolean networkTrader) {
@@ -30,14 +31,14 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		super.saveAdditional(compound);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
 		this.networkTrader = compound.getBoolean("NetworkTrader");
@@ -70,9 +71,8 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 				if(trader.allowOutputSide(relativeSide) && trader.getDrainableEnergy() > 0)
 				{
 					Direction actualSide = relativeSide;
-					if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+					if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 					{
-						IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 						actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 					}
 					
@@ -83,7 +83,8 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 							int extractedAmount = energyHandler.receiveEnergy(trader.getDrainableEnergy(), false);
 							if(extractedAmount > 0)
 							{
-								trader.shrinkPendingDrain(extractedAmount);
+								if(trader.isPurchaseDrainMode()) //Only shrink pending drain if in purchase mode.
+									trader.shrinkPendingDrain(extractedAmount);
 								trader.shrinkEnergy(extractedAmount);
 								trader.markEnergyStorageDirty();
 							}
