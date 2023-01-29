@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.3-0.1.0.3'
+version = '1.19.3-0.1.0.4'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -30,9 +30,9 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19.3-44.0.30'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.1.0'
     
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4226300')
+    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4360508')
     
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3826582')
     

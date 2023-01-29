@@ -1,5 +1,6 @@
 package io.github.lightman314.lctech.common.blockentities.trader;
 
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
@@ -11,10 +12,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
-	protected boolean networkTrader = false;
+	protected boolean networkTrader;
 	
 	public EnergyTraderBlockEntity(BlockPos pos, BlockState state) { this(pos, state, false); }
 	public EnergyTraderBlockEntity(BlockPos pos, BlockState state, boolean networkTrader) {
@@ -30,14 +32,14 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		super.saveAdditional(compound);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
 		this.networkTrader = compound.getBoolean("NetworkTrader");
@@ -69,12 +71,10 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 			{
 				if(trader.allowOutputSide(relativeSide) && trader.getDrainableEnergy() > 0)
 				{
+					//LCTech.LOGGER.debug("Attempting to EXPORT energy from an energy trader.\nAvailable Energy: " + trader.getTotalEnergy() + "\nDrainable Energy: " + trader.getDrainableEnergy());
 					Direction actualSide = relativeSide;
-					if(this.getBlockState().getBlock() instanceof IRotatableBlock)
-					{
-						IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
+					if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 						actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-					}
 					
 					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(actualSide));
 					if(be != null)
@@ -83,7 +83,9 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 							int extractedAmount = energyHandler.receiveEnergy(trader.getDrainableEnergy(), false);
 							if(extractedAmount > 0)
 							{
-								trader.shrinkPendingDrain(extractedAmount);
+								//LCTech.LOGGER.debug("Exporting " + extractedAmount + " energy from the trader.");
+								if(trader.isPurchaseDrainMode()) //Only shrink pending drain if in purchase mode.
+									trader.shrinkPendingDrain(extractedAmount);
 								trader.shrinkEnergy(extractedAmount);
 								trader.markEnergyStorageDirty();
 							}

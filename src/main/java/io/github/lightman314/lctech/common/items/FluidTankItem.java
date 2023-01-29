@@ -38,7 +38,7 @@ public class FluidTankItem extends BlockItem{
 	
 	private static final List<FluidTankItem> TANK_ITEMS = Lists.newArrayList();
 	@OnlyIn(Dist.CLIENT)
-	public static final List<ModelResourceLocation> getTankModelList(){
+	public static List<ModelResourceLocation> getTankModelList(){
 		List<ModelResourceLocation> list = Lists.newArrayList();
 		TANK_ITEMS.forEach(tankItem ->{
 			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(tankItem),"inventory"));

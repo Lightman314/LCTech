@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.common.traders.energy;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lctech.common.util.EnergyUtil.EnergyActionResult;
 import net.minecraft.core.Direction;
@@ -14,18 +15,12 @@ public class TradeEnergyHandler {
 	final EnergyTraderData trader;
 	final Map<Direction,IEnergyStorage> externalHandlers = new HashMap<>();
 	final IEnergyStorage batteryInteractable;
-	//final IEnergyStorage tradeExecutor;
 	
 	public TradeEnergyHandler(EnergyTraderData trader)
 	{
 		this.trader = trader;
 		this.batteryInteractable = new BatteryInteractionEnergyHandler(trader);
 	}
-	
-	/**
-	 * Internal handler is for use by trade executions & player storage interactions.
-	 */
-	//public IEnergyStorage getTradeExecutor() { return this.tradeExecutor; }
 	
 	/**
 	 * Handler used for external interactions
@@ -69,11 +64,13 @@ public class TradeEnergyHandler {
 		public int extractEnergy(int maxExtract, boolean simulate) {
 			if(!this.canExtract())
 				return 0;
+			//LCTech.LOGGER.debug("Attempting to DRAIN energy from an energy trader.\nAvailable Energy: " + this.trader.getTotalEnergy() + "\nDrainable Energy: " + this.trader.getDrainableEnergy());
 			int extractAmount = Math.min(maxExtract, this.trader.getDrainableEnergy());
 			if(!simulate && extractAmount > 0)
 			{
 				if(!this.isCreative())
 				{
+					//LCTech.LOGGER.debug("Draining " + extractAmount + " energy from the trader.");
 					//Drain the energy from the trader
 					this.trader.shrinkEnergy(extractAmount);
 				}
@@ -126,18 +123,13 @@ public class TradeEnergyHandler {
 		}
 		return batteryStack;
 	}
-	
-	private static class BatteryInteractionEnergyHandler implements IEnergyStorage
-	{
-		protected final EnergyTraderData trader;
-		
-		public BatteryInteractionEnergyHandler(EnergyTraderData trader) { this.trader = trader; }
+
+	private record BatteryInteractionEnergyHandler(EnergyTraderData trader) implements IEnergyStorage {
 
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {
 			int receiveAmount = Math.min(maxReceive, this.trader.getMaxEnergy() - this.trader.getTotalEnergy());
-			if(!simulate)
-			{
+			if (!simulate) {
 				//Add the energy to storage
 				this.trader.addEnergy(receiveAmount);
 				//Mark the energy storage dirty
@@ -149,8 +141,7 @@ public class TradeEnergyHandler {
 		@Override
 		public int extractEnergy(int maxExtract, boolean simulate) {
 			int extractAmount = Math.min(maxExtract, this.trader.getAvailableEnergy());
-			if(!simulate)
-			{
+			if (!simulate) {
 				//Remove the energy from storage
 				this.trader.shrinkEnergy(extractAmount);
 				//Mark the energy storage dirty
@@ -178,7 +169,7 @@ public class TradeEnergyHandler {
 		public boolean canReceive() {
 			return true;
 		}
-		
+
 	}
 	
 }
