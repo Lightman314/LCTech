@@ -3,6 +3,7 @@
   "values": [
     "lctech:iron_tank",
     "lctech:gold_tank",
+    "lctech:diamond_tank",
     "lctech:fluid_tap",
     "lctech:fluid_tap_bundle",
     "lctech:fluid_trader_server_sml",
