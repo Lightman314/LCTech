@@ -12,7 +12,7 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -55,8 +55,8 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 		return 4;
 	}
 	
-	private static List<Direction> IGNORELIST = Lists.newArrayList(Direction.UP, Direction.DOWN);
-	private static Map<Direction,List<FluidRenderData>> RENDERMAP = Maps.newHashMap();
+	private static final List<Direction> IGNORELIST = Lists.newArrayList(Direction.UP, Direction.DOWN);
+	private static final Map<Direction,List<FluidRenderData>> RENDERMAP = Maps.newHashMap();
 	
 	@Override
 	public FluidRenderData getRenderPosition(BlockState state, int index){
@@ -79,20 +79,13 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 		if(IGNORELIST.contains(direction))
 			return;
 		List<FluidRenderData> list = Lists.newArrayList();
-		switch(direction) {
-		case NORTH:
-			list = createList(0,1,2,3);
-			break;
-		case EAST:
-			list = createList(1,3,0,2);
-			break;
-		case SOUTH:
-			list = createList(3,2,1,0);
-			break;
-		case WEST:
-			list = createList(2,0,3,1);
-			break;
-		default:
+		switch (direction) {
+			case NORTH -> list = createList(0, 1, 2, 3);
+			case EAST -> list = createList(1, 3, 0, 2);
+			case SOUTH -> list = createList(3, 2, 1, 0);
+			case WEST -> list = createList(2, 0, 3, 1);
+			default -> {
+			}
 		}
 		if(list.size() > 0)
 			RENDERMAP.put(direction, list);

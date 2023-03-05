@@ -8,11 +8,11 @@ import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlo
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.fluid.FluidStorageClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
-import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -63,7 +63,7 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	}
 	
 	public void interactWithTank(int tank, boolean shiftHeld) {
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
+		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
 		{
 			
 			if(this.menu.isClient())
@@ -73,9 +73,7 @@ public class FluidStorageTab extends TraderInterfaceTab {
 				message.putBoolean("ShiftHeld", shiftHeld);
 				this.menu.sendMessage(message);
 			}
-			
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
-			
+
 			ItemStack heldStack = this.menu.getCarried();
 			if(heldStack.isEmpty()) //If held stack is empty, do nothing
 				return;
@@ -156,16 +154,14 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	}
 	
 	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity) {
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
 			be.getFluidHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getFluidHandler());
 		}
 	}
 	
 	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity) {
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
 			be.getFluidHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getFluidHandler());
 		}

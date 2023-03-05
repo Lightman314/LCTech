@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget.IFluidEditListener;
-import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
@@ -17,9 +17,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -28,6 +28,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener{
 
@@ -39,7 +40,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public FluidTradeEditClientTab(TraderStorageScreen screen, FluidTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
 	public MutableComponent getTooltip() { return new TextComponent(""); }
@@ -176,9 +177,8 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof FluidTradeData)
+		if(trade instanceof FluidTradeData t)
 		{
-			FluidTradeData t = (FluidTradeData)trade;
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 				this.changeSelection(-1);
@@ -188,9 +188,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 					this.changeSelection(index);
 				else
 				{
-					FluidUtil.getFluidContained(heldItem).ifPresent(fluid -> {
-						this.commonTab.setFluid(fluid);
-					});
+					FluidUtil.getFluidContained(heldItem).ifPresent(this.commonTab::setFluid);
 				}
 			}
 		}
@@ -198,9 +196,8 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof FluidTradeData)
+		if(trade instanceof FluidTradeData t)
 		{
-			FluidTradeData t = (FluidTradeData)trade;
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 			{
@@ -208,9 +205,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 					this.changeSelection(index);
 				else
 				{
-					FluidUtil.getFluidContained(heldItem).ifPresent(fluid -> {
-						this.commonTab.setFluid(fluid);
-					});
+					FluidUtil.getFluidContained(heldItem).ifPresent(this.commonTab::setFluid);
 				}
 			}
 			else if(t.isPurchase())

@@ -5,7 +5,7 @@ import java.util.UUID;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.trader.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.blockentity.old.OldBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.old.OldBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

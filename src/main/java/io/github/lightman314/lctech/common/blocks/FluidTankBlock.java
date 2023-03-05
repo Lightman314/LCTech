@@ -1,16 +1,17 @@
 package io.github.lightman314.lctech.common.blocks;
 
+import java.util.Collection;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackState;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
-import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.util.LazyShapes;
-import io.github.lightman314.lightmanscurrency.blocks.util.TickerUtil;
+import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -23,9 +24,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -37,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class FluidTankBlock extends Block implements EntityBlock, IFluidTankBlock{
+public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTankBlock{
 
 	public static final VoxelShape SHAPE = LazyShapes.BOX_T;
 	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 14f, 15.98f);
@@ -147,8 +146,8 @@ public class FluidTankBlock extends Block implements EntityBlock, IFluidTankBloc
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return new FluidTankBlockEntity(pos, state); }
 
-	@Nullable
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) { return TickerUtil.createTickerHelper(ModBlockEntities.FLUID_TANK.get(), type, TickableBlockEntity::tickHandler); }
+	@Override
+	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.FLUID_TANK.get()); }
 
 	@SuppressWarnings("deprecation")
 	@Override

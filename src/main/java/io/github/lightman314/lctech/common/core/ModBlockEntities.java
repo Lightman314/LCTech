@@ -5,7 +5,7 @@ import io.github.lightman314.lctech.common.blockentities.fluid_tank.*;
 import io.github.lightman314.lctech.common.blockentities.old.*;
 import io.github.lightman314.lctech.common.blockentities.trader.*;
 import io.github.lightman314.lctech.common.core.util.TechBlockEntityBlockHelper;
-import io.github.lightman314.lightmanscurrency.core.util.BlockEntityBlockHelper;
+import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 

@@ -16,15 +16,15 @@ import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener.IScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -34,6 +34,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTab> implements IScrollListener, IScrollable{
 	
@@ -53,7 +54,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	ScrollBarWidget scrollBar;
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
+	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 
 	@Override
 	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }
@@ -80,13 +81,12 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			//Validate the scroll
 			this.validateScroll();
 			//Render each tank
 			int index = this.scroll;
-			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			TraderFluidStorage storage = trader.getStorage();
 			int yPos = this.screen.getGuiTop() + Y_OFFSET;
 			for(int x = 0; x < TANKS && index < storage.getTanks(); ++x)
@@ -174,9 +174,8 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	
 	private Pair<Integer,Boolean> isMouseOverDrainFill(double mouseX, double mouseY)
 	{
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(!trader.drainCapable())
 				return null;
 			int leftEdge = this.screen.getGuiLeft() + X_OFFSET;

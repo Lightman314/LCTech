@@ -6,7 +6,7 @@ import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlock
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
-import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

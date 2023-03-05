@@ -8,13 +8,13 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.en
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.menus.slots.OutputSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -49,9 +49,8 @@ public class EnergyStorageTab extends TraderStorageTab{
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof EnergyTraderData)
+		if(this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
@@ -101,9 +100,8 @@ public class EnergyStorageTab extends TraderStorageTab{
 	@SubscribeEvent
 	public void onWorldTick(TickEvent.WorldTickEvent event)
 	{
-		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof EnergyTraderData)
+		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			if(!this.batterySlots.getItem(0).isEmpty() && this.batterySlots.getItem(1).isEmpty())
 			{
 				//Try to fill the energy storage with the battery, or vice-versa

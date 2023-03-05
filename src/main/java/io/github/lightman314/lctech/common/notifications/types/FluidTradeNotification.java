@@ -1,14 +1,14 @@
 package io.github.lightman314.lctech.common.notifications.types;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -90,9 +90,8 @@ public class FluidTradeNotification extends Notification{
 	
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof FluidTradeNotification)
+		if(other instanceof FluidTradeNotification ftn)
 		{
-			FluidTradeNotification ftn = (FluidTradeNotification)other;
 			if(!ftn.traderData.matches(this.traderData))
 				return false;
 			if(ftn.tradeType != this.tradeType)

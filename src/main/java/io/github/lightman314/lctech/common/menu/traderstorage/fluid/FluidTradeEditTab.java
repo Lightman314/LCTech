@@ -4,14 +4,14 @@ import java.util.function.Function;
 
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid.FluidTradeEditClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
-import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -33,9 +33,8 @@ public class FluidTradeEditTab extends TraderStorageTab{
 	int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public FluidTradeData getTrade() {
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -111,9 +110,8 @@ public class FluidTradeEditTab extends TraderStorageTab{
 		{
 			trade.setProduct(fluid);
 			this.menu.getTrader().markTradesDirty();
-			if(this.menu.getTrader() instanceof FluidTraderData)
+			if(this.menu.getTrader() instanceof FluidTraderData fluidTrader)
 			{
-				FluidTraderData fluidTrader = (FluidTraderData)this.menu.getTrader();
 				if(fluidTrader.getStorage().refactorTanks())
 					fluidTrader.markStorageDirty();
 			}

@@ -8,21 +8,21 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.blockentities.handler.EnergyInterfaceHandler;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
+import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -33,6 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.energy.CapabilityEnergy;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
@@ -52,9 +53,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -73,9 +73,6 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		return capacity;
 	}
 	
-	//Container upgradeInventory = new SimpleContainer(5);
-	//public Container getUpgradeInventory() { return this.upgradeInventory; }
-	
 	public EnergyTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.TRADER_INTERFACE_ENERGY.get(), pos, state);
 		this.energyHandler = this.addHandler(new EnergyInterfaceHandler(this));
@@ -93,7 +90,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound, false); }
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(@NotNull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveEnergyBuffer(compound);
 	}
@@ -161,9 +158,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof EnergyTradeData)
+		if(t instanceof EnergyTradeData trade)
 		{
-			EnergyTradeData trade = (EnergyTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())
@@ -221,9 +217,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 			if(this.energyHandler.getInputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 				{
-					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				}
 				

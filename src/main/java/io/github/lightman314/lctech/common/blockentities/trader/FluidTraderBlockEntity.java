@@ -4,18 +4,19 @@ import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	
-	protected int tradeCount = 1;
-	protected boolean networkTrader = false;
+	protected int tradeCount;
+	protected boolean networkTrader;
 	
 	public FluidTraderBlockEntity(BlockPos pos, BlockState state) { this(pos, state, 1, false); }
 	public FluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount) { this(pos, state, tradeCount, false); }
@@ -33,7 +34,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(@NotNull CompoundTag compound)
 	{
 		super.saveAdditional(compound);
 		compound.putInt("TradeCount", this.tradeCount);
@@ -41,7 +42,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	}
 	
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@NotNull CompoundTag compound)
 	{
 		super.load(compound);
 		this.tradeCount = compound.getInt("TradeCount");
@@ -67,9 +68,8 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	@OnlyIn(Dist.CLIENT)
 	public int getTradeRenderLimit()
 	{
-		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock)
+		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock b)
 		{
-			IFluidTraderBlock b = (IFluidTraderBlock)this.getBlockState().getBlock();
 			return b.getTradeRenderLimit();
 		}
 		return 0;
@@ -78,9 +78,8 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	@OnlyIn(Dist.CLIENT)
 	public FluidRenderData getRenderPosition(int index)
 	{
-		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock)
+		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock b)
 		{
-			IFluidTraderBlock b = (IFluidTraderBlock)this.getBlockState().getBlock();
 			return b.getRenderPosition(this.getBlockState(), index);
 		}
 		return null;

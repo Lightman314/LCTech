@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.common.core.util;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.core.util.BlockEntityBlockHelper;
+import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.resources.ResourceLocation;
 
 public class TechBlockEntityBlockHelper {
