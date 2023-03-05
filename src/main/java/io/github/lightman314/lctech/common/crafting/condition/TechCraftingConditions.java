@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
-import io.github.lightman314.lightmanscurrency.crafting.condition.SimpleCraftingCondition;
+import io.github.lightman314.lightmanscurrency.common.crafting.condition.SimpleCraftingCondition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 

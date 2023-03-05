@@ -8,7 +8,7 @@ import io.github.lightman314.lctech.common.blockentities.old.UniversalFluidTrade
 import io.github.lightman314.lctech.common.blockentities.trader.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.core.util.TechBlockEntityBlockHelper;
-import io.github.lightman314.lightmanscurrency.core.util.BlockEntityBlockHelper;
+import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 

@@ -1,19 +1,19 @@
 {
     "variants": {
         "facing=north": {
-            "model": "lctech:block/fluid_trader_server_med",
+            "model": "lctech:block/fluid_network_trader_2",
             "y": 0
         },
         "facing=east": {
-            "model": "lctech:block/fluid_trader_server_med",
+            "model": "lctech:block/fluid_network_trader_2",
             "y": 90
         },
         "facing=south": {
-            "model": "lctech:block/fluid_trader_server_med",
+            "model": "lctech:block/fluid_network_trader_2",
             "y": 180
         },
         "facing=west": {
-            "model": "lctech:block/fluid_trader_server_med",
+            "model": "lctech:block/fluid_network_trader_2",
             "y": 270
         }
     }

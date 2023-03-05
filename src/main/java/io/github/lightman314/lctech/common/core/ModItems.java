@@ -3,7 +3,7 @@ package io.github.lightman314.lctech.common.core;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.items.*;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
-import io.github.lightman314.lightmanscurrency.items.CapacityUpgradeItem;
+import io.github.lightman314.lightmanscurrency.common.items.CapacityUpgradeItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.RegistryObject;

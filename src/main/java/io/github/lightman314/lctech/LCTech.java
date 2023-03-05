@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,31 +58,39 @@ public class LCTech
         
     }
 
-    private void doCommonStuff(final FMLCommonSetupEvent event)
-    {
+    private void doCommonStuff(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
+
+    private void commonSetupWork() {
         LCTechPacketHandler.init();
-        
+
         //Register Trader Search Filters
         TraderSearchFilter.addFilter(new FluidTraderSearchFilter());
-        
+
         //Register the universal data deserializer
         TraderData.register(FluidTraderData.TYPE, FluidTraderData::new);
         TraderData.register(EnergyTraderData.TYPE, EnergyTraderData::new);
-        
+
         //Register custom notification types
         Notification.register(FluidTradeNotification.TYPE, FluidTradeNotification::new);
         Notification.register(EnergyTradeNotification.TYPE, EnergyTradeNotification::new);
-        
+
         //Register Crafting Conditions
         CraftingHelper.register(TechCraftingConditions.FluidTrader.SERIALIZER);
         CraftingHelper.register(TechCraftingConditions.FluidTank.SERIALIZER);
         CraftingHelper.register(TechCraftingConditions.EnergyTrader.SERIALIZER);
         CraftingHelper.register(TechCraftingConditions.Batteries.SERIALIZER);
-
     }
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        PROXY.setupClient();
+    private void doClientStuff(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
+
+    public static void safeEnqueueWork(ParallelDispatchEvent event, String errorMessage, Runnable work) {
+        event.enqueueWork(() -> {
+            try{
+                work.run();
+            } catch(Throwable t) {
+                LOGGER.error(errorMessage, t);
+            }
+        });
     }
 
 }
