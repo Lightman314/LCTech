@@ -12,7 +12,7 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
-import io.github.lightman314.lightmanscurrency.blocks.traderblocks.templates.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;

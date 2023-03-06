@@ -14,8 +14,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
@@ -23,6 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStorageTab> {
 
@@ -41,7 +42,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	public EnergyStorageClientTab(TraderInterfaceScreen screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
+	public @NotNull IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.storage"); }
@@ -74,11 +75,9 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 		
 		this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
-		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity)
+		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be)
 		{
-			
-			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
-			
+
 			//Render the slot bg for the upgrade/battery slots
 			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -112,9 +111,8 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	@Override
 	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
 		
-		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity && this.isMouseOverEnergy(mouseX, mouseY))
+		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be && this.isMouseOverEnergy(mouseX, mouseY))
 		{
-			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
 			this.screen.renderTooltip(pose, Component.literal(EnergyUtil.formatEnergyAmount(be.getStoredEnergy()) + "/" + EnergyUtil.formatEnergyAmount(be.getMaxEnergy())).withStyle(ChatFormatting.AQUA), mouseX, mouseY);
 		}
 		

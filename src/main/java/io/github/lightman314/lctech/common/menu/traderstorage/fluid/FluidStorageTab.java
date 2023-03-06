@@ -8,11 +8,11 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fl
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
@@ -43,9 +43,8 @@ public class FluidStorageTab extends TraderStorageTab{
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
@@ -71,7 +70,7 @@ public class FluidStorageTab extends TraderStorageTab{
 	}
 
 	public void interactWithTank(int tank, boolean shiftHeld) {
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			
 			if(this.menu.isClient())
@@ -81,9 +80,7 @@ public class FluidStorageTab extends TraderStorageTab{
 				message.putBoolean("ShiftHeld", shiftHeld);
 				this.menu.sendMessage(message);
 			}
-			
-			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
-			
+
 			ItemStack heldStack = this.menu.getCarried();
 			if(heldStack.isEmpty()) //If held stack is empty, do nothing
 				return;
@@ -164,10 +161,9 @@ public class FluidStorageTab extends TraderStorageTab{
 	}
 	
 	public void toggleDrainFillState(int tank, boolean drainState, boolean newValue) {
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
-			
+
 			if(!trader.drainCapable())
 				return;
 			

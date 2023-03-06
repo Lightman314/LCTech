@@ -5,7 +5,7 @@ import java.util.UUID;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.blockentity.old.OldBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.old.OldBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.data_updating.DataConverter;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderSaveData;

@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.common.items.tooltips;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullSupplier;

@@ -11,13 +11,14 @@ import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStora
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorageTab>{
 
@@ -31,7 +32,7 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	public EnergyStorageClientTab(TraderStorageScreen screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Override
-	public IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
+	public @NotNull IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.storage"); }
@@ -50,11 +51,9 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 		
 		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
-		if(this.menu.getTrader() instanceof EnergyTraderData)
+		if(this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			
-			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
-			
+
 			//Render the slot bg for the upgrade/battery slots
 			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

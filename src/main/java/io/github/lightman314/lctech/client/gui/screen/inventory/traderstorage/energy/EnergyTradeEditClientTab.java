@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lctech.common.traders.tradedata.energy.EnergyTradeData;
+import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
@@ -16,21 +16,22 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.core.ModItems;
-import io.github.lightman314.lightmanscurrency.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import org.jetbrains.annotations.NotNull;
 
 public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements InteractionConsumer {
 
 	public EnergyTradeEditClientTab(TraderStorageScreen screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
 	public MutableComponent getTooltip() { return Component.empty(); }
@@ -149,9 +150,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof EnergyTradeData)
+		if(trade instanceof EnergyTradeData t)
 		{
-			EnergyTradeData t = (EnergyTradeData)trade;
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
@@ -161,9 +161,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof EnergyTradeData)
+		if(trade instanceof EnergyTradeData t)
 		{
-			EnergyTradeData t = (EnergyTradeData)trade;
 			if(t.isSale())
 				this.changeSelection(0);
 			else if(t.isPurchase())

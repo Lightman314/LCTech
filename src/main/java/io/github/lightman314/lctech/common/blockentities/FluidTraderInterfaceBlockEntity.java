@@ -12,23 +12,23 @@ import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
-import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
-import io.github.lightman314.lightmanscurrency.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
+import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.menus.traderinterface.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -40,12 +40,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.FLUID_CAPACITY);
 	
-	private TraderFluidStorage fluidBuffer = new TraderFluidStorage(this);
+	private final TraderFluidStorage fluidBuffer = new TraderFluidStorage(this);
 	public TraderFluidStorage getFluidBuffer() { return this.fluidBuffer; }
 	
 	FluidInterfaceHandler fluidHandler;
@@ -84,13 +85,11 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			//Check trade for purchase fluid to restock
 			TradeData t = this.getReferencedTrade();
-			if(t instanceof FluidTradeData)
+			if(t instanceof FluidTradeData trade)
 			{
-				FluidTradeData trade = (FluidTradeData)t;
 				if(trade.isPurchase() && trade.getProduct().isFluidEqual(fluid))
 					return true;
 			}
-			return false;
 		}
 		else
 		{
@@ -107,8 +106,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 					}
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean allowOutput(FluidStack fluid) { return !this.allowInput(fluid); }
@@ -119,9 +118,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TradeData t = this.getReferencedTrade();
 			List<FluidStack> result = new ArrayList<>();
-			if(t instanceof FluidTradeData)
+			if(t instanceof FluidTradeData trade)
 			{
-				FluidTradeData trade = (FluidTradeData)t;
 				if(!trade.getProduct().isEmpty())
 					result.add(trade.getProduct());
 			}
@@ -144,9 +142,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -169,7 +166,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound, false); }
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@NotNull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveFluidBuffer(compound);
 	}
@@ -289,9 +286,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof FluidTradeData)
+		if(t instanceof FluidTradeData trade)
 		{
-			FluidTradeData trade = (FluidTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())
@@ -324,9 +320,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			if(this.fluidHandler.getInputSides().get(relativeSide) || this.fluidHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 				{
-					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				}
 				

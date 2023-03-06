@@ -10,7 +10,8 @@ import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTankStackSync;
-import io.github.lightman314.lightmanscurrency.blockentity.TickableBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class FluidTankBlockEntity extends TickableBlockEntity {
+public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTicker {
 
 	public static final int DEFAULT_CAPACITY = 10 * FluidType.BUCKET_VOLUME;
 
@@ -168,9 +169,6 @@ public class FluidTankBlockEntity extends TickableBlockEntity {
 			return tankBlock.getRenderData(this.level.getBlockState(this.worldPosition), this.stackCache.isLighterThanAir(), this, this.stackCache.getTankAbove(this));
 		return null;
 	}
-	
-	@Override
-	public @NotNull CompoundTag getUpdateTag() {return this.saveWithFullMetadata(); }
 	
 	@Override
 	public void onLoad() {

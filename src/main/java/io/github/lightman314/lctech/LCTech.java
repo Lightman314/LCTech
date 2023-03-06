@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -62,8 +63,9 @@ public class LCTech
         
     }
 
-    private void doCommonStuff(final FMLCommonSetupEvent event)
-    {
+    private void doCommonStuff(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
+
+    private void commonSetupWork() {
         LCTechPacketHandler.init();
         
         //Register Trader Search Filters
@@ -108,8 +110,16 @@ public class LCTech
         
     }
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        PROXY.setupClient();
+    private void doClientStuff(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", PROXY::setupClient); }
+
+    public static void safeEnqueueWork(ParallelDispatchEvent event, String errorMessage, Runnable work) {
+        event.enqueueWork(() -> {
+            try{
+                work.run();
+            } catch(Throwable t) {
+                LOGGER.error(errorMessage, t);
+            }
+        });
     }
 
 }

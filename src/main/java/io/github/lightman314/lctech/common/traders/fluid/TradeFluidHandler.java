@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lctech.common.traders.tradedata.fluid.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.FluidStack;
