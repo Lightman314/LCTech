@@ -13,8 +13,8 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.ArrayList;
@@ -65,8 +65,9 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof FluidTraderData trader)
+        if(context.hasTrader() && context.getTrader() instanceof FluidTraderData)
         {
+            FluidTraderData trader = (FluidTraderData)context.getTrader();
             if(!trader.isCreative())
             {
                 if(this.trade.getStock(context) <= 0)
@@ -93,20 +94,20 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
         return entries;
     }
 
-    private List<Component> getFluidTooltip(TradeContext context) {
+    private List<ITextComponent> getFluidTooltip(TradeContext context) {
         if(this.trade.getProduct().isEmpty())
             return null;
 
-        List<Component> tooltips = Lists.newArrayList();
+        List<ITextComponent> tooltips = Lists.newArrayList();
 
         //Fluid Name
-        tooltips.add(EasyText.translatable("gui.lctech.fluidtrade.tooltip." + this.trade.getTradeDirection().name().toLowerCase(), FluidFormatUtil.getFluidName(this.trade.getProduct(), ChatFormatting.GOLD)));
+        tooltips.add(EasyText.translatable("gui.lctech.fluidtrade.tooltip." + this.trade.getTradeDirection().name().toLowerCase(), FluidFormatUtil.getFluidName(this.trade.getProduct(), TextFormatting.GOLD)));
         //Quantity
-        tooltips.add(EasyText.translatable("gui.lctech.fluidtrade.tooltip.quantity", this.trade.getBucketQuantity(), FluidFormatUtil.formatFluidAmount(this.trade.getQuantity())).withStyle(ChatFormatting.GOLD));
+        tooltips.add(EasyText.translatable("gui.lctech.fluidtrade.tooltip.quantity", this.trade.getBucketQuantity(), FluidFormatUtil.formatFluidAmount(this.trade.getQuantity())).withStyle(TextFormatting.GOLD));
         //Stock
         if(context.hasTrader())
         {
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.getStock(context))).withStyle(ChatFormatting.GOLD)));
+            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(TextFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.getStock(context))).withStyle(TextFormatting.GOLD)));
         }
 
 
@@ -116,8 +117,11 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
     private boolean allowsDrainage(TradeContext context) {
         if(context.isStorageMode || !this.trade.isSale())
             return false;
-        if(context.getTrader() instanceof FluidTraderData trader)
+        if(context.getTrader() instanceof FluidTraderData)
+        {
+            FluidTraderData trader = (FluidTraderData)context.getTrader();
             return trader.drainCapable() && trader.hasOutputSide() && trader.getStorage().isDrainable(this.trade.getProduct());
+        }
         return false;
     }
 

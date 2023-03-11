@@ -4,31 +4,27 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
 
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fluids.FluidStack;
+import org.lwjgl.opengl.GL11;
 
 @OnlyIn(Dist.CLIENT)
 public class FluidRenderUtil {
@@ -37,10 +33,10 @@ public class FluidRenderUtil {
 	{
 		if(tank == null || tank.isEmpty())
 			return;
-		
-		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tank.getFluid().getAttributes().getStillTexture());
+
+		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(tank.getFluid().getAttributes().getStillTexture());
 		if(sprite != null)
-		{	
+		{
 			float minU = sprite.getU0();
 			float maxU = sprite.getU1();
 			float minV = sprite.getV0();
@@ -52,10 +48,9 @@ public class FluidRenderUtil {
 			float red = (float)(waterColor >> 16 & 255) / 255.0f;
 			float green = (float)(waterColor >> 8 & 255) / 255.0f;
 			float blue = (float)(waterColor & 255) / 255.0f;
-			
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
-			RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-			
+
+			RenderUtil.bindTexture(PlayerContainer.BLOCK_ATLAS);
+
 			RenderSystem.enableBlend();
 			int xCount = 1 + (width / 16);
 			int count = 1 + ((int)Math.ceil(tankLevel)) / 16;
@@ -71,35 +66,35 @@ public class FluidRenderUtil {
 				}
 			}
 			RenderSystem.disableBlend();
-			
+
 		}
-		
+
 	}
-	
+
 	private static void drawQuad(double x, double y, double width, double height, float minU, float minV, float maxU, float maxV, float red, float green, float blue)
 	{
-		Tesselator tessellator = Tesselator.getInstance();
+		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuilder();
-		RenderSystem.setShaderColor(red, green, blue, 1f);
-		buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		RenderUtil.color4f(red, green, blue, 1f);
+		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 		buffer.vertex(x, y + height, 0).uv(minU, maxV).endVertex();
 		buffer.vertex(x + width, y + height, 0).uv(maxU, maxV).endVertex();
 		buffer.vertex(x + width, y, 0).uv(maxU, minV).endVertex();
 		buffer.vertex(x, y, 0).uv(minU, minV).endVertex();
 		tessellator.end();
 	}
-	
-	public static void drawFluidInWorld(FluidStack tank, Level world, BlockPos pos, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, FluidRenderData renderData, int light)
+
+	public static void drawFluidInWorld(FluidStack tank, World world, BlockPos pos, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, FluidRenderData renderData, int light)
 	{
 		drawFluidInWorld(tank, world, pos, matrixStack, renderTypeBuffer, renderData.x, renderData.y, renderData.z, renderData.width, renderData.height, renderData.depth, renderData.getHeight(), light, renderData.sides);
 	}
-	
-	public static void drawFluidInWorld(FluidStack tank, Level world, BlockPos pos, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, float x, float y, float z, float width, float top, float depth, float height, int light, FluidSides sides)
+
+	public static void drawFluidInWorld(FluidStack tank, World world, BlockPos pos, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, float x, float y, float z, float width, float top, float depth, float height, int light, FluidSides sides)
 	{
-		
+
 		if(tank == null || tank.isEmpty())
 			return;
-		
+
 		TextureAtlasSprite sprite = ForgeHooksClient.getFluidSprites(world,  pos,  tank.getFluid().defaultFluidState())[0];
 		int waterColor = tank.getFluid().getAttributes().getColor(tank);
 		float red = (float)(waterColor >> 16 & 255) / 255.0f;
@@ -109,21 +104,21 @@ public class FluidRenderUtil {
 		float maxU = Math.min(minU + (sprite.getU1() - minU) * depth, sprite.getU1());
 		float minV = sprite.getV0();
 		float maxV = Math.min(minV + (sprite.getV1() - minV) * height, sprite.getV1());
-		
+
 		float x2 = x + width;
 		float y2 = y + height;
 		float z2 = z + depth;
-		
+
 		if(tank.getFluid().getAttributes().isLighterThanAir())
 		{
 			//Change y cords to match the inverted rendering
 			y2 = top;
 			y = y2 - height;
 		}
-		
-		VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.translucent());
+
+		IVertexBuilder buffer = renderTypeBuffer.getBuffer(RenderType.translucent());
 		Matrix4f matrix = matrixStack.last().pose();
-		
+
 		//left side
 		if(sides.test(Direction.WEST))
 		{
@@ -132,7 +127,7 @@ public class FluidRenderUtil {
 			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
+
 		//right side
 		if(sides.test(Direction.EAST))
 		{
@@ -141,9 +136,9 @@ public class FluidRenderUtil {
 			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
+
 		maxU = Math.min(minU + (sprite.getU1() - minU), sprite.getU1());
-		
+
 		//south side
 		if(sides.test(Direction.SOUTH))
 		{
@@ -152,7 +147,7 @@ public class FluidRenderUtil {
 			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
+
 		//north side
 		if(sides.test(Direction.NORTH))
 		{
@@ -161,9 +156,9 @@ public class FluidRenderUtil {
 			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
+
 		maxV = Math.min(minV + (sprite.getV1() - minV), sprite.getV1());
-		
+
 		//top side
 		if(sides.test(Direction.UP))
 		{
@@ -172,7 +167,7 @@ public class FluidRenderUtil {
 			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
+
 		//top side
 		if(sides.test(Direction.DOWN))
 		{
@@ -181,17 +176,17 @@ public class FluidRenderUtil {
 			buffer.vertex(matrix, x, y, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, -1f, 0f).endVertex();
 			buffer.vertex(matrix, x, y, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, -1f, 0f).endVertex();
 		}
-		
+
 	}
-	
+
 	public static List<BakedQuad> getBakedFluidQuads(FluidStack tank, int capacity, FluidRenderData renderData)
 	{
-		
+
 		if(tank.isEmpty())
 			return Lists.newArrayList();
-		
+
 		//Get sprite
-		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tank.getFluid().getAttributes().getStillTexture());
+		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(tank.getFluid().getAttributes().getStillTexture());
 		//Get color
 		int fluidColor = tank.getFluid().getAttributes().getColor(tank);
 		if(fluidColor != 0xFFFFFFFF)
@@ -201,32 +196,32 @@ public class FluidRenderUtil {
 			int blue = fluidColor & 255;
 			fluidColor = 0xFF000000 | red | green << 8 | blue << 16;
 		}
-		
+
 		double fillPercent = MathUtil.clamp((double)tank.getAmount() / (double)capacity, 0d, 1d);
 		renderData.setFillPercent((float)fillPercent);
-		
+
 		boolean inverted = tank.getFluid().getAttributes().isLighterThanAir();
-		
+
 		final int ITEM_RENDER_LAYER0 = 0;
-		
+
 		List<BakedQuad> returnList = Lists.newArrayList();
-		
+
 		final int color = fluidColor;
 		renderData.sides.forEach(face ->{
 			BakedQuad faceQuad = createBakedQuadForFace(renderData, ITEM_RENDER_LAYER0, color, sprite, face, inverted);
 			returnList.add(faceQuad);
 		});
-		
+
 		return returnList;
 	}
-	
+
 	private static BakedQuad createBakedQuadForFace(FluidRenderData data, int itemRenderLayer, int fluidColor, TextureAtlasSprite texture, Direction face, boolean inverted)
 	{
 		float x1, x2, x3, x4;
 		float y1, y2, y3, y4;
 		float z1, z2, z3, z4;
 		int packednormal;
-		
+
 		float bottom = data.y;
 		float top = bottom + data.getHeight();
 		if(inverted)
@@ -236,59 +231,59 @@ public class FluidRenderUtil {
 		}
 
 		switch (face) {
-			case UP -> {
+			case UP:
 				x1 = x2 = data.x + data.width;
 				x3 = x4 = data.x;
 				z1 = z4 = data.z + data.depth;
 				z2 = z3 = data.z;
 				y1 = y2 = y3 = y4 = top;
-			}
-			case DOWN -> {
+				break;
+			case DOWN:
 				x1 = x2 = data.x + data.width;
 				x3 = x4 = data.x;
 				z1 = z4 = data.z;
 				z2 = z3 = data.z + data.depth;
 				y1 = y2 = y3 = y4 = bottom;
-			}
-			case WEST -> {
+				break;
+			case WEST:
 				z1 = z2 = data.z + data.depth;
 				z3 = z4 = data.z;
 				y1 = y4 = bottom;
 				y2 = y3 = top;
 				x1 = x2 = x3 = x4 = data.x;
-			}
-			case EAST -> {
+				break;
+			case EAST:
 				z1 = z2 = data.z;
 				z3 = z4 = data.z + data.depth;
 				y1 = y4 = bottom;
 				y2 = y3 = top;
 				x1 = x2 = x3 = x4 = data.x + data.width;
-			}
-			case NORTH -> {
+				break;
+			case NORTH:
 				x1 = x2 = data.x;
 				x3 = x4 = data.x + data.width;
 				y1 = y4 = bottom;
 				y2 = y3 = top;
 				z1 = z2 = z3 = z4 = data.z;
-			}
-			case SOUTH -> {
+				break;
+			case SOUTH:
 				x1 = x2 = data.x + data.width;
 				x3 = x4 = data.x;
 				y1 = y4 = bottom;
 				y2 = y3 = top;
 				z1 = z2 = z3 = z4 = data.z + data.depth;
-			}
-			default -> throw new AssertionError("Unexpected Direction in createBakedQuadForFace:" + face);
+				break;
+			default: throw new AssertionError("Unexpected Direction in createBakedQuadForFace:" + face);
 		}
-		
+
 		// the order of the vertices on the face is (from the point of view of someone looking at the front face):
 	    // 1 = bottom right, 2 = top right, 3 = top left, 4 = bottom left
 		packednormal = calculatePackedNormal(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4);
-		
+
 		final int BLOCK_LIGHT = 15;
 		final int SKY_LIGHT = 15;
 		int lightMapValue = LightTexture.pack(BLOCK_LIGHT, SKY_LIGHT);
-		
+
 		final int minU = 0;
 		final int maxU = 16;
 		final int minV = 0;
@@ -301,41 +296,41 @@ public class FluidRenderUtil {
 		final boolean APPLY_DIFFUSE_LIGHTING = true;
 		return new BakedQuad(vertexDataAll, itemRenderLayer, face, texture, APPLY_DIFFUSE_LIGHTING);
 	}
-	
+
 	private static int calculatePackedNormal(float x1, float y1, float z1, float x2, float y2, float z2,
 	          float x3, float y3, float z3, float x4, float y4, float z4) {
 		float xp = x4 - x2;
 		float yp = y4 - y2;
 		float zp = z4 - z2;
-		
+
 		float xq = x3 - x1;
 		float yq = y3 - y1;
 		float zq = z3 - z1;
-		
+
 		//Cross Product
 		float xn = yq*zp - zq*yp;
 		float yn = zq*xp - xq*zp;
 		float zn = xq*yp - yq*xp;
-		
+
 		//Normalize
 		float norm = (float)Math.sqrt(xn*xn + yn*yn + zn*zn);
 		final float SMALL_LENGTH = 1.0E-4f;
 		if(norm < SMALL_LENGTH) norm = 1f; //Protect against degenrate quad
-		
+
 		norm = 1f / norm;
 		xn *= norm;
 		yn *= norm;
 		zn *= norm;
-		
+
 		int x = ((byte)(xn * 127)) & 0xFF;
 		int y = ((byte)(yn * 127)) & 0xFF;
 		int z = ((byte)(zn * 127)) & 0xFF;
 		return x | (y << 0x08) | (z << 0x10);
 	}
-	
+
 	private static int[] vertexToInts(float x, float y, float z, int color, TextureAtlasSprite texture, float u, float v, int lightmapvalue, int normal)
 	{
-		
+
 		return new int[] {
 				Float.floatToRawIntBits(x),
 				Float.floatToRawIntBits(y),
@@ -346,11 +341,11 @@ public class FluidRenderUtil {
 				lightmapvalue,
 				normal
 		};
-		
-	}
-	
-	
 
-	
-	
+	}
+
+
+
+
+
 }

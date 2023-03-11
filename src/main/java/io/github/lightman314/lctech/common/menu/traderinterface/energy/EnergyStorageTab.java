@@ -18,13 +18,13 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -43,10 +43,10 @@ public class EnergyStorageTab extends TraderInterfaceTab{
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	BatteryInputSlot inputSlot;
-	Container batterySlots = new SimpleContainer(2);
+	IInventory batterySlots = new Inventory(2);
 	
 	@Override
-	public boolean canOpen(Player player) { return true; }
+	public boolean canOpen(PlayerEntity player) { return true; }
 	
 	@Override
 	public void onTabOpen() {
@@ -98,8 +98,9 @@ public class EnergyStorageTab extends TraderInterfaceTab{
 	@SubscribeEvent
 	public void onWorldTick(TickEvent.WorldTickEvent event)
 	{
-		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be)
+		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity)
 		{
+			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
 			if(!this.batterySlots.getItem(0).isEmpty() && this.batterySlots.getItem(1).isEmpty())
 			{
 				//Try to fill the energy storage with the battery, or vice-versa
@@ -135,14 +136,16 @@ public class EnergyStorageTab extends TraderInterfaceTab{
 	}
 	
 	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be) {
+		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity) {
+			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getEnergyHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getEnergyHandler());
 		}
 	}
 	
 	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be) {
+		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity) {
+			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
 			be.getEnergyHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getEnergyHandler());
 		}
@@ -150,6 +153,6 @@ public class EnergyStorageTab extends TraderInterfaceTab{
 	
 	//No messages to receive. All storage interactions are done via the battery slots or the upgrade slots.
 	@Override
-	public void receiveMessage(CompoundTag message) { }
+	public void receiveMessage(CompoundNBT message) { }
 	
 }

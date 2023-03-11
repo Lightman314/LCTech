@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
@@ -10,41 +11,39 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
-public class FluidShardItem extends Item{
+public class FluidShardItem extends Item {
 	
 	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(5f, 2f, 7.51f, 7f, 12f, 0.98f, FluidSides.Create(Direction.SOUTH, Direction.NORTH));
 	
 	private static final List<FluidShardItem> SHARD_ITEMS = Lists.newArrayList();
 	@OnlyIn(Dist.CLIENT)
-	public static final List<ModelResourceLocation> getShardModelList(){
+	public static List<ModelResourceLocation> getShardModelList(){
 		
 		List<ModelResourceLocation> list = Lists.newArrayList();
-		SHARD_ITEMS.forEach(shardItem ->{
-			list.add(new ModelResourceLocation(shardItem.getRegistryName(),"inventory"));
-		});
+		SHARD_ITEMS.forEach(shardItem -> list.add(new ModelResourceLocation(shardItem.getRegistryName(),"inventory")));
 		return list;
 	}
 	
@@ -65,25 +64,25 @@ public class FluidShardItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		FluidStack fluid = GetFluid(stack);
 		if(!fluid.isEmpty())
 		{
 			tooltip.add(FluidFormatUtil.getFluidName(fluid));
-			tooltip.add(new TextComponent(ChatFormatting.GRAY.toString() + FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB"));
+			tooltip.add(EasyText.literal(FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB").withStyle(TextFormatting.GRAY));
 		}
 	}
 	
-	//Force the tank item to have it's tank data
+	//Force the tank item to have its tank data
 	@Override
-	public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected) {
-		if(GetFluid(stack).isEmpty() && entity instanceof Player)
+	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull World world, @Nonnull Entity entity, int itemSlot, boolean isSelected) {
+		if(GetFluid(stack).isEmpty() && entity instanceof PlayerEntity)
 		{
 			//Remove the empty fluid shard from the players inventory
-			Player player = (Player)entity;
-			player.getInventory().setItem(itemSlot, ItemStack.EMPTY);
+			PlayerEntity player = (PlayerEntity)entity;
+			player.inventory.setItem(itemSlot, ItemStack.EMPTY);
 		}
 	}
 	
@@ -91,8 +90,8 @@ public class FluidShardItem extends Item{
 	{
 		if(stack.getItem() instanceof FluidShardItem)
 		{
-			CompoundTag tag = stack.getOrCreateTag();
-			if(tag.contains("Tank", Tag.TAG_COMPOUND))
+			CompoundNBT tag = stack.getOrCreateTag();
+			if(tag.contains("Tank", Constants.NBT.TAG_COMPOUND))
 				return FluidStack.loadFluidStackFromNBT(tag.getCompound("Tank"));
 		}
 		return FluidStack.EMPTY;
@@ -111,13 +110,13 @@ public class FluidShardItem extends Item{
 	
 	public static void WriteTankData(ItemStack stack, FluidStack tank)
 	{
-		CompoundTag tag = stack.getOrCreateTag();
-		tag.put("Tank", tank.writeToNBT(new CompoundTag()));
+		CompoundNBT tag = stack.getOrCreateTag();
+		tag.put("Tank", tank.writeToNBT(new CompoundNBT()));
 		stack.setTag(tag);
 	}
 	
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag compound)
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT compound)
 	{
 		return new FluidShardCapability(stack);
 	}
@@ -129,8 +128,8 @@ public class FluidShardItem extends Item{
 		
 		final ItemStack stack;
 		
-		private final FluidStack tank() { return GetFluid(this.stack); }
-		private final void setTank(FluidStack tank) { WriteTankData(this.stack, tank); }
+		private FluidStack tank() { return GetFluid(this.stack); }
+		private void setTank(FluidStack tank) { WriteTankData(this.stack, tank); }
 		
 		public FluidShardCapability(ItemStack stack) { this.stack = stack; }
 
@@ -139,6 +138,7 @@ public class FluidShardItem extends Item{
 			return 1;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) {
 			return tank == 0 ? this.tank().copy() : FluidStack.EMPTY;
@@ -150,7 +150,7 @@ public class FluidShardItem extends Item{
 		}
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
 			return false;
 		}
 
@@ -160,6 +160,7 @@ public class FluidShardItem extends Item{
 			return 0;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if(this.tank().isEmpty() || !this.tank().isFluidEqual(resource))
@@ -182,6 +183,7 @@ public class FluidShardItem extends Item{
 			return resultStack;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(this.tank().isEmpty())
@@ -204,12 +206,14 @@ public class FluidShardItem extends Item{
 			return resultStack;
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack getContainer() {
 			return this.stack;
 		}
+		@Nonnull
 		@Override
-		public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
+		public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction side) {
 			return CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY.orEmpty(capability, holder);
 		}
 		

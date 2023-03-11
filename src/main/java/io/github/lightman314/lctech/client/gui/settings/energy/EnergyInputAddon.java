@@ -1,16 +1,14 @@
 package io.github.lightman314.lctech.client.gui.settings.energy;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TraderSettingsScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 public class EnergyInputAddon extends InputTabAddon {
 
@@ -23,21 +21,21 @@ public class EnergyInputAddon extends InputTabAddon {
 	@Override
 	public void onInit(TraderSettingsScreen screen) {
 		
-		this.buttonDrainMode = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 100, screen.xSize - 40, 20, new TextComponent(""), b -> this.ToggleDrainMode(screen)));
+		this.buttonDrainMode = screen.addRenderableTabWidget(new Button(screen.guiLeft() + 20, screen.guiTop() + 100, screen.xSize - 40, 20, EasyText.empty(), b -> this.ToggleDrainMode(screen)));
 		
 		this.tick(screen);
 		
 	}
 	
 	@Override
-	public void preRender(TraderSettingsScreen screen, PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void preRender(TraderSettingsScreen screen, MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.updateOutputModeButton(screen);
 		
 	}
 
 	@Override
-	public void postRender(TraderSettingsScreen screen, PoseStack pose, int mouseX, int mouseY, float partialTicks) {}
+	public void postRender(TraderSettingsScreen screen, MatrixStack pose, int mouseX, int mouseY, float partialTicks) {}
 
 	@Override
 	public void tick(TraderSettingsScreen screen) {
@@ -53,22 +51,22 @@ public class EnergyInputAddon extends InputTabAddon {
 	
 	private void updateOutputModeButton(TraderSettingsScreen screen)
 	{
-		this.buttonDrainMode.setMessage(new TranslatableComponent("gui.lctech.settings.energy.drainmode", this.getOutputModeText(screen)));
+		this.buttonDrainMode.setMessage(EasyText.translatable("gui.lctech.settings.energy.drainmode", this.getOutputModeText(screen)));
 	}
 	
-	private MutableComponent getOutputModeText(TraderSettingsScreen screen)
+	private IFormattableTextComponent getOutputModeText(TraderSettingsScreen screen)
 	{
 		TraderData trader = screen.getTrader();
 		if(trader instanceof EnergyTraderData)
 		{
 			EnergyTraderData e = (EnergyTraderData)trader;
 			if(e.isAlwaysDrainMode())
-				return new TranslatableComponent("gui.lctech.settings.energy.drainmode.full");
+				return EasyText.translatable("gui.lctech.settings.energy.drainmode.full");
 			else
-				return new TranslatableComponent("gui.lctech.settings.energy.drainmode.sales");
+				return EasyText.translatable("gui.lctech.settings.energy.drainmode.sales");
 		}
 		else
-			return new TextComponent("NULL");
+			return EasyText.literal("NULL");
 	}
 	
 	@Override
@@ -80,7 +78,7 @@ public class EnergyInputAddon extends InputTabAddon {
 		if(trader instanceof EnergyTraderData)
 		{
 			EnergyTraderData e = (EnergyTraderData)trader;
-			CompoundTag message = new CompoundTag();
+			CompoundNBT message = new CompoundNBT();
 			message.putInt("NewEnergyDrainMode", e.getDrainMode().index + 1);
 			e.sendNetworkMessage(message);
 		}

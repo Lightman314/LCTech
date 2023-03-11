@@ -18,8 +18,9 @@ public class TechDiscordEvents {
 	@SubscribeEvent
 	public static void onTraderSearch(DiscordTraderSearchEvent event) {
 		TraderData trader = event.getTrader();
-		if(trader instanceof FluidTraderData fluidTrader && event.acceptTrader(fluidTrader))
+		if(trader instanceof FluidTraderData && event.acceptTrader(trader))
 		{
+			FluidTraderData fluidTrader = (FluidTraderData)trader;
 			boolean showStock = !fluidTrader.isCreative();
 			boolean firstTrade = true;
 			for(int i = 0; i < fluidTrader.getTradeCount(); ++i)
@@ -70,8 +71,9 @@ public class TechDiscordEvents {
 				}
 			}
 		}
-		else if(trader instanceof EnergyTraderData energyTrader && event.acceptTrader(energyTrader))
+		else if(trader instanceof EnergyTraderData && event.acceptTrader(trader))
 		{
+			EnergyTraderData energyTrader = (EnergyTraderData)trader;
 			boolean showStock = !energyTrader.isCreative();
 			boolean firstTrade = true;
 			for(int i = 0; i < energyTrader.getTradeCount(); ++i)

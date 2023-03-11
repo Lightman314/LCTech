@@ -6,9 +6,9 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.common.menu.slots.FluidInputSlot;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidUtil;
 
 public class FluidInteractionSlot extends InteractionSlotData{
@@ -22,6 +22,6 @@ public class FluidInteractionSlot extends InteractionSlotData{
 	
 	@Override
 	@Nullable
-	public Pair<ResourceLocation,ResourceLocation> emptySlotBG() { return FluidInputSlot.BACKGROUND; }
+	public Pair<ResourceLocation, ResourceLocation> emptySlotBG() { return FluidInputSlot.BACKGROUND; }
 	
 }

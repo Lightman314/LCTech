@@ -12,9 +12,9 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,13 +27,14 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen menu) { return new EnergyTradeEditClientTab(menu, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
+	public boolean canOpen(PlayerEntity player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
 	
 	int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
 	public EnergyTradeData getTrade() {
-		if(this.menu.getTrader() instanceof EnergyTraderData trader)
+		if(this.menu.getTrader() instanceof EnergyTraderData)
 		{
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
@@ -64,7 +65,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("NewType", type.index);
 				this.menu.sendMessage(message);
 			}
@@ -79,7 +80,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("NewQuantity", amount);
 				this.menu.sendMessage(message);
 			}
@@ -94,7 +95,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				price.save(message, "NewPrice");
 				this.menu.sendMessage(message);
 			}
@@ -102,7 +103,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(CompoundNBT message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");

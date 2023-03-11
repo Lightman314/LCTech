@@ -11,45 +11,44 @@ import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTankStackSync;
 import io.github.lightman314.lightmanscurrency.common.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.interfaces.tickable.IServerTicker;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTicker {
+public class FluidTankBlockEntity extends EasyBlockEntity implements ITickableTileEntity {
 
 	public static final int DEFAULT_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
 
 	FluidStack tankContents = FluidStack.EMPTY;
 	public FluidStack getTankContents() { return this.tankContents; }
-	public void setTankContents(@NotNull FluidStack newContents) { this.tankContents = newContents; this.setChanged(); }
+	public void setTankContents(@Nonnull FluidStack newContents) { this.tankContents = newContents; this.setChanged(); }
 	public int getTankCapacity()
 	{
 		Block block = this.getBlockState().getBlock();
-		if(block instanceof FluidTankBlock tankBlock)
-			return tankBlock.getTankCapacity();
+		if(block instanceof FluidTankBlock)
+			return ((FluidTankBlock)block).getTankCapacity();
 		return DEFAULT_CAPACITY;
 	}
 
@@ -65,20 +64,20 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		this.stackCache = tankStack;
 		oldStack.refactorExcluded(this.stackCache);
 	}
-	public final void sendTankStackPacket(ServerPlayer player) { LCTechPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> player), this.stackCache.getSyncPacket()); }
+	public final void sendTankStackPacket(ServerPlayerEntity player) { LCTechPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> player), this.stackCache.getSyncPacket()); }
 
 	public final FluidTankFluidHandler handler = new FluidTankFluidHandler(this);
 	private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> this.handler);
 
-	public FluidTankBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.FLUID_TANK.get(), pos, state); }
+	public FluidTankBlockEntity() { this(ModBlockEntities.FLUID_TANK.get()); }
 
-	protected FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
+	protected FluidTankBlockEntity(TileEntityType<?> type) { super(type); }
 
-	public InteractionResult onInteraction(Player player, InteractionHand hand)
+	public ActionResultType onInteraction(PlayerEntity player, Hand hand)
 	{
 		ItemStack heldItem = player.getItemInHand(hand);
 		if(!FluidUtil.getFluidHandler(heldItem).isPresent())
-			return InteractionResult.PASS;
+			return ActionResultType.PASS;
 
 		//Try to fill the tank first
 		FluidActionResult result = FluidUtil.tryEmptyContainer(heldItem, this.handler, Integer.MAX_VALUE, player, true);
@@ -86,7 +85,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		{
 			//If creative, and the item was a bucket, don't move the items around
 			if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldItem.getItem() == Items.BUCKET))
-				return InteractionResult.SUCCESS;
+				return ActionResultType.SUCCESS;
 			if(heldItem.getCount() > 1)
 			{
 				heldItem.shrink(1);
@@ -106,7 +105,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 			{
 				//If creative, and the item was a bucket, don't move the items around
 				if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldItem.getItem() == Items.BUCKET))
-					return InteractionResult.SUCCESS;
+					return ActionResultType.SUCCESS;
 				if(heldItem.getCount() > 1)
 				{
 					heldItem.shrink(1);
@@ -119,7 +118,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 				}
 			}
 		}
-		return InteractionResult.SUCCESS;
+		return ActionResultType.SUCCESS;
 	}
 
 	@Override
@@ -134,23 +133,24 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	@Nonnull
+	public CompoundNBT save(@Nonnull CompoundNBT compound)
 	{
+		compound = super.save(compound);
 
-		compound.put("Tank", this.tankContents.writeToNBT(new CompoundTag()));
+		compound.put("Tank", this.tankContents.writeToNBT(new CompoundNBT()));
 
-		super.saveAdditional(compound);
+		return compound;
 
 	}
 
 	@Override
-	public void load(CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
+		super.load(state, compound);
 
-		if(compound.contains("Tank", Tag.TAG_COMPOUND))
+		if(compound.contains("Tank", Constants.NBT.TAG_COMPOUND))
 			this.tankContents = FluidStack.loadFluidStackFromNBT(compound.getCompound("Tank"));
-
-		super.load(compound);
 	}
 
 	public void loadFromItem(ItemStack stack)
@@ -165,8 +165,8 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 	public FluidRenderData getRenderPosition()
 	{
 		Block block = this.level.getBlockState(this.worldPosition).getBlock();
-		if(block instanceof IFluidTankBlock tankBlock)
-			return tankBlock.getRenderData(this.level.getBlockState(this.worldPosition), this.stackCache.isLighterThanAir(), this, this.stackCache.getTankAbove(this));
+		if(block instanceof IFluidTankBlock)
+			return ((IFluidTankBlock)block).getRenderData(this.level.getBlockState(this.worldPosition), this.stackCache.isLighterThanAir(), this, this.stackCache.getTankAbove(this));
 		return null;
 	}
 
@@ -183,8 +183,8 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 	}
 
 	@Override
-	public void serverTick() {
-		if(this.refactorTankStack)
+	public void tick() {
+		if(this.isServer() && this.refactorTankStack)
 		{
 			this.refactorTankStack = false;
 			this.refactorTankStack();
@@ -206,9 +206,10 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		//Find bottom block
 		while(true)
 		{
-			BlockPos queryPos = this.worldPosition.atY(bottomY - 1);
-			BlockEntity be = this.level.getBlockEntity(queryPos);
-			if(be instanceof FluidTankBlockEntity tank) {
+			BlockPos queryPos = this.atY(bottomY);
+			TileEntity be = this.level.getBlockEntity(queryPos);
+			if(be instanceof FluidTankBlockEntity) {
+				FluidTankBlockEntity tank = (FluidTankBlockEntity)be;
 				if(this.allowInStack(tank, mostRelevantFluid))
 				{
 					if(mostRelevantFluid.isEmpty())
@@ -225,9 +226,10 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		//Find top block
 		while(true)
 		{
-			BlockPos queryPos = this.worldPosition.atY(topY + 1);
-			BlockEntity be = this.level.getBlockEntity(queryPos);
-			if(be instanceof FluidTankBlockEntity tank) {
+			BlockPos queryPos = this.atY(topY);
+			TileEntity be = this.level.getBlockEntity(queryPos);
+			if(be instanceof FluidTankBlockEntity) {
+				FluidTankBlockEntity tank = (FluidTankBlockEntity)be;
 				if(this.allowInStack(tank, mostRelevantFluid))
 				{
 					if(mostRelevantFluid.isEmpty())
@@ -252,8 +254,8 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		else
 		{
 			//Build new stack cache
-			this.level.setBlockAndUpdate(this.worldPosition.atY(bottomY), this.level.getBlockState(this.worldPosition.atY(bottomY)).setValue(FluidTankBlock.TANK_STATE, TankStackState.BOTTOM));
-			this.level.setBlockAndUpdate(this.worldPosition.atY(topY), this.level.getBlockState(this.worldPosition.atY(topY)).setValue(FluidTankBlock.TANK_STATE, TankStackState.TOP));
+			this.level.setBlockAndUpdate(atY(bottomY), this.level.getBlockState(this.atY(bottomY)).setValue(FluidTankBlock.TANK_STATE, TankStackState.BOTTOM));
+			this.level.setBlockAndUpdate(this.atY(topY), this.level.getBlockState(this.atY(topY)).setValue(FluidTankBlock.TANK_STATE, TankStackState.TOP));
 			for(int y = bottomY + 1; y < topY; ++y)
 			{
 				BlockPos middlePos = new BlockPos(this.worldPosition.getX(), y, this.worldPosition.getZ());
@@ -263,6 +265,10 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 			TankStackCache.create(this.level, this.worldPosition, bottomY, topY).init(true);
 		}
 	}
+
+	private BlockPos atY(int y) { return atY(this.worldPosition, y); }
+
+	private static BlockPos atY(BlockPos pos, int y) { return new BlockPos(pos.getX(), y, pos.getZ()); }
 
 	private boolean allowInStack(FluidTankBlockEntity tank, FluidStack mostRelevantFluid) {
 		if(tank.getBlockState().getBlock() != this.getBlockState().getBlock())

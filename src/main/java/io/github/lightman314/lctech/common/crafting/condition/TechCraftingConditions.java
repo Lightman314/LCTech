@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.SimpleCraftingCondition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.IConditionSerializer;
 
 public class TechCraftingConditions {
@@ -14,7 +14,7 @@ public class TechCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "fluid_trader_craftable");
 		private static final FluidTrader INSTANCE = new FluidTrader();
 		public static final IConditionSerializer<FluidTrader> SERIALIZER = new Serializer();
-		private FluidTrader() { super(TYPE, TechConfig.COMMON.canCraftFluidTraders); }
+		private FluidTrader() { super(TYPE, TechConfig.COMMON.canCraftFluidTraders::get); }
 		private static class Serializer implements IConditionSerializer<FluidTrader> {
 			@Override
 			public void write(JsonObject json, FluidTrader value) {}
@@ -29,7 +29,7 @@ public class TechCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "fluid_tank_craftable");
 		private static final FluidTank INSTANCE = new FluidTank();
 		public static final IConditionSerializer<FluidTank> SERIALIZER = new Serializer();
-		private FluidTank() { super(TYPE, TechConfig.COMMON.canCraftFluidTanks); }
+		private FluidTank() { super(TYPE, TechConfig.COMMON.canCraftFluidTanks::get); }
 		private static class Serializer implements IConditionSerializer<FluidTank> {
 			@Override
 			public void write(JsonObject json, FluidTank value) {}
@@ -44,7 +44,7 @@ public class TechCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "energy_trader_craftable");
 		private static final EnergyTrader INSTANCE = new EnergyTrader();
 		public static final IConditionSerializer<EnergyTrader> SERIALIZER = new Serializer();
-		private EnergyTrader() { super(TYPE, TechConfig.COMMON.canCraftEnergyTraders); }
+		private EnergyTrader() { super(TYPE, TechConfig.COMMON.canCraftEnergyTraders::get); }
 		private static class Serializer implements IConditionSerializer<EnergyTrader> {
 			@Override
 			public void write(JsonObject json, EnergyTrader value) {}
@@ -59,7 +59,7 @@ public class TechCraftingConditions {
 		public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "batteries_craftable");
 		private static final Batteries INSTANCE = new Batteries();
 		public static final IConditionSerializer<Batteries> SERIALIZER = new Serializer();
-		private Batteries() { super(TYPE, TechConfig.COMMON.canCraftBatteries); }
+		private Batteries() { super(TYPE, TechConfig.COMMON.canCraftBatteries::get); }
 		private static class Serializer implements IConditionSerializer<Batteries> {
 			@Override
 			public void write(JsonObject json, Batteries value) {}

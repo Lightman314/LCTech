@@ -6,8 +6,8 @@ import java.util.Map;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStorage> {
@@ -18,7 +18,7 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 	
 	public final IEnergyStorage tradeHandler;
 	
-	private final Map<Direction,Handler> handlers = new HashMap<Direction,Handler>();
+	private final Map<Direction,Handler> handlers = new HashMap<>();
 	
 	public EnergyInterfaceHandler(EnergyTraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; this.tradeHandler = new Handler(this, null); }
 	
@@ -50,10 +50,10 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 		Handler(EnergyInterfaceHandler handler, Direction side) { this.handler = handler; this.side = side; }
 
 		@Override
-		public boolean canExtract() { return this.side == null ? true : this.handler.outputSides.get(this.side); }
+		public boolean canExtract() { return this.side == null || this.handler.outputSides.get(this.side); }
 
 		@Override
-		public boolean canReceive() { return this.side == null ? true : this.handler.inputSides.get(this.side); }
+		public boolean canReceive() { return this.side == null || this.handler.inputSides.get(this.side); }
 		
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {

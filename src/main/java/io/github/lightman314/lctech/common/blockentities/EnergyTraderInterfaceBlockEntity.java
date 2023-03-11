@@ -14,6 +14,7 @@ import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergySto
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -24,16 +25,16 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.Trad
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.energy.CapabilityEnergy;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
@@ -53,8 +54,9 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem upgradeItem)
+			if(stack.getItem() instanceof UpgradeItem)
 			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -73,8 +75,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		return capacity;
 	}
 	
-	public EnergyTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlockEntities.TRADER_INTERFACE_ENERGY.get(), pos, state);
+	public EnergyTraderInterfaceBlockEntity() {
+		super(ModBlockEntities.TRADER_INTERFACE_ENERGY.get());
 		this.energyHandler = this.addHandler(new EnergyInterfaceHandler(this));
 	}
 	
@@ -87,15 +89,17 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound, false); }
+	protected TradeData deserializeTrade(CompoundNBT compound) { return EnergyTradeData.loadData(compound, false); }
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound) {
-		super.saveAdditional(compound);
+	@Nonnull
+	public CompoundNBT save(@Nonnull CompoundNBT compound) {
+		compound = super.save(compound);
 		this.saveEnergyBuffer(compound);
+		return compound;
 	}
 	
-	protected final CompoundTag saveEnergyBuffer(CompoundTag compound) {
+	protected final CompoundNBT saveEnergyBuffer(CompoundNBT compound) {
 		compound.putInt("Energy", this.energyStorage);
 		return compound;
 	}
@@ -103,12 +107,12 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public void setEnergyBufferDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveEnergyBuffer(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveEnergyBuffer(new CompoundNBT()));
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	public void load(@Nonnull BlockState state, CompoundNBT compound) {
+		super.load(state, compound);
 		if(compound.contains("Energy"))
 			this.energyStorage = compound.getInt("Energy");
 	}
@@ -158,8 +162,9 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof EnergyTradeData trade)
+		if(t instanceof EnergyTradeData)
 		{
+			EnergyTradeData trade = (EnergyTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())
@@ -185,17 +190,17 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	public void serverTick() {
-		super.serverTick();
+	public void tick() {
+		super.tick();
 		//Push energy out
-		if(this.energyStorage > 0)
+		if(this.isServer() && this.energyStorage > 0)
 		{
 			for(Direction direction : Direction.values())
 			{
 				if(this.energyHandler.getOutputSides().get(direction) && this.energyStorage > 0)
 				{
 					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? IRotatableBlock.getActualSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
-					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
+					TileEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
 					if(be != null)
 					{
 						be.getCapability(CapabilityEnergy.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
@@ -217,13 +222,14 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 			if(this.energyHandler.getInputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
 				{
+					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
-				BlockEntity be = this.level.getBlockEntity(queryPos);
+				TileEntity be = this.level.getBlockEntity(queryPos);
 				if(be != null)
 				{
 					be.getCapability(CapabilityEnergy.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
@@ -253,6 +259,6 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public void getAdditionalContents(List<ItemStack> contents) {}
 	
 	@Override
-	public MutableComponent getName() { return new TranslatableComponent("block.lctech.energy_trader_interface"); }
+	public IFormattableTextComponent getName() { return EasyText.translatable("block.lctech.energy_trader_interface"); }
 	
 }

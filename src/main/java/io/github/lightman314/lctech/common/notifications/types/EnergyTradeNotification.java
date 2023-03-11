@@ -3,17 +3,17 @@ package io.github.lightman314.lctech.common.notifications.types;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 public class EnergyTradeNotification extends Notification {
 
@@ -40,7 +40,7 @@ public class EnergyTradeNotification extends Notification {
 		
 	}
 	
-	public EnergyTradeNotification(CompoundTag compound) { this.load(compound); }
+	public EnergyTradeNotification(CompoundNBT compound) { this.load(compound); }
 	
 	@Override
 	public ResourceLocation getType() { return TYPE; }
@@ -49,16 +49,16 @@ public class EnergyTradeNotification extends Notification {
 	public NotificationCategory getCategory() { return this.traderData; }
 	
 	@Override
-	public MutableComponent getMessage() {
+	public IFormattableTextComponent getMessage() {
 		
-		Component boughtText = new TranslatableComponent("log.shoplog." + this.tradeType.name().toLowerCase());
+		ITextComponent boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
 		
-		return new TranslatableComponent("notifications.message.energy_trade", this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
+		return EasyText.translatable("notifications.message.energy_trade", this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
 		
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
@@ -69,7 +69,7 @@ public class EnergyTradeNotification extends Notification {
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
@@ -81,8 +81,9 @@ public class EnergyTradeNotification extends Notification {
 	
 	@Override
 	protected boolean canMerge(Notification other) {
-		if(other instanceof EnergyTradeNotification etn)
+		if(other instanceof EnergyTradeNotification)
 		{
+			EnergyTradeNotification etn = (EnergyTradeNotification)other;
 			if(!etn.traderData.matches(this.traderData))
 				return false;
 			if(etn.tradeType != this.tradeType)

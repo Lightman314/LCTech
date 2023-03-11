@@ -5,8 +5,8 @@ import java.util.Map;
 
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lctech.common.util.EnergyUtil.EnergyActionResult;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public class TradeEnergyHandler {
@@ -123,7 +123,10 @@ public class TradeEnergyHandler {
 		return batteryStack;
 	}
 
-	private record BatteryInteractionEnergyHandler(EnergyTraderData trader) implements IEnergyStorage {
+	private static class BatteryInteractionEnergyHandler implements IEnergyStorage {
+
+		private final EnergyTraderData trader;
+		public BatteryInteractionEnergyHandler(EnergyTraderData trader) { this.trader = trader; }
 
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {

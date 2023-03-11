@@ -3,19 +3,20 @@ package io.github.lightman314.lctech.common.items;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 public class BatteryItem extends Item implements IBatteryItem{
@@ -30,34 +31,35 @@ public class BatteryItem extends Item implements IBatteryItem{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable World level, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flag) {
 		
 		super.appendHoverText(stack, level, tooltip, flag);
-		tooltip.add(new TextComponent(EnergyUtil.formatEnergyAmount(IBatteryItem.getStoredEnergy(stack))+ "/" + EnergyUtil.formatEnergyAmount(this.getMaxEnergyStorage(stack))).withStyle(ChatFormatting.AQUA));
+		tooltip.add(EasyText.literal(EnergyUtil.formatEnergyAmount(IBatteryItem.getStoredEnergy(stack))+ "/" + EnergyUtil.formatEnergyAmount(this.getMaxEnergyStorage(stack))).withStyle(TextFormatting.AQUA));
 		
 	}
 	
 	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt)
+	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt)
     {
         return IBatteryItem.createCapability(stack);
     }
 	
 	//Power Charge Bar
-	public boolean isBarVisible(ItemStack stack) {
-      return true;
+	@Override
+	public boolean showDurabilityBar(ItemStack stack) { return true; }
+
+	@Override
+	public double getDurabilityForDisplay(ItemStack stack) {
+		return 1d - ((double)IBatteryItem.getStoredEnergy(stack) / (double)this.getMaxEnergyStorage(stack));
 	}
 
-	public int getBarWidth(ItemStack stack) {
-		return Math.round((float)Math.min(IBatteryItem.getStoredEnergy(stack), this.getMaxEnergyStorage(stack)) * 13.0F / (float)this.getMaxEnergyStorage(stack));
-	}
-
-	public int getBarColor(ItemStack stack) {
-		return ChatFormatting.AQUA.getColor();
+	@Override
+	public int getRGBDurabilityForDisplay(ItemStack stack) {
+		return TextFormatting.AQUA.getColor();
 	}
 	
 	@Override
-	 public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
+	 public void fillItemCategory(@Nonnull ItemGroup tab, @Nonnull NonNullList<ItemStack> list) {
 		if (this.allowdedIn(tab)) {
 			list.add(new ItemStack(this));
 			list.add(IBatteryItem.getFullBattery(this));

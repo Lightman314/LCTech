@@ -3,8 +3,7 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.f
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.LCTech;
@@ -24,17 +23,18 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.Color;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nonnull;
 
 public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTab> implements IScrollListener, IScrollable{
 	
@@ -54,10 +54,10 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	ScrollBarWidget scrollBar;
 	
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
+	public @Nonnull IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 
 	@Override
-	public MutableComponent getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.trader.storage"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.storage"); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -75,14 +75,15 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, EasyText.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
-		if(this.menu.getTrader() instanceof FluidTraderData trader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			//Validate the scroll
 			this.validateScroll();
 			//Render each tank
@@ -96,7 +97,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				//Render the filter fluid
 				ItemRenderUtil.drawItemStack(this.screen, this.font, FluidItemUtil.getFluidDisplayItem(entry.filter), xPos + 1, yPos);
 				//Render the drain/fillable buttons
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+				RenderUtil.bindTexture(GUI_TEXTURE);
 				if(trader.drainCapable())
 				{
 					this.screen.blit(pose, xPos + 1, yPos + 16, entry.drainable ? 0 : 8, 0, 8, 8);
@@ -107,16 +108,16 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				//Render the fluid in the tank
 				FluidRenderUtil.drawFluidTankInGUI(entry.filter, xPos + 1, yPos + 25, 16, 64, (double)entry.getStoredAmount() / (double)storage.getTankCapacity());
 				//Render the tank overlay (glass)
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+				RenderUtil.bindTexture(GUI_TEXTURE);
+				RenderUtil.color4f(1f, 1f, 1f, 1f);
 				this.screen.blit(pose, xPos, yPos + 24, 18, 16, 18, 66);
 				
 				index++;
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
 				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
@@ -126,7 +127,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
 			TraderFluidStorage storage = ((FluidTraderData)this.menu.getTrader()).getStorage();
@@ -138,14 +139,14 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 					return;
 				FluidEntry entry = storage.getContents().get(hoveredSlot);
 				//Fluid Name
-				List<Component> tooltips = new ArrayList<>();
+				List<ITextComponent> tooltips = new ArrayList<>();
 				tooltips.add(FluidFormatUtil.getFluidName(entry.filter));
 				//'amount'/'capacity'mB
-				tooltips.add(new TextComponent(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
+				tooltips.add(EasyText.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(TextFormatting.GRAY));
 				//Pending drain
 				if(entry.hasPendingDrain())
-					tooltips.add(new TranslatableComponent("gui.lctech.fluidtrade.pending_drain", FluidFormatUtil.formatFluidAmount(entry.getPendingDrain())));
-				tooltips.add(new TranslatableComponent("tooltip.lctech.trader.fluid.fill_tank"));
+					tooltips.add(EasyText.translatable("gui.lctech.fluidtrade.pending_drain", FluidFormatUtil.formatFluidAmount(entry.getPendingDrain())));
+				tooltips.add(EasyText.translatable("tooltip.lctech.trader.fluid.fill_tank"));
 				this.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
 				
 			}
@@ -158,9 +159,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 					return;
 				FluidEntry entry = storage.getContents().get(tank);
 				if(drainState)
-					this.screen.renderTooltip(pose, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.drain." + (entry.drainable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.drainable ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+					this.screen.renderTooltip(pose, EasyText.translatable("tooltip.lctech.trader.fluid_settings.drain." + (entry.drainable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(Color.fromRgb(entry.drainable ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);
 				else
-					this.screen.renderTooltip(pose, new TranslatableComponent("tooltip.lctech.trader.fluid_settings.fill." + (entry.fillable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.fillable ? ENABLED_COLOR : DISABLED_COLOR)), mouseX, mouseY);
+					this.screen.renderTooltip(pose, EasyText.translatable("tooltip.lctech.trader.fluid_settings.fill." + (entry.fillable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(Color.fromRgb(entry.fillable ? ENABLED_COLOR : DISABLED_COLOR))), mouseX, mouseY);
 			}
 		}
 	}
@@ -174,8 +175,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	
 	private Pair<Integer,Boolean> isMouseOverDrainFill(double mouseX, double mouseY)
 	{
-		if(this.menu.getTrader() instanceof FluidTraderData trader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(!trader.drainCapable())
 				return null;
 			int leftEdge = this.screen.getGuiLeft() + X_OFFSET;

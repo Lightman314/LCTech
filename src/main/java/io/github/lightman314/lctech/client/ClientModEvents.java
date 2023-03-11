@@ -11,10 +11,10 @@ import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.menu.slots.FluidInputSlot;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -27,24 +27,20 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void onModelBakeEvent(ModelBakeEvent event)
 	{
-		FluidTankItem.getTankModelList().forEach(itemModelResourceLocation ->{
-			replaceModel(itemModelResourceLocation, event.getModelRegistry(), (existingModel) -> new FluidTankModel(existingModel));
-		});
-		FluidShardItem.getShardModelList().forEach(itemModelResourceLocation ->{
-			replaceModel(itemModelResourceLocation, event.getModelRegistry(), (existingModel) -> new FluidShardModel(existingModel));
-		});
+		FluidTankItem.getTankModelList().forEach(itemModelResourceLocation -> replaceModel(itemModelResourceLocation, event.getModelRegistry(), FluidTankModel::new));
+		FluidShardItem.getShardModelList().forEach(itemModelResourceLocation -> replaceModel(itemModelResourceLocation, event.getModelRegistry(), FluidShardModel::new));
 	}
 	
-	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ResourceLocation, BakedModel> modelRegistry, Function<BakedModel,BakedModel> modelGenerator)
+	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ResourceLocation, IBakedModel> modelRegistry, Function<IBakedModel,IBakedModel> modelGenerator)
 	{
-		BakedModel existingModel = modelRegistry.get(itemModelResourceLocation);
+		IBakedModel existingModel = modelRegistry.get(itemModelResourceLocation);
 		if(existingModel == null) {
 			LCTech.LOGGER.warn("Did not find the expected vanilla baked model for FluidTankModel in registry.");
 		}
 		else {
 			//Replace the model
 			//LCTech.LOGGER.info("Replacing the Fluid Tank item model.");
-			BakedModel customModel = modelGenerator.apply(existingModel);
+			IBakedModel customModel = modelGenerator.apply(existingModel);
 			modelRegistry.put(itemModelResourceLocation, customModel);
 		}
 	}
@@ -52,7 +48,7 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void stitchTextures(TextureStitchEvent.Pre event)
 	{
-		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
+		if(event.getMap().location() == PlayerContainer.BLOCK_ATLAS) {
 			//Add bucket slot backgrounds
 			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
 			event.addSprite(BatteryInputSlot.EMPTY_BATTERY_SLOT);

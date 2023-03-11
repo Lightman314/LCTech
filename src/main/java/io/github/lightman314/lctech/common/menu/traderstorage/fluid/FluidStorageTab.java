@@ -13,14 +13,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -35,7 +35,7 @@ public class FluidStorageTab extends TraderStorageTab{
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new FluidStorageClientTab(screen, this); }
 
 	@Override
-	public boolean canOpen(Player player) { return true; }
+	public boolean canOpen(PlayerEntity player) { return true; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
@@ -43,8 +43,9 @@ public class FluidStorageTab extends TraderStorageTab{
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof FluidTraderData trader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
@@ -70,18 +71,18 @@ public class FluidStorageTab extends TraderStorageTab{
 	}
 
 	public void interactWithTank(int tank, boolean shiftHeld) {
-		if(this.menu.getTrader() instanceof FluidTraderData trader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
-			
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("InteractWithTank", tank);
 				message.putBoolean("ShiftHeld", shiftHeld);
 				this.menu.sendMessage(message);
 			}
 
-			ItemStack heldStack = this.menu.getCarried();
+			ItemStack heldStack = this.menu.player.inventory.getCarried();
 			if(heldStack.isEmpty()) //If held stack is empty, do nothing
 				return;
 			
@@ -89,7 +90,7 @@ public class FluidStorageTab extends TraderStorageTab{
 			FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trader.getStorage(), Integer.MAX_VALUE, this.menu.player, true);
 			if(result.isSuccess())
 			{
-				//LCTech.LOGGER.info("Successfuly filled the tank with some of the held fluid.");
+				//LCTech.LOGGER.info("Successfuly filled the tank with some held fluid.");
 				
 				//If creative, and the item was a bucket, don't move the items around
 				if(this.menu.player.isCreative() && result.getResult().getItem() == Items.BUCKET)
@@ -108,12 +109,12 @@ public class FluidStorageTab extends TraderStorageTab{
 				if(heldStack.getCount() > 1)
 				{
 					heldStack.shrink(1);
-					this.menu.setCarried(heldStack);
+					this.menu.player.inventory.setCarried(heldStack);
 					ItemHandlerHelper.giveItemToPlayer(this.menu.player, result.getResult());
 				}
 				else
 				{
-					this.menu.setCarried(result.getResult());
+					this.menu.player.inventory.setCarried(result.getResult());
 				}
 			}
 			else
@@ -125,7 +126,7 @@ public class FluidStorageTab extends TraderStorageTab{
 				result = FluidUtil.tryFillContainer(heldStack, tankEntry, Integer.MAX_VALUE, this.menu.player, true);
 				if(result.isSuccess())
 				{
-					//LCTech.LOGGER.info("Successfully drained some of the tanks fluids.");
+					//LCTech.LOGGER.info("Successfully drained some tanks fluids.");
 					
 					//If creative, and the item was a bucket, don't move the items around
 					if(this.menu.player.isCreative() && heldStack.getItem() == Items.BUCKET)
@@ -147,12 +148,12 @@ public class FluidStorageTab extends TraderStorageTab{
 					if(heldStack.getCount() > 1)
 					{
 						heldStack.shrink(1);
-						this.menu.setCarried(heldStack);
+						this.menu.player.inventory.setCarried(heldStack);
 						ItemHandlerHelper.giveItemToPlayer(this.menu.player, result.getResult());
 					}
 					else
 					{
-						this.menu.setCarried(result.getResult());
+						this.menu.player.inventory.setCarried(result.getResult());
 					}
 				}
 					
@@ -161,9 +162,9 @@ public class FluidStorageTab extends TraderStorageTab{
 	}
 	
 	public void toggleDrainFillState(int tank, boolean drainState, boolean newValue) {
-		if(this.menu.getTrader() instanceof FluidTraderData trader)
+		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
-
+			FluidTraderData trader = (FluidTraderData)this.menu.getTrader();
 			if(!trader.drainCapable())
 				return;
 			
@@ -179,7 +180,7 @@ public class FluidStorageTab extends TraderStorageTab{
 			
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
+				CompoundNBT message = new CompoundNBT();
 				message.putInt("ToggleDrainFillSlot", tank);
 				message.putBoolean("DrainState", drainState);
 				message.putBoolean("NewValue", newValue);
@@ -189,12 +190,12 @@ public class FluidStorageTab extends TraderStorageTab{
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
-		if(message.contains("InteractWithTank", Tag.TAG_INT))
+	public void receiveMessage(CompoundNBT message) {
+		if(message.contains("InteractWithTank", Constants.NBT.TAG_INT))
 		{
 			this.interactWithTank(message.getInt("InteractWithTank"), message.getBoolean("ShiftHeld"));
 		}
-		else if(message.contains("ToggleDrainFillSlot", Tag.TAG_INT))
+		else if(message.contains("ToggleDrainFillSlot", Constants.NBT.TAG_INT))
 		{
 			int tank = message.getInt("ToggleDrainFillSlot");
 			boolean drainState = message.getBoolean("DrainState");

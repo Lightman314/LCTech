@@ -6,9 +6,11 @@ import java.util.Map;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Direction;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+
+import javax.annotation.Nonnull;
 
 public class TradeFluidHandler{
 
@@ -75,6 +77,7 @@ public class TradeFluidHandler{
 			return this.trader.getTradeCount();
 		}
 		
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) {
 			if(tank >= 0 && tank < this.trader.getStorage().getContents().size())
@@ -92,7 +95,7 @@ public class TradeFluidHandler{
 		}
 		
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
 			if(!this.canFill())
 				return false;
 			FluidEntry entry = this.getTankEntry(tank);
@@ -124,6 +127,7 @@ public class TradeFluidHandler{
 			return this.trader.allowOutputSide(this.relativeDirection);
 		}
 		
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if(!this.canDrain())
@@ -133,7 +137,7 @@ public class TradeFluidHandler{
 			FluidEntry tank = this.getValidDrainTank(resource);
 			if(tank != null)
 			{
-				int drainAmount = 0;
+				int drainAmount;
 				if(tank.hasPendingDrain()) //Limit drain amount to pending drain
 					drainAmount = Math.min(resource.getAmount(), this.isCreative() ? tank.getPendingDrain() : Math.min(tank.getPendingDrain(), tank.getStoredAmount()));
 				else //Allow full drainage, as this is a purchase tank drainage
@@ -160,6 +164,7 @@ public class TradeFluidHandler{
 			return FluidStack.EMPTY;
 		}
 		
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(!this.canDrain())
@@ -167,7 +172,7 @@ public class TradeFluidHandler{
 			FluidEntry tank = getValidDrainTank(FluidStack.EMPTY);
 			if(tank != null)
 			{
-				int drainAmount = 0;
+				int drainAmount;
 				if(tank.hasPendingDrain()) //Limit drain amount to pending drain
 					drainAmount = Math.min(maxDrain, this.isCreative() ? tank.getPendingDrain() : Math.min(tank.getPendingDrain(), tank.getTankContents().getAmount()));
 				else //Allow full drainage, as this is a purchase tank drainage

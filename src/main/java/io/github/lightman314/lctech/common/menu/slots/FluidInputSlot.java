@@ -3,20 +3,20 @@ package io.github.lightman314.lctech.common.menu.slots;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.LCTech;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidUtil;
 
-public class FluidInputSlot extends Slot{
+public class FluidInputSlot extends Slot {
 
 	public static final ResourceLocation EMPTY_FLUID_SLOT = new ResourceLocation(LCTech.MODID, "item/empty_fluid_slot");
-	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_FLUID_SLOT);
+	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(PlayerContainer.BLOCK_ATLAS, EMPTY_FLUID_SLOT);
 	
-	public FluidInputSlot(Container inventory, int index, int x, int y)
+	public FluidInputSlot(IInventory inventory, int index, int x, int y)
 	{
 		super(inventory, index, x, y);
 	}

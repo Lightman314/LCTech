@@ -13,16 +13,15 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-0.1.1.0'
+version = '1.16.5-0.1.1.0'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
-    mappings channel: 'official', version: '1.18.2'
+    mappings channel: 'official', version: '1.16.5'
     runs {
     
     }
@@ -39,11 +38,11 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.18.2-40.1.68'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
     
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4422380')
-    
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3784660')
+    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4431050')
+
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3708398')
     
 }
 

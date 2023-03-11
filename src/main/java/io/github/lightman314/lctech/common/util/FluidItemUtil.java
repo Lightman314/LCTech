@@ -6,13 +6,13 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -61,12 +61,12 @@ public class FluidItemUtil {
 				if(tag.isJsonPrimitive() && tag.getAsJsonPrimitive().isString())
 				{
 					//Parse the compound tag
-					CompoundTag compound = TagParser.parseTag(tag.getAsString());
+					CompoundNBT compound = JsonToNBT.parseTag(tag.getAsString());
 					result.setTag(compound);
 				}
 				else
 				{
-					CompoundTag compound = TagParser.parseTag(FileUtil.GSON.toJson(tag));
+					CompoundNBT compound = JsonToNBT.parseTag(FileUtil.GSON.toJson(tag));
 					result.setTag(compound);
 				}
 			}

@@ -3,8 +3,7 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
@@ -22,17 +21,18 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nonnull;
 
 public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorageTab> implements IScrollListener, IScrollable {
 	
@@ -57,10 +57,10 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	int scroll = 0;
 	
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK.get()); }
+	public @Nonnull IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK.get()); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -91,9 +91,9 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	}
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		this.scrollBar.beforeWidgetRender(mouseY);
 		
@@ -113,37 +113,37 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				//Render the filter fluid
 				//ItemRenderUtil.drawItemStack(this.screen, this.font, FluidItemUtil.getFluidDisplayItem(entry.filter), xPos + 1, yPos);
 				//Render the tank bg
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+				RenderUtil.bindTexture(GUI_TEXTURE);
 				this.screen.blit(pose, xPos, yPos, 36, 16, 18, 53);
 				//Render the fluid in the tank
 				FluidRenderUtil.drawFluidTankInGUI(entry.filter, xPos + 1, yPos + 1, 16, 51, (double)entry.getStoredAmount() / (double)storage.getTankCapacity());
 				//Render the tank overlay (glass)
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+				RenderUtil.bindTexture(GUI_TEXTURE);
+				RenderUtil.color4f(1f, 1f, 1f, 1f);
 				this.screen.blit(pose, xPos, yPos, 54, 16, 18, 53);
 				
 				index++;
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
 				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			}
 			
 			//Render the input/output labels
-			this.font.draw(pose, new TranslatableComponent("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(new TranslatableComponent("gui.lctech.settings.fluidoutput.side"));
-			this.font.draw(pose, new TranslatableComponent("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			this.font.draw(pose, EasyText.translatable("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			int textWidth = this.font.width(EasyText.translatable("gui.lctech.settings.fluidoutput.side"));
+			this.font.draw(pose, EasyText.translatable("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
 			
 		}
 		
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
 		this.inputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);
 		this.outputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);
@@ -159,11 +159,11 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 					return;
 				FluidEntry entry = storage.getContents().get(hoveredSlot);
 				//Fluid Name
-				List<Component> tooltips = new ArrayList<>();
+				List<ITextComponent> tooltips = new ArrayList<>();
 				tooltips.add(FluidFormatUtil.getFluidName(entry.filter));
 				//'amount'/'capacity'mB
-				tooltips.add(new TextComponent(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
-				tooltips.add(new TranslatableComponent("tooltip.lctech.trader.fluid.fill_tank"));
+				tooltips.add(EasyText.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(TextFormatting.GRAY));
+				tooltips.add(EasyText.translatable("tooltip.lctech.trader.fluid.fill_tank"));
 				this.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
 			}
 		}

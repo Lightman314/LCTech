@@ -4,12 +4,10 @@ import java.text.DecimalFormat;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class EnergyUtil {
@@ -95,11 +93,8 @@ public class EnergyUtil {
     
     /**
      * Fill a destination energy handler from a source energy handler with a max amount.
-     * To specify a fluid to transfer instead of max amount, use {@link #tryEnergyTransfer(IFluidHandler, IFluidHandler, FluidStack, boolean)}
      * To transfer as much as possible, use {@link Integer#MAX_VALUE} for maxAmount.
      *
-     * @param energyDestination The energy handler to be filled.
-     * @param energySource      The energy handler to be drained.
      * @param maxAmount        The largest amount of energy that should be transferred.
      * @param doTransfer       True if the transfer should actually be done, false if it should be simulated.
      * @return the amount of energy that was transferred from the source to the destination. 0 on failure.

@@ -5,7 +5,7 @@ import io.github.lightman314.lctech.common.upgrades.types.capacity.EnergyCapacit
 import io.github.lightman314.lctech.common.upgrades.types.capacity.FluidCapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 

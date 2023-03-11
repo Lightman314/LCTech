@@ -9,14 +9,14 @@ import io.github.lightman314.lctech.common.blocks.traderblocks.*;
 import io.github.lightman314.lctech.common.blocks.traderinterface.*;
 import io.github.lightman314.lctech.common.items.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraftforge.fluids.FluidAttributes;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.RegistryObject;
 
 public class ModBlocks {
 	
@@ -25,7 +25,7 @@ public class ModBlocks {
 	 */
 	public static void init() { }
 	
-	private static BiFunction<Block,CreativeModeTab,Item> getDefaultGenerator() {
+	private static BiFunction<Block, ItemGroup, Item> getDefaultGenerator() {
 		return (block, tab) -> {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
@@ -33,7 +33,7 @@ public class ModBlocks {
 			return new BlockItem(block, properties);
 		};
 	}
-	private static BiFunction<Block,CreativeModeTab,Item> getFluidTankGenerator() {
+	private static BiFunction<Block,ItemGroup,Item> getFluidTankGenerator() {
 		return (block, tab) -> {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
@@ -157,12 +157,12 @@ public class ModBlocks {
 	/**
 	* Block Registration Code
 	*/
-	private static RegistryObject<Block> register(String name, CreativeModeTab itemGroup, Supplier<Block> sup)
+	private static RegistryObject<Block> register(String name, ItemGroup itemGroup, Supplier<Block> sup)
 	{
 		return register(name, itemGroup, getDefaultGenerator(), sup);
 	}
 	
-	private static RegistryObject<Block> register(String name, CreativeModeTab itemGroup, BiFunction<Block,CreativeModeTab,Item> itemGenerator, Supplier<Block> sup)
+	private static RegistryObject<Block> register(String name, ItemGroup itemGroup, BiFunction<Block,ItemGroup,Item> itemGenerator, Supplier<Block> sup)
 	{
 		RegistryObject<Block> block = ModRegistries.BLOCKS.register(name, sup);
 		if(block != null)

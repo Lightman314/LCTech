@@ -4,10 +4,10 @@ import java.text.DecimalFormat;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.Rarity;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
+import net.minecraft.item.Rarity;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidStack;
 
 public class FluidFormatUtil {
@@ -17,14 +17,14 @@ public class FluidFormatUtil {
 		return new DecimalFormat().format(amount);
 	}
 	
-	public static MutableComponent getFluidName(FluidStack fluid)
+	public static IFormattableTextComponent getFluidName(FluidStack fluid)
 	{
 		return getFluidName(fluid, null);
 	}
 	
-	public static MutableComponent getFluidName(FluidStack fluid, @Nullable ChatFormatting colorOverride)
+	public static IFormattableTextComponent getFluidName(FluidStack fluid, @Nullable TextFormatting colorOverride)
 	{
-		MutableComponent component = new TranslatableComponent(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).color);
+		IFormattableTextComponent component = EasyText.translatable(fluid.getTranslationKey()).withStyle(fluid.getFluid().getAttributes().getRarity(fluid).color);
 		if(colorOverride != null && fluid.getFluid().getAttributes().getRarity(fluid) == Rarity.COMMON)
 			component.withStyle(colorOverride);
 		return component;

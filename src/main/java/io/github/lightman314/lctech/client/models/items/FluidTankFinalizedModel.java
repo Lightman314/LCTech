@@ -7,29 +7,32 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.fluids.FluidStack;
 
-public class FluidTankFinalizedModel implements BakedModel{
-	
-	BakedModel parentModel;
+public class FluidTankFinalizedModel implements IBakedModel{
+
+	IBakedModel parentModel;
 	FluidStack tank;
 	int capacity;
 	FluidRenderData renderData;
 	
-	public FluidTankFinalizedModel(BakedModel parentModel, FluidStack tank, int capacity, FluidRenderData renderData)
+	public FluidTankFinalizedModel(IBakedModel parentModel, FluidStack tank, int capacity, FluidRenderData renderData)
 	{
 		this.parentModel = parentModel;
 		this.tank = tank;
 		this.capacity = capacity;
 		this.renderData = renderData;
 	}
+
+
 
 	@Override
 	@SuppressWarnings("deprecation")
@@ -65,7 +68,7 @@ public class FluidTankFinalizedModel implements BakedModel{
 	}
 	
 	@Override
-	public ItemOverrides getOverrides() {
+	public ItemOverrideList getOverrides() {
 		return null;
 	}
 	
@@ -77,7 +80,7 @@ public class FluidTankFinalizedModel implements BakedModel{
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public ItemTransforms getTransforms() {
+	public ItemCameraTransforms getTransforms() {
 		return this.parentModel.getTransforms();
 	}
 

@@ -5,23 +5,24 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	
 	protected int tradeCount;
 	protected boolean networkTrader;
 	
-	public FluidTraderBlockEntity(BlockPos pos, BlockState state) { this(pos, state, 1, false); }
-	public FluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount) { this(pos, state, tradeCount, false); }
-	public FluidTraderBlockEntity(BlockPos pos, BlockState state, int tradeCount, boolean networkTrader) {
-		super(ModBlockEntities.FLUID_TRADER.get(), pos, state);
+	public FluidTraderBlockEntity() { this(1, false); }
+	public FluidTraderBlockEntity(int tradeCount) { this(tradeCount, false); }
+	public FluidTraderBlockEntity(int tradeCount, boolean networkTrader) {
+		super(ModBlockEntities.FLUID_TRADER.get());
 		this.tradeCount = tradeCount;
 		this.networkTrader = networkTrader;
 	}
@@ -33,24 +34,26 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		return trader;
 	}
 	
+	@Nonnull
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public CompoundNBT save(@Nonnull CompoundNBT compound)
 	{
-		super.saveAdditional(compound);
+		compound = super.save(compound);
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
+		return compound;
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
-		super.load(compound);
+		super.load(state, compound);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}
 	
 	@Override
-	public AABB getRenderBoundingBox()
+	public AxisAlignedBB getRenderBoundingBox()
 	{
 		if(this.getBlockState() != null)
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
@@ -58,18 +61,25 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	}
 	
 	@Override @Deprecated
-	protected FluidTraderData createTraderFromOldData(CompoundTag compound) {
+	protected FluidTraderData createTraderFromOldData(CompoundNBT compound) {
 		FluidTraderData newTrader = new FluidTraderData(1, this.level, this.worldPosition);
 		newTrader.loadOldBlockEntityData(compound);
 		this.tradeCount = newTrader.getTradeCount();
 		return newTrader;
 	}
-	
+
+	@Override
+	protected void loadAsFormerNetworkTrader(@Nullable FluidTraderData fluidTraderData, CompoundNBT compoundNBT) {
+		this.tradeCount = fluidTraderData.getTradeCount();
+		this.networkTrader = true;
+	}
+
 	@OnlyIn(Dist.CLIENT)
 	public int getTradeRenderLimit()
 	{
-		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock b)
+		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock)
 		{
+			IFluidTraderBlock b = (IFluidTraderBlock)this.getBlockState().getBlock();
 			return b.getTradeRenderLimit();
 		}
 		return 0;
@@ -78,8 +88,9 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	@OnlyIn(Dist.CLIENT)
 	public FluidRenderData getRenderPosition(int index)
 	{
-		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock b)
+		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock)
 		{
+			IFluidTraderBlock b = (IFluidTraderBlock)this.getBlockState().getBlock();
 			return b.getRenderPosition(this.getBlockState(), index);
 		}
 		return null;

@@ -3,9 +3,9 @@ package io.github.lightman314.lctech.common.traders.fluid;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -17,14 +17,14 @@ public class TraderFluidStorage implements IFluidHandler {
 	
 	public TraderFluidStorage(ITraderFluidFilter filter) { this.filter = filter; }
 	
-	public CompoundTag save(CompoundTag compound, String tag) {
-		ListTag list = new ListTag();
+	public CompoundNBT save(CompoundNBT compound, String tag) {
+		ListNBT list = new ListNBT();
 		for(int i = 0; i < this.tanks.size(); ++i)
 		{
 			FluidEntry tank = this.tanks.get(i);
 			if(!tank.filter.isEmpty())
 			{
-				CompoundTag fluidTag = new CompoundTag();
+				CompoundNBT fluidTag = new CompoundNBT();
 				tank.save(fluidTag);
 				list.add(fluidTag);
 			}
@@ -33,14 +33,14 @@ public class TraderFluidStorage implements IFluidHandler {
 		return compound;
 	}
 	
-	public void load(CompoundTag compound, String tag) {
-		if(compound.contains(tag, Tag.TAG_LIST))
+	public void load(CompoundNBT compound, String tag) {
+		if(compound.contains(tag, Constants.NBT.TAG_LIST))
 		{
-			ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
+			ListNBT list = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
 			this.tanks.clear();
 			for(int i = 0; i < list.size(); ++i)
 			{
-				CompoundTag fluidTag = list.getCompound(i);
+				CompoundNBT fluidTag = list.getCompound(i);
 				FluidEntry tank = FluidEntry.load(this, fluidTag);
 				if(!tank.filter.isEmpty())
 					this.tanks.add(tank);
@@ -49,10 +49,10 @@ public class TraderFluidStorage implements IFluidHandler {
 		this.refactorTanks();
 	}
 	
-	public void loadFromTrades(ListTag fluidTradeList) {
+	public void loadFromTrades(ListNBT fluidTradeList) {
 		for(int i = 0; i < fluidTradeList.size(); ++i)
 		{
-			CompoundTag fluidTrade = fluidTradeList.getCompound(i);
+			CompoundNBT fluidTrade = fluidTradeList.getCompound(i);
 			if(fluidTrade.contains("Tank"))
 			{
 				FluidStack tankContents = FluidStack.loadFluidStackFromNBT(fluidTrade.getCompound("Tank"));
@@ -335,7 +335,7 @@ public class TraderFluidStorage implements IFluidHandler {
 			this.fillable = fillable;
 		}
 		
-		public static FluidEntry load(TraderFluidStorage parent, CompoundTag compound) {
+		public static FluidEntry load(TraderFluidStorage parent, CompoundNBT compound) {
 			FluidStack filter = FluidStack.loadFluidStackFromNBT(compound.getCompound("Filter"));
 			int amount = compound.getInt("Amount");
 			int pendingDrain = compound.getInt("PendingDrain");
@@ -344,8 +344,8 @@ public class TraderFluidStorage implements IFluidHandler {
 			return new FluidEntry(parent, filter, amount, pendingDrain, drainable, fillable);
 		}
 		
-		private void save(CompoundTag compound) {
-			CompoundTag filterTag = new CompoundTag();
+		private void save(CompoundNBT compound) {
+			CompoundNBT filterTag = new CompoundNBT();
 			this.filter.writeToNBT(filterTag);
 			compound.put("Filter", filterTag);
 			compound.putInt("Amount", this.storedAmount);

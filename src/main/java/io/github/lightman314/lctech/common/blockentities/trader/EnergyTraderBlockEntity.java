@@ -4,22 +4,23 @@ import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.block.BlockState;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.energy.CapabilityEnergy;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
 	protected boolean networkTrader;
 	
-	public EnergyTraderBlockEntity(BlockPos pos, BlockState state) { this(pos, state, false); }
-	public EnergyTraderBlockEntity(BlockPos pos, BlockState state, boolean networkTrader) {
-		super(ModBlockEntities.ENERGY_TRADER.get(), pos, state);
+	public EnergyTraderBlockEntity() { this(false); }
+	public EnergyTraderBlockEntity( boolean networkTrader) {
+		super(ModBlockEntities.ENERGY_TRADER.get());
 		this.networkTrader = networkTrader;
 	}
 	
@@ -30,22 +31,24 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		return trader;
 	}
 	
+	@Nonnull
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public CompoundNBT save(@Nonnull CompoundNBT compound)
 	{
-		super.saveAdditional(compound);
+		compound = super.save(compound);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
+		return compound;
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
 	{
-		super.load(compound);
+		super.load(state, compound);
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}
 	
 	@Override
-	public AABB getRenderBoundingBox()
+	public AxisAlignedBB getRenderBoundingBox()
 	{
 		if(this.getBlockState() != null)
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
@@ -53,16 +56,24 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 	}
 	
 	@Override @Deprecated
-	protected EnergyTraderData createTraderFromOldData(CompoundTag compound) {
+	protected EnergyTraderData createTraderFromOldData(CompoundNBT compound) {
 		EnergyTraderData newTrader = new EnergyTraderData(this.level, this.worldPosition);
 		newTrader.loadOldBlockEntityData(compound);
 		return newTrader;
 	}
-	
+
 	@Override
-	public void serverTick() {
-		super.serverTick();
-		
+	protected void loadAsFormerNetworkTrader(@Nullable EnergyTraderData energyTraderData, CompoundNBT compoundNBT) {
+		this.networkTrader = true;
+		this.setChanged();
+	}
+
+	@Override
+	public void tick() {
+		super.tick();
+		if(this.isClient())
+			return;
+
 		EnergyTraderData trader = this.getTraderData();
 		if(trader != null && trader.canDrainExternally() && trader.getDrainableEnergy() > 0)
 		{
@@ -72,10 +83,13 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 				{
 					//LCTech.LOGGER.debug("Attempting to EXPORT energy from an energy trader.\nAvailable Energy: " + trader.getTotalEnergy() + "\nDrainable Energy: " + trader.getDrainableEnergy());
 					Direction actualSide = relativeSide;
-					if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
+					if(this.getBlockState().getBlock() instanceof IRotatableBlock)
+					{
+						IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
 						actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
+					}
 					
-					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(actualSide));
+					TileEntity be = this.level.getBlockEntity(this.worldPosition.relative(actualSide));
 					if(be != null)
 					{
 						be.getCapability(CapabilityEnergy.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {

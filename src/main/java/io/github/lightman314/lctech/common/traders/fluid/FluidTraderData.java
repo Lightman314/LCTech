@@ -20,6 +20,7 @@ import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -34,20 +35,19 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -72,16 +72,16 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public final boolean drainCapable() { return !this.showOnTerminal(); }
 	
 	public FluidTraderData() { super(TYPE); }
-	public FluidTraderData(int tradeCount, Level level, BlockPos pos) {
+	public FluidTraderData(int tradeCount, World level, BlockPos pos) {
 		super(TYPE, level, pos);
 		this.trades = FluidTradeData.listOfSize(tradeCount, true);
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadAdditional(CompoundNBT compound) {
 		super.loadAdditional(compound);
 		
-		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
+		if(compound.contains(TradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(compound, !this.isPersistent());
 		
 		if(compound.contains("FluidStorage"))
@@ -90,7 +90,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundNBT compound) {
 		super.saveAdditional(compound);
 		
 		this.saveTrades(compound);
@@ -98,12 +98,12 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		
 	}
 	
-	protected final void saveTrades(CompoundTag compound)
+	protected final void saveTrades(CompoundNBT compound)
 	{
 		FluidTradeData.WriteNBTList(this.trades, compound);
 	}
 	
-	protected final void saveStorage(CompoundTag compound)
+	protected final void saveStorage(CompoundNBT compound)
 	{
 		this.storage.save(compound, "FluidStorage");
 	}
@@ -112,7 +112,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public int getTradeCount() { return this.trades.size(); }
 	
 	@Override
-	public void addTrade(Player requestor) {
+	public void addTrade(PlayerEntity requestor) {
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
 			return;
 		if(!CommandLCAdmin.isAdminPlayer(requestor))
@@ -124,7 +124,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	public void removeTrade(Player requestor) {
+	public void removeTrade(PlayerEntity requestor) {
 		if(this.getTradeCount() <= 1)
 			return;
 		if(!CommandLCAdmin.isAdminPlayer(requestor))
@@ -201,8 +201,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		for(int i = 0; i < this.getUpgrades().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem upgradeItem)
+			if(stack.getItem() instanceof UpgradeItem)
 			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -234,7 +235,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.WATER_BUCKET); }
 	@Override
-	public MutableComponent inputSettingsTabTooltip() { return new TranslatableComponent("tooltip.lctech.settings.fluidinput"); }
+	public IFormattableTextComponent inputSettingsTabTooltip() { return EasyText.translatable("tooltip.lctech.settings.fluidinput"); }
 	
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
@@ -459,11 +460,11 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) {
-		ListTag tradePersistentData = new ListTag();
+	protected void saveAdditionalPersistentData(CompoundNBT compound) {
+		ListNBT tradePersistentData = new ListNBT();
 		boolean tradesAreRelevant = false;
 		for (FluidTradeData trade : this.trades) {
-			CompoundTag ptTag = new CompoundTag();
+			CompoundNBT ptTag = new CompoundNBT();
 			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
@@ -473,22 +474,22 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) {
+	protected void loadAdditionalPersistentData(CompoundNBT compound) {
 		if(compound.contains("PersistentTradeData"))
 		{
-			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
+			ListNBT tradePersistentData = compound.getList("PersistentTradeData", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < tradePersistentData.size() && i < this.trades.size(); ++i)
 			{
 				FluidTradeData trade = this.trades.get(i);
-				CompoundTag ptTag = tradePersistentData.getCompound(i);
+				CompoundNBT ptTag = tradePersistentData.getCompound(i);
 				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData");
 			}
 		}
 	}
 	
 	@Override @Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) {
-		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
+	protected void loadExtraOldUniversalTraderData(CompoundNBT compound) {
+		if(compound.contains(TradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(compound, true);
 		
 		if(compound.contains("UpgradeInventory"))
@@ -496,28 +497,28 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		
 		if(compound.contains("FluidStorage"))
 			this.storage.load(compound, "FluidStorage");
-		else if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.storage.loadFromTrades(compound.getList(TradeData.DEFAULT_KEY, Tag.TAG_COMPOUND));
+		else if(compound.contains(TradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
+			this.storage.loadFromTrades(compound.getList(TradeData.DEFAULT_KEY, Constants.NBT.TAG_COMPOUND));
 		
 		if(compound.contains("FluidSettings"))
 		{
-			CompoundTag fs = compound.getCompound("FluidSettings");
+			CompoundNBT fs = compound.getCompound("FluidSettings");
 			if(fs.contains("InputSides"))
 				this.loadOldInputSides(fs.getCompound("InputSides"));
 			if(fs.contains("OutputSides"))
 				this.loadOldOutputSides(fs.getCompound("OutputSides"));
 		}
 		
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
+		if(compound.contains("TradeRules", Constants.NBT.TAG_LIST))
 			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
 		
 		if(compound.contains("FluidShopHistory"))
 		{
-			ListTag list = compound.getList("FluidShopHistory", Tag.TAG_COMPOUND);
+			ListNBT list = compound.getList("FluidShopHistory", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); ++i)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
+				IFormattableTextComponent text = ITextComponent.Serializer.fromJson(jsonText);
 				if(text != null)
 					this.pushLocalNotification(new TextNotification(text));
 			}
@@ -526,6 +527,6 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) { this.loadExtraOldUniversalTraderData(compound); }
+	protected void loadExtraOldBlockEntityData(CompoundNBT compound) { this.loadExtraOldUniversalTraderData(compound); }
 
 }

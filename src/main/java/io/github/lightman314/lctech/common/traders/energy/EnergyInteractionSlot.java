@@ -7,8 +7,8 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public class EnergyInteractionSlot extends InteractionSlotData {
 
@@ -21,6 +21,6 @@ public class EnergyInteractionSlot extends InteractionSlotData {
 
 	@Override
 	@Nullable
-	public Pair<ResourceLocation,ResourceLocation> emptySlotBG() { return BatteryInputSlot.BACKGROUND; }
+	public Pair<ResourceLocation, ResourceLocation> emptySlotBG() { return BatteryInputSlot.BACKGROUND; }
 	
 }

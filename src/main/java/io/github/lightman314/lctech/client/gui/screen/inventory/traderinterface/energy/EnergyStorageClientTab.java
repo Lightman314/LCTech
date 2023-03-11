@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.energy;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBlockEntity;
@@ -13,18 +12,19 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nonnull;
 
 public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStorageTab> {
 
@@ -43,10 +43,10 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	public EnergyStorageClientTab(TraderInterfaceScreen screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
+	public @Nonnull IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
 	
 	@Override
-	public Component getTooltip() { return new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"); }
+	public ITextComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -72,9 +72,9 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	}
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
-		this.font.draw(pose, new TranslatableComponent("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+		this.font.draw(pose, EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
 		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity)
 		{
@@ -82,14 +82,14 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
 			
 			//Render the slot bg for the upgrade/battery slots
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			RenderUtil.bindTexture(TraderInterfaceScreen.GUI_TEXTURE);
+			RenderUtil.color4f(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
 				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			}
-			
-			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+
+			RenderUtil.bindTexture(GUI_TEXTURE);
 			//Render the arrow between the arrow slots
 			this.screen.blit(pose, this.screen.getGuiLeft() + TraderMenu.SLOT_OFFSET + 25, this.screen.getGuiTop() + 121, 36, 0, 18, 18);
 			
@@ -103,21 +103,21 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 			this.screen.blit(pose, this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET + yOffset, 18, yOffset, 18, fillHeight);
 			
 			//Render the input/output labels
-			this.font.draw(pose, new TranslatableComponent("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(new TranslatableComponent("gui.lctech.settings.fluidoutput.side"));
-			this.font.draw(pose, new TranslatableComponent("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			this.font.draw(pose, EasyText.translatable("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			int textWidth = this.font.width(EasyText.translatable("gui.lctech.settings.fluidoutput.side"));
+			this.font.draw(pose, EasyText.translatable("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
 			
 		}
 		
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
 		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity && this.isMouseOverEnergy(mouseX, mouseY))
 		{
 			EnergyTraderInterfaceBlockEntity be = (EnergyTraderInterfaceBlockEntity)this.menu.getBE();
-			this.screen.renderTooltip(pose, new TextComponent(EnergyUtil.formatEnergyAmount(be.getStoredEnergy()) + "/" + EnergyUtil.formatEnergyAmount(be.getMaxEnergy())).withStyle(ChatFormatting.AQUA), mouseX, mouseY);
+			this.screen.renderTooltip(pose, EasyText.literal(EnergyUtil.formatEnergyAmount(be.getStoredEnergy()) + "/" + EnergyUtil.formatEnergyAmount(be.getMaxEnergy())).withStyle(TextFormatting.AQUA), mouseX, mouseY);
 		}
 		
 		this.inputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);

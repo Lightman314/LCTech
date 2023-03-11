@@ -21,6 +21,7 @@ import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
@@ -35,23 +36,21 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 
@@ -107,12 +106,12 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	int pendingDrain = 0;
 	
 	public EnergyTraderData() { super(TYPE);}
-	public EnergyTraderData(Level level, BlockPos pos) {
+	public EnergyTraderData(World level, BlockPos pos) {
 		super(TYPE, level, pos);
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(CompoundNBT compound) {
 		super.saveAdditional(compound);
 		
 		this.saveTrades(compound);
@@ -121,20 +120,20 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 		
 	}
 	
-	protected final void saveTrades(CompoundTag compound) {
+	protected final void saveTrades(CompoundNBT compound) {
 		EnergyTradeData.WriteNBTList(this.trades, compound);
 	}
 	
-	protected final void saveDrainMode(CompoundTag compound) {
+	protected final void saveDrainMode(CompoundNBT compound) {
 		compound.putInt("DrainMode", this.drainMode.index);
 	}
 	
-	protected final void saveEnergyStorage(CompoundTag compound) {
+	protected final void saveEnergyStorage(CompoundNBT compound) {
 		compound.putInt("Battery", this.energyStorage);
 		compound.putInt("PendingDrain", this.pendingDrain);
 	}
 	
-	public void loadAdditional(CompoundTag compound) {
+	public void loadAdditional(CompoundNBT compound) {
 		super.loadAdditional(compound);
 		
 		if(compound.contains(TradeData.DEFAULT_KEY))
@@ -170,7 +169,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	@Override
 	public int getMaxTradeCount() { return DEFAULT_TRADE_LIMIT; }
 	
-	public void addTrade(Player requestor)
+	public void addTrade(PlayerEntity requestor)
 	{
 		if(this.isClient())
 			return;
@@ -191,7 +190,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 		this.overrideTradeCount(this.getTradeCount() + 1);
 	}
 	
-	public void removeTrade(Player requestor)
+	public void removeTrade(PlayerEntity requestor)
 	{
 		if(this.isClient())
 			return;
@@ -259,8 +258,9 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 		for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
 		{
 			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem upgradeItem)
+			if(stack.getItem() instanceof UpgradeItem)
 			{
+				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -297,12 +297,12 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(ModItems.BATTERY); }
 	@Override
-	public MutableComponent inputSettingsTabTooltip() { return new TranslatableComponent("tooltip.lctech.settings.energyinput"); }
+	public IFormattableTextComponent inputSettingsTabTooltip() { return EasyText.translatable("tooltip.lctech.settings.energyinput"); }
 	@Override @OnlyIn(Dist.CLIENT)
 	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(EnergyInputAddon.INSTANCE); }
 	
 	@Override
-	public void receiveNetworkMessage(Player player, CompoundTag message)
+	public void receiveNetworkMessage(PlayerEntity player, CompoundNBT message)
 	{
 		super.receiveNetworkMessage(player, message);
 		if(message.contains("NewEnergyDrainMode"))
@@ -523,11 +523,11 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	}
 	
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) {
-		ListTag tradePersistentData = new ListTag();
+	protected void saveAdditionalPersistentData(CompoundNBT compound) {
+		ListNBT tradePersistentData = new ListNBT();
 		boolean tradesAreRelevant = false;
 		for (EnergyTradeData trade : this.trades) {
-			CompoundTag ptTag = new CompoundTag();
+			CompoundNBT ptTag = new CompoundNBT();
 			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
@@ -537,30 +537,30 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	}
 	
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) {
+	protected void loadAdditionalPersistentData(CompoundNBT compound) {
 		if(compound.contains("PersistentTradeData"))
 		{
-			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
+			ListNBT tradePersistentData = compound.getList("PersistentTradeData", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < tradePersistentData.size() && i < this.trades.size(); ++i)
 			{
 				EnergyTradeData trade = this.trades.get(i);
-				CompoundTag ptTag = tradePersistentData.getCompound(i);
+				CompoundNBT ptTag = tradePersistentData.getCompound(i);
 				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData");
 			}
 		}
 	}
 	
 	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) {
-		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
+	protected void loadExtraOldBlockEntityData(CompoundNBT compound) {
+		if(compound.contains(TradeData.DEFAULT_KEY, Constants.NBT.TAG_LIST))
 			this.trades = EnergyTradeData.LoadNBTList(compound, true);
 		
-		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
+		if(compound.contains("UpgradeInventory", Constants.NBT.TAG_LIST))
 			this.loadOldUpgradeData(InventoryUtil.loadAllItems("UpgradeInventory", compound, 5));
 		
-		if(compound.contains("EnergySettings", Tag.TAG_COMPOUND))
+		if(compound.contains("EnergySettings", Constants.NBT.TAG_COMPOUND))
 		{
-			CompoundTag es = compound.getCompound("EnergySettings");
+			CompoundNBT es = compound.getCompound("EnergySettings");
 			if(es.contains("InputSides"))
 				this.loadOldInputSides(es.getCompound("InputSides"));
 			if(es.contains("OutputSides"))
@@ -570,21 +570,21 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 				this.drainMode = DrainMode.of(compound.getInt("DrainMode"));
 		}
 		
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
+		if(compound.contains("TradeRules", Constants.NBT.TAG_LIST))
 			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
 		
-		if(compound.contains("Battery", Tag.TAG_INT))
+		if(compound.contains("Battery", Constants.NBT.TAG_INT))
 			this.energyStorage = compound.getInt("Battery");
-		if(compound.contains("PendingDrain", Tag.TAG_INT))
+		if(compound.contains("PendingDrain", Constants.NBT.TAG_INT))
 			this.pendingDrain = compound.getInt("PendingDrain");
 		
-		if(compound.contains("EnergyShopHistory", Tag.TAG_LIST))
+		if(compound.contains("EnergyShopHistory", Constants.NBT.TAG_LIST))
 		{
-			ListTag list = compound.getList("EnergyShopHistory", Tag.TAG_COMPOUND);
+			ListNBT list = compound.getList("EnergyShopHistory", Constants.NBT.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); ++i)
 			{
 				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
+				IFormattableTextComponent text = ITextComponent.Serializer.fromJson(jsonText);
 				if(text != null)
 					this.pushLocalNotification(new TextNotification(text));
 			}
@@ -593,15 +593,15 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 		
 	}
 	@Override @Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) { this.loadExtraOldBlockEntityData(compound); }
+	protected void loadExtraOldUniversalTraderData(CompoundNBT compound) { this.loadExtraOldBlockEntityData(compound); }
 	
-	public static List<Component> getEnergyHoverTooltip(EnergyTraderData trader)
+	public static List<ITextComponent> getEnergyHoverTooltip(EnergyTraderData trader)
 	{
-		List<Component> tooltip = Lists.newArrayList();
-		tooltip.add(new TextComponent(EnergyUtil.formatEnergyAmount(trader.getTotalEnergy()) + "/" + EnergyUtil.formatEnergyAmount(trader.getMaxEnergy())).withStyle(ChatFormatting.AQUA));
+		List<ITextComponent> tooltip = Lists.newArrayList();
+		tooltip.add(EasyText.literal(EnergyUtil.formatEnergyAmount(trader.getTotalEnergy()) + "/" + EnergyUtil.formatEnergyAmount(trader.getMaxEnergy())).withStyle(TextFormatting.AQUA));
 		if(trader.getPendingDrain() > 0)
 		{
-			tooltip.add(new TranslatableComponent("gui.lctech.energytrade.pending_drain", EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(ChatFormatting.AQUA));
+			tooltip.add(EasyText.translatable("gui.lctech.energytrade.pending_drain", EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(TextFormatting.AQUA));
 		}
 		return tooltip;
 	}

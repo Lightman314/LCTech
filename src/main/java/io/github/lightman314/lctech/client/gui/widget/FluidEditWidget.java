@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
@@ -13,32 +12,33 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.Fluids;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class FluidEditWidget extends AbstractWidget implements IScrollable{
+import javax.annotation.Nonnull;
+
+public class FluidEditWidget extends Widget implements IScrollable{
 
 	private static final List<Fluid> BLACKLISTED_FLUIDS = Lists.newArrayList(Fluids.EMPTY);
-	public static final void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
+	public static void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
 	
 	private int scroll = 0;
 	
-	private int columns;
-	private int rows;
+	private final int columns;
+	private final int rows;
 	
-	private int searchOffX;
-	private int searchOffY;
+	private final int searchOffX;
+	private final int searchOffY;
 	
 	private static List<Fluid> allFluids = null;
 	
@@ -46,14 +46,14 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	
 	private String searchString;
 	
-	EditBox searchInput;
+	TextFieldWidget searchInput;
 	
 	private final IFluidEditListener listener;
 	
-	private final Font font;
+	private final FontRenderer font;
 	
 	public FluidEditWidget(int x, int y, int columns, int rows, IFluidEditListener listener) {
-		super(x, y, columns * 18, rows * 18, new TextComponent(""));
+		super(x, y, columns * 18, rows * 18, EasyText.empty());
 		this.listener = listener;
 		
 		this.columns = columns;
@@ -70,7 +70,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		
 	}
 	
-	public static final void initFluidList() {
+	public static void initFluidList() {
 		if(allFluids != null)
 			return;
 		
@@ -118,8 +118,8 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 			this.searchResultFluids = allFluids;
 	}
 	
-	public void init(Function<EditBox,EditBox> addWidget, Function<ScrollListener,ScrollListener> addListener) {
-		this.searchInput = addWidget.apply(new EditBox(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, new TranslatableComponent("gui.lightmanscurrency.item_edit.search")));
+	public void init(Function<TextFieldWidget,TextFieldWidget> addWidget, Function<ScrollListener,ScrollListener> addListener) {
+		this.searchInput = addWidget.apply(new TextFieldWidget(this.font, this.x + this.searchOffX + 2, this.y + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
@@ -127,7 +127,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void render(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void render(@Nonnull MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.searchInput.visible = this.visible;
 		
 		if(!this.visible)
@@ -146,8 +146,8 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 				//Get the slot position
 				int xPos = this.x + x * 18;
 				//Render the slot background
-				RenderSystem.setShaderTexture(0, ItemEditWidget.GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+				RenderUtil.bindTexture(ItemEditWidget.GUI_TEXTURE);
+				RenderUtil.color4f(1f, 1f, 1f, 1f);
 				this.blit(pose, xPos, yPos, 0, 0, 18, 18);
 				//Render the slots item
 				ItemRenderUtil.drawItemStack(this, this.font, FluidItemUtil.getFluidDispayItem(this.searchResultFluids.get(index)), xPos + 1, yPos + 1);
@@ -156,13 +156,13 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		}
 		
 		//Render the search field
-		RenderSystem.setShaderTexture(0, ItemEditWidget.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(ItemEditWidget.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		this.blit(pose, this.x + this.searchOffX, this.y + this.searchOffY, 18, 0, 90, 12);
 		
 	}
 	
-	public void renderTooltips(Screen screen, PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(Screen screen, MatrixStack pose, int mouseX, int mouseY) {
 		if(!this.visible)
 			return;
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
@@ -197,11 +197,8 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	public interface IFluidEditListener {
-		public void onFluidClicked(FluidStack fluid);
+		void onFluidClicked(FluidStack fluid);
 	}
-	
-	@Override
-	public void updateNarration(NarrationElementOutput narrator) { }
 	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {

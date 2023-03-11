@@ -68,8 +68,7 @@ public class TechConfig {
 		
 		//Fluid Trader Interface
 		public final ForgeConfigSpec.IntValue fluidRestockSpeed;
-		
-		//Energy
+
 		//Energy Trader
 		public final ForgeConfigSpec.IntValue energyTraderDefaultStorage;
 		public final ForgeConfigSpec.IntValue energyTradeMaxQuantity;

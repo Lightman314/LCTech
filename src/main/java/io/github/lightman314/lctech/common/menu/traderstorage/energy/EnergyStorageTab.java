@@ -15,12 +15,12 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,21 +36,22 @@ public class EnergyStorageTab extends TraderStorageTab{
 	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new EnergyStorageClientTab(screen, this); }
 	
 	@Override
-	public boolean canOpen(Player player) { return true; }
+	public boolean canOpen(PlayerEntity player) { return true; }
 	
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	BatteryInputSlot inputSlot;
 	
-	Container batterySlots = new SimpleContainer(2);
+	IInventory batterySlots = new Inventory(2);
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof EnergyTraderData trader)
+		if(this.menu.getTrader() instanceof EnergyTraderData)
 		{
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
@@ -100,8 +101,9 @@ public class EnergyStorageTab extends TraderStorageTab{
 	@SubscribeEvent
 	public void onWorldTick(TickEvent.WorldTickEvent event)
 	{
-		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof EnergyTraderData trader)
+		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof EnergyTraderData)
 		{
+			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			if(!this.batterySlots.getItem(0).isEmpty() && this.batterySlots.getItem(1).isEmpty())
 			{
 				//Try to fill the energy storage with the battery, or vice-versa
@@ -119,6 +121,6 @@ public class EnergyStorageTab extends TraderStorageTab{
 	
 	//No messages to receive. All storage interactions are done via the battery slots or the upgrade slots.
 	@Override
-	public void receiveMessage(CompoundTag message) { }
+	public void receiveMessage(CompoundNBT message) { }
 
 }

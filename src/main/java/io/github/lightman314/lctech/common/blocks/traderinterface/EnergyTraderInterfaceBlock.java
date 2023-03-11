@@ -3,16 +3,14 @@ package io.github.lightman314.lctech.common.blocks.traderinterface;
 import java.util.List;
 
 import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBlockEntity;
-import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.tradeinterface.templates.TraderInterfaceBlock;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class EnergyTraderInterfaceBlock extends TraderInterfaceBlock {
@@ -20,19 +18,12 @@ public class EnergyTraderInterfaceBlock extends TraderInterfaceBlock {
 	public EnergyTraderInterfaceBlock(Properties properties) { super(properties); }
 	
 	@Override
-	protected BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-		return new EnergyTraderInterfaceBlockEntity(pos, state);
-	}
+	public TileEntity createBlockEntity(BlockState state) { return new EnergyTraderInterfaceBlockEntity(); }
 	
 	@Override
-	protected BlockEntityType<?> interfaceType() { 
-		return ModBlockEntities.TRADER_INTERFACE_ENERGY.get();
-	}
+	protected NonNullSupplier<List<ITextComponent>> getItemTooltips() { return TechTooltips.ENERGY_TRADER_INTERFACE; }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechTooltips.ENERGY_TRADER_INTERFACE; }
-	
-	@Override
-	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderInterfaceBlockEntity blockEntity) { }
+	protected void onInvalidRemoval(BlockState state, World level, BlockPos pos, TraderInterfaceBlockEntity blockEntity) { }
 	
 }

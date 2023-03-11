@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
@@ -13,29 +12,30 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
+
+import javax.annotation.Nonnull;
 
 public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements InteractionConsumer {
 
 	public EnergyTradeEditClientTab(TraderStorageScreen screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @Nonnull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
-	public MutableComponent getTooltip() { return new TextComponent(""); }
+	public ITextComponent getTooltip() { return EasyText.empty(); }
 	
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -49,7 +49,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	TradeButton tradeDisplay;
 	CoinValueInput priceSelection;
 	
-	EditBox quantityInput;
+	TextFieldWidget quantityInput;
 	
 	Button buttonToggleTradeType;
 	
@@ -62,14 +62,14 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
-		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, new TextComponent(""), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
+		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.priceSelection.drawBG = false;
 		this.priceSelection.init();
 		
-		this.quantityInput = this.screen.addRenderableTabWidget(new EditBox(this.font, this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 75, this.screen.getXSize() - 42 - this.font.width(EnergyUtil.ENERGY_UNIT), 20, new TextComponent("")));
+		this.quantityInput = this.screen.addRenderableTabWidget(new TextFieldWidget(this.font, this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 75, this.screen.getXSize() - 42 - this.font.width(EnergyUtil.ENERGY_UNIT), 20, EasyText.empty()));
 		this.quantityInput.setValue(trade != null ? String.valueOf(trade.getAmount()): "");
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 120, 72, 20, new TextComponent(""), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 20, this.screen.getGuiTop() + 120, 72, 20, EasyText.empty(), this::ToggleTradeType));
 		
 	}
 	
@@ -77,7 +77,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	public void onClose() { this.selection = -1; }
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		if(this.getTrade() == null)
 			return;
@@ -85,8 +85,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		this.validateRenderables();
 		
 		//Render an arrow to the left of the selected position
-		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		
 		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 		
@@ -130,19 +130,19 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				this.commonTab.setQuantity(currentAmount);
 		}
 		
-		this.buttonToggleTradeType.setMessage(new TranslatableComponent("gui.button.lightmanscurrency.tradedirection." + this.commonTab.getTrade().getTradeDirection().name().toLowerCase()));
+		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.commonTab.getTrade().getTradeDirection().name().toLowerCase()));
 		
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(CompoundNBT message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -151,8 +151,9 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof EnergyTradeData t)
+		if(trade instanceof EnergyTradeData)
 		{
+			EnergyTradeData t = (EnergyTradeData)trade;
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
@@ -162,8 +163,9 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof EnergyTradeData t)
+		if(trade instanceof EnergyTradeData)
 		{
+			EnergyTradeData t = (EnergyTradeData)trade;
 			if(t.isSale())
 				this.changeSelection(0);
 			else if(t.isPurchase())

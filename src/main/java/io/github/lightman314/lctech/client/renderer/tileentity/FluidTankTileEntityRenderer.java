@@ -1,22 +1,22 @@
 package io.github.lightman314.lctech.client.renderer.tileentity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
 
-public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTankBlockEntity>{
+import javax.annotation.Nonnull;
 
-	public FluidTankTileEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+public class FluidTankTileEntityRenderer extends TileEntityRenderer<FluidTankBlockEntity> {
+
+	public FluidTankTileEntityRenderer(TileEntityRendererDispatcher dispatcher) { super(dispatcher); }
 
 	@Override
-	public void render(FluidTankBlockEntity tileEntity, float partialTicket, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int light, int overlay)
+	public void render(FluidTankBlockEntity tileEntity, float partialTicks, @Nonnull MatrixStack pose, @Nonnull IRenderTypeBuffer buffer, int lightLevel, int id)
 	{
 		FluidStack tank = tileEntity.getTankContents();
 		if(!tank.isEmpty())
@@ -25,7 +25,7 @@ public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTan
 			if(renderData != null)
 			{
 				renderData.setFillPercent((float)tileEntity.getTankFillPercent());
-				FluidRenderUtil.drawFluidInWorld(tank, tileEntity.getLevel(), tileEntity.getBlockPos(), poseStack, bufferSource, renderData, light);
+				FluidRenderUtil.drawFluidInWorld(tank, tileEntity.getLevel(), tileEntity.getBlockPos(), pose, buffer, renderData, lightLevel);
 			}
 		}
 

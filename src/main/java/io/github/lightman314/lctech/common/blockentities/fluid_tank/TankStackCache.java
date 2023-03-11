@@ -4,12 +4,12 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.message.fluid_tank.SMessageSyncTankStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.PacketDistributor;
+import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -90,13 +90,13 @@ public class TankStackCache {
         }
     }
 
-    public static TankStackCache create(Level level, BlockPos corePosition, int bottomY, int topY) {
+    public static TankStackCache create(World level, BlockPos corePosition, int bottomY, int topY) {
         List<FluidTankBlockEntity> tanks = new ArrayList<>();
         for(int y = bottomY; y <= topY; ++y)
         {
-            BlockPos pos = corePosition.atY(y);
-            if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity tank)
-                tanks.add(tank);
+            BlockPos pos = new BlockPos(corePosition.getX(), y, corePosition.getZ());
+            if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity)
+                tanks.add((FluidTankBlockEntity)level.getBlockEntity(pos));
         }
         return new TankStackCache(tanks);
     }
@@ -108,12 +108,12 @@ public class TankStackCache {
     private void syncToClients() {
         if(this.tanksBottomToTop.size() > 0)
         {
-            LevelChunk chunk = this.tanksBottomToTop.get(0).getLevel().getChunkAt(this.tanksBottomToTop.get(0).getBlockPos());
+            Chunk chunk = this.tanksBottomToTop.get(0).getLevel().getChunkAt(this.tanksBottomToTop.get(0).getBlockPos());
             LCTechPacketHandler.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), this.getSyncPacket());
         }
     }
 
-    public static PacketBuilder decode(FriendlyByteBuf buffer) { return new PacketBuilder(buffer); }
+    public static PacketBuilder decode(PacketBuffer buffer) { return new PacketBuilder(buffer); }
 
     public static class PacketBuilder {
 
@@ -134,7 +134,7 @@ public class TankStackCache {
             }
         }
 
-        private PacketBuilder(FriendlyByteBuf buffer) {
+        private PacketBuilder(PacketBuffer buffer) {
             this.startPos = buffer.readBlockPos();
             this.yPos = new ArrayList<>();
             int posCount = buffer.readInt();
@@ -142,19 +142,20 @@ public class TankStackCache {
                 this.yPos.add(buffer.readInt());
         }
 
-        public void encode(FriendlyByteBuf buffer) {
+        public void encode(PacketBuffer buffer) {
             buffer.writeBlockPos(this.startPos);
             buffer.writeInt(this.yPos.size());
             for(int pos : this.yPos)
                 buffer.writeInt(pos);
         }
 
-        public TankStackCache build(Level level) {
+        public TankStackCache build(World level) {
             List<FluidTankBlockEntity> tanks = new ArrayList<>();
             for(int y : this.yPos)
             {
-                if(level.getBlockEntity(this.startPos.atY(y)) instanceof FluidTankBlockEntity tank)
-                    tanks.add(tank);
+                BlockPos pos = new BlockPos(this.startPos.getX(), y, this.startPos.getZ());
+                if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity)
+                    tanks.add((FluidTankBlockEntity)level.getBlockEntity(pos));
             }
             return new TankStackCache(tanks);
         }

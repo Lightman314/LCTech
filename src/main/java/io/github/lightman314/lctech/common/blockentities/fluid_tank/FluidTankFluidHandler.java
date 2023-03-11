@@ -3,8 +3,8 @@ package io.github.lightman314.lctech.common.blockentities.fluid_tank;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class FluidTankFluidHandler implements IFluidHandler {
@@ -86,7 +86,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public @NotNull FluidStack getFluidInTank(int tank) {
+    public @Nonnull FluidStack getFluidInTank(int tank) {
         return tank == 0 ? this.getTankContents() : FluidStack.EMPTY;
     }
 
@@ -96,7 +96,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
         if(tank != 0)
             return false;
         FluidStack contents = this.getTankContents();
@@ -122,7 +122,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+    public @Nonnull FluidStack drain(FluidStack resource, FluidAction action) {
         FluidStack contents = this.getTankContents();
         if(contents.isEmpty() || !contents.isFluidEqual(resource))
             return FluidStack.EMPTY;
@@ -141,7 +141,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+    public @Nonnull FluidStack drain(int maxDrain, FluidAction action) {
         FluidStack contents = this.getTankContents();
         if(contents.isEmpty())
             return FluidStack.EMPTY;

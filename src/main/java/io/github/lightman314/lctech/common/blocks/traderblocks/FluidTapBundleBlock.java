@@ -10,16 +10,13 @@ import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlock
 import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
-import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidTraderBlock {
@@ -41,19 +38,12 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 	}
 
 	@Override
-	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {
-		return new FluidTraderBlockEntity(pos, state, 4);
-	}
-
-	@Override
-	protected BlockEntityType<?> traderType() {
-		return ModBlockEntities.FLUID_TRADER.get();
+	protected TileEntity makeTrader() {
+		return new FluidTraderBlockEntity(4);
 	}
 	
 	@Override
-	public int getTradeRenderLimit() {
-		return 4;
-	}
+	public int getTradeRenderLimit() { return 4; }
 	
 	private static final List<Direction> IGNORELIST = Lists.newArrayList(Direction.UP, Direction.DOWN);
 	private static final Map<Direction,List<FluidRenderData>> RENDERMAP = Maps.newHashMap();
@@ -80,12 +70,10 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 			return;
 		List<FluidRenderData> list = Lists.newArrayList();
 		switch (direction) {
-			case NORTH -> list = createList(0, 1, 2, 3);
-			case EAST -> list = createList(1, 3, 0, 2);
-			case SOUTH -> list = createList(3, 2, 1, 0);
-			case WEST -> list = createList(2, 0, 3, 1);
-			default -> {
-			}
+			case NORTH: list = createList(0, 1, 2, 3); break;
+			case EAST: list = createList(1, 3, 0, 2); break;
+			case SOUTH: list = createList(3, 2, 1, 0); break;
+			case WEST: list = createList(2, 0, 3, 1); break;
 		}
 		if(list.size() > 0)
 			RENDERMAP.put(direction, list);
@@ -105,6 +93,6 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 	}
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechTooltips.FLUID_TRADER; }
+	protected NonNullSupplier<List<ITextComponent>> getItemTooltips() { return TechTooltips.FLUID_TRADER; }
 	
 }

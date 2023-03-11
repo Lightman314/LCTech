@@ -3,32 +3,32 @@ package io.github.lightman314.lctech.client.models.items;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
 
-public class FluidTankModel implements BakedModel {
+public class FluidTankModel implements IBakedModel {
 
-	BakedModel baseFluidTankModel;
-	ItemOverrides fluidTankItemOverrideList = new FluidTankItemOverrideList();
+	IBakedModel baseFluidTankModel;
+	ItemOverrideList fluidTankItemOverrideList = new FluidTankItemOverrideList();
 
-	public FluidTankModel(BakedModel baseFluidTankModel)
+	public FluidTankModel(IBakedModel baseFluidTankModel)
 	{
 		this.baseFluidTankModel = baseFluidTankModel;
 	}
@@ -36,13 +36,13 @@ public class FluidTankModel implements BakedModel {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull Random rand)
+	public @Nonnull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand)
 	{
 		return this.baseFluidTankModel.getQuads(state, side, rand);
 	}
 
 	@Override
-	public @NotNull ItemOverrides getOverrides()
+	public @Nonnull ItemOverrideList getOverrides()
 	{
 		return this.fluidTankItemOverrideList;
 	}
@@ -69,26 +69,33 @@ public class FluidTankModel implements BakedModel {
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public @NotNull TextureAtlasSprite getParticleIcon() { return this.baseFluidTankModel.getParticleIcon(); }
+	public @Nonnull TextureAtlasSprite getParticleIcon() { return this.baseFluidTankModel.getParticleIcon(); }
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public @NotNull ItemTransforms getTransforms() {
+	public @Nonnull ItemCameraTransforms getTransforms() {
 		return this.baseFluidTankModel.getTransforms();
 	}
 
-	public static class FluidTankItemOverrideList extends ItemOverrides{
+	public static class FluidTankItemOverrideList extends ItemOverrideList{
 
 		public FluidTankItemOverrideList() { super(); }
 
 		@Override
-		public BakedModel resolve(@NotNull BakedModel model, @NotNull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
+		public IBakedModel resolve(@Nonnull IBakedModel model, @Nonnull ItemStack stack, @Nullable ClientWorld level, @Nullable LivingEntity entity)
 		{
 			FluidRenderData renderData = FluidTankBlock.RENDER_DATA;
 			FluidStack tank = FluidTankItem.GetFluid(stack);
 			int capacity = FluidTankItem.GetCapacity(stack);
-			if(stack.getItem() instanceof BlockItem bi && bi.getBlock() instanceof IFluidTankBlock tankBlock)
+			if(stack.getItem() instanceof BlockItem)
+			{
+				BlockItem bi = (BlockItem)stack.getItem();
+				if(bi.getBlock() instanceof IFluidTankBlock)
+				{
+					IFluidTankBlock tankBlock = (IFluidTankBlock)bi.getBlock();
 					renderData = tankBlock.getItemRenderData();
+				}
+			}
 			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
 		}
 

@@ -1,21 +1,21 @@
 package io.github.lightman314.lctech.common.traders.energy.tradedata.client;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.network.chat.Component;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
@@ -40,16 +40,14 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) {
+    public void renderAdditional(Widget button, MatrixStack pose, int mouseX, int mouseY, TradeContext context) {
         //Manually render the drainable icon
         if(this.allowsDrainage(context))
         {
-            RenderSystem.setShaderTexture(0, EnergyStorageClientTab.GUI_TEXTURE);
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            RenderUtil.bindTexture(EnergyStorageClientTab.GUI_TEXTURE);
+            RenderUtil.color4f(1f, 1f, 1f, 1f);
             LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
-            arrowPosOptional.ifPresent(arrowPos -> {
-                button.blit(pose, button.x + arrowPos.x, button.y + arrowPos.y + 9, 36, 18, 8, 7);
-            });
+            arrowPosOptional.ifPresent(arrowPos -> button.blit(pose, button.x + arrowPos.x, button.y + arrowPos.y + 9, 36, 18, 8, 7));
         }
     }
 
@@ -92,14 +90,12 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     private List<TradeButton.DisplayEntry> getProductEntry() { return Lists.newArrayList(TradeButton.DisplayEntry.of(EasyText.literal(EnergyUtil.formatEnergyAmount(this.trade.getAmount())), TextRenderUtil.TextFormatting.create().centered().middle())); }
 
     @Override
-    public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {
+    public List<ITextComponent> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {
         if(this.allowsDrainage(context))
         {
             LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             AtomicBoolean mouseOver = new AtomicBoolean(false);
-            arrowPosOptional.ifPresent(arrowPos -> {
-                mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8));
-            });
+            arrowPosOptional.ifPresent(arrowPos -> mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8)));
             if(mouseOver.get())
                 return Lists.newArrayList(EasyText.translatable("tooltip.lctech.trader.fluid_settings.drainable"));
         }
@@ -109,15 +105,19 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     private boolean allowsDrainage(TradeContext context) {
         if(context.isStorageMode || !this.trade.isSale())
             return false;
-        if(context.getTrader() instanceof EnergyTraderData trader)
+        if(context.getTrader() instanceof EnergyTraderData)
+        {
+            EnergyTraderData trader = (EnergyTraderData)context.getTrader();
             return trader.canDrainExternally() && trader.isPurchaseDrainMode();
+        }
         return false;
     }
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof EnergyTraderData trader)
+        if(context.hasTrader() && context.getTrader() instanceof EnergyTraderData)
         {
+            EnergyTraderData trader = (EnergyTraderData)context.getTrader();
             if(!trader.isCreative())
             {
                 if(this.trade.getStock(context) <= 0)

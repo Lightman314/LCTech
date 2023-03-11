@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget.IFluidEditListener;
@@ -15,20 +14,21 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.util.RenderUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener{
 
@@ -40,10 +40,10 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public FluidTradeEditClientTab(TraderStorageScreen screen, FluidTradeEditTab commonTab) { super(screen, commonTab); }
 	
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public @Nonnull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
-	public MutableComponent getTooltip() { return new TextComponent(""); }
+	public ITextComponent getTooltip() { return EasyText.empty(); }
 	
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -74,7 +74,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		
 		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
-		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, new TextComponent(""), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
+		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
 		this.priceSelection.drawBG = false;
 		this.priceSelection.init();
 		
@@ -87,7 +87,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.buttonAddBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 74, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 32, 0)));
 		this.buttonRemoveBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 48, 0)));
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, new TextComponent(""), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(new Button(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, EasyText.empty(), this::ToggleTradeType));
 		
 	}
 	
@@ -95,7 +95,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public void onClose() { this.selection = -1; }
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(MatrixStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		if(this.getTrade() == null)
 			return;
@@ -114,8 +114,8 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		}
 		
 		//Render a down arrow over the selected position
-		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderUtil.bindTexture(TraderScreen.GUI_TEXTURE);
+		RenderUtil.color4f(1f, 1f, 1f, 1f);
 		
 		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 		
@@ -153,12 +153,12 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		if(this.buttonRemoveBucket.visible)
 			this.buttonRemoveBucket.active = this.getTrade().getBucketQuantity() > 1;
 		
-		this.buttonToggleTradeType.setMessage(new TranslatableComponent("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeDirection().name().toLowerCase()));
+		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeDirection().name().toLowerCase()));
 		
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(MatrixStack pose, int mouseX, int mouseY) {
 		
 		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
 		
@@ -168,7 +168,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	}
 	
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(CompoundNBT message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -177,14 +177,15 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof FluidTradeData t)
+		if(trade instanceof FluidTradeData)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			FluidTradeData t = (FluidTradeData)trade;
+			ItemStack heldItem = this.menu.player.inventory.getCarried();
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
 			{
-				if(this.selection != index && FluidUtil.getFluidContained(heldItem).isEmpty())
+				if(this.selection != index && !FluidUtil.getFluidContained(heldItem).isPresent())
 					this.changeSelection(index);
 				else
 				{
@@ -196,12 +197,13 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
-		if(trade instanceof FluidTradeData t)
+		if(trade instanceof FluidTradeData)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			FluidTradeData t = (FluidTradeData)trade;
+			ItemStack heldItem = this.menu.player.inventory.getCarried();
 			if(t.isSale())
 			{
-				if(this.selection != index && FluidUtil.getFluidContained(heldItem).isEmpty())
+				if(this.selection != index && !FluidUtil.getFluidContained(heldItem).isPresent())
 					this.changeSelection(index);
 				else
 				{

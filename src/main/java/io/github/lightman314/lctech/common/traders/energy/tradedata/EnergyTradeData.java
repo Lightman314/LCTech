@@ -19,15 +19,15 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
-import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.Constants;
 
 public class EnergyTradeData extends TradeData {
 
@@ -44,10 +44,10 @@ public class EnergyTradeData extends TradeData {
 	public EnergyTradeData(boolean validateRules) { super(validateRules); }
 
 	public boolean hasStock(EnergyTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(EnergyTraderData trader, Player player) { return this.getStock(trader, player) > 0; }
+	public boolean hasStock(EnergyTraderData trader, PlayerEntity player) { return this.getStock(trader, player) > 0; }
 	public boolean hasStock(EnergyTraderData trader, PlayerReference player) { return this.getStock(trader, player) > 0; }
 	public int getStock(EnergyTraderData trader) { return this.getStock(trader, (PlayerReference)null); }
-	public int getStock(EnergyTraderData trader, Player player) { return this.getStock(trader, PlayerReference.of(player)); }
+	public int getStock(EnergyTraderData trader, PlayerEntity player) { return this.getStock(trader, PlayerReference.of(player)); }
 	public int getStock(EnergyTraderData trader, PlayerReference player) {
 		if(this.amount <= 0)
 			return 0;
@@ -72,8 +72,10 @@ public class EnergyTradeData extends TradeData {
 		if(this.amount <= 0)
 			return 0;
 
-		if(!context.hasTrader() || !(context.getTrader() instanceof EnergyTraderData trader))
+		if(!context.hasTrader() || !(context.getTrader() instanceof EnergyTraderData))
 			return 0;
+
+		EnergyTraderData trader = (EnergyTraderData)context.getTrader();
 
 		if(trader.isCreative())
 			return 1;
@@ -117,9 +119,9 @@ public class EnergyTradeData extends TradeData {
 	}
 
 	@Override
-	public CompoundTag getAsNBT()
+	public CompoundNBT getAsNBT()
 	{
-		CompoundTag compound = super.getAsNBT();
+		CompoundNBT compound = super.getAsNBT();
 
 		compound.putInt("Amount", this.amount);
 		compound.putString("TradeType", this.tradeDirection.name());
@@ -128,7 +130,7 @@ public class EnergyTradeData extends TradeData {
 	}
 
 	@Override
-	public void loadFromNBT(CompoundTag compound)
+	public void loadFromNBT(CompoundNBT compound)
 	{
 		super.loadFromNBT(compound);
 
@@ -157,25 +159,25 @@ public class EnergyTradeData extends TradeData {
 		return list;
 	}
 
-	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound)
+	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundNBT compound)
 	{
 		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY);
 	}
 
-	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound, String tag)
+	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundNBT compound, String tag)
 	{
-		ListTag list = new ListTag();
+		ListNBT list = new ListNBT();
 		for (EnergyTradeData energyTradeData : tradeList)
 			list.add(energyTradeData.getAsNBT());
 		compound.put(tag, list);
 	}
 
-	public static List<EnergyTradeData> LoadNBTList(CompoundTag compound, boolean validateRules)
+	public static List<EnergyTradeData> LoadNBTList(CompoundNBT compound, boolean validateRules)
 	{
 		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules);
 	}
 
-	public static List<EnergyTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules)
+	public static List<EnergyTradeData> LoadNBTList(CompoundNBT compound, String tag, boolean validateRules)
 	{
 
 		if(!compound.contains(tag))
@@ -183,13 +185,13 @@ public class EnergyTradeData extends TradeData {
 
 		List<EnergyTradeData> tradeData = new ArrayList<>();
 
-		ListTag list = compound.getList(tag,  Tag.TAG_COMPOUND);
+		ListNBT list = compound.getList(tag, Constants.NBT.TAG_COMPOUND);
 		for(int i = 0; i < list.size(); ++i)
 			tradeData.add(loadData(list.getCompound(i), validateRules));
 		return tradeData;
 	}
 
-	public static EnergyTradeData loadData(CompoundTag compound, boolean validateRules) {
+	public static EnergyTradeData loadData(CompoundNBT compound, boolean validateRules) {
 		EnergyTradeData trade = new EnergyTradeData(validateRules);
 		trade.loadFromNBT(compound);
 		return trade;
@@ -198,8 +200,9 @@ public class EnergyTradeData extends TradeData {
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
-		if(otherTrade instanceof EnergyTradeData otherEnergyTrade)
+		if(otherTrade instanceof EnergyTradeData)
 		{
+			EnergyTradeData otherEnergyTrade = (EnergyTradeData)otherTrade;
 			//Flag as compatible
 			result.setCompatible();
 			//Compare product
@@ -251,31 +254,31 @@ public class EnergyTradeData extends TradeData {
 	}
 
 	@Override
-	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
-		List<Component> list = new ArrayList<>();
+	public List<ITextComponent> GetDifferenceWarnings(TradeComparisonResult differences) {
+		List<ITextComponent> list = new ArrayList<>();
 		//Price check
 		if(!differences.PriceMatches())
 		{
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(TextFormatting.RED));
 			else //Cheaper
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(TextFormatting.RED));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
+			ITextComponent directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(TextFormatting.RED));
 			if(!productCheck.SameProductQuantity())
 			{
 				int quantityDifference = productCheck.ProductQuantityDifference();
 				if(quantityDifference < 0) //More items
-					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(TextFormatting.RED));
 				else //Less items
-					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(TextFormatting.RED));
 			}
 		}
 
@@ -288,13 +291,14 @@ public class EnergyTradeData extends TradeData {
 
 	@Override
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
+		if(tab.menu.getTrader() instanceof EnergyTraderData)
 		{
+			EnergyTraderData trader = (EnergyTraderData)tab.menu.getTrader();
 			int tradeIndex = trader.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? -1 : 0;
-			CompoundTag extraData = new CompoundTag();
+			CompoundNBT extraData = new CompoundNBT();
 			extraData.putInt("TradeIndex", tradeIndex);
 			extraData.putInt("StartingSlot", openSlot);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
@@ -303,13 +307,14 @@ public class EnergyTradeData extends TradeData {
 
 	@Override
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
+		if(tab.menu.getTrader() instanceof EnergyTraderData)
 		{
+			EnergyTraderData trader = (EnergyTraderData)tab.menu.getTrader();
 			int tradeIndex = trader.getAllTrades().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? 0 : -1;
-			CompoundTag extraData = new CompoundTag();
+			CompoundNBT extraData = new CompoundNBT();
 			extraData.putInt("TradeIndex", tradeIndex);
 			extraData.putInt("StartingSlot", openSlot);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);

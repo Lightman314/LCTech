@@ -1,24 +1,25 @@
 package io.github.lightman314.lctech.client.renderer.tileentity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
 
-public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<FluidTraderBlockEntity>{
+import javax.annotation.Nonnull;
 
-	public FluidTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+public class FluidTraderBlockEntityRenderer extends TileEntityRenderer<FluidTraderBlockEntity> {
+
+	public FluidTraderBlockEntityRenderer(TileEntityRendererDispatcher dispatcher) { super(dispatcher); }
 	
 	@Override
-	public void render(FluidTraderBlockEntity blockEntity, float partialTicket, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int light, int overlay)
+	public void render(FluidTraderBlockEntity blockEntity, float partialTicks, @Nonnull MatrixStack pose, @Nonnull IRenderTypeBuffer buffer, int lightLevel, int id)
 	{
 		FluidTraderData fluidTrader = blockEntity.getTraderData();
 		if(fluidTrader != null)
@@ -34,7 +35,7 @@ public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<Fluid
 					if(renderData != null && tankQuantity > 0)
 					{
 						renderData.setFillPercent((float)Math.min(1d, (double)tankQuantity/(double)fluidTrader.getTankCapacity()));
-						FluidRenderUtil.drawFluidInWorld(fluid, blockEntity.getLevel(), blockEntity.getBlockPos(), poseStack, bufferSource, renderData, light);
+						FluidRenderUtil.drawFluidInWorld(fluid, blockEntity.getLevel(), blockEntity.getBlockPos(), pose, buffer, renderData, lightLevel);
 					}
 				}
 			}
