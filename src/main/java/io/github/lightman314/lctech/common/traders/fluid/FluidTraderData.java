@@ -223,11 +223,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide) {
 		return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
-	
-	@Override
-	public int inputSettingsTabColor() { return 0x007FFF; }
-	@Override
-	public int inputSettingsTextColor() { return 0xD0D0D0; }
+
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.WATER_BUCKET); }
 	@Override

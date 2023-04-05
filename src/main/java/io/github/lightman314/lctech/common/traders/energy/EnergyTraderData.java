@@ -18,7 +18,7 @@ import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStora
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.client.gui.settings.input.InputTabAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
@@ -53,6 +53,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class EnergyTraderData extends InputTraderData implements ITradeSource<EnergyTradeData> {
 
@@ -154,10 +156,9 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 		return new EnergyTradeData(false);
 	}
 	
-	public List<EnergyTradeData> getAllTrades() { return new ArrayList<>(this.trades); }
-	
+	@Nonnull
 	@Override
-	public List<? extends TradeData> getTradeData() { return this.getAllTrades(); }
+	public List<EnergyTradeData> getTradeData() { return this.trades; }
 	
 	public TradeEnergyHandler getEnergyHandler() { return this.energyHandler; }
 	
@@ -285,11 +286,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide) {
 		return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> this.getEnergyHandler().getExternalHandler(relativeSide)));
 	}
-	
-	@Override
-	public int inputSettingsTabColor() { return 0x00FFFF; }
-	@Override
-	public int inputSettingsTextColor() { return 0xD0D0D0; }
+
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(ModItems.BATTERY); }
 	@Override
