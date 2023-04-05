@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -33,6 +34,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTab> implements IScrollListener, IScrollable{
 	
@@ -73,7 +76,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	}
 
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		
 		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
 		
@@ -92,22 +95,22 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				int xPos = this.screen.getGuiLeft() + X_OFFSET + x * 18;
 				FluidEntry entry = storage.getContents().get(index);
 				//Render the filter fluid
-				ItemRenderUtil.drawItemStack(this.screen, this.font, FluidItemUtil.getFluidDisplayItem(entry.filter), xPos + 1, yPos);
+				ItemRenderUtil.drawItemStack(pose, this.font, FluidItemUtil.getFluidDisplayItem(entry.filter), xPos + 1, yPos);
 				//Render the drain/fillable buttons
 				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 				if(trader.drainCapable())
 				{
-					this.screen.blit(pose, xPos + 1, yPos + 16, entry.drainable ? 0 : 8, 0, 8, 8);
-					this.screen.blit(pose, xPos + 9, yPos + 16, entry.fillable ? 16 : 24, 0, 8, 8);
+					GuiComponent.blit(pose, xPos + 1, yPos + 16, entry.drainable ? 0 : 8, 0, 8, 8);
+					GuiComponent.blit(pose, xPos + 9, yPos + 16, entry.fillable ? 16 : 24, 0, 8, 8);
 				}
 				//Render the tank bg
-				this.screen.blit(pose, xPos, yPos + 24, 0, 16, 18, 66);
+				GuiComponent.blit(pose, xPos, yPos + 24, 0, 16, 18, 66);
 				//Render the fluid in the tank
 				FluidRenderUtil.drawFluidTankInGUI(entry.filter, xPos + 1, yPos + 25, 16, 64, (double)entry.getStoredAmount() / (double)storage.getTankCapacity());
 				//Render the tank overlay (glass)
 				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-				this.screen.blit(pose, xPos, yPos + 24, 18, 16, 18, 66);
+				GuiComponent.blit(pose, xPos, yPos + 24, 18, 16, 18, 66);
 				
 				index++;
 			}
@@ -117,14 +120,14 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			for(Slot slot : this.commonTab.getSlots())
 			{
-				this.screen.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
+				GuiComponent.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			}
 		}
 		
 	}
 
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
 		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
 			TraderFluidStorage storage = ((FluidTraderData)this.menu.getTrader()).getStorage();

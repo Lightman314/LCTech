@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
+
 public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<FluidTraderBlockEntity>{
 
 	public FluidTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context)
@@ -20,7 +22,7 @@ public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<Fluid
 	}
 	
 	@Override
-	public void render(FluidTraderBlockEntity blockEntity, float partialTicket, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay)
+	public void render(FluidTraderBlockEntity blockEntity, float partialTicket, @Nonnull PoseStack pose, @Nonnull MultiBufferSource bufferSource, int light, int overlay)
 	{
 		FluidTraderData fluidTrader = blockEntity.getTraderData();
 		if(fluidTrader != null)
@@ -36,7 +38,7 @@ public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<Fluid
 					if(renderData != null && tankQuantity > 0)
 					{
 						renderData.setFillPercent((float)Math.min(1d, (double)tankQuantity/(double)fluidTrader.getTankCapacity()));
-						FluidRenderUtil.drawFluidInWorld(fluid, blockEntity.getLevel(), blockEntity.getBlockPos(), poseStack, bufferSource, renderData, light);
+						FluidRenderUtil.drawFluidInWorld(fluid, blockEntity.getLevel(), blockEntity.getBlockPos(), pose, bufferSource, renderData, light);
 					}
 				}
 			}

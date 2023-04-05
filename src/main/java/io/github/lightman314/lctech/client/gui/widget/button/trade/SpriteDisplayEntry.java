@@ -49,7 +49,7 @@ public class SpriteDisplayEntry extends DisplayEntry{
 		int top = this.getTop(y + area.yOffset(), area.height());
 		RenderSystem.setShaderTexture(0, this.sprite);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		gui.blit(pose, left, top, u, v, this.width, this.height);
+		GuiComponent.blit(pose, left, top, u, v, this.width, this.height);
 	}
 
 }

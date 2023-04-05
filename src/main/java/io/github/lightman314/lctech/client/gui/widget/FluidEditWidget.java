@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget
 import io.github.lightman314.lightmanscurrency.client.util.ItemRenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -125,11 +126,8 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 	}
 	
 	@Override
-	public void render(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderWidget(@NotNull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
 		this.searchInput.visible = this.visible;
-		
-		if(!this.visible)
-			return;
 		
 		this.searchInput.tick();
 		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
@@ -146,9 +144,9 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 				//Render the slot background
 				RenderSystem.setShaderTexture(0, ItemEditWidget.GUI_TEXTURE);
 				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-				this.blit(pose, xPos, yPos, 0, 0, 18, 18);
+				GuiComponent.blit(pose, xPos, yPos, 0, 0, 18, 18);
 				//Render the slots item
-				ItemRenderUtil.drawItemStack(this, this.font, FluidItemUtil.getFluidDispayItem(this.searchResultFluids.get(index)), xPos + 1, yPos + 1);
+				ItemRenderUtil.drawItemStack(pose, this.font, FluidItemUtil.getFluidDispayItem(this.searchResultFluids.get(index)), xPos + 1, yPos + 1);
 				index++;
 			}
 		}
@@ -156,7 +154,7 @@ public class FluidEditWidget extends AbstractWidget implements IScrollable{
 		//Render the search field
 		RenderSystem.setShaderTexture(0, ItemEditWidget.GUI_TEXTURE);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		this.blit(pose, this.getX() + this.searchOffX, this.getY() + this.searchOffY, 18, 0, 90, 12);
+		GuiComponent.blit(pose, this.getX() + this.searchOffX, this.getY() + this.searchOffY, 18, 0, 90, 12);
 		
 	}
 	

@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.client.util.FluidRenderData;
@@ -30,12 +31,14 @@ public class FluidShardModel implements BakedModel {
 		this.baseFluidTankModel = baseFluidTankModel;
 	}
 	
+	@Nonnull
 	@SuppressWarnings("deprecation")
 	@Override
-	public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) {
+	public List<BakedQuad> getQuads(BlockState state, Direction side, @Nonnull RandomSource rand) {
 		return this.baseFluidTankModel.getQuads(state, side, rand);
 	}
 	
+	@Nonnull
 	@Override
 	public ItemOverrides getOverrides()
 	{
@@ -62,37 +65,26 @@ public class FluidShardModel implements BakedModel {
 		return this.baseFluidTankModel.isCustomRenderer();
 	}
 	
+	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
 	public TextureAtlasSprite getParticleIcon() {
 		return this.baseFluidTankModel.getParticleIcon();
 	}
 	
+	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
 	public ItemTransforms getTransforms() {
 		return this.baseFluidTankModel.getTransforms();
 	}
 	
-	/*@Override
-	@Nonnull
-	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-		throw new AssertionError("FluidShardModel::getQuads(IModelData) should never be called");
-	}*/
-	
-	/*@Override
-	@Nonnull
-	public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData)
-	{
-		throw new AssertionError("FluidShardModel::getModelData should never be called");
-	}*/
-	
-	public class FluidShardItemOverrideList extends ItemOverrides{
+	public static class FluidShardItemOverrideList extends ItemOverrides{
 
 		public FluidShardItemOverrideList() { super(); }
 		
 		@Override
-		public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
+		public BakedModel resolve(@Nonnull BakedModel model, @Nonnull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
 			FluidStack tank = FluidStack.EMPTY;
 			int capacity = FluidType.BUCKET_VOLUME;

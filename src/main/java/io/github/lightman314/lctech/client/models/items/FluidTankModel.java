@@ -43,30 +43,19 @@ public class FluidTankModel implements BakedModel {
 	}
 	
 	@Override
-	public @NotNull ItemOverrides getOverrides()
-	{
-		return this.fluidTankItemOverrideList;
-	}
+	public @NotNull ItemOverrides getOverrides() { return this.fluidTankItemOverrideList; }
 	
 	@Override
-	public boolean useAmbientOcclusion() {
-		return this.baseFluidTankModel.useAmbientOcclusion();
-	}
+	public boolean useAmbientOcclusion() { return this.baseFluidTankModel.useAmbientOcclusion(); }
 	
 	@Override
-	public boolean isGui3d() {
-		return this.baseFluidTankModel.isGui3d();
-	}
+	public boolean isGui3d() { return this.baseFluidTankModel.isGui3d(); }
 	
 	@Override
-	public boolean usesBlockLight() {
-		return this.baseFluidTankModel.usesBlockLight();
-	}
+	public boolean usesBlockLight() { return this.baseFluidTankModel.usesBlockLight(); }
 	
 	@Override
-	public boolean isCustomRenderer() {
-		return this.baseFluidTankModel.isCustomRenderer();
-	}
+	public boolean isCustomRenderer() { return this.baseFluidTankModel.isCustomRenderer(); }
 	
 	@Override
 	@SuppressWarnings("deprecation")
@@ -74,9 +63,7 @@ public class FluidTankModel implements BakedModel {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public @NotNull ItemTransforms getTransforms() {
-		return this.baseFluidTankModel.getTransforms();
-	}
+	public @NotNull ItemTransforms getTransforms() { return this.baseFluidTankModel.getTransforms(); }
 	
 	public static class FluidTankItemOverrideList extends ItemOverrides{
 
