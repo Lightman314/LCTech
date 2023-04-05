@@ -160,17 +160,17 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public int getTradeStock(int index) {
 		return this.getTrade(index).getStock(this);
 	}
-	
-	public List<FluidTradeData> getAllTrades() { return new ArrayList<>(this.trades); }
+
+	@Nonnull
 	@Override
-	public List<? extends TradeData> getTradeData() { return this.getAllTrades(); }
+	public List<FluidTradeData> getTradeData() { return this.trades; }
 	
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
 	@Override
 	public List<FluidStack> getRelevantFluids() {
 		List<FluidStack> result = new ArrayList<>();
-		for(FluidTradeData trade : this.getAllTrades())
+		for(FluidTradeData trade : this.trades)
 		{
 			FluidStack product = trade.getProduct();
 			if(!product.isEmpty() && !this.isInList(result, product))
@@ -226,11 +226,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide) {
 		return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
-	
-	@Override
-	public int inputSettingsTabColor() { return 0x007FFF; }
-	@Override
-	public int inputSettingsTextColor() { return 0xD0D0D0; }
+
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.WATER_BUCKET); }
 	@Override

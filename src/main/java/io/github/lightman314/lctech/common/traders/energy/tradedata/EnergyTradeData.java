@@ -290,7 +290,7 @@ public class EnergyTradeData extends TradeData {
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? -1 : 0;
@@ -305,7 +305,7 @@ public class EnergyTradeData extends TradeData {
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? 0 : -1;

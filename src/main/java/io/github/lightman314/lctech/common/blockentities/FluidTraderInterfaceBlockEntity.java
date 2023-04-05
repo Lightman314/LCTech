@@ -95,9 +95,9 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			//Scan all trades for sell fluids to restock
 			TraderData trader = this.getTrader();
-			if(trader instanceof FluidTraderData)
+			if(trader instanceof FluidTraderData ft)
 			{
-				for(FluidTradeData trade : ((FluidTraderData) trader).getAllTrades())
+				for(FluidTradeData trade : ft.getTradeData())
 				{
 					if(trade.isSale())
 					{
@@ -224,7 +224,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
-			for(FluidTradeData trade : trader.getAllTrades())
+			for(FluidTradeData trade : trader.getTradeData())
 			{
 				if(trade.isValid() && trade.isPurchase())
 				{
@@ -257,7 +257,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
-			for(FluidTradeData trade : trader.getAllTrades())
+			for(FluidTradeData trade : trader.getTradeData())
 			{
 				if(trade.isValid() && trade.isSale())
 				{

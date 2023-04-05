@@ -333,7 +333,7 @@ public class FluidTradeData extends TradeData {
 	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			if(this.isSale())
@@ -375,7 +375,7 @@ public class FluidTradeData extends TradeData {
 	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			if(this.isSale())
@@ -417,7 +417,7 @@ public class FluidTradeData extends TradeData {
 	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			CompoundTag extraData = new CompoundTag();
