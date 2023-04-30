@@ -98,7 +98,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			TraderData trader = this.getTrader();
 			if(trader instanceof FluidTraderData)
 			{
-				for(FluidTradeData trade : ((FluidTraderData) trader).getAllTrades())
+				for(FluidTradeData trade : ((FluidTraderData) trader).getTradeData())
 				{
 					if(trade.isSale())
 					{
@@ -227,7 +227,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
-			for(FluidTradeData trade : trader.getAllTrades())
+			for(FluidTradeData trade : trader.getTradeData())
 			{
 				if(trade.isValid() && trade.isPurchase())
 				{
@@ -260,7 +260,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
-			for(FluidTradeData trade : trader.getAllTrades())
+			for(FluidTradeData trade : trader.getTradeData())
 			{
 				if(trade.isValid() && trade.isSale())
 				{
@@ -289,9 +289,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof FluidTradeData)
+		if(t instanceof FluidTradeData trade)
 		{
-			FluidTradeData trade = (FluidTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())

@@ -53,6 +53,8 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class FluidTraderData extends InputTraderData implements ITraderFluidFilter, ITradeSource<FluidTradeData> {
 
 	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
@@ -155,20 +157,18 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	public int getTradeStock(int index) {
-		return this.getTrade(index).getStock(this);
-	}
-	
-	public List<FluidTradeData> getAllTrades() { return new ArrayList<>(this.trades); }
+	public int getTradeStock(int index) { return this.getTrade(index).getStock(this); }
+
+	@Nonnull
 	@Override
-	public List<? extends TradeData> getTradeData() { return this.getAllTrades(); }
+	public List<FluidTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 	
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
 	@Override
 	public List<FluidStack> getRelevantFluids() {
 		List<FluidStack> result = new ArrayList<>();
-		for(FluidTradeData trade : this.getAllTrades())
+		for(FluidTradeData trade : this.getTradeData())
 		{
 			FluidStack product = trade.getProduct();
 			if(!product.isEmpty() && !this.isInList(result, product))
@@ -415,7 +415,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
 				{
-					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray(), newTrade));
 				}
 				
 				this.trades.add(newTrade);
