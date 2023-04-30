@@ -157,13 +157,11 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 	
 	@Override
-	public int getTradeStock(int index) {
-		return this.getTrade(index).getStock(this);
-	}
+	public int getTradeStock(int index) { return this.getTrade(index).getStock(this); }
 
 	@Nonnull
 	@Override
-	public List<FluidTradeData> getTradeData() { return this.trades; }
+	public List<FluidTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 	
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
 	
@@ -418,7 +416,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
 				{
-					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray(), newTrade));
 				}
 				
 				this.trades.add(newTrade);

@@ -159,7 +159,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 
 	@Nonnull
 	@Override
-	public List<EnergyTradeData> getTradeData() { return this.trades; }
+	public List<EnergyTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 
 	public TradeEnergyHandler getEnergyHandler() { return this.energyHandler; }
 
@@ -479,7 +479,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
 				{
-					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray()));
+					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray(), newTrade));
 				}
 
 				this.trades.add(newTrade);

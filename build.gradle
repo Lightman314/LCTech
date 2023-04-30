@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-0.1.1.1'
+version = '1.18.2-0.1.1.2'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -41,7 +41,7 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.68'
     
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4476155')
+    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4514265')
     
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3784660')
     
