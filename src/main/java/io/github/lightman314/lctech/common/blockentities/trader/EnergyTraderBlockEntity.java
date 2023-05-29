@@ -4,7 +4,6 @@ import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -30,20 +29,18 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 			trader.setAlwaysShowOnTerminal();
 		return trader;
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
+		super.saveAdditional(compound);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
-		return compound;
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
+		super.loadAdditional(compound);
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}
 	

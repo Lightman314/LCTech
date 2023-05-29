@@ -13,7 +13,6 @@ import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTa
 import io.github.lightman314.lightmanscurrency.common.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -133,22 +132,14 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements ITickableTi
 	}
 
 	@Override
-	@Nonnull
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
-
 		compound.put("Tank", this.tankContents.writeToNBT(new CompoundNBT()));
-
-		return compound;
-
 	}
 
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
-
 		if(compound.contains("Tank", Constants.NBT.TAG_COMPOUND))
 			this.tankContents = FluidStack.loadFluidStackFromNBT(compound.getCompound("Tank"));
 	}
@@ -172,10 +163,9 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements ITickableTi
 
 	@Override
 	public void onLoad() {
-		assert this.level != null;
-		if(this.level.isClientSide)
+		if(this.isClient())
 		{
-			BlockEntityUtil.requestUpdatePacket(this.level, this.worldPosition);
+			BlockEntityUtil.requestUpdatePacket(this);
 			LCTechPacketHandler.instance.sendToServer(new CMessageRequestTankStackSync(this.worldPosition));
 		}
 		else if(this.stackCache == TankStackCache.DUMMY)//Refactor tank stack on load to auto-stack existing tanks
@@ -206,7 +196,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements ITickableTi
 		//Find bottom block
 		while(true)
 		{
-			BlockPos queryPos = this.atY(bottomY);
+			BlockPos queryPos = this.atY(bottomY - 1);
 			TileEntity be = this.level.getBlockEntity(queryPos);
 			if(be instanceof FluidTankBlockEntity) {
 				FluidTankBlockEntity tank = (FluidTankBlockEntity)be;
@@ -226,7 +216,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements ITickableTi
 		//Find top block
 		while(true)
 		{
-			BlockPos queryPos = this.atY(topY);
+			BlockPos queryPos = this.atY(topY + 1);
 			TileEntity be = this.level.getBlockEntity(queryPos);
 			if(be instanceof FluidTankBlockEntity) {
 				FluidTankBlockEntity tank = (FluidTankBlockEntity)be;
@@ -281,6 +271,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements ITickableTi
 	 * Returns the list of fluid tanks in the tank stack from bottom to top.
 	 */
 	public final List<FluidTankBlockEntity> getTankStack() { return this.stackCache.getOrderedTanks(); }
+	public final List<FluidTankBlockEntity> getTankStack(FluidStack fluid) { return this.stackCache.getOrderedTanks(fluid); }
 
 	@Override
 	@Nonnull

@@ -30,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
-import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -89,8 +88,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			if(t instanceof FluidTradeData)
 			{
 				FluidTradeData trade = (FluidTradeData)t;
-				if(trade.isPurchase() && trade.getProduct().isFluidEqual(fluid))
-					return true;
+				return trade.isPurchase() && trade.getProduct().isFluidEqual(fluid);
 			}
 		}
 		else
@@ -168,13 +166,11 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	
 	@Override
 	protected FluidTradeData deserializeTrade(CompoundNBT compound) { return FluidTradeData.loadData(compound, false); }
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound) {
-		compound = super.save(compound);
+	protected void saveAdditional(@Nonnull CompoundNBT compound) {
+		super.saveAdditional(compound);
 		this.saveFluidBuffer(compound);
-		return compound;
 	}
 	
 	protected final CompoundNBT saveFluidBuffer(CompoundNBT compound) {
@@ -195,8 +191,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, CompoundNBT compound) {
-		super.load(state, compound);
+	protected void loadAdditional(@Nonnull CompoundNBT compound) {
+		super.loadAdditional(compound);
 		if(compound.contains("Storage"))
 			this.fluidBuffer.load(compound, "Storage");
 	}

@@ -5,7 +5,6 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
-import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,21 +32,19 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 			trader.setAlwaysShowOnTerminal();
 		return trader;
 	}
-	
-	@Nonnull
+
 	@Override
-	public CompoundNBT save(@Nonnull CompoundNBT compound)
+	protected void saveAdditional(@Nonnull CompoundNBT compound)
 	{
-		compound = super.save(compound);
+		super.saveAdditional(compound);
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
-		return compound;
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, @Nonnull CompoundNBT compound)
+	protected void loadAdditional(@Nonnull CompoundNBT compound)
 	{
-		super.load(state, compound);
+		super.loadAdditional(compound);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}

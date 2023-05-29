@@ -18,7 +18,7 @@ public class ModBlockEntities {
 	
 	static {
 		
-		FLUID_TANK = ModRegistries.BLOCK_ENTITIES.register("fluid_tank", () -> TileEntityType.Builder.of(FluidTankBlockEntity::new, ModBlocks.IRON_TANK.get(), ModBlocks.GOLD_TANK.get(), ModBlocks.DIAMOND_TANK.get()).build(null));
+		FLUID_TANK = ModRegistries.BLOCK_ENTITIES.register("fluid_tank", () -> TileEntityType.Builder.of(FluidTankBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(TechBlockEntityBlockHelper.FLUID_TANK_TYPE)).build(null));
 		
 		FLUID_TRADER = ModRegistries.BLOCK_ENTITIES.register("fluid_trader", () -> TileEntityType.Builder.of(FluidTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(TechBlockEntityBlockHelper.FLUID_TRADER_TYPE)).build(null));
 		

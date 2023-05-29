@@ -15,6 +15,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fml.RegistryObject;
 
@@ -25,7 +26,7 @@ public class ModBlocks {
 	 */
 	public static void init() { }
 	
-	private static BiFunction<Block, ItemGroup, Item> getDefaultGenerator() {
+	private static BiFunction<Block,ItemGroup,Item> getDefaultGenerator() {
 		return (block, tab) -> {
 			Item.Properties properties = new Item.Properties();
 			if(tab != null)
@@ -48,30 +49,35 @@ public class ModBlocks {
 				() -> TechConfig.SERVER.ironTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.GLASS)
 				));
 		GOLD_TANK = register("gold_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.goldTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.GLASS)
 				));
 		DIAMOND_TANK = register("diamond_tank", LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.diamondTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, 5.0f)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.GLASS)
 				));
 		
 		FLUID_TAP = register("fluid_tap", LightmansCurrency.TRADING_GROUP, () -> new FluidTapBlock(
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.GLASS),
 				Block.box(4d, 0d, 4d, 12d, 16d, 12d)
 				));
 		FLUID_TAP_BUNDLE = register("fluid_tap_bundle", LightmansCurrency.TRADING_GROUP, () -> new FluidTapBundleBlock(
 				Block.Properties.of(Material.GLASS)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.GLASS)
 				));
 		
@@ -79,48 +85,56 @@ public class ModBlocks {
 				NetworkFluidTraderBlock.SMALL_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		FLUID_NETWORK_TRADER_2 = register("fluid_trader_server_med", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.MEDIUM_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		FLUID_NETWORK_TRADER_3 = register("fluid_trader_server_lrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		FLUID_NETWORK_TRADER_4 = register("fluid_trader_server_xlrg", LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.EXTRA_LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		
 		FLUID_TRADER_INTERFACE = register("fluid_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new FluidTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		
 		BATTERY_SHOP = register("battery_shop", LightmansCurrency.TRADING_GROUP, () -> new EnergyTraderBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		
 		ENERGY_NETWORK_TRADER = register("energy_trader_server", LightmansCurrency.TRADING_GROUP, () -> new NetworkEnergyTraderBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(3.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		
 		ENERGY_TRADER_INTERFACE = register("energy_trader_interface", LightmansCurrency.MACHINE_GROUP, () -> new EnergyTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 				.strength(5.0f, Float.POSITIVE_INFINITY)
+				.harvestTool(ToolType.PICKAXE)
 				.sound(SoundType.METAL)
 				));
 		

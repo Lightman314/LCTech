@@ -42,7 +42,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     public final void setTankContents(FluidStack newContents) {
-        List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack();
+        List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack(newContents);
         FluidStack fill = newContents.copy();
         for(FluidTankBlockEntity tank : tanks)
         {
@@ -81,19 +81,13 @@ public class FluidTankFluidHandler implements IFluidHandler {
 
 
     @Override
-    public int getTanks() {
-        return 1;
-    }
+    public int getTanks() { return 1; }
 
     @Override
-    public @Nonnull FluidStack getFluidInTank(int tank) {
-        return tank == 0 ? this.getTankContents() : FluidStack.EMPTY;
-    }
+    public @Nonnull FluidStack getFluidInTank(int tank) { return tank == 0 ? this.getTankContents() : FluidStack.EMPTY; }
 
     @Override
-    public int getTankCapacity(int tank) {
-        return tank == 0 ? this.getTankCapacity() : 0;
-    }
+    public int getTankCapacity(int tank) { return tank == 0 ? this.getTankCapacity() : 0; }
 
     @Override
     public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {

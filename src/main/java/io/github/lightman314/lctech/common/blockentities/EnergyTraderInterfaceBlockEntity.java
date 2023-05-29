@@ -25,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.Trad
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -92,11 +91,9 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	protected TradeData deserializeTrade(CompoundNBT compound) { return EnergyTradeData.loadData(compound, false); }
 	
 	@Override
-	@Nonnull
-	public CompoundNBT save(@Nonnull CompoundNBT compound) {
-		compound = super.save(compound);
+	protected void saveAdditional(@Nonnull CompoundNBT compound) {
+		super.saveAdditional(compound);
 		this.saveEnergyBuffer(compound);
-		return compound;
 	}
 	
 	protected final CompoundNBT saveEnergyBuffer(CompoundNBT compound) {
@@ -111,8 +108,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	public void load(@Nonnull BlockState state, CompoundNBT compound) {
-		super.load(state, compound);
+	protected void loadAdditional(@Nonnull CompoundNBT compound) {
+		super.loadAdditional(compound);
 		if(compound.contains("Energy"))
 			this.energyStorage = compound.getInt("Energy");
 	}

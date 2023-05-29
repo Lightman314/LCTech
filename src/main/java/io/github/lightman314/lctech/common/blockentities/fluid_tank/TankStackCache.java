@@ -5,6 +5,7 @@ import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.message.fluid_tank.SMessageSyncTankStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -35,6 +36,7 @@ public class TankStackCache {
     }
 
     public final List<FluidTankBlockEntity> getOrderedTanks() { return this.isLighterThanAir() ? this.tanksTopToBottom : this.tanksBottomToTop; }
+    public final List<FluidTankBlockEntity> getOrderedTanks(FluidStack fluid) { return fluid.getFluid().getAttributes().isLighterThanAir() ? this.tanksTopToBottom : this.tanksBottomToTop; }
 
     public final boolean isLighterThanAir() { return this.getRelevantFluid().getFluid().getAttributes().isLighterThanAir(); }
 
@@ -92,11 +94,12 @@ public class TankStackCache {
 
     public static TankStackCache create(World level, BlockPos corePosition, int bottomY, int topY) {
         List<FluidTankBlockEntity> tanks = new ArrayList<>();
-        for(int y = bottomY; y <= topY; ++y)
+        for(int y = bottomY; y <= topY; y++)
         {
             BlockPos pos = new BlockPos(corePosition.getX(), y, corePosition.getZ());
-            if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity)
-                tanks.add((FluidTankBlockEntity)level.getBlockEntity(pos));
+            TileEntity te = level.getBlockEntity(pos);
+            if(te instanceof FluidTankBlockEntity)
+                tanks.add((FluidTankBlockEntity)te);
         }
         return new TankStackCache(tanks);
     }
@@ -117,17 +120,20 @@ public class TankStackCache {
 
     public static class PacketBuilder {
 
-        private final BlockPos startPos;
+        private final int x;
+        private final int z;
         private final List<Integer> yPos;
 
         private PacketBuilder(TankStackCache parent) {
             if(parent.tanksBottomToTop.size() == 0)
             {
-                this.startPos = new BlockPos(0,0,0);
+                this.x = 0;
+                this.z = 0;
                 this.yPos = new ArrayList<>();
             }
             else {
-                this.startPos = parent.tanksBottomToTop.get(0).getBlockPos();
+                this.x = parent.tanksBottomToTop.get(0).getBlockPos().getX();
+                this.z = parent.tanksBottomToTop.get(0).getBlockPos().getZ();
                 this.yPos = new ArrayList<>(parent.tanksBottomToTop.size());
                 for(FluidTankBlockEntity tank : parent.tanksBottomToTop)
                     this.yPos.add(tank.getBlockPos().getY());
@@ -135,7 +141,8 @@ public class TankStackCache {
         }
 
         private PacketBuilder(PacketBuffer buffer) {
-            this.startPos = buffer.readBlockPos();
+            this.x = buffer.readInt();
+            this.z = buffer.readInt();
             this.yPos = new ArrayList<>();
             int posCount = buffer.readInt();
             while(posCount-- > 0)
@@ -143,7 +150,8 @@ public class TankStackCache {
         }
 
         public void encode(PacketBuffer buffer) {
-            buffer.writeBlockPos(this.startPos);
+            buffer.writeInt(this.x);
+            buffer.writeInt(this.z);
             buffer.writeInt(this.yPos.size());
             for(int pos : this.yPos)
                 buffer.writeInt(pos);
@@ -153,7 +161,7 @@ public class TankStackCache {
             List<FluidTankBlockEntity> tanks = new ArrayList<>();
             for(int y : this.yPos)
             {
-                BlockPos pos = new BlockPos(this.startPos.getX(), y, this.startPos.getZ());
+                BlockPos pos = new BlockPos(this.x, y, this.z);
                 if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity)
                     tanks.add((FluidTankBlockEntity)level.getBlockEntity(pos));
             }

@@ -142,6 +142,9 @@ public class FluidTankBlock extends Block implements IFluidTankBlock {
 	}
 
 	@Override
+	public boolean hasTileEntity(BlockState state) { return true; }
+
+	@Override
 	public TileEntity createTileEntity(@Nonnull BlockState state, IBlockReader world) { return new FluidTankBlockEntity(); }
 
 	@SuppressWarnings("deprecation")
