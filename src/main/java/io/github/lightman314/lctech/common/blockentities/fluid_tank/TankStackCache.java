@@ -35,6 +35,7 @@ public class TankStackCache {
     }
 
     public final List<FluidTankBlockEntity> getOrderedTanks() { return this.isLighterThanAir() ? this.tanksTopToBottom : this.tanksBottomToTop; }
+    public final List<FluidTankBlockEntity> getOrderedTanks(FluidStack fluid) { return fluid.getFluid().getAttributes().isLighterThanAir() ? this.tanksTopToBottom : this.tanksBottomToTop; }
 
     public final boolean isLighterThanAir() { return this.getRelevantFluid().getFluid().getAttributes().isLighterThanAir(); }
 
