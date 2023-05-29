@@ -42,7 +42,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     public final void setTankContents(FluidStack newContents) {
-        List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack();
+        List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack(newContents);
         FluidStack fill = newContents.copy();
         for(FluidTankBlockEntity tank : tanks)
         {
