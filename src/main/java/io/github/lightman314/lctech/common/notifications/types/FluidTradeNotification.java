@@ -18,75 +18,75 @@ import net.minecraft.resources.ResourceLocation;
 public class FluidTradeNotification extends Notification{
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "fluid_trade");
-	
+
 	TraderCategory traderData;
-	
+
 	TradeDirection tradeType;
 	Component fluidName;
 	int fluidCount;
-	CoinValue cost = new CoinValue();
-	
+	CoinValue cost = CoinValue.EMPTY;
+
 	String customer;
-	
+
 	public FluidTradeNotification(FluidTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData) {
-		
+
 		this.traderData = traderData;
 		this.tradeType = trade.getTradeDirection();
-		
+
 		this.fluidName = FluidFormatUtil.getFluidName(trade.getProduct()).withStyle(Style.EMPTY);
 		this.fluidCount = trade.getQuantity();
-		
+
 		this.cost = cost;
-		
+
 		this.customer = customer.getName(false);
-		
+
 	}
-	
+
 	public FluidTradeNotification(CompoundTag compound) { this.load(compound); }
-	
+
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
-	
+
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
-	
+
 	@Override
 	public MutableComponent getMessage() {
-		
+
 		Component boughtText = Component.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
-		
+
 		Component fluidText = Component.translatable("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
-		
+
 		Component cost = this.cost.getComponent("0");
-		
+
 		return Component.translatable("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
-		
+
 	}
-	
+
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
-		
+
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
 		compound.putString("Fluid", Component.Serializer.toJson(this.fluidName));
 		compound.putInt("FluidCount", this.fluidCount);
-		this.cost.save(compound, "Price");
+		compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
-		
+
 	}
-	
+
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
-		
+
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.fluidName = Component.Serializer.fromJson(compound.getString("Fluid"));
 		this.fluidCount = compound.getInt("FluidCount");
-		this.cost.load(compound, "Price");
+		this.cost = CoinValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
-		
+
 	}
-	
+
 	@Override
 	protected boolean canMerge(Notification other) {
 		if(other instanceof FluidTradeNotification ftn)
@@ -99,7 +99,7 @@ public class FluidTradeNotification extends Notification{
 				return false;
 			if(ftn.fluidCount != this.fluidCount)
 				return false;
-			if(ftn.cost.getRawValue() != this.cost.getRawValue())
+			if(ftn.cost.getValueNumber() != this.cost.getValueNumber())
 				return false;
 			if(!ftn.customer.equals(this.customer))
 				return false;
@@ -108,5 +108,5 @@ public class FluidTradeNotification extends Notification{
 		}
 		return false;
 	}
-	
+
 }

@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.traders.fluid.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
@@ -11,7 +12,6 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -34,8 +34,11 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class FluidTradeData extends TradeData {
-	
+
 	FluidStack product = FluidStack.EMPTY;
 	public FluidStack getProduct() { return this.product.copy(); }
 	public void setProduct(FluidStack newProduct) {
@@ -50,23 +53,23 @@ public class FluidTradeData extends TradeData {
 			stack.setAmount(this.getQuantity());
 		return stack;
 	}
-	
+
 	int bucketQuantity = 1;
 	public int getQuantity() { return this.bucketQuantity * FluidType.BUCKET_VOLUME; }
 	public int getBucketQuantity() { return this.bucketQuantity; }
 	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, this.getMaxBucketQuantity()); }
 	public int getMaxBucketQuantity() { return Math.max(1, TechConfig.SERVER.fluidTradeMaxQuantity.get()); }
-	
+
 	TradeDirection tradeDirection = TradeDirection.SALE;
 	public TradeDirection getTradeDirection() { return this.tradeDirection; }
 	public void setTradeDirection(TradeDirection type) { this.tradeDirection = type; }
 	public boolean isSale() { return this.tradeDirection == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeDirection == TradeDirection.PURCHASE; }
-	
+
 	public ItemStack getFilledBucket() { return FluidUtil.getFilledBucket(this.product);}
-	
+
 	public FluidTradeData(boolean validateRules) { super(validateRules); }
-	
+
 	public boolean hasStock(FluidTraderData trader) { return this.getStock(trader) > 0; }
 	public boolean hasStock(FluidTraderData trader, Player player) { return this.getStock(trader, player) > 0; }
 	public boolean hasStock(FluidTraderData trader, PlayerReference player) { return this.getStock(trader, player) > 0; }
@@ -76,7 +79,7 @@ public class FluidTradeData extends TradeData {
 	{
 		if(this.product.isEmpty())
 			return 0;
-		
+
 		if(this.isSale())
 		{
 			return trader.getStorage().getAvailableFluidCount(this.product) / this.getQuantity();
@@ -86,25 +89,25 @@ public class FluidTradeData extends TradeData {
 			//How many payments the trader can make
 			if(this.cost.isFree())
 				return 1;
-			if(cost.getRawValue() == 0)
+			if(cost.getValueNumber() == 0)
 				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
+			long coinValue = trader.getStoredMoney().getValueNumber();
 			CoinValue price = player == null ? this.cost : trader.runTradeCostEvent(player, this).getCostResult();
-			return (int)(coinValue/price.getRawValue());
+			return (int)(coinValue/price.getValueNumber());
 		}
 		return 0;
 	}
-	
+
 	public int getStock(TradeContext context) {
 		if(this.product.isEmpty())
 			return 0;
-		
+
 		if(!context.hasTrader() || !(context.getTrader() instanceof FluidTraderData trader))
 			return 0;
 
 		if(trader.isCreative())
 			return 1;
-		
+
 		if(this.isSale())
 		{
 			return trader.getStorage().getAvailableFluidCount(this.product) / this.getQuantity();
@@ -114,15 +117,15 @@ public class FluidTradeData extends TradeData {
 			//How many payments the trader can make
 			if(this.cost.isFree())
 				return 1;
-			if(cost.getRawValue() == 0)
+			if(cost.getValueNumber() == 0)
 				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
+			long coinValue = trader.getStoredMoney().getValueNumber();
 			CoinValue price = this.getCost(context);
-			return (int)(coinValue/price.getRawValue());
+			return (int)(coinValue/price.getValueNumber());
 		}
 		return 0;
 	}
-	
+
 	public boolean canAfford(TradeContext context) {
 		if(this.isSale())
 			return context.hasFunds(this.getCost(context));
@@ -130,30 +133,30 @@ public class FluidTradeData extends TradeData {
 			return context.hasFluid(this.productOfQuantity());
 		return false;
 	}
-	
+
 	public boolean hasSpace(FluidTraderData trader)
 	{
 		if(this.isPurchase())
 			return trader.getStorage().getFillableAmount(this.product) >= this.getQuantity();
 		return true;
 	}
-	
+
 	//Flag as not valid should the tank & product not match
 	public boolean isValid() { return super.isValid() && !this.product.isEmpty(); }
-	
+
 	@Override
 	public CompoundTag getAsNBT()
 	{
 		CompoundTag compound = super.getAsNBT();
-		
+
 		compound.put("Trade", this.product.writeToNBT(new CompoundTag()));
 		compound.putInt("Quantity", this.bucketQuantity);
 		//compound.putInt("PendingDrain", this.pendingDrain);
 		compound.putString("TradeType", this.tradeDirection.name());
-		
+
 		return compound;
 	}
-	
+
 	@Override
 	public void loadFromNBT(CompoundTag compound)
 	{
@@ -165,9 +168,9 @@ public class FluidTradeData extends TradeData {
 			this.bucketQuantity = compound.getInt("Quantity");
 		//Load the trade type
 		this.tradeDirection = loadTradeType(compound.getString("TradeType"));
-		
+
 	}
-	
+
 	public static TradeDirection loadTradeType(String name)
 	{
 		try {
@@ -177,7 +180,7 @@ public class FluidTradeData extends TradeData {
 			return TradeDirection.SALE;
 		}
 	}
-	
+
 	public static List<FluidTradeData> listOfSize(int tradeCount, boolean validateRules)
 	{
 		List<FluidTradeData> list = new ArrayList<>();
@@ -187,12 +190,12 @@ public class FluidTradeData extends TradeData {
 		}
 		return list;
 	}
-	
+
 	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound)
 	{
 		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY);
 	}
-	
+
 	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, String tag)
 	{
 		ListTag list = new ListTag();
@@ -202,36 +205,36 @@ public class FluidTradeData extends TradeData {
 		}
 		compound.put(tag, list);
 	}
-	
+
 	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, boolean validateRules)
 	{
 		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules);
 	}
-	
+
 	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules)
 	{
-		
+
 		if(!compound.contains(tag))
 			return listOfSize(1, validateRules);
-		
+
 		ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
-		
+
 		List<FluidTradeData> tradeData = new ArrayList<>();
-		
+
 		for(int i = 0; i < list.size(); i++)
 		{
 			tradeData.add(loadData(list.getCompound(i), validateRules));
 		}
-		
+
 		return tradeData;
 	}
-	
+
 	public static FluidTradeData loadData(CompoundTag compound, boolean validateRules) {
 		FluidTradeData trade = new FluidTradeData(validateRules);
 		trade.loadFromNBT(compound);
 		return trade;
 	}
-	
+
 	@Override
 	public TradeComparisonResult compare(TradeData otherTrade) {
 		TradeComparisonResult result = new TradeComparisonResult();
@@ -242,14 +245,14 @@ public class FluidTradeData extends TradeData {
 			//Compare product
 			result.addProductResult(ProductComparisonResult.CompareFluid(this.productOfQuantity(), otherFluidTrade.productOfQuantity()));
 			//Compare prices
-			result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+			result.setPriceResult(this.getCost().getValueNumber() - otherTrade.getCost().getValueNumber());
 			//Compare types
 			result.setTypeResult(this.tradeDirection == otherFluidTrade.tradeDirection);
 		}
 		//Return the comparison results
 		return result;
 	}
-	
+
 	@Override
 	public boolean AcceptableDifferences(TradeComparisonResult result) {
 		//Confirm the types match
@@ -282,11 +285,11 @@ public class FluidTradeData extends TradeData {
 			return false;
 		if(this.isPurchase() && result.isPriceCheaper())
 			return false;
-		
+
 		//Product, price, and types are all acceptable
 		return true;
 	}
-	
+
 	@Override
 	public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) {
 		List<Component> list = new ArrayList<>();
@@ -320,7 +323,7 @@ public class FluidTradeData extends TradeData {
 				}
 			}
 		}
-		
+
 		return list;
 	}
 
@@ -329,7 +332,7 @@ public class FluidTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new FluidTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
+	public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -363,15 +366,18 @@ public class FluidTradeData extends TradeData {
 						if(trader.getStorage().refactorTanks())
 							trader.markStorageDirty();
 					}
+					else
+						this.setProduct(FluidStack.EMPTY);
+
 					if(tab.menu.isClient())
 						tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
 				}
 			}
 		}
 	}
-	
+
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int index, int button, ItemStack heldItem) {
+	public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -411,9 +417,9 @@ public class FluidTradeData extends TradeData {
 			}
 		}
 	}
-	
+
 	@Override
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientHandler, int mouseX, int mouseY, int button, ItemStack heldItem) {
+	public void onInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -425,5 +431,5 @@ public class FluidTradeData extends TradeData {
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
 		}
 	}
-	
+
 }

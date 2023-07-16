@@ -51,8 +51,9 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
+			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE());
 			upgradeSlot.active = false;
+			upgradeSlot.setListener(this::onUpgradeModified);
 			addSlot.apply(upgradeSlot);
 			this.slots.add(upgradeSlot);
 		}
@@ -63,7 +64,7 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	}
 	
 	public void interactWithTank(int tank, boolean shiftHeld) {
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
+		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
 		{
 			
 			if(this.menu.isClient())
@@ -73,9 +74,7 @@ public class FluidStorageTab extends TraderInterfaceTab {
 				message.putBoolean("ShiftHeld", shiftHeld);
 				this.menu.sendMessage(message);
 			}
-			
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
-			
+
 			ItemStack heldStack = this.menu.getCarried();
 			if(heldStack.isEmpty()) //If held stack is empty, do nothing
 				return;
@@ -156,16 +155,14 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	}
 	
 	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity) {
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
 			be.getFluidHandler().toggleInputSide(side);
 			be.setHandlerDirty(be.getFluidHandler());
 		}
 	}
 	
 	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity) {
-			FluidTraderInterfaceBlockEntity be = (FluidTraderInterfaceBlockEntity)this.menu.getBE();
+		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
 			be.getFluidHandler().toggleOutputSide(side);
 			be.setHandlerDirty(be.getFluidHandler());
 		}

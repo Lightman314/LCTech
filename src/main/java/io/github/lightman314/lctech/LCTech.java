@@ -29,16 +29,16 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.T
 @Mod("lctech")
 public class LCTech
 {
-	
+
 	public static final String MODID = "lctech";
-	
+
 	public static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
-	
+
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
     public LCTech() {
-    	
+
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
         // Register the doClientStuff method for modloading
@@ -47,15 +47,15 @@ public class LCTech
         //Register configs
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, TechConfig.commonSpec);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, TechConfig.serverSpec);
-        
+
         //.Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
-        
+
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
-        
+
     }
 
     private void doCommonStuff(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }

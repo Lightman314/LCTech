@@ -7,11 +7,9 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid.FluidStorageClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -32,14 +30,14 @@ public class FluidStorageTab extends TraderStorageTab{
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new FluidStorageClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new FluidStorageClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return true; }
-	
+
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
-	
+
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		//Upgrade Slots
@@ -57,22 +55,22 @@ public class FluidStorageTab extends TraderStorageTab{
 
 	@Override
 	public void onTabClose() {
-		
+
 		SimpleSlot.SetInactive(this.slots);
-		
+
 	}
 
 	@Override
 	public void onTabOpen() {
-		
+
 		SimpleSlot.SetActive(this.slots);
-		
+
 	}
 
 	public void interactWithTank(int tank, boolean shiftHeld) {
 		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
-			
+
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
@@ -84,7 +82,7 @@ public class FluidStorageTab extends TraderStorageTab{
 			ItemStack heldStack = this.menu.getCarried();
 			if(heldStack.isEmpty()) //If held stack is empty, do nothing
 				return;
-			
+
 			//Try and fill the tank
 			FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trader.getStorage(), Integer.MAX_VALUE, this.menu.player, true);
 			if(result.isSuccess())
@@ -137,7 +135,7 @@ public class FluidStorageTab extends TraderStorageTab{
 						trader.markStorageDirty();
 						return;
 					}
-					
+
 					trader.getStorage().clearInvalidTanks();
 					trader.markStorageDirty();
 					if(heldStack.getCount() > 1)
@@ -151,28 +149,28 @@ public class FluidStorageTab extends TraderStorageTab{
 						this.menu.setCarried(result.getResult());
 					}
 				}
-					
+
 			}
 		}
 	}
-	
+
 	public void toggleDrainFillState(int tank, boolean drainState, boolean newValue) {
 		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
 
 			if(!trader.drainCapable())
 				return;
-			
+
 			if(tank < 0 || tank >= trader.getStorage().getTanks())
 				return;
-			
+
 			FluidEntry entry = trader.getStorage().getContents().get(tank);
 			if(drainState)
 				entry.drainable = newValue;
 			else
 				entry.fillable = newValue;
 			trader.markStorageDirty();
-			
+
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
@@ -183,7 +181,7 @@ public class FluidStorageTab extends TraderStorageTab{
 			}
 		}
 	}
-	
+
 	@Override
 	public void receiveMessage(CompoundTag message) {
 		if(message.contains("InteractWithTank", Tag.TAG_INT))

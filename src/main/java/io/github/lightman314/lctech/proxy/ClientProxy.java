@@ -5,10 +5,10 @@ import io.github.lightman314.lctech.client.renderer.tileentity.FluidTankTileEnti
 import io.github.lightman314.lctech.client.renderer.tileentity.FluidTraderBlockEntityRenderer;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class ClientProxy extends CommonProxy{
 

@@ -57,14 +57,6 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		return super.getRenderBoundingBox();
 	}
 	
-	@Override @Deprecated
-	protected FluidTraderData createTraderFromOldData(CompoundTag compound) {
-		FluidTraderData newTrader = new FluidTraderData(1, this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		this.tradeCount = newTrader.getTradeCount();
-		return newTrader;
-	}
-	
 	@OnlyIn(Dist.CLIENT)
 	public int getTradeRenderLimit()
 	{

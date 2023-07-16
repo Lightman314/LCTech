@@ -1,6 +1,5 @@
 package io.github.lightman314.lctech.common.blockentities.trader;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
@@ -51,13 +50,6 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		if(this.getBlockState() != null)
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 		return super.getRenderBoundingBox();
-	}
-	
-	@Override @Deprecated
-	protected EnergyTraderData createTraderFromOldData(CompoundTag compound) {
-		EnergyTraderData newTrader = new EnergyTraderData(this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		return newTrader;
 	}
 	
 	@Override
