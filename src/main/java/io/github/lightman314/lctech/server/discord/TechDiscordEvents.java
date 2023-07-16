@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.common.discord;
+package io.github.lightman314.lctech.server.discord;
 
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;

@@ -32,7 +32,7 @@ public class NetworkEnergyTraderBlock extends TraderBlockRotatable {
 	protected BlockEntityType<?> traderType() { return ModBlockEntities.ENERGY_TRADER.get(); }
 	
 	@Override @SuppressWarnings("deprecation")
-	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ENERGY_TRADER.get(), ModBlockEntities.UNIVERSAL_ENERGY_TRADER.get()); }
+	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ENERGY_TRADER.get()); }
 
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)

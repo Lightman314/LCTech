@@ -20,7 +20,7 @@ public class CMessageRequestTankStackSync {
     public static void handle(CMessageRequestTankStackSync message, Supplier<NetworkEvent.Context> supplier) {
         supplier.get().enqueueWork(() -> {
             ServerPlayer player = supplier.get().getSender();
-            if(player.level.getBlockEntity(message.tankPos) instanceof FluidTankBlockEntity tank)
+            if(player.level().getBlockEntity(message.tankPos) instanceof FluidTankBlockEntity tank)
                 tank.sendTankStackPacket(player);
         });
         supplier.get().setPacketHandled(true);

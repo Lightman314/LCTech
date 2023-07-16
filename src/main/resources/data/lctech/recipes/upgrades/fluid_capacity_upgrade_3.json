@@ -1,6 +1,6 @@
 {
   "conditions":[{"type":"lctech:fluid_trader_craftable"}],
-  "type": "minecraft:smithing",
+  "type": "minecraft:smithing_transform",
   "base": {
     "item": "lctech:fluid_capacity_upgrade_2"
   },
@@ -9,5 +9,8 @@
   },
   "result": {
     "item": "lctech:fluid_capacity_upgrade_3"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
   }
 }

@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.common.items;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.common.util.EnergyUtil;
@@ -14,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import org.jetbrains.annotations.NotNull;
 
 public class BatteryItem extends Item implements IBatteryItem{
 
@@ -28,7 +28,7 @@ public class BatteryItem extends Item implements IBatteryItem{
 	}
 	
 	@Override
-	public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
 		
 		super.appendHoverText(stack, level, tooltip, flag);
 		tooltip.add(Component.literal(EnergyUtil.formatEnergyAmount(IBatteryItem.getStoredEnergy(stack))+ "/" + EnergyUtil.formatEnergyAmount(this.getMaxEnergyStorage(stack))).withStyle(ChatFormatting.AQUA));
@@ -40,17 +40,15 @@ public class BatteryItem extends Item implements IBatteryItem{
     {
         return IBatteryItem.createCapability(stack);
     }
-	
-	//Power Charge Bar
-	public boolean isBarVisible(@NotNull ItemStack stack) {
-      return true;
-	}
 
-	public int getBarWidth(@NotNull ItemStack stack) {
+	//Power Charge Bar
+	public boolean isBarVisible(@Nonnull ItemStack stack) { return IBatteryItem.isEnergyBarVisible(stack); }
+
+	public int getBarWidth(@Nonnull ItemStack stack) {
 		return Math.round((float)Math.min(IBatteryItem.getStoredEnergy(stack), this.getMaxEnergyStorage(stack)) * 13.0F / (float)this.getMaxEnergyStorage(stack));
 	}
 
-	public int getBarColor(@NotNull ItemStack stack) {
+	public int getBarColor(@Nonnull ItemStack stack) {
 		return ChatFormatting.AQUA.getColor();
 	}
 	

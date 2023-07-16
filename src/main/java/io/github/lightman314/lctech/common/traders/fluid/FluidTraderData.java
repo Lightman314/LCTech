@@ -20,7 +20,6 @@ import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -32,7 +31,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,7 +53,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class FluidTraderData extends InputTraderData implements ITraderFluidFilter, ITradeSource<FluidTradeData> {
+public class FluidTraderData extends InputTraderData implements ITraderFluidFilter {
 
 	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
 	
@@ -478,47 +476,5 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			}
 		}
 	}
-	
-	@Override @Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) {
-		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.trades = FluidTradeData.LoadNBTList(compound, true);
-		
-		if(compound.contains("UpgradeInventory"))
-			this.loadOldUpgradeData(InventoryUtil.loadAllItems("UpgradeInventory", compound, 5));
-		
-		if(compound.contains("FluidStorage"))
-			this.storage.load(compound, "FluidStorage");
-		else if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.storage.loadFromTrades(compound.getList(TradeData.DEFAULT_KEY, Tag.TAG_COMPOUND));
-		
-		if(compound.contains("FluidSettings"))
-		{
-			CompoundTag fs = compound.getCompound("FluidSettings");
-			if(fs.contains("InputSides"))
-				this.loadOldInputSides(fs.getCompound("InputSides"));
-			if(fs.contains("OutputSides"))
-				this.loadOldOutputSides(fs.getCompound("OutputSides"));
-		}
-		
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
-			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
-		
-		if(compound.contains("FluidShopHistory"))
-		{
-			ListTag list = compound.getList("FluidShopHistory", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); ++i)
-			{
-				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
-				if(text != null)
-					this.pushLocalNotification(new TextNotification(text));
-			}
-		}
-		
-	}
-	
-	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) { this.loadExtraOldUniversalTraderData(compound); }
 
 }

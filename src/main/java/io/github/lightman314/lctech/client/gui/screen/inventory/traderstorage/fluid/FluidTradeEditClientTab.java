@@ -1,48 +1,51 @@
 package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget.IFluidEditListener;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import org.jetbrains.annotations.NotNull;
 
-public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener{
+import javax.annotation.Nonnull;
+
+public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEditTab> implements InteractionConsumer, IFluidEditListener, IMouseListener {
 
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 71;
 	private static final int COLUMNS = 10;
 	private static final int ROWS = 2;
 	
-	public FluidTradeEditClientTab(TraderStorageScreen screen, FluidTradeEditTab commonTab) { super(screen, commonTab); }
+	public FluidTradeEditClientTab(Object screen, FluidTradeEditTab commonTab) { super(screen, commonTab); }
+	
+	@Nonnull
+	@Override
+	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
 	
 	@Override
-	public @NotNull IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
-	
-	@Override
-	public MutableComponent getTooltip() { return Component.empty(); }
+	public MutableComponent getTooltip() { return EasyText.empty(); }
 	
 	@Override
 	public boolean tabButtonVisible() { return false; }
@@ -55,68 +58,61 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	
 	TradeButton tradeDisplay;
 	CoinValueInput priceSelection;
-	
-	Button buttonAddBucket;
-	Button buttonRemoveBucket;
+
+	EasyButton buttonAddBucket;
+	EasyButton buttonRemoveBucket;
 	
 	FluidEditWidget fluidEdit;
 	ScrollBarWidget fluidEditScroll;
-	
-	Button buttonToggleTradeType;
+
+	EasyButton buttonToggleTradeType;
 	
 	private int selection;
 	
 	@Override
-	public void onOpen() {
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 		
 		FluidTradeData trade = this.getTrade();
 		
-		this.tradeDisplay = this.screen.addRenderableTabWidget(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
-		this.tradeDisplay.move(this.screen.getGuiLeft() + 10, this.screen.getGuiTop() + 18);
-		this.priceSelection = this.screen.addRenderableTabWidget(new CoinValueInput(this.screen.getGuiLeft() + this.screen.getXSize() / 2 - CoinValueInput.DISPLAY_WIDTH / 2, this.screen.getGuiTop() + 40, Component.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.font, this::onValueChanged, this.screen::addRenderableTabWidget));
+		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
+		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
+		this.priceSelection = this.addChild(new CoinValueInput(screenArea.pos.offset(screenArea.width / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 40), EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.getFont(), this::onValueChanged));
 		this.priceSelection.drawBG = false;
-		this.priceSelection.init();
 		
-		this.fluidEdit = this.screen.addRenderableTabWidget(new FluidEditWidget(this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, COLUMNS, ROWS, this));
-		this.fluidEdit.init(this.screen::addRenderableTabWidget);
+		this.fluidEdit = this.addChild(new FluidEditWidget(screenArea.pos.offset(X_OFFSET, Y_OFFSET), COLUMNS, ROWS, this));
 		
-		this.fluidEditScroll = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + 18 * COLUMNS, this.screen.getGuiTop() + Y_OFFSET, 18 * ROWS, this.fluidEdit));
+		this.fluidEditScroll = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + 18 * COLUMNS, Y_OFFSET), 18 * ROWS, this.fluidEdit));
 		this.fluidEditScroll.smallKnob = true;
 		
-		this.buttonAddBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 74, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 32, 0)));
-		this.buttonRemoveBucket = this.screen.addRenderableTabWidget(new IconButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 38, this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 48, 0)));
+		this.buttonAddBucket = this.addChild(new IconButton(screenArea.pos.offset(74, 38), this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 32, 0)));
+		this.buttonRemoveBucket = this.addChild(new IconButton(screenArea.pos.offset(113, 38), this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 48, 0)));
 		
-		this.buttonToggleTradeType = this.screen.addRenderableTabWidget(Button.builder(Component.empty(), this::ToggleTradeType).pos(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15).size(80, 20).build());
+		this.buttonToggleTradeType = this.addChild(new EasyTextButton(this.screen.getGuiLeft() + 113, this.screen.getGuiTop() + 15, 80, 20, EasyText.empty(), this::ToggleTradeType));
 		
 	}
 	
 	@Override
-	public void onClose() { this.selection = -1; }
+	public void closeAction() { this.selection = -1; }
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 		
 		if(this.getTrade() == null)
 			return;
 		
 		this.validateRenderables();
 		
-		if(this.fluidEditScroll.visible)
-			this.fluidEditScroll.beforeWidgetRender(mouseY);
-		
 		//Render the local quantity text
 		if(this.selection >= 0)
 		{
 			String quantityText = this.getTrade().getBucketQuantity() + "B";
-			int textWidth = this.font.width(quantityText);
-			this.font.draw(pose, quantityText, this.screen.getGuiLeft() + 1 + (this.screen.getXSize() / 2) - (textWidth / 2), this.screen.getGuiTop() + 42, 0xFFFFFF);
+			int textWidth = gui.font.width(quantityText);
+			gui.drawString(quantityText, 1 + (this.screen.getXSize() / 2) - (textWidth / 2), 42, 0xFFFFFF);
 		}
 		
 		//Render a down arrow over the selected position
-		RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		
-		this.screen.blit(pose, this.getArrowPosition(), this.screen.getGuiTop() + 10, TraderScreen.WIDTH + 8, 18, 8, 6);
+		gui.resetColor();
+		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
 		
 	}
 	
@@ -126,16 +122,16 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		if(this.selection == -1)
 		{
 			if(trade.isSale())
-				return this.screen.getGuiLeft() + 25;
+				return 25;
 			else
-				return this.screen.getGuiLeft() + 63;
+				return 63;
 		}
 		else
 		{
 			if(trade.isSale())
-				return this.screen.getGuiLeft() + 72;
+				return 72;
 			else
-				return this.screen.getGuiLeft() + 16;
+				return 16;
 		}
 	}
 	
@@ -152,17 +148,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		if(this.buttonRemoveBucket.visible)
 			this.buttonRemoveBucket.active = this.getTrade().getBucketQuantity() > 1;
 		
-		this.buttonToggleTradeType.setMessage(Component.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeDirection().name().toLowerCase()));
-		
-	}
-	
-	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
-		
-		this.tradeDisplay.renderTooltips(pose, mouseX, mouseY);
-		
-		if(this.selection >= 0)
-			this.fluidEdit.renderTooltips(this.screen, pose, mouseX, mouseY);
+		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeDirection().name().toLowerCase()));
 		
 	}
 	
@@ -224,17 +210,13 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
-		this.fluidEditScroll.onMouseClicked(mouseX, mouseY, button);
 		return false;
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.fluidEditScroll.onMouseReleased(mouseX, mouseY, button);
-		return false;
-	}
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 	
 	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
 	
@@ -244,7 +226,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.commonTab.setFluid(fluid);
 	}
 	
-	private void ChangeQuantity(Button button) {
+	private void ChangeQuantity(EasyButton button) {
 		if(this.getTrade() != null)
 		{
 			int deltaQuantity = 1;
@@ -254,7 +236,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		}
 	}
 	
-	private void ToggleTradeType(Button button) {
+	private void ToggleTradeType(EasyButton button) {
 		if(this.getTrade() != null)
 			this.commonTab.setType(this.getTrade().getTradeDirection().next());
 	}

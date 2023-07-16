@@ -4,16 +4,16 @@ import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = LCTech.MODID)
 public class CreativeTabEvents {
 
     @SubscribeEvent
-    public static void buildTabContents(CreativeModeTabEvent.BuildContents event) {
-        if(event.getTab() == ModCreativeGroups.getMachineGroup())
+    public static void buildTabContents(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTab() == ModCreativeGroups.MACHINE_GROUP.get())
         {
             //Fluid Tanks
             event.accept(ModBlocks.IRON_TANK.get());
@@ -29,7 +29,7 @@ public class CreativeTabEvents {
             //Energy Interface
             event.accept(ModBlocks.ENERGY_TRADER_INTERFACE.get());
         }
-        if(event.getTab() == ModCreativeGroups.getTraderGroup())
+        if(event.getTab() == ModCreativeGroups.TRADER_GROUP.get())
         {
             //Fluid Traders
             event.accept(ModBlocks.FLUID_TAP.get());
@@ -44,7 +44,7 @@ public class CreativeTabEvents {
             //Energy Network Traders
             event.accept(ModBlocks.ENERGY_NETWORK_TRADER.get());
         }
-        if(event.getTab() == ModCreativeGroups.getUpgradeGroup())
+        if(event.getTab() == ModCreativeGroups.UPGRADE_GROUP.get())
         {
             //Fluid Capacity Upgrades
             event.accept(ModItems.FLUID_CAPACITY_UPGRADE_1.get());

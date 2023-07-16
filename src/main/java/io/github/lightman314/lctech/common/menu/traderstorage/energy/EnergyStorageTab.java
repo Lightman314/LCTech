@@ -7,13 +7,11 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
@@ -33,7 +31,7 @@ public class EnergyStorageTab extends TraderStorageTab{
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new EnergyStorageClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new EnergyStorageClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return true; }
@@ -49,9 +47,8 @@ public class EnergyStorageTab extends TraderStorageTab{
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof EnergyTraderData)
+		if(this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);

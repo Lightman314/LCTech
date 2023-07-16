@@ -22,7 +22,7 @@ public class EnergyTradeNotification extends Notification {
 	
 	TradeDirection tradeType;
 	int quantity;
-	CoinValue cost = new CoinValue();
+	CoinValue cost = CoinValue.EMPTY;
 	
 	String customer;
 	
@@ -62,7 +62,7 @@ public class EnergyTradeNotification extends Notification {
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
 		compound.putInt("Quantity", this.quantity);
-		this.cost.save(compound, "Price");
+		compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -73,7 +73,7 @@ public class EnergyTradeNotification extends Notification {
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.quantity = compound.getInt("Quantity");
-		this.cost.load(compound, "Price");
+		this.cost = CoinValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}
@@ -88,7 +88,7 @@ public class EnergyTradeNotification extends Notification {
 				return false;
 			if(etn.quantity != this.quantity)
 				return false;
-			if(etn.cost.getRawValue() != this.cost.getRawValue())
+			if(etn.cost.getValueNumber() != this.cost.getValueNumber())
 				return false;
 			if(!etn.customer.equals(this.customer))
 				return false;

@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.client.gui.settings.energy.EnergyInputAddon;
+import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.core.ModItems;
@@ -21,11 +22,11 @@ import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.common.traders.tradedata.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
@@ -33,7 +34,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -56,7 +56,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class EnergyTraderData extends InputTraderData implements ITradeSource<EnergyTradeData> {
+public class EnergyTraderData extends InputTraderData {
 
 	public static final int DEFAULT_TRADE_LIMIT = 8;
 	
@@ -288,7 +288,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	}
 
 	@Override
-	public IconData inputSettingsTabIcon() { return IconData.of(ModItems.BATTERY); }
+	public IconData inputSettingsTabIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY)); }
 	@Override
 	public MutableComponent inputSettingsTabTooltip() { return Component.translatable("tooltip.lctech.settings.energyinput"); }
 	@Override @OnlyIn(Dist.CLIENT)
@@ -434,7 +434,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 	protected void getAdditionalContents(List<ItemStack> contents) { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.BATTERY.get()); }
+	public IconData getIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY.get())); }
 	
 	@Override
 	public boolean hasValidTrade() {
@@ -542,52 +542,7 @@ public class EnergyTraderData extends InputTraderData implements ITradeSource<En
 			}
 		}
 	}
-	
-	@Override @Deprecated
-	protected void loadExtraOldBlockEntityData(CompoundTag compound) {
-		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.trades = EnergyTradeData.LoadNBTList(compound, true);
-		
-		if(compound.contains("UpgradeInventory", Tag.TAG_LIST))
-			this.loadOldUpgradeData(InventoryUtil.loadAllItems("UpgradeInventory", compound, 5));
-		
-		if(compound.contains("EnergySettings", Tag.TAG_COMPOUND))
-		{
-			CompoundTag es = compound.getCompound("EnergySettings");
-			if(es.contains("InputSides"))
-				this.loadOldInputSides(es.getCompound("InputSides"));
-			if(es.contains("OutputSides"))
-				this.loadOldOutputSides(es.getCompound("OutputSides"));
-			
-			if(es.contains("DrainMode"))
-				this.drainMode = DrainMode.of(compound.getInt("DrainMode"));
-		}
-		
-		if(compound.contains("TradeRules", Tag.TAG_LIST))
-			this.loadOldTradeRuleData(TradeRule.loadRules(compound, "TradeRules"));
-		
-		if(compound.contains("Battery", Tag.TAG_INT))
-			this.energyStorage = compound.getInt("Battery");
-		if(compound.contains("PendingDrain", Tag.TAG_INT))
-			this.pendingDrain = compound.getInt("PendingDrain");
-		
-		if(compound.contains("EnergyShopHistory", Tag.TAG_LIST))
-		{
-			ListTag list = compound.getList("EnergyShopHistory", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); ++i)
-			{
-				String jsonText = list.getCompound(i).getString("value");
-				MutableComponent text = Component.Serializer.fromJson(jsonText);
-				if(text != null)
-					this.pushLocalNotification(new TextNotification(text));
-			}
-		}
-		
-		
-	}
-	@Override @Deprecated
-	protected void loadExtraOldUniversalTraderData(CompoundTag compound) { this.loadExtraOldBlockEntityData(compound); }
-	
+
 	public static List<Component> getEnergyHoverTooltip(EnergyTraderData trader)
 	{
 		List<Component> tooltip = Lists.newArrayList();

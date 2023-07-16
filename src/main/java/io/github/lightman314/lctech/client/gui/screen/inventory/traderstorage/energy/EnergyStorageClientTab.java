@@ -1,21 +1,19 @@
 package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStorageTab;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
@@ -31,14 +29,14 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	private static final int FRAME_HEIGHT = 90;
 	private static final int ENERGY_BAR_HEIGHT = FRAME_HEIGHT - 2;
 	
-	public EnergyStorageClientTab(TraderStorageScreen screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
+	public EnergyStorageClientTab(Object screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(IBatteryItem.getFullBattery(ModItems.BATTERY_LARGE.get())); }
+	public IconData getIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY_LARGE)); }
 
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.trader.storage"); }
+	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.storage"); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -47,55 +45,49 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	public boolean blockInventoryClosing() { return false; }
 
 	@Override
-	public void onOpen() { }
+	public void initialize(ScreenArea screenArea, boolean firstOpen) { }
 
 	@Override
-	public void renderBG(@Nonnull PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.font.draw(pose, Component.translatable("gui.lightmanscurrency.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+
+		gui.drawString(EasyText.translatable("gui.lightmanscurrency.storage"), 8, 6, 0x404040);
 		
 		if(this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 
 			//Render the slot bg for the upgrade/battery slots
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			gui.resetColor();
 			for(Slot slot : this.commonTab.getSlots())
-			{
-				GuiComponent.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
-			}
-			
-			RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
+
 			//Render the arrow between the arrow slots
-			GuiComponent.blit(pose, this.screen.getGuiLeft() + TraderMenu.SLOT_OFFSET + 25, this.screen.getGuiTop() + 121, 36, 0, 18, 18);
+			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 25, 121, 36, 0, 18, 18);
 			
 			//Render the background for the energy bar
-			GuiComponent.blit(pose, this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET, 0, 0, 18, FRAME_HEIGHT);
+			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET, 0, 0, 18, FRAME_HEIGHT);
 			
 			//Render the energy bar
 			double fillPercent = (double)trader.getTotalEnergy() / (double)trader.getMaxEnergy();
 			int fillHeight = MathUtil.clamp((int)(ENERGY_BAR_HEIGHT * fillPercent), 0, ENERGY_BAR_HEIGHT);
 			int yOffset = ENERGY_BAR_HEIGHT - fillHeight + 1;
-			GuiComponent.blit(pose, this.screen.getGuiLeft() + X_OFFSET, this.screen.getGuiTop() + Y_OFFSET + yOffset, 18, yOffset, 18, fillHeight);
+			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET + yOffset, 18, yOffset, 18, fillHeight);
 			
 		}
 		
 	}
 
 	@Override
-	public void renderTooltips(@Nonnull PoseStack pose, int mouseX, int mouseY) {
+	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
-		if(this.menu.getTrader() instanceof EnergyTraderData && this.isMouseOverEnergy(mouseX, mouseY))
-		{
-			this.screen.renderComponentTooltip(pose, EnergyTraderData.getEnergyHoverTooltip((EnergyTraderData)this.menu.getTrader()), mouseX, mouseY);
-		}
+		if(this.menu.getTrader() instanceof EnergyTraderData trader && this.isMouseOverEnergy(gui.mousePos))
+			gui.renderComponentTooltip(EnergyTraderData.getEnergyHoverTooltip(trader));
 		
 	}
 	
-	private boolean isMouseOverEnergy(int mouseX, int mouseY) {
+	private boolean isMouseOverEnergy(ScreenPosition mousePos) {
 		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
 		int topEdge = this.screen.getGuiTop() + Y_OFFSET;
-		return mouseX >= leftEdge && mouseX < leftEdge + 18 && mouseY >= topEdge && mouseY < topEdge + FRAME_HEIGHT;
+		return mousePos.x >= leftEdge && mousePos.x < leftEdge + 18 && mousePos.y >= topEdge && mousePos.y < topEdge + FRAME_HEIGHT;
 	}
 	
 }

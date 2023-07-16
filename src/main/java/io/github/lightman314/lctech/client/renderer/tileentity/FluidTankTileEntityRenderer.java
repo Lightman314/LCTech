@@ -29,7 +29,6 @@ public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTan
 			}
 		}
 
-
 	}
 	
 }

@@ -24,7 +24,7 @@ public class FluidTradeNotification extends Notification{
 	TradeDirection tradeType;
 	Component fluidName;
 	int fluidCount;
-	CoinValue cost = new CoinValue();
+	CoinValue cost = CoinValue.EMPTY;
 	
 	String customer;
 	
@@ -70,7 +70,7 @@ public class FluidTradeNotification extends Notification{
 		compound.putInt("TradeType", this.tradeType.index);
 		compound.putString("Fluid", Component.Serializer.toJson(this.fluidName));
 		compound.putInt("FluidCount", this.fluidCount);
-		this.cost.save(compound, "Price");
+		compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
 		
 	}
@@ -82,7 +82,7 @@ public class FluidTradeNotification extends Notification{
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.fluidName = Component.Serializer.fromJson(compound.getString("Fluid"));
 		this.fluidCount = compound.getInt("FluidCount");
-		this.cost.load(compound, "Price");
+		this.cost = CoinValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");
 		
 	}
@@ -99,7 +99,7 @@ public class FluidTradeNotification extends Notification{
 				return false;
 			if(ftn.fluidCount != this.fluidCount)
 				return false;
-			if(ftn.cost.getRawValue() != this.cost.getRawValue())
+			if(ftn.cost.getValueNumber() != this.cost.getValueNumber())
 				return false;
 			if(!ftn.customer.equals(this.customer))
 				return false;

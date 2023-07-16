@@ -3,9 +3,6 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
@@ -14,18 +11,22 @@ import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.Flui
 import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollBarWidget.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -35,7 +36,7 @@ import net.minecraft.world.inventory.Slot;
 
 import javax.annotation.Nonnull;
 
-public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorageTab> implements IScrollListener, IScrollable {
+public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorageTab> implements IScrollable, IMouseListener {
 	
 	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/fluid_trade_extras.png");
 	
@@ -59,7 +60,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 	
 	@Override
-	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.interface.storage"); }
+	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -77,24 +78,24 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	}
 	
 	@Override
-	public void onOpen() {
-		
-		this.scrollBar = this.screen.addRenderableTabWidget(new ScrollBarWidget(this.screen.getGuiLeft() + X_OFFSET + (18 * TANKS), this.screen.getGuiTop() + Y_OFFSET, 53, this));
+	public void initialize(ScreenArea screenArea, boolean firstOpen) {
+
+		this.addChild(this);
+
+		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + (18 * TANKS), Y_OFFSET), 53, this));
 		this.scrollBar.smallKnob = true;
 		
-		this.screen.addTabListener(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
+		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this::mouseScrolled));
 		
-		this.inputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this.screen::addRenderableTabWidget);
-		this.outputSettings = new DirectionalSettingsWidget(this.screen.getGuiLeft() + 116, this.screen.getGuiTop() + WIDGET_OFFSET + 9, this.getOutputSettings()::get, this.getOutputSettings().ignoreSides, this::ToggleOutputSide, this.screen::addRenderableTabWidget);
+		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
+		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getOutputSettings().ignoreSides, this::ToggleOutputSide, this::addChild);
 		
 	}
 	
 	@Override
-	public void renderBG(PoseStack pose, int mouseX, int mouseY, float partialTicks) {
-		
-		this.font.draw(pose, Component.translatable("tooltip.lightmanscurrency.interface.storage"), this.screen.getGuiLeft() + 8, this.screen.getGuiTop() + 6, 0x404040);
-		
-		this.scrollBar.beforeWidgetRender(mouseY);
+	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+
+		gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), 8, 6, 0x404040);
 		
 		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
 		{
@@ -103,53 +104,46 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 			//Render each tank
 			int index = this.scroll;
 			TraderFluidStorage storage = be.getFluidBuffer();
-			int yPos = this.screen.getGuiTop() + Y_OFFSET;
+			int yPos = Y_OFFSET;
 			for(int x = 0; x < TANKS && index < storage.getTanks(); ++x)
 			{
-				int xPos = this.screen.getGuiLeft() + X_OFFSET + x * 18;
+				int xPos = X_OFFSET + x * 18;
 				FluidEntry entry = storage.getContents().get(index);
 				//Render the filter fluid
 				//ItemRenderUtil.drawItemStack(this.screen, this.font, FluidItemUtil.getFluidDisplayItem(entry.filter), xPos + 1, yPos);
 				//Render the tank bg
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				GuiComponent.blit(pose, xPos, yPos, 36, 16, 18, 53);
+				gui.resetColor();
+				gui.blit(GUI_TEXTURE, xPos, yPos, 36, 16, 18, 53);
 				//Render the fluid in the tank
-				FluidRenderUtil.drawFluidTankInGUI(entry.filter, xPos + 1, yPos + 1, 16, 51, (double)entry.getStoredAmount() / (double)storage.getTankCapacity());
+				FluidRenderUtil.drawFluidTankInGUI(entry.filter, this.screen.getCorner(), xPos + 1, yPos + 1, 16, 51, (double)entry.getStoredAmount() / (double)storage.getTankCapacity());
 				//Render the tank overlay (glass)
-				RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-				RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-				GuiComponent.blit(pose, xPos, yPos, 54, 16, 18, 53);
+				gui.resetColor();
+				gui.blit(GUI_TEXTURE, xPos, yPos, 54, 16, 18, 53);
 				
 				index++;
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderInterfaceScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			gui.resetColor();
 			for(Slot slot : this.commonTab.getSlots())
-			{
-				GuiComponent.blit(pose, this.screen.getGuiLeft() + slot.x - 1, this.screen.getGuiTop() + slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
-			}
+				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			
 			//Render the input/output labels
-			this.font.draw(pose, Component.translatable("gui.lctech.settings.fluidinput.side"), this.screen.getGuiLeft() + 33, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
-			int textWidth = this.font.width(Component.translatable("gui.lctech.settings.fluidoutput.side"));
-			this.font.draw(pose, Component.translatable("gui.lctech.settings.fluidoutput.side"), this.screen.getGuiLeft() + 173 - textWidth, this.screen.getGuiTop() + WIDGET_OFFSET, 0x404040);
+			gui.drawString(EasyText.translatable("gui.lctech.settings.fluidinput.side"), 33, WIDGET_OFFSET, 0x404040);
+			int textWidth = gui.font.width(EasyText.translatable("gui.lctech.settings.fluidoutput.side"));
+			gui.drawString(EasyText.translatable("gui.lctech.settings.fluidoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
 			
 		}
 		
 	}
 	
 	@Override
-	public void renderTooltips(PoseStack pose, int mouseX, int mouseY) {
+	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		
-		this.inputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);
-		this.outputSettings.renderTooltips(pose, mouseX, mouseY, this.screen);
-		
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
+		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
 		{
-			TraderFluidStorage storage = ((FluidTraderInterfaceBlockEntity)this.menu.getBE()).getFluidBuffer();
-			int hoveredSlot = this.isMouseOverTank(mouseX, mouseY);
+			TraderFluidStorage storage = be.getFluidBuffer();
+			int hoveredSlot = this.isMouseOverTank(gui.mousePos);
 			if(hoveredSlot >= 0)
 			{
 				hoveredSlot += this.scroll;
@@ -160,33 +154,27 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				List<Component> tooltips = new ArrayList<>();
 				tooltips.add(FluidFormatUtil.getFluidName(entry.filter));
 				//'amount'/'capacity'mB
-				tooltips.add(Component.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
-				tooltips.add(Component.translatable("tooltip.lctech.trader.fluid.fill_tank"));
-				this.screen.renderComponentTooltip(pose, tooltips, mouseX, mouseY);
+				tooltips.add(EasyText.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
+				tooltips.add(EasyText.translatable("tooltip.lctech.trader.fluid.fill_tank"));
+				gui.renderComponentTooltip(tooltips);
 			}
 		}
 	}
 	
-	private int isMouseOverTank(double mouseX, double mouseY) {
+	private int isMouseOverTank(ScreenPosition mousePos) {
 		
 		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
 		int topEdge = this.screen.getGuiTop() + Y_OFFSET;
 		
-		if(mouseY < topEdge || mouseY >= topEdge + 53)
+		if(mousePos.y < topEdge || mousePos.y >= topEdge + 53)
 			return -1;
 		
 		for(int x = 0; x < TANKS; ++x)
 		{
-			if(mouseX >= leftEdge + x * 18 && mouseX < leftEdge + (x * 18) + 18)
+			if(mousePos.x >= leftEdge + x * 18 && mousePos.x < leftEdge + (x * 18) + 18)
 				return x;
 		}
 		return -1;
-	}
-	
-	@Override
-	public void tick() {
-		this.inputSettings.tick();
-		this.outputSettings.tick();
 	}
 	
 	private int totalTankSlots() {
@@ -205,8 +193,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	}
 	
 	private boolean canScrollDown() { return this.totalTankSlots() - this.scroll > TANKS; }	
-	
-	@Override
+
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		if(delta < 0)
 		{			
@@ -226,11 +213,11 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	}
 	
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		
 		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
 		{
-			int hoveredSlot = this.isMouseOverTank(mouseX, mouseY);
+			int hoveredSlot = this.isMouseOverTank(ScreenPosition.of(mouseX, mouseY));
 			if(hoveredSlot >= 0)
 			{
 				hoveredSlot += this.scroll;
@@ -238,15 +225,11 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				return true;
 			}
 		}
-		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
 		return false;
 	}
 	
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		this.scrollBar.onMouseReleased(mouseX, mouseY, button);
-		return false;
-	}
+	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 	
 	@Override
 	public int currentScroll() { return this.scroll; }

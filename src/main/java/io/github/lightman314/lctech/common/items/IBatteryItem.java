@@ -11,6 +11,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 public interface IBatteryItem {
@@ -43,6 +44,28 @@ public interface IBatteryItem {
 		ItemStack newStack = new ItemStack(item);
 		newStack.getOrCreateTag().putInt("Battery", item.getMaxEnergyStorage(newStack));
 		return newStack;
+	}
+
+	static ItemStack HideEnergyBar(RegistryObject<? extends ItemLike> item) { return HideEnergyBar(new ItemStack(item.get())); }
+	static ItemStack HideEnergyBar(ItemLike item) { return HideEnergyBar(new ItemStack(item)); }
+	static ItemStack HideEnergyBar(ItemStack stack) {
+		CompoundTag tag = stack.getOrCreateTag();
+		tag.putBoolean("HideEnergyBar", true);
+		return stack;
+	}
+
+	static boolean isEnergyBarVisible(ItemStack batteryStack)
+	{
+		if(batteryStack.getItem() instanceof IBatteryItem)
+		{
+			if(batteryStack.hasTag())
+			{
+				CompoundTag tag = batteryStack.getTag();
+				return !tag.contains("HideEnergyBar") || !tag.getBoolean("HideEnergyBar");
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	class BatteryEnergyStorage implements IEnergyStorage, ICapabilityProvider

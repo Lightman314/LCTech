@@ -1,6 +1,6 @@
 {
   "conditions":[{"type":"lctech:energy_trader_craftable"}],
-  "type": "minecraft:smithing",
+  "type": "minecraft:smithing_transform",
   "base": {
     "item": "lctech:energy_capacity_upgrade_1"
   },
@@ -9,5 +9,8 @@
   },
   "result": {
     "item": "lctech:energy_capacity_upgrade_2"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
   }
 }

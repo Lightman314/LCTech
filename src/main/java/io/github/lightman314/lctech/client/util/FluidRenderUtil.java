@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -19,6 +20,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +28,6 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import org.joml.Matrix4f;
@@ -34,6 +35,7 @@ import org.joml.Matrix4f;
 @OnlyIn(Dist.CLIENT)
 public class FluidRenderUtil {
 
+	public static void drawFluidTankInGUI(FluidStack tank, ScreenPosition corner, int x, int y, int width, int height, double percent) { drawFluidTankInGUI(tank, corner.x + x, corner.y + y, width, height, percent); }
 	public static void drawFluidTankInGUI(FluidStack tank, int x, int y, int width, int height, double percent)
 	{
 		if(tank == null || tank.isEmpty())
@@ -90,12 +92,12 @@ public class FluidRenderUtil {
 		buffer.vertex(x, y, 0).uv(minU, minV).endVertex();
 		tessellator.end();
 	}
-	
+
 	public static void drawFluidInWorld(FluidStack tank, Level world, BlockPos pos, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, FluidRenderData renderData, int light)
 	{
 		drawFluidInWorld(tank, world, pos, matrixStack, renderTypeBuffer, renderData.x, renderData.y, renderData.z, renderData.width, renderData.height, renderData.depth, renderData.getHeight(), light, renderData.sides);
 	}
-	
+
 	public static void drawFluidInWorld(FluidStack tank, Level world, BlockPos pos, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, float x, float y, float z, float width, float top, float depth, float height, int light, FluidSides sides)
 	{
 		
@@ -103,7 +105,7 @@ public class FluidRenderUtil {
 			return;
 		
 		IClientFluidTypeExtensions fluidRenderProperties = IClientFluidTypeExtensions.of(tank.getFluid());
-		TextureAtlasSprite sprite = ForgeHooksClient.getFluidSprites(world,  pos,  tank.getFluid().defaultFluidState())[0];
+		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(fluidRenderProperties.getStillTexture(tank.getFluid().defaultFluidState(), world, pos));
 		int waterColor = fluidRenderProperties.getTintColor(tank);
 		float red = (float)(waterColor >> 16 & 255) / 255.0f;
 		float green = (float)(waterColor >> 8 & 255) / 255.0f;
