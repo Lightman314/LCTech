@@ -5,11 +5,9 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyTradeEditClientTab;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +22,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen menu) { return new EnergyTradeEditClientTab(menu, this); }
+	public Object createClientTab(Object menu) { return new EnergyTradeEditClientTab(menu, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
@@ -95,7 +93,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			if(this.menu.isClient())
 			{
 				CompoundTag message = new CompoundTag();
-				price.save(message, "NewPrice");
+				message.put("NewPrice", price.save());
 				this.menu.sendMessage(message);
 			}
 		}
@@ -113,9 +111,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewPrice"))
 		{
-			CoinValue price = new CoinValue();
-			price.load(message, "NewPrice");
-			this.setPrice(price);
+			this.setPrice(CoinValue.load(message.getCompound("NewPrice")));
 		}
 		else if(message.contains("NewType"))
 		{

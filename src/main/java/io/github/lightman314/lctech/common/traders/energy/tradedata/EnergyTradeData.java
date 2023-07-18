@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.traders.energy.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -28,6 +28,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EnergyTradeData extends TradeData {
 
@@ -60,11 +63,11 @@ public class EnergyTradeData extends TradeData {
 		{
 			if(this.cost.isFree())
 				return 1;
-			if(cost.getRawValue() == 0)
+			if(cost.getValueNumber() == 0)
 				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
+			long coinValue = trader.getStoredMoney().getValueNumber();
 			CoinValue price = player == null ? this.cost : trader.runTradeCostEvent(player, this).getCostResult();
-			return (int)(coinValue/price.getRawValue());
+			return (int)(coinValue/price.getValueNumber());
 		}
 		return 0;
 	}
@@ -87,11 +90,11 @@ public class EnergyTradeData extends TradeData {
 			//How many payments the trader can make
 			if(this.cost.isFree())
 				return 1;
-			if(cost.getRawValue() == 0)
+			if(cost.getValueNumber() == 0)
 				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
+			long coinValue = trader.getStoredMoney().getValueNumber();
 			CoinValue price = this.getCost(context);
-			return (int)(coinValue/price.getRawValue());
+			return (int)(coinValue/price.getValueNumber());
 		}
 		return 0;
 	}
@@ -205,7 +208,7 @@ public class EnergyTradeData extends TradeData {
 			//Compare product
 			result.addProductResult(ProductComparisonResult.CompareEnergy(this.getAmount(), otherEnergyTrade.getAmount()));
 			//Compare prices
-			result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+			result.setPriceResult(this.getCost().getValueNumber() - otherTrade.getCost().getValueNumber());
 			//Compare types
 			result.setTypeResult(this.tradeDirection == otherEnergyTrade.tradeDirection);
 		}
@@ -287,7 +290,7 @@ public class EnergyTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new EnergyTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
+	public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -302,7 +305,7 @@ public class EnergyTradeData extends TradeData {
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
+	public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -317,7 +320,7 @@ public class EnergyTradeData extends TradeData {
 	}
 
 	@Override
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int mouseX, int mouseY, int button, ItemStack heldItem) {
+	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 
 	}
 	

@@ -11,13 +11,16 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.registries.RegistryObject;
+
+import javax.annotation.Nonnull;
 
 public interface IBatteryItem {
 
 	
-	public int getMaxEnergyStorage(ItemStack stack);
+	int getMaxEnergyStorage(ItemStack stack);
 	
-	public static ICapabilityProvider createCapability(ItemStack stack)
+	static ICapabilityProvider createCapability(ItemStack stack)
 	{
 		if(stack.getItem() instanceof IBatteryItem)
 		{
@@ -30,7 +33,7 @@ public interface IBatteryItem {
 		}
 	}
 	
-	public static int getStoredEnergy(ItemStack stack)
+	static int getStoredEnergy(ItemStack stack)
 	{
 		CompoundTag tag = stack.getOrCreateTag();
 		if(tag.contains("Battery", Tag.TAG_INT))
@@ -38,13 +41,35 @@ public interface IBatteryItem {
 		return 0;
 	}
 	
-	public static <T extends IBatteryItem & ItemLike> ItemStack getFullBattery(T item) {
+	static <T extends IBatteryItem & ItemLike> ItemStack getFullBattery(T item) {
 		ItemStack newStack = new ItemStack(item);
 		newStack.getOrCreateTag().putInt("Battery", item.getMaxEnergyStorage(newStack));
 		return newStack;
 	}
-	
-	public static class BatteryEnergyStorage implements IEnergyStorage, ICapabilityProvider
+
+	static ItemStack HideEnergyBar(RegistryObject<? extends ItemLike> item) { return HideEnergyBar(new ItemStack(item.get())); }
+	static ItemStack HideEnergyBar(ItemLike item) { return HideEnergyBar(new ItemStack(item)); }
+	static ItemStack HideEnergyBar(ItemStack stack) {
+		CompoundTag tag = stack.getOrCreateTag();
+		tag.putBoolean("HideEnergyBar", true);
+		return stack;
+	}
+
+	static boolean isEnergyBarVisible(ItemStack batteryStack)
+	{
+		if(batteryStack.getItem() instanceof IBatteryItem)
+		{
+			if(batteryStack.hasTag())
+			{
+				CompoundTag tag = batteryStack.getTag();
+				return !tag.contains("HideEnergyBar") || !tag.getBoolean("HideEnergyBar");
+			}
+			return true;
+		}
+		return false;
+	}
+
+	class BatteryEnergyStorage implements IEnergyStorage, ICapabilityProvider
 	{
 		
 		private final ItemStack stack;
@@ -109,8 +134,9 @@ public interface IBatteryItem {
 			return true;
 		}
 
+		@Nonnull
 		@Override
-		public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+		public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction side) {
 			return CapabilityEnergy.ENERGY.orEmpty(cap, this.optional);
 		}
 		

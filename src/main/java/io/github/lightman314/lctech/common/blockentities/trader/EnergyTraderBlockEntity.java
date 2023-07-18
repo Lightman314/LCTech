@@ -52,13 +52,6 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		return super.getRenderBoundingBox();
 	}
 	
-	@Override @Deprecated
-	protected EnergyTraderData createTraderFromOldData(CompoundTag compound) {
-		EnergyTraderData newTrader = new EnergyTraderData(this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		return newTrader;
-	}
-	
 	@Override
 	public void serverTick() {
 		super.serverTick();

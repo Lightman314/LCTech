@@ -7,11 +7,9 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid.FluidStorageClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -32,7 +30,7 @@ public class FluidStorageTab extends TraderStorageTab{
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new FluidStorageClientTab(screen, this); }
+	public Object createClientTab(Object screen) { return new FluidStorageClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return true; }

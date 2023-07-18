@@ -42,8 +42,8 @@ public class NetworkFluidTraderBlock extends TraderBlockRotatable {
 	@Override
 	protected BlockEntityType<?> traderType() { return ModBlockEntities.FLUID_TRADER.get(); }
 	
-	@Override @SuppressWarnings("deprecation")
-	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.FLUID_TRADER.get(), ModBlockEntities.UNIVERSAL_FLUID_TRADER.get()); }
+	@Override
+	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.FLUID_TRADER.get()); }
 
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, @Nullable BlockGetter level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn)

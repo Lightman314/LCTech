@@ -1,23 +1,20 @@
 package io.github.lightman314.lctech.common.traders.energy.tradedata.client;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
@@ -38,17 +35,18 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
             return ScreenPosition.ofOptional(70, 1);
     }
 
+
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void renderAdditional(AbstractWidget button, PoseStack pose, int mouseX, int mouseY, TradeContext context) {
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) {
         //Manually render the drainable icon
         if(this.allowsDrainage(context))
         {
-            RenderSystem.setShaderTexture(0, EnergyStorageClientTab.GUI_TEXTURE);
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            gui.resetColor();
             LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             arrowPosOptional.ifPresent(arrowPos -> {
-                button.blit(pose, button.x + arrowPos.x, button.y + arrowPos.y + 9, 36, 18, 8, 7);
+                gui.pushOffsetZero();
+                gui.blit(EnergyStorageClientTab.GUI_TEXTURE, button.getX() + arrowPos.x, button.getY() + arrowPos.y + 9, 36, 18, 8, 7);
+                gui.popOffset();
             });
         }
     }
@@ -97,9 +95,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
         {
             LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             AtomicBoolean mouseOver = new AtomicBoolean(false);
-            arrowPosOptional.ifPresent(arrowPos -> {
-                mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8));
-            });
+            arrowPosOptional.ifPresent(arrowPos -> mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8)));
             if(mouseOver.get())
                 return Lists.newArrayList(EasyText.translatable("tooltip.lctech.trader.fluid_settings.drainable"));
         }

@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.common.items;
 import java.util.List;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.common.util.EnergyUtil;
@@ -30,7 +31,7 @@ public class BatteryItem extends Item implements IBatteryItem{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
 		
 		super.appendHoverText(stack, level, tooltip, flag);
 		tooltip.add(new TextComponent(EnergyUtil.formatEnergyAmount(IBatteryItem.getStoredEnergy(stack))+ "/" + EnergyUtil.formatEnergyAmount(this.getMaxEnergyStorage(stack))).withStyle(ChatFormatting.AQUA));
@@ -44,20 +45,16 @@ public class BatteryItem extends Item implements IBatteryItem{
     }
 	
 	//Power Charge Bar
-	public boolean isBarVisible(ItemStack stack) {
-      return true;
-	}
+	public boolean isBarVisible(@Nonnull ItemStack stack) { return IBatteryItem.isEnergyBarVisible(stack); }
 
-	public int getBarWidth(ItemStack stack) {
+	public int getBarWidth(@Nonnull ItemStack stack) {
 		return Math.round((float)Math.min(IBatteryItem.getStoredEnergy(stack), this.getMaxEnergyStorage(stack)) * 13.0F / (float)this.getMaxEnergyStorage(stack));
 	}
 
-	public int getBarColor(ItemStack stack) {
-		return ChatFormatting.AQUA.getColor();
-	}
+	public int getBarColor(@Nonnull ItemStack stack) { return ChatFormatting.AQUA.getColor(); }
 	
 	@Override
-	 public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> list) {
+	 public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> list) {
 		if (this.allowdedIn(tab)) {
 			list.add(new ItemStack(this));
 			list.add(IBatteryItem.getFullBattery(this));
