@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.client.gui.widget;
 
 import java.util.List;
-import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 
@@ -14,17 +13,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -32,44 +30,44 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 	private static final List<Fluid> BLACKLISTED_FLUIDS = Lists.newArrayList(Fluids.EMPTY);
 	public static void BlacklistFluid(Fluid fluid) { if(!BLACKLISTED_FLUIDS.contains(fluid)) BLACKLISTED_FLUIDS.add(fluid); }
-	
+
 	private int scroll = 0;
-	
+
 	private final int columns;
 	private final int rows;
-	
+
 	private final int searchOffX;
 	private final int searchOffY;
-	
+
 	private static List<Fluid> allFluids = null;
-	
+
 	List<Fluid> searchResultFluids;
-	
+
 	private String searchString;
-	
+
 	EditBox searchInput;
-	
+
 	private final IFluidEditListener listener;
-	
+
 	private final Font font;
-	
+
 	public FluidEditWidget(ScreenPosition pos, int columns, int rows, IFluidEditListener listener) { this(pos.x, pos.y, columns, rows, listener); }
 	public FluidEditWidget(int x, int y, int columns, int rows, IFluidEditListener listener) {
 		super(x, y, columns * 18, rows * 18);
 		this.listener = listener;
-		
+
 		this.columns = columns;
 		this.rows = rows;
-		
+
 		this.searchOffX = this.width - 90;
 		this.searchOffY = -13;
-		
+
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
-		
+
 		//Set the search to the default value to initialize the list
 		this.modifySearch("");
-		
+
 	}
 
 	@Override
@@ -78,30 +76,30 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 	public static void initFluidList() {
 		if(allFluids != null)
 			return;
-		
+
 		allFluids = Lists.newArrayList();
-		
+
 		ForgeRegistries.FLUIDS.forEach(fluid ->{
 			if(!BLACKLISTED_FLUIDS.contains(fluid) && fluid.isSource(fluid.defaultFluidState()))
 				allFluids.add(fluid);
 		});
-		
+
 	}
-	
+
 	public int getMaxScroll() { return Math.max(((this.searchResultFluids.size() - 1) / this.columns) - this.rows + 1, 0); }
-	
+
 	public void refreshPage() {
 		if(this.scroll < 0)
 			this.scroll = 0;
 		if(this.scroll > this.getMaxScroll())
 			this.scroll = this.getMaxScroll();
 	}
-	
+
 	public void refreshSearch() { this.modifySearch(this.searchString); }
-	
+
 	public void modifySearch(String newSearch) {
 		this.searchString = newSearch.toLowerCase();
-		
+
 		//Repopulate the searchResultItems list
 		if(this.searchString.length() > 0)
 		{
@@ -125,24 +123,21 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 	@Override
 	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 	}
 
-	public void init(Function<EditBox,EditBox> addWidget) {
+	@Override
+	protected void renderTick() { this.searchInput.visible = this.visible; }
 
-	}
-	
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-		this.searchInput.visible = this.visible;
-		
-		this.searchInput.tick();
+
 		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
 			this.modifySearch(this.searchInput.getValue());
-		
+
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultFluids.size(); ++y)
 		{
@@ -159,11 +154,11 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 				index++;
 			}
 		}
-		
+
 		//Render the search field
 		gui.resetColor();
 		gui.blit(ItemEditWidget.GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
-		
+
 	}
 
 	@Override
@@ -179,12 +174,12 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		}
 		return null;
 	}
-	
+
 	private int isMouseOverSlot(double mouseX, double mouseY) {
-		
+
 		int foundColumn = -1;
 		int foundRow = -1;
-		
+
 		for(int x = 0; x < this.columns && foundColumn < 0; ++x)
 		{
 			if(mouseX >= this.getX() + x * 18 && mouseX < this.getX() + (x * 18) + 18)
@@ -199,13 +194,10 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 			return -1;
 		return (foundRow * this.columns) + foundColumn;
 	}
-	
+
 	public interface IFluidEditListener {
 		void onFluidClicked(FluidStack fluid);
 	}
-	
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -222,11 +214,11 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
 		if(delta < 0)
-		{			
+		{
 			if(this.scroll < this.getMaxScroll())
 				this.scroll++;
 			else
@@ -250,5 +242,5 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		this.scroll = newScroll;
 		this.refreshPage();
 	}
-	
+
 }

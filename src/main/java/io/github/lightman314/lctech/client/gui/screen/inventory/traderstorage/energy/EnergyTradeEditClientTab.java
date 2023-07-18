@@ -30,71 +30,71 @@ import javax.annotation.Nonnull;
 public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements InteractionConsumer, IMouseListener {
 
 	public EnergyTradeEditClientTab(Object screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
-	
+
 	@Nonnull
 	@Override
 	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
-	
+
 	@Override
 	public MutableComponent getTooltip() { return EasyText.empty(); }
-	
+
 	@Override
 	public boolean tabButtonVisible() { return false; }
-	
+
 	@Override
 	public boolean blockInventoryClosing() { return true; }
-	
+
 	@Override
 	public int getTradeRuleTradeIndex() { return this.commonTab.getTradeIndex(); }
-	
+
 	TradeButton tradeDisplay;
 	CoinValueInput priceSelection;
-	
+
 	EditBox quantityInput;
 
 	EasyButton buttonToggleTradeType;
-	
+
 	private int selection;
-	
+
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
 		this.addChild(this);
 
 		EnergyTradeData trade = this.commonTab.getTrade();
-		
+
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
 		this.priceSelection = this.addChild(new CoinValueInput(screenArea.pos.offset(screenArea.width / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 40), EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.getFont(), this::onValueChanged));
 		this.priceSelection.drawBG = false;
-		
+
 		this.quantityInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 75, this.screen.getXSize() - 42 - this.getFont().width(EnergyUtil.ENERGY_UNIT), 20, EasyText.empty()));
 		this.quantityInput.setValue(trade != null ? String.valueOf(trade.getAmount()): "");
-		
+
 		this.buttonToggleTradeType = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 120), 72, 20, EasyText.empty(), this::ToggleTradeType));
-		
+
 	}
 
 	@Override
 	protected void closeAction() { this.selection = -1; }
-	
+
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
-		
+
 		if(this.getTrade() == null)
 			return;
-		
+
 		this.validateRenderables();
-		
+
 		//Render an arrow to the left of the selected position
 		gui.resetColor();
 		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
-		
+
 		if(this.selection >= 0)
 			gui.drawShadowed(EnergyUtil.ENERGY_UNIT, this.screen.getXSize() - 20 - gui.font.width(EnergyUtil.ENERGY_UNIT), 78, 0xFFFFFF);
-		
+
 	}
-	
+
 	private int getArrowPosition() {
 		EnergyTradeData trade = this.getTrade();
 		if(this.selection < 0)
@@ -112,12 +112,10 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				return 41;
 		}
 	}
-	
+
 	private void validateRenderables() {
-		
+
 		this.priceSelection.visible = this.selection < 0;
-		if(this.priceSelection.visible)
-			this.priceSelection.tick();
 		this.quantityInput.visible = this.selection >= 0;
 		if(this.quantityInput.visible)
 		{
@@ -129,11 +127,11 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 			if(currentAmount != this.getTrade().getAmount())
 				this.commonTab.setQuantity(currentAmount);
 		}
-		
+
 		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.commonTab.getTrade().getTradeDirection().name().toLowerCase()));
-		
+
 	}
-	
+
 	@Override
 	public void receiveSelfMessage(CompoundTag message) {
 		if(message.contains("TradeIndex"))
@@ -141,7 +139,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		if(message.contains("StartingSlot"))
 			this.selection = message.getInt("StartingSlot");
 	}
-	
+
 	@Override
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof EnergyTradeData t)
@@ -152,7 +150,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				this.changeSelection(0);
 		}
 	}
-	
+
 	@Override
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof EnergyTradeData t)
@@ -163,7 +161,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				this.changeSelection(-1);
 		}
 	}
-	
+
 	private void changeSelection(int newSelection) {
 		this.selection = newSelection;
 		if(this.selection == -1)
@@ -171,7 +169,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 		if(this.selection >= 0)
 			this.quantityInput.setValue(String.valueOf(this.commonTab.getTrade().getAmount()));
 	}
-	
+
 	@Override
 	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
 
@@ -185,12 +183,12 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
 	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
-	
+
 	public EnergyTradeData getTrade() { return this.commonTab.getTrade(); }
-	
+
 	private void ToggleTradeType(EasyButton button) {
 		if(this.getTrade() != null)
 			this.commonTab.setType(this.getTrade().getTradeDirection().next());
 	}
-	
+
 }
