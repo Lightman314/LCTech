@@ -71,6 +71,8 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
+		this.addChild(this);
+
 		FluidTradeData trade = this.getTrade();
 
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
@@ -137,9 +139,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	private void validateRenderables() {
 
 		this.priceSelection.visible = this.selection < 0;
-		if(this.priceSelection.visible)
-			this.priceSelection.tick();
-		this.fluidEdit.visible = this.selection >= 0 && this.getTrade().isPurchase();
+		this.fluidEdit.visible = this.selection >= 0;
 
 		this.buttonAddBucket.visible = this.buttonRemoveBucket.visible = this.selection >= 0;
 		if(this.buttonAddBucket.visible)
@@ -168,12 +168,10 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 				this.changeSelection(-1);
 			else if(t.isPurchase())
 			{
-				if(this.selection != index && FluidUtil.getFluidContained(heldItem).isEmpty())
-					this.changeSelection(index);
+				if(this.selection != 0 && heldItem.isEmpty())
+					this.changeSelection(0);
 				else
-				{
-					FluidUtil.getFluidContained(heldItem).ifPresent(this.commonTab::setFluid);
-				}
+					this.commonTab.setFluid(FluidUtil.getFluidContained(heldItem).orElse(FluidStack.EMPTY));
 			}
 		}
 	}
@@ -185,12 +183,10 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 			ItemStack heldItem = this.menu.getCarried();
 			if(t.isSale())
 			{
-				if(this.selection != index && FluidUtil.getFluidContained(heldItem).isEmpty())
-					this.changeSelection(index);
+				if(this.selection != 0 && heldItem.isEmpty())
+					this.changeSelection(0);
 				else
-				{
-					FluidUtil.getFluidContained(heldItem).ifPresent(this.commonTab::setFluid);
-				}
+					this.commonTab.setFluid(FluidUtil.getFluidContained(heldItem).orElse(FluidStack.EMPTY));
 			}
 			else if(t.isPurchase())
 				this.changeSelection(-1);
@@ -201,7 +197,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		this.selection = newSelection;
 		if(this.selection == -1)
 			this.priceSelection.setCoinValue(this.getTrade().getCost());
-		if(this.selection >= 0 && !this.getTrade().isSale())
+		if(this.selection == 0 && !this.getTrade().isSale())
 			this.fluidEdit.refreshSearch();
 	}
 

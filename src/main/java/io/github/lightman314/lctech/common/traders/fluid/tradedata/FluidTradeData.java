@@ -9,6 +9,7 @@ import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
@@ -19,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -299,27 +301,27 @@ public class FluidTradeData extends TradeData {
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? Component.translatable("gui.lctech.interface.difference.product.sale") : Component.translatable("gui.lctech.interface.difference.product.purchase");
+			Component directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(Component.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT())
-					list.add(Component.translatable("gui.lctech.interface.fluid.difference.fluidnbt"));
+					list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidnbt"));
 				else if(!productCheck.SameProductQuantity())
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference < 0) //More items
-						list.add(Component.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
 					else //Less items
-						list.add(Component.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(ChatFormatting.RED));
 				}
 			}
 		}
@@ -347,31 +349,8 @@ public class FluidTradeData extends TradeData {
 			}
 			if(this.isPurchase())
 			{
-				//Set the fluid to the held fluid
-				if(heldItem.isEmpty() && this.product.isEmpty())
-				{
-					//Open fluid edit
-					CompoundTag extraData = new CompoundTag();
-					extraData.putInt("TradeIndex", tradeIndex);
-					extraData.putInt("StartingSlot", 0);
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
-				}
-				else
-				{
-					FluidStack heldFluid = FluidUtil.getFluidContained(heldItem).orElse(null);
-					if(heldFluid != null)
-					{
-						this.setProduct(heldFluid);
-						trader.markTradesDirty();
-						if(trader.getStorage().refactorTanks())
-							trader.markStorageDirty();
-					}
-					else
-						this.setProduct(FluidStack.EMPTY);
-
-					if(tab.menu.isClient())
-						tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
-				}
+				if(this.onProductInteraction(tab, tradeIndex, trader, heldItem))
+					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
 			}
 		}
 	}
@@ -385,28 +364,8 @@ public class FluidTradeData extends TradeData {
 				return;
 			if(this.isSale())
 			{
-				//Set the fluid to the held fluid
-				if(heldItem.isEmpty() && this.product.isEmpty())
-				{
-					//Open fluid edit
-					CompoundTag extraData = new CompoundTag();
-					extraData.putInt("TradeIndex", tradeIndex);
-					extraData.putInt("StartingSlot", 0);
-					tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
-				}
-				else
-				{
-					FluidStack heldFluid = FluidUtil.getFluidContained(heldItem).orElse(null);
-					if(heldFluid != null)
-					{
-						this.setProduct(heldFluid);
-						trader.markTradesDirty();
-						if(trader.getStorage().refactorTanks())
-							trader.markStorageDirty();
-					}
-					if(tab.menu.isClient())
-						tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
-				}
+				if(this.onProductInteraction(tab, tradeIndex, trader, heldItem))
+					tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
 			}
 			else if(this.isPurchase())
 			{
@@ -418,18 +377,45 @@ public class FluidTradeData extends TradeData {
 		}
 	}
 
-	@Override
-	public void onInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
-		if(tab.menu.getTrader() instanceof FluidTraderData trader)
+	private boolean onProductInteraction(BasicTradeEditTab tab, int tradeIndex, FluidTraderData trader, ItemStack heldItem)
+	{
+		//Set the fluid to the held fluid
+		if(heldItem.isEmpty() && this.product.isEmpty())
 		{
-			int tradeIndex = trader.getTradeData().indexOf(this);
-			if(tradeIndex < 0)
-				return;
+			//Open fluid edit
 			CompoundTag extraData = new CompoundTag();
 			extraData.putInt("TradeIndex", tradeIndex);
-			extraData.putInt("StartingSlot", -1);
+			extraData.putInt("StartingSlot", 0);
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			return false;
+		}
+		else
+		{
+			FluidStack heldFluid = FluidUtil.getFluidContained(heldItem).orElse(FluidStack.EMPTY);
+			if(!heldFluid.isEmpty())
+			{
+				this.setProduct(heldFluid);
+				trader.markTradesDirty();
+				if(trader.getStorage().refactorTanks())
+					trader.markStorageDirty();
+				LCTech.LOGGER.debug("Set Fluid from held stack on the " + DebugUtil.getSideText(tab.menu.isClient()));
+			}
+			else if(!this.product.isEmpty())
+			{
+				this.setProduct(FluidStack.EMPTY);
+				trader.markTradesDirty();
+				if(trader.getStorage().refactorTanks())
+					trader.markStorageDirty();
+				LCTech.LOGGER.debug("Cleared Fluid on the " + DebugUtil.getSideText(tab.menu.isClient()));
+			}
+			else
+				LCTech.LOGGER.debug("Doing nothing as both the held Fluid and the current Product are empty on the " + DebugUtil.getSideText(tab.menu.isClient()));
+
+			return tab.menu.isClient();
 		}
 	}
+
+	@Override
+	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
 
 }

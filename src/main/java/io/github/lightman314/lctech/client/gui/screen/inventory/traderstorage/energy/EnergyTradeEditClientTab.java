@@ -116,8 +116,6 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	private void validateRenderables() {
 
 		this.priceSelection.visible = this.selection < 0;
-		if(this.priceSelection.visible)
-			this.priceSelection.tick();
 		this.quantityInput.visible = this.selection >= 0;
 		if(this.quantityInput.visible)
 		{

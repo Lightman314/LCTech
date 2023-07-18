@@ -13,17 +13,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -124,17 +123,18 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 	@Override
 	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, Component.translatable("gui.lightmanscurrency.item_edit.search")));
+		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, EasyText.translatable("gui.lightmanscurrency.item_edit.search")));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-		this.searchInput.visible = this.visible;
+	protected void renderTick() { this.searchInput.visible = this.visible; }
 
-		this.searchInput.tick();
+	@Override
+	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+
 		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
 			this.modifySearch(this.searchInput.getValue());
 
@@ -198,9 +198,6 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 	public interface IFluidEditListener {
 		void onFluidClicked(FluidStack fluid);
 	}
-
-	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrator) { }
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
