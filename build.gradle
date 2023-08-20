@@ -65,8 +65,7 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4638833')
-    runtimeOnly fg.deobf('curse.maven:lightmanscurrency-472521:4638833')
+    implementation fg.deobf('curse.maven:lightmanscurrency-472521:4712682')
 
     runtimeOnly fg.deobf("curse.maven:jei-238222:4595492")
 

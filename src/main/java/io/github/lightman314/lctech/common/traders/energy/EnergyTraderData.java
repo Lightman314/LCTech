@@ -26,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.IBarterTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
@@ -327,7 +326,7 @@ public class EnergyTraderData extends InputTraderData {
 		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 		
 		//Abort if not enough stock
-		if(!trade.hasStock(this, context.getPlayerReference()) && !this.isCreative())
+		if(!trade.hasStock(context) && !this.isCreative())
 			return TradeResult.FAIL_OUT_OF_STOCK;
 		
 		if(trade.isSale())
@@ -351,10 +350,9 @@ public class EnergyTraderData extends InputTraderData {
 				this.addPendingDrain(trade.getAmount());
 				drainStorage = false;
 			}
-			
-			//Push the notification
-			this.pushNotification(() -> new EnergyTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-			
+
+			CoinValue taxesPaid = CoinValue.EMPTY;
+
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
 			{
@@ -364,13 +362,16 @@ public class EnergyTraderData extends InputTraderData {
 					this.shrinkEnergy(trade.getAmount());
 					this.markEnergyStorageDirty();
 				}
-				
+
 				//Give the paid price to storage
-				this.addStoredMoney(price);					
+				taxesPaid = this.addStoredMoney(price, true);
 			}
+
+			//Push the notification
+			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -397,10 +398,9 @@ public class EnergyTraderData extends InputTraderData {
 				context.getPayment(price);
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
-			
-			//Push the notification
-			this.pushNotification(() -> new EnergyTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
-			
+
+			CoinValue taxesPaid = CoinValue.EMPTY;
+
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
 			{
@@ -408,11 +408,14 @@ public class EnergyTraderData extends InputTraderData {
 				this.addEnergy(trade.getAmount());
 				this.markEnergyStorageDirty();
 				//Remove the coins from storage
-				this.removeStoredMoney(price);
+				taxesPaid = this.removeStoredMoney(price, true);
 			}
+
+			//Push the notification
+			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			

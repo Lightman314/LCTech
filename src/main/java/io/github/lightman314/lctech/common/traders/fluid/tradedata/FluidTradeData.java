@@ -10,12 +10,10 @@ import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
@@ -27,7 +25,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
@@ -73,11 +70,8 @@ public class FluidTradeData extends TradeData {
 	public FluidTradeData(boolean validateRules) { super(validateRules); }
 
 	public boolean hasStock(FluidTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(FluidTraderData trader, Player player) { return this.getStock(trader, player) > 0; }
-	public boolean hasStock(FluidTraderData trader, PlayerReference player) { return this.getStock(trader, player) > 0; }
-	public int getStock(FluidTraderData trader) { return this.getStock(trader, (PlayerReference)null); }
-	public int getStock(FluidTraderData trader, Player player) { return this.getStock(trader, PlayerReference.of(player)); }
-	public int getStock(FluidTraderData trader, PlayerReference player)
+	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
+	public int getStock(FluidTraderData trader)
 	{
 		if(this.product.isEmpty())
 			return 0;
@@ -89,13 +83,7 @@ public class FluidTradeData extends TradeData {
 		else if(this.isPurchase())
 		{
 			//How many payments the trader can make
-			if(this.cost.isFree())
-				return 1;
-			if(cost.getValueNumber() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getValueNumber();
-			CoinValue price = player == null ? this.cost : trader.runTradeCostEvent(player, this).getCostResult();
-			return (int)(coinValue/price.getValueNumber());
+			return this.stockCountOfCost(trader);
 		}
 		return 0;
 	}
@@ -117,13 +105,7 @@ public class FluidTradeData extends TradeData {
 		else if(this.isPurchase())
 		{
 			//How many payments the trader can make
-			if(this.cost.isFree())
-				return 1;
-			if(cost.getValueNumber() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getValueNumber();
-			CoinValue price = this.getCost(context);
-			return (int)(coinValue/price.getValueNumber());
+			return this.stockCountOfCost(context);
 		}
 		return 0;
 	}
