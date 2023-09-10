@@ -245,7 +245,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 
 		//Abort if not enough stock
-		if(!trade.hasStock(this, context.getPlayerReference()) && !this.isCreative())
+		if(!trade.hasStock(context) && !this.isCreative())
 			return TradeResult.FAIL_OUT_OF_STOCK;
 
 		if(trade.isSale())
@@ -273,8 +273,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				this.markStorageDirty();
 			}
 
-			//Post the notification
-			this.pushNotification(() -> new FluidTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -286,11 +285,14 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 					this.markStorageDirty();
 				}
 				//Give the paid price to storage
-				this.addStoredMoney(price);
+				taxesPaid = this.addStoredMoney(price, true);
 			}
 
+			//Post the notification
+			this.pushNotification(FluidTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
+
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 
 			return TradeResult.SUCCESS;
 
@@ -319,8 +321,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 
-			//Post the notification
-			this.pushNotification(() -> new FluidTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -329,11 +330,14 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				this.getStorage().forceFillTank(trade.productOfQuantity());
 				this.markStorageDirty();
 				//Remove the coins from storage
-				this.removeStoredMoney(price);
+				taxesPaid = this.removeStoredMoney(price, true);
 			}
 
+			//Post the notification
+			this.pushNotification(FluidTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
+
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 
 			return TradeResult.SUCCESS;
 

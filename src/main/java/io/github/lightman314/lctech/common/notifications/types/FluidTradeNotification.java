@@ -3,9 +3,11 @@ package io.github.lightman314.lctech.common.notifications.types;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
@@ -14,8 +16,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullSupplier;
 
-public class FluidTradeNotification extends Notification{
+import javax.annotation.Nonnull;
+
+public class FluidTradeNotification extends TaxableNotification {
 
 	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "fluid_trade");
 
@@ -28,7 +33,8 @@ public class FluidTradeNotification extends Notification{
 
 	String customer;
 
-	public FluidTradeNotification(FluidTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData) {
+	protected FluidTradeNotification(FluidTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) {
+		super(taxesPaid);
 
 		this.traderData = traderData;
 		this.tradeType = trade.getTradeDirection();
@@ -42,7 +48,9 @@ public class FluidTradeNotification extends Notification{
 
 	}
 
-	public FluidTradeNotification(CompoundTag compound) { this.load(compound); }
+	public static NonNullSupplier<Notification> create(FluidTradeData trade, CoinValue cost, PlayerReference customer, TraderCategory traderData, CoinValue taxesPaid) { return () -> new FluidTradeNotification(trade, cost, customer, traderData, taxesPaid); }
+
+	public FluidTradeNotification(CompoundTag compound) { super(); this.load(compound); }
 
 	@Override
 	protected ResourceLocation getType() { return TYPE; }
@@ -50,21 +58,22 @@ public class FluidTradeNotification extends Notification{
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
 
+	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
+	public MutableComponent getNormalMessage() {
 
-		Component boughtText = Component.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
 
-		Component fluidText = Component.translatable("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
+		Component fluidText = EasyText.translatable("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
 
 		Component cost = this.cost.getComponent("0");
 
-		return Component.translatable("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
+		return EasyText.translatable("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
 
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveNormal(CompoundTag compound) {
 
 		compound.put("TraderInfo", this.traderData.save());
 		compound.putInt("TradeType", this.tradeType.index);
@@ -76,7 +85,7 @@ public class FluidTradeNotification extends Notification{
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
+	protected void loadNormal(CompoundTag compound) {
 
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
@@ -104,7 +113,7 @@ public class FluidTradeNotification extends Notification{
 			if(!ftn.customer.equals(this.customer))
 				return false;
 			//Passed all checks. Allow merging.
-			return true;
+			return this.TaxesMatch(ftn);
 		}
 		return false;
 	}

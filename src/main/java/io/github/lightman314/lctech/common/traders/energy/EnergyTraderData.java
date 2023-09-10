@@ -326,7 +326,7 @@ public class EnergyTraderData extends InputTraderData {
 		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 
 		//Abort if not enough stock
-		if(!trade.hasStock(this, context.getPlayerReference()) && !this.isCreative())
+		if(!trade.hasStock(context) && !this.isCreative())
 			return TradeResult.FAIL_OUT_OF_STOCK;
 
 		if(trade.isSale())
@@ -351,8 +351,7 @@ public class EnergyTraderData extends InputTraderData {
 				drainStorage = false;
 			}
 
-			//Push the notification
-			this.pushNotification(() -> new EnergyTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -365,11 +364,14 @@ public class EnergyTraderData extends InputTraderData {
 				}
 
 				//Give the paid price to storage
-				this.addStoredMoney(price);
+				taxesPaid = this.addStoredMoney(price, false);
 			}
 
+			//Push the notification
+			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
+
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 
 			return TradeResult.SUCCESS;
 
@@ -397,8 +399,7 @@ public class EnergyTraderData extends InputTraderData {
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 
-			//Push the notification
-			this.pushNotification(() -> new EnergyTradeNotification(trade, price, context.getPlayerReference(), this.getNotificationCategory()));
+			CoinValue taxesPaid = CoinValue.EMPTY;
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -407,11 +408,14 @@ public class EnergyTraderData extends InputTraderData {
 				this.addEnergy(trade.getAmount());
 				this.markEnergyStorageDirty();
 				//Remove the coins from storage
-				this.removeStoredMoney(price);
+				taxesPaid = this.removeStoredMoney(price, true);
 			}
 
+			//Push the notification
+			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
+
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price);
+			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
 
 			return TradeResult.SUCCESS;
 

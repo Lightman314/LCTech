@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.4-0.2.0.0'
+version = '1.19.4-0.2.0.1'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -21,7 +21,7 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
-            property 'forge.enabledGameTestNamespaces', 'lightmanscurrency'
+            property 'forge.enabledGameTestNamespaces', 'lctech'
 
             mods {
                 lctech {
@@ -45,8 +45,7 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.19.4-45.0.29'
     
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4638832')
-    runtimeOnly fg.deobf('curse.maven:lightmanscurrency-472521:4638832')
+    implementation fg.deobf('curse.maven:lightmanscurrency-472521:4738253')
 
     runtimeOnly fg.deobf("curse.maven:jei-238222:4473386")
     
