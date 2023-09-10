@@ -163,13 +163,6 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 		}
 	}
 
-	private void validateScroll() {
-		if(this.scroll < 0)
-			this.scroll = 0;
-		if(this.scroll > this.getMaxScroll())
-			this.scroll = this.getMaxScroll();
-	}
-
 	private Pair<Integer,Boolean> isMouseOverDrainFill(ScreenPosition mousePos)
 	{
 		if(this.menu.getTrader() instanceof FluidTraderData trader)

@@ -184,13 +184,6 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 		return 0;
 	}
 
-	private void validateScroll() {
-		if(this.scroll < 0)
-			this.scroll = 0;
-		if(this.scroll > this.getMaxScroll())
-			this.scroll = this.getMaxScroll();
-	}
-
 	private boolean canScrollDown() { return this.totalTankSlots() - this.scroll > TANKS; }
 
 	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {

@@ -9,12 +9,10 @@ import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.client.EnergyTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
@@ -24,7 +22,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -47,11 +44,8 @@ public class EnergyTradeData extends TradeData {
 	public EnergyTradeData(boolean validateRules) { super(validateRules); }
 
 	public boolean hasStock(EnergyTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(EnergyTraderData trader, Player player) { return this.getStock(trader, player) > 0; }
-	public boolean hasStock(EnergyTraderData trader, PlayerReference player) { return this.getStock(trader, player) > 0; }
-	public int getStock(EnergyTraderData trader) { return this.getStock(trader, (PlayerReference)null); }
-	public int getStock(EnergyTraderData trader, Player player) { return this.getStock(trader, PlayerReference.of(player)); }
-	public int getStock(EnergyTraderData trader, PlayerReference player) {
+	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
+	public int getStock(EnergyTraderData trader) {
 		if(this.amount <= 0)
 			return 0;
 
@@ -61,13 +55,7 @@ public class EnergyTradeData extends TradeData {
 		}
 		else if(this.isPurchase())
 		{
-			if(this.cost.isFree())
-				return 1;
-			if(cost.getValueNumber() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getValueNumber();
-			CoinValue price = player == null ? this.cost : trader.runTradeCostEvent(player, this).getCostResult();
-			return (int)(coinValue/price.getValueNumber());
+			return this.stockCountOfCost(trader);
 		}
 		return 0;
 	}
@@ -87,14 +75,7 @@ public class EnergyTradeData extends TradeData {
 		}
 		else if(this.isPurchase())
 		{
-			//How many payments the trader can make
-			if(this.cost.isFree())
-				return 1;
-			if(cost.getValueNumber() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getValueNumber();
-			CoinValue price = this.getCost(context);
-			return (int)(coinValue/price.getValueNumber());
+			return this.stockCountOfCost(context);
 		}
 		return 0;
 	}
@@ -323,5 +304,6 @@ public class EnergyTradeData extends TradeData {
 	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 
 	}
-	
+
+
 }
