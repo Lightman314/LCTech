@@ -34,6 +34,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
+import javax.annotation.Nonnull;
+
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.ENERGY_CAPACITY);
@@ -52,9 +54,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -73,9 +74,6 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		return capacity;
 	}
 	
-	//Container upgradeInventory = new SimpleContainer(5);
-	//public Container getUpgradeInventory() { return this.upgradeInventory; }
-	
 	public EnergyTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.TRADER_INTERFACE_ENERGY.get(), pos, state);
 		this.energyHandler = this.addHandler(new EnergyInterfaceHandler(this));
@@ -93,7 +91,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound, false); }
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	public void saveAdditional(@Nonnull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveEnergyBuffer(compound);
 	}
@@ -161,9 +159,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	@Override
 	protected void tradeTick() {
 		TradeData t = this.getTrueTrade();
-		if(t instanceof EnergyTradeData)
+		if(t instanceof EnergyTradeData trade)
 		{
-			EnergyTradeData trade = (EnergyTradeData)t;
 			if(trade != null && trade.isValid())
 			{
 				if(trade.isSale())
@@ -221,11 +218,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 			if(this.energyHandler.getInputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
-				{
-					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
 				BlockEntity be = this.level.getBlockEntity(queryPos);

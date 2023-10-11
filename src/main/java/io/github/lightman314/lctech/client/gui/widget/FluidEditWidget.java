@@ -100,7 +100,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 	public void modifySearch(String newSearch) {
 		this.searchString = newSearch.toLowerCase();
 
-		//Repopulate the searchResultItems list
+		//Repopulate the searchResultFluids list
 		if(this.searchString.length() > 0)
 		{
 			//Search the display name
@@ -127,6 +127,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
+		this.searchInput.setResponder(this::modifySearch);
 	}
 
 	@Override
@@ -134,9 +135,6 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 	@Override
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
-
-		if(!this.searchInput.getValue().toLowerCase().contentEquals(this.searchString))
-			this.modifySearch(this.searchInput.getValue());
 
 		int index = this.scroll * this.columns;
 		for(int y = 0; y < this.rows && index < this.searchResultFluids.size(); ++y)

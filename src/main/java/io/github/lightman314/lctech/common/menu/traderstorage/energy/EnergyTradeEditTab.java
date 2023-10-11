@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeDat
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,7 +35,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
 				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.sendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC, null));
+				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
 				return null;
 			}
 			return trader.getTrade(this.tradeIndex);
@@ -61,11 +61,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			trade.setTradeDirection(type);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("NewType", type.index);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("NewType", type.index));
 		}
 	}
 	
@@ -76,11 +72,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			trade.setAmount(amount);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("NewQuantity", amount);
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleInt("NewQuantity", amount));
 		}
 	}
 	
@@ -91,16 +83,12 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-			{
-				CompoundTag message = new CompoundTag();
-				message.put("NewPrice", price.save());
-				this.menu.sendMessage(message);
-			}
+				this.menu.SendMessage(LazyPacketData.simpleCoinValue("NewPrice", price));
 		}
 	}
 	
 	@Override
-	public void receiveMessage(CompoundTag message) {
+	public void receiveMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");
@@ -111,7 +99,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewPrice"))
 		{
-			this.setPrice(CoinValue.load(message.getCompound("NewPrice")));
+			this.setPrice(message.getCoinValue("NewPrice"));
 		}
 		else if(message.contains("NewType"))
 		{
