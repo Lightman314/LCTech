@@ -41,11 +41,13 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
+import javax.annotation.Nonnull;
+
 public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.FLUID_CAPACITY);
 	
-	private TraderFluidStorage fluidBuffer = new TraderFluidStorage(this);
+	private final TraderFluidStorage fluidBuffer = new TraderFluidStorage(this);
 	public TraderFluidStorage getFluidBuffer() { return this.fluidBuffer; }
 	
 	FluidInterfaceHandler fluidHandler;
@@ -84,13 +86,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			//Check trade for purchase fluid to restock
 			TradeData t = this.getReferencedTrade();
-			if(t instanceof FluidTradeData)
-			{
-				FluidTradeData trade = (FluidTradeData)t;
-				if(trade.isPurchase() && trade.getProduct().isFluidEqual(fluid))
-					return true;
-			}
-			return false;
+			if(t instanceof FluidTradeData trade)
+				return trade.isPurchase() && trade.getProduct().isFluidEqual(fluid);
 		}
 		else
 		{
@@ -107,8 +104,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 					}
 				}
 			}
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean allowOutput(FluidStack fluid) { return !this.allowInput(fluid); }
@@ -119,9 +116,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TradeData t = this.getReferencedTrade();
 			List<FluidStack> result = new ArrayList<>();
-			if(t instanceof FluidTradeData)
+			if(t instanceof FluidTradeData trade)
 			{
-				FluidTradeData trade = (FluidTradeData)t;
 				if(!trade.getProduct().isEmpty())
 					result.add(trade.getProduct());
 			}
@@ -144,9 +140,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
 		{
 			ItemStack stack = this.getUpgradeInventory().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem)
+			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
-				UpgradeItem upgradeItem = (UpgradeItem)stack.getItem();
 				if(this.allowUpgrade(upgradeItem))
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
@@ -169,7 +164,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound, false); }
 	
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveFluidBuffer(compound);
 	}
@@ -183,12 +178,6 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		this.setChanged();
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveFluidBuffer(new CompoundTag()));
-	}
-	
-	public void setUpgradesDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag()));
 	}
 	
 	@Override
@@ -323,11 +312,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			if(this.fluidHandler.getInputSides().get(relativeSide) || this.fluidHandler.getOutputSides().get(relativeSide))
 			{
 				Direction actualSide = relativeSide;
-				if(this.getBlockState().getBlock() instanceof IRotatableBlock)
-				{
-					IRotatableBlock b = (IRotatableBlock)this.getBlockState().getBlock();
+				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
 				BlockEntity be = this.level.getBlockEntity(queryPos);

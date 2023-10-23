@@ -22,7 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeDat
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -152,7 +152,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	}
 
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -232,8 +232,9 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	}
 
 	private void ToggleTradeType(EasyButton button) {
-		if(this.getTrade() != null)
-			this.commonTab.setType(this.getTrade().getTradeDirection().next());
+		FluidTradeData trade = this.getTrade();
+		if(trade != null)
+			this.commonTab.setType(trade.isSale() ? TradeData.TradeDirection.PURCHASE : TradeData.TradeDirection.SALE);
 	}
 
 }

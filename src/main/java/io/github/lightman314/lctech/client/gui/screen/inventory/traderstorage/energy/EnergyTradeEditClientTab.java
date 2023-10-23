@@ -21,8 +21,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeDat
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -133,7 +133,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void receiveSelfMessage(CompoundTag message) {
+	public void receiveSelfMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -188,7 +188,11 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 
 	private void ToggleTradeType(EasyButton button) {
 		if(this.getTrade() != null)
-			this.commonTab.setType(this.getTrade().getTradeDirection().next());
+		{
+			EnergyTradeData trade = this.getTrade();
+			if(trade != null)
+				this.commonTab.setType(trade.isSale() ? TradeData.TradeDirection.PURCHASE : TradeData.TradeDirection.SALE);
+		}
 	}
 
 }

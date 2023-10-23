@@ -33,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.Trader
 import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -294,9 +295,8 @@ public class EnergyTraderData extends InputTraderData {
 	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(EnergyInputAddon.INSTANCE); }
 
 	@Override
-	public void receiveNetworkMessage(@NotNull Player player, @NotNull CompoundTag message)
-	{
-		super.receiveNetworkMessage(player, message);
+	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
+		super.handleSettingsChange(player, message);
 		if(message.contains("NewEnergyDrainMode"))
 		{
 			DrainMode newMode = DrainMode.of(message.getInt("NewEnergyDrainMode"));

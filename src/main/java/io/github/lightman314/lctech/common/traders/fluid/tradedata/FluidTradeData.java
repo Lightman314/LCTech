@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
@@ -316,7 +317,7 @@ public class FluidTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new FluidTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -324,10 +325,7 @@ public class FluidTradeData extends TradeData {
 				return;
 			if(this.isSale())
 			{
-				CompoundTag extraData = new CompoundTag();
-				extraData.putInt("TradeIndex", tradeIndex);
-				extraData.putInt("StartingSlot", -1);
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", -1));
 			}
 			if(this.isPurchase())
 			{
@@ -338,7 +336,7 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -351,10 +349,7 @@ public class FluidTradeData extends TradeData {
 			}
 			else if(this.isPurchase())
 			{
-				CompoundTag extraData = new CompoundTag();
-				extraData.putInt("TradeIndex", tradeIndex);
-				extraData.putInt("StartingSlot", -1);
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", -1));
 			}
 		}
 	}
@@ -365,10 +360,7 @@ public class FluidTradeData extends TradeData {
 		if(heldItem.isEmpty() && this.product.isEmpty())
 		{
 			//Open fluid edit
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			extraData.putInt("StartingSlot", 0);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", 0));
 			return false;
 		}
 		else
@@ -398,6 +390,6 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
 
 }

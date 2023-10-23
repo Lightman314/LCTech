@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -117,6 +117,6 @@ public class EnergyStorageTab extends TraderStorageTab{
 
 	//No messages to receive. All storage interactions are done via the battery slots or the upgrade slots.
 	@Override
-	public void receiveMessage(CompoundTag message) { }
+	public void receiveMessage(LazyPacketData message) { }
 
 }

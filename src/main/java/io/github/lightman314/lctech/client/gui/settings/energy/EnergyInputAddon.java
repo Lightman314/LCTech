@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -60,23 +60,19 @@ public class EnergyInputAddon extends InputTabAddon {
 		if(trader instanceof EnergyTraderData e)
 		{
 			if(e.isAlwaysDrainMode())
-				return Component.translatable("gui.lctech.settings.energy.drainmode.full");
+				return EasyText.translatable("gui.lctech.settings.energy.drainmode.full");
 			else
-				return Component.translatable("gui.lctech.settings.energy.drainmode.sales");
+				return EasyText.translatable("gui.lctech.settings.energy.drainmode.sales");
 		}
 		else
-			return Component.literal("NULL");
+			return EasyText.literal("NULL");
 	}
 
 	private void ToggleDrainMode(SettingsSubTab settingsSubTab)
 	{
 		TraderData trader = settingsSubTab.menu.getTrader();
 		if(trader instanceof EnergyTraderData e)
-		{
-			CompoundTag message = new CompoundTag();
-			message.putInt("NewEnergyDrainMode", e.getDrainMode().index + 1);
-			e.sendNetworkMessage(message);
-		}
+			settingsSubTab.sendMessage(LazyPacketData.simpleInt("NewEnergyDrainMode", e.getDrainMode().index + 1));
 	}
 
 }

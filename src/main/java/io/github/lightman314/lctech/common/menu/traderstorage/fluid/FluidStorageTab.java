@@ -11,8 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -73,10 +72,10 @@ public class FluidStorageTab extends TraderStorageTab{
 
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("InteractWithTank", tank);
-				message.putBoolean("ShiftHeld", shiftHeld);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setInt("InteractWithTank", tank)
+						.setBoolean("ShiftHeld", shiftHeld));
+				return;
 			}
 
 			ItemStack heldStack = this.menu.getCarried();
@@ -173,22 +172,21 @@ public class FluidStorageTab extends TraderStorageTab{
 
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("ToggleDrainFillSlot", tank);
-				message.putBoolean("DrainState", drainState);
-				message.putBoolean("NewValue", newValue);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setInt("ToggleDrainFillSlot", tank)
+						.setBoolean("DrainState", drainState)
+						.setBoolean("NewValue", newValue));
 			}
 		}
 	}
 
 	@Override
-	public void receiveMessage(CompoundTag message) {
-		if(message.contains("InteractWithTank", Tag.TAG_INT))
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("InteractWithTank", LazyPacketData.TYPE_INT))
 		{
 			this.interactWithTank(message.getInt("InteractWithTank"), message.getBoolean("ShiftHeld"));
 		}
-		else if(message.contains("ToggleDrainFillSlot", Tag.TAG_INT))
+		else if(message.contains("ToggleDrainFillSlot", LazyPacketData.TYPE_INT))
 		{
 			int tank = message.getInt("ToggleDrainFillSlot");
 			boolean drainState = message.getBoolean("DrainState");
