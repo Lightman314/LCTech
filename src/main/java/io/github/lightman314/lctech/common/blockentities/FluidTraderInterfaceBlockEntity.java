@@ -40,7 +40,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
 
@@ -86,10 +87,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			//Check trade for purchase fluid to restock
 			TradeData t = this.getReferencedTrade();
 			if(t instanceof FluidTradeData trade)
-			{
-				if(trade.isPurchase() && trade.getProduct().isFluidEqual(fluid))
-					return true;
-			}
+				return trade.isPurchase() && trade.getProduct().isFluidEqual(fluid);
 		}
 		else
 		{
@@ -166,7 +164,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound, false); }
 	
 	@Override
-	protected void saveAdditional(@NotNull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveFluidBuffer(compound);
 	}
@@ -180,12 +178,6 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		this.setChanged();
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveFluidBuffer(new CompoundTag()));
-	}
-	
-	public void setUpgradesDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag()));
 	}
 	
 	@Override

@@ -1,6 +1,8 @@
 package io.github.lightman314.lctech;
 
+import io.github.lightman314.lctech.integration.lcdiscord.TechDiscord;
 import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
+import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.DistExecutor;
@@ -60,6 +62,8 @@ public class LCTech
         MinecraftForge.EVENT_BUS.register(this);
         //Register the proxy so that it can run custom events
         MinecraftForge.EVENT_BUS.register(PROXY);
+
+        IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", TechDiscord::setup, "Error setting up Tech Discord Integration");
         
     }
 

@@ -73,7 +73,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + (18 * TANKS), Y_OFFSET), 90, this));
 
-		this.addChild(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this::mouseScrolled));
+		this.addChild(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
 
 	}
 
@@ -210,12 +210,10 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 		return 0;
 	}
 
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) { return this.handleScrollWheel(delta); }
-
 	@Override
 	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 
-		if(this.menu.getTrader() instanceof FluidTraderData)
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			ScreenPosition mousePos = ScreenPosition.of(mouseX, mouseY);
 			int hoveredSlot = this.isMouseOverTank(mousePos);
@@ -230,7 +228,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 			{
 				int tank = hoveredToggle.getFirst() + this.scroll;
 				boolean drainState = hoveredToggle.getSecond();
-				TraderFluidStorage storage = ((FluidTraderData)this.menu.getTrader()).getStorage();
+				TraderFluidStorage storage = trader.getStorage();
 				if(tank < 0 || tank >= storage.getTanks())
 					return false;
 				boolean currentState = drainState ? storage.getContents().get(tank).drainable : storage.getContents().get(tank).fillable;
@@ -238,7 +236,6 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				return true;
 			}
 		}
-		this.scrollBar.onMouseClicked(mouseX, mouseY, button);
 		return false;
 	}
 
@@ -249,9 +246,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	public int currentScroll() { return this.scroll; }
 
 	@Override
-	public int getMaxScroll() {
-		return Math.max(0, this.totalTankSlots() - TANKS);
-	}
+	public int getMaxScroll() { return Math.max(0, this.totalTankSlots() - TANKS); }
 
 	@Override
 	public void setScroll(int newScroll) {

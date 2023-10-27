@@ -13,7 +13,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.18.2-0.2.0.1'
+version = '1.18.2-0.2.0.2'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -30,6 +30,10 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             property 'forge.enabledGameTestNamespaces', 'lctech'
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             mods {
                 lctech {
@@ -53,7 +57,9 @@ dependencies {
 
     minecraft 'net.minecraftforge:forge:1.18.2-40.1.68'
     
-    implementation fg.deobf('curse.maven:lightmanscurrency-472521:4746016')
+    implementation fg.deobf('curse.maven:lightmanscurrency-472521:4818474')
+
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4767178')
 
     runtimeOnly fg.deobf("curse.maven:jei-238222:3723913")
     

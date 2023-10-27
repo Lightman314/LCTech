@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -271,39 +272,31 @@ public class EnergyTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new EnergyTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? -1 : 0;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			extraData.putInt("StartingSlot", openSlot);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
 		}
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? 0 : -1;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			extraData.putInt("StartingSlot", openSlot);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
 		}
 	}
 
 	@Override
-	public void onInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<CompoundTag> clientMessage, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
-
-	}
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
 
 
 }

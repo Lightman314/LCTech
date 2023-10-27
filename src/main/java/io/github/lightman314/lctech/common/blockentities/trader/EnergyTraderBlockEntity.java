@@ -13,6 +13,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.energy.CapabilityEnergy;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
 	protected boolean networkTrader;
@@ -23,6 +25,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		this.networkTrader = networkTrader;
 	}
 	
+	@Nonnull
 	public EnergyTraderData buildNewTrader() {
 		EnergyTraderData trader = new EnergyTraderData(this.level, this.worldPosition);
 		if(this.networkTrader)

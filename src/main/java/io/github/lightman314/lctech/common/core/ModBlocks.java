@@ -8,7 +8,7 @@ import io.github.lightman314.lctech.common.blocks.*;
 import io.github.lightman314.lctech.common.blocks.traderblocks.*;
 import io.github.lightman314.lctech.common.blocks.traderinterface.*;
 import io.github.lightman314.lctech.common.items.*;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.ModCreativeGroups;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -43,21 +43,21 @@ public class ModBlocks {
 
 	static {
 
-		IRON_TANK = register("iron_tank", () -> LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
+		IRON_TANK = register("iron_tank", ModCreativeGroups::getMachineGroup, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.ironTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 						.color(MaterialColor.METAL)
 						.strength(3.0f, 5.0f)
 						.sound(SoundType.GLASS)
 		));
-		GOLD_TANK = register("gold_tank", () -> LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
+		GOLD_TANK = register("gold_tank", ModCreativeGroups::getMachineGroup, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.goldTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 						.color(MaterialColor.GOLD)
 						.strength(3.0f, 5.0f)
 						.sound(SoundType.GLASS)
 		));
-		DIAMOND_TANK = register("diamond_tank", () -> LightmansCurrency.MACHINE_GROUP, getFluidTankGenerator(), () -> new FluidTankBlock(
+		DIAMOND_TANK = register("diamond_tank", ModCreativeGroups::getMachineGroup, getFluidTankGenerator(), () -> new FluidTankBlock(
 				() -> TechConfig.SERVER.diamondTankCapacity.get() * FluidAttributes.BUCKET_VOLUME,
 				Block.Properties.of(Material.GLASS)
 						.color(MaterialColor.DIAMOND)
@@ -65,40 +65,40 @@ public class ModBlocks {
 						.sound(SoundType.GLASS)
 		));
 
-		FLUID_TAP = register("fluid_tap", () -> LightmansCurrency.TRADING_GROUP, () -> new FluidTapBlock(
+		FLUID_TAP = register("fluid_tap", ModCreativeGroups::getTradingGroup, () -> new FluidTapBlock(
 				Block.Properties.of(Material.GLASS)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.GLASS),
 				Block.box(4d, 0d, 4d, 12d, 16d, 12d)
 		));
-		FLUID_TAP_BUNDLE = register("fluid_tap_bundle", () -> LightmansCurrency.TRADING_GROUP, () -> new FluidTapBundleBlock(
+		FLUID_TAP_BUNDLE = register("fluid_tap_bundle", ModCreativeGroups::getTradingGroup, () -> new FluidTapBundleBlock(
 				Block.Properties.of(Material.GLASS)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.GLASS)
 		));
 
-		FLUID_NETWORK_TRADER_1 = register("fluid_trader_server_sml", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_1 = register("fluid_trader_server_sml", ModCreativeGroups::getTradingGroup, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.SMALL_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_BLUE)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 		));
-		FLUID_NETWORK_TRADER_2 = register("fluid_trader_server_med", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_2 = register("fluid_trader_server_med", ModCreativeGroups::getTradingGroup, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.MEDIUM_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_BLUE)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 		));
-		FLUID_NETWORK_TRADER_3 = register("fluid_trader_server_lrg", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_3 = register("fluid_trader_server_lrg", ModCreativeGroups::getTradingGroup, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_BLUE)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 		));
-		FLUID_NETWORK_TRADER_4 = register("fluid_trader_server_xlrg", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkFluidTraderBlock(
+		FLUID_NETWORK_TRADER_4 = register("fluid_trader_server_xlrg", ModCreativeGroups::getTradingGroup, () -> new NetworkFluidTraderBlock(
 				NetworkFluidTraderBlock.EXTRA_LARGE_SERVER_COUNT,
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_BLUE)
@@ -106,28 +106,28 @@ public class ModBlocks {
 						.sound(SoundType.METAL)
 		));
 
-		FLUID_TRADER_INTERFACE = register("fluid_trader_interface", () -> LightmansCurrency.MACHINE_GROUP, () -> new FluidTraderInterfaceBlock(
+		FLUID_TRADER_INTERFACE = register("fluid_trader_interface", ModCreativeGroups::getMachineGroup, () -> new FluidTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_BLUE)
 						.strength(5.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 		));
 
-		BATTERY_SHOP = register("battery_shop", () -> LightmansCurrency.TRADING_GROUP, () -> new EnergyTraderBlock(
+		BATTERY_SHOP = register("battery_shop", ModCreativeGroups::getTradingGroup, () -> new EnergyTraderBlock(
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_GRAY)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 		));
 
-		ENERGY_NETWORK_TRADER = register("energy_trader_server", () -> LightmansCurrency.TRADING_GROUP, () -> new NetworkEnergyTraderBlock(
+		ENERGY_NETWORK_TRADER = register("energy_trader_server", ModCreativeGroups::getTradingGroup, () -> new NetworkEnergyTraderBlock(
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_GRAY)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
 						.sound(SoundType.METAL)
 		));
 
-		ENERGY_TRADER_INTERFACE = register("energy_trader_interface", () -> LightmansCurrency.MACHINE_GROUP, () -> new EnergyTraderInterfaceBlock(
+		ENERGY_TRADER_INTERFACE = register("energy_trader_interface", ModCreativeGroups::getMachineGroup, () -> new EnergyTraderInterfaceBlock(
 				Block.Properties.of(Material.METAL)
 						.color(MaterialColor.COLOR_GRAY)
 						.strength(5.0f, Float.POSITIVE_INFINITY)

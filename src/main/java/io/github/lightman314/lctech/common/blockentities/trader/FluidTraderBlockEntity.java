@@ -13,6 +13,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	
 	protected int tradeCount;
@@ -26,6 +28,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		this.networkTrader = networkTrader;
 	}
 	
+	@Nonnull
 	public FluidTraderData buildNewTrader() {
 		FluidTraderData trader = new FluidTraderData(this.tradeCount, this.level, this.worldPosition);
 		if(this.networkTrader)
