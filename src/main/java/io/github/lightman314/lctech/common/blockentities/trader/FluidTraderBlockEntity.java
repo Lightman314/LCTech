@@ -13,6 +13,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	
 	protected int tradeCount;
@@ -26,6 +28,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		this.networkTrader = networkTrader;
 	}
 	
+	@Nonnull
 	public FluidTraderData buildNewTrader() {
 		FluidTraderData trader = new FluidTraderData(this.tradeCount, this.level, this.worldPosition);
 		if(this.networkTrader)
@@ -55,14 +58,6 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		if(this.getBlockState() != null)
 			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 		return super.getRenderBoundingBox();
-	}
-	
-	@Override @Deprecated
-	protected FluidTraderData createTraderFromOldData(CompoundTag compound) {
-		FluidTraderData newTrader = new FluidTraderData(1, this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		this.tradeCount = newTrader.getTradeCount();
-		return newTrader;
 	}
 	
 	@OnlyIn(Dist.CLIENT)

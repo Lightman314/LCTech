@@ -13,6 +13,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
 	protected boolean networkTrader;
@@ -23,6 +25,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		this.networkTrader = networkTrader;
 	}
 	
+	@Nonnull
 	public EnergyTraderData buildNewTrader() {
 		EnergyTraderData trader = new EnergyTraderData(this.level, this.worldPosition);
 		if(this.networkTrader)
@@ -52,13 +55,6 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		return super.getRenderBoundingBox();
 	}
 	
-	@Override @Deprecated
-	protected EnergyTraderData createTraderFromOldData(CompoundTag compound) {
-		EnergyTraderData newTrader = new EnergyTraderData(this.level, this.worldPosition);
-		newTrader.loadOldBlockEntityData(compound);
-		return newTrader;
-	}
-	
 	@Override
 	public void serverTick() {
 		super.serverTick();
@@ -70,11 +66,10 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 			{
 				if(trader.allowOutputSide(relativeSide) && trader.getDrainableEnergy() > 0)
 				{
+					//LCTech.LOGGER.debug("Attempting to EXPORT energy from an energy trader.\nAvailable Energy: " + trader.getTotalEnergy() + "\nDrainable Energy: " + trader.getDrainableEnergy());
 					Direction actualSide = relativeSide;
 					if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
-					{
 						actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-					}
 					
 					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(actualSide));
 					if(be != null)
@@ -83,6 +78,7 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 							int extractedAmount = energyHandler.receiveEnergy(trader.getDrainableEnergy(), false);
 							if(extractedAmount > 0)
 							{
+								//LCTech.LOGGER.debug("Exporting " + extractedAmount + " energy from the trader.");
 								if(trader.isPurchaseDrainMode()) //Only shrink pending drain if in purchase mode.
 									trader.shrinkPendingDrain(extractedAmount);
 								trader.shrinkEnergy(extractedAmount);

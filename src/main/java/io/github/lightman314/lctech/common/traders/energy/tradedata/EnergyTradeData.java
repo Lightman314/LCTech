@@ -2,31 +2,33 @@ package io.github.lightman314.lctech.common.traders.energy.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.client.EnergyTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.common.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu.IClientMessage;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EnergyTradeData extends TradeData {
 
@@ -43,11 +45,8 @@ public class EnergyTradeData extends TradeData {
 	public EnergyTradeData(boolean validateRules) { super(validateRules); }
 
 	public boolean hasStock(EnergyTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(EnergyTraderData trader, Player player) { return this.getStock(trader, player) > 0; }
-	public boolean hasStock(EnergyTraderData trader, PlayerReference player) { return this.getStock(trader, player) > 0; }
-	public int getStock(EnergyTraderData trader) { return this.getStock(trader, (PlayerReference)null); }
-	public int getStock(EnergyTraderData trader, Player player) { return this.getStock(trader, PlayerReference.of(player)); }
-	public int getStock(EnergyTraderData trader, PlayerReference player) {
+	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
+	public int getStock(EnergyTraderData trader) {
 		if(this.amount <= 0)
 			return 0;
 
@@ -57,13 +56,7 @@ public class EnergyTradeData extends TradeData {
 		}
 		else if(this.isPurchase())
 		{
-			if(this.cost.isFree())
-				return 1;
-			if(cost.getRawValue() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
-			CoinValue price = player == null ? this.cost : trader.runTradeCostEvent(player, this).getCostResult();
-			return (int)(coinValue/price.getRawValue());
+			return this.stockCountOfCost(trader);
 		}
 		return 0;
 	}
@@ -83,14 +76,7 @@ public class EnergyTradeData extends TradeData {
 		}
 		else if(this.isPurchase())
 		{
-			//How many payments the trader can make
-			if(this.cost.isFree())
-				return 1;
-			if(cost.getRawValue() == 0)
-				return 0;
-			long coinValue = trader.getStoredMoney().getRawValue();
-			CoinValue price = this.getCost(context);
-			return (int)(coinValue/price.getRawValue());
+			return this.stockCountOfCost(context);
 		}
 		return 0;
 	}
@@ -204,7 +190,7 @@ public class EnergyTradeData extends TradeData {
 			//Compare product
 			result.addProductResult(ProductComparisonResult.CompareEnergy(this.getAmount(), otherEnergyTrade.getAmount()));
 			//Compare prices
-			result.setPriceResult(this.getCost().getRawValue() - otherTrade.getCost().getRawValue());
+			result.setPriceResult(this.getCost().getValueNumber() - otherTrade.getCost().getValueNumber());
 			//Compare types
 			result.setTypeResult(this.tradeDirection == otherEnergyTrade.tradeDirection);
 		}
@@ -258,23 +244,23 @@ public class EnergyTradeData extends TradeData {
 			//Price difference (intended - actual = difference)
 			long difference = differences.priceDifference();
 			if(difference < 0) //More expensive
-				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(Component.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? Component.translatable("gui.lctech.interface.difference.product.sale") : Component.translatable("gui.lctech.interface.difference.product.purchase");
+			Component directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(Component.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
 			if(!productCheck.SameProductQuantity())
 			{
 				int quantityDifference = productCheck.ProductQuantityDifference();
 				if(quantityDifference < 0) //More items
-					list.add(Component.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
 				else //Less items
-					list.add(Component.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
 			}
 		}
 
@@ -286,38 +272,33 @@ public class EnergyTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new EnergyTradeButtonRenderer(this); }
 
 	@Override
-	public void onInputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? -1 : 0;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			extraData.putInt("StartingSlot", openSlot);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
 		}
 	}
 
 	@Override
-	public void onOutputDisplayInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int index, int button, ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			int tradeIndex = trader.getAllTrades().indexOf(this);
+			int tradeIndex = trader.getTradeData().indexOf(this);
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? 0 : -1;
-			CompoundTag extraData = new CompoundTag();
-			extraData.putInt("TradeIndex", tradeIndex);
-			extraData.putInt("StartingSlot", openSlot);
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, extraData);
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
 		}
 	}
 
 	@Override
-	public void onInteraction(BasicTradeEditTab tab, IClientMessage clientMessage, int mouseX, int mouseY, int button, ItemStack heldItem) {
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) {
 
 	}
+
 
 }

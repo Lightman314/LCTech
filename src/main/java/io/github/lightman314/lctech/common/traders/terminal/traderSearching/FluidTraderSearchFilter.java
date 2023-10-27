@@ -15,9 +15,9 @@ public class FluidTraderSearchFilter extends TraderSearchFilter{
 	public boolean filter(TraderData data, String searchString) {
 		
 		//Search the fluids being sold
-		if(data instanceof FluidTraderData)
+		if(data instanceof FluidTraderData ft)
 		{
-			List<FluidTradeData> trades = ((FluidTraderData)data).getAllTrades();
+			List<FluidTradeData> trades = ft.getTradeData();
 			for (FluidTradeData trade : trades) {
 				if (trade.isValid()) {
 					FluidStack sellFluid = trade.getProduct();

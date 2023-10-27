@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class BatteryInputSlot extends SimpleSlot{
+public class BatteryInputSlot extends SimpleSlot {
 
 	public static final ResourceLocation EMPTY_BATTERY_SLOT = new ResourceLocation(LCTech.MODID, "item/empty_battery_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_BATTERY_SLOT);

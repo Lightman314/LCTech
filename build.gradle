@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
 }
 
-version = '1.19.2-0.1.1.0'
+version = '1.19.2-0.2.0.2'
 group = 'io.github.lightman314.lctech' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'lctech'
 
@@ -15,7 +15,23 @@ println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getPro
 minecraft {
     mappings channel: 'official', version: '1.19.2'
     runs {
-    
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            property 'forge.enabledGameTestNamespaces', 'lctech'
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                lctech {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 
@@ -30,11 +46,13 @@ repositories {
 
 dependencies {
 
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.3'
+    minecraft 'net.minecraftforge:forge:1.19.2-43.3.0'
     
-    compileOnly fg.deobf('curse.maven:lightmanscurrency-472521:4423701')
+    implementation fg.deobf('curse.maven:lightmanscurrency-472521:4819603')
     
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:3826582')
+    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4767179')
+
+    runtimeOnly fg.deobf("curse.maven:jei-238222:4712866")
     
 }
 

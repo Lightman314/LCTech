@@ -7,15 +7,13 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import net.minecraft.nbt.CompoundTag;
+import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -33,25 +31,24 @@ public class EnergyStorageTab extends TraderStorageTab{
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderStorageClientTab<?> createClientTab(TraderStorageScreen screen) { return new EnergyStorageClientTab(screen, this); }
-	
+	public Object createClientTab(Object screen) { return new EnergyStorageClientTab(screen, this); }
+
 	@Override
 	public boolean canOpen(Player player) { return true; }
-	
+
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
-	
+
 	BatteryInputSlot inputSlot;
-	
+
 	Container batterySlots = new SimpleContainer(2);
-	
+
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
-		
+
 		//Upgrade Slots
-		if(this.menu.getTrader() instanceof EnergyTraderData)
+		if(this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			EnergyTraderData trader = (EnergyTraderData)this.menu.getTrader();
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
 				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
@@ -60,7 +57,7 @@ public class EnergyStorageTab extends TraderStorageTab{
 				this.slots.add(upgradeSlot);
 			}
 		}
-		
+
 		//Battery Input Slot
 		this.inputSlot = new BatteryInputSlot(this.batterySlots, 0, TraderMenu.SLOT_OFFSET + 8, 122);
 		this.slots.add(this.inputSlot);
@@ -70,20 +67,20 @@ public class EnergyStorageTab extends TraderStorageTab{
 		SimpleSlot outputSlot = new OutputSlot(this.batterySlots, 1, TraderMenu.SLOT_OFFSET + 44, 122);
 		this.slots.add(outputSlot);
 		addSlot.apply(outputSlot);
-		
+
 		SimpleSlot.SetInactive(this.slots);
-		
+
 	}
 
 	@Override
 	public void onTabClose() {
-		
+
 		SimpleSlot.SetInactive(this.slots);
 		MinecraftForge.EVENT_BUS.unregister(this);
 		this.inputSlot.locked = true;
-		
+
 	}
-	
+
 	@Override
 	public void onMenuClose() {
 		this.menu.clearContainer(this.batterySlots);
@@ -91,13 +88,13 @@ public class EnergyStorageTab extends TraderStorageTab{
 
 	@Override
 	public void onTabOpen() {
-		
+
 		SimpleSlot.SetActive(this.slots);
 		MinecraftForge.EVENT_BUS.register(this);
 		this.inputSlot.locked = false;
-		
+
 	}
-	
+
 	@SubscribeEvent
 	public void onWorldTick(TickEvent.LevelTickEvent event)
 	{
@@ -117,9 +114,9 @@ public class EnergyStorageTab extends TraderStorageTab{
 			}
 		}
 	}
-	
+
 	//No messages to receive. All storage interactions are done via the battery slots or the upgrade slots.
 	@Override
-	public void receiveMessage(CompoundTag message) { }
+	public void receiveMessage(LazyPacketData message) { }
 
 }

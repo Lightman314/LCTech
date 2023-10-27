@@ -40,7 +40,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderFluidFilter {
 
@@ -86,10 +87,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			//Check trade for purchase fluid to restock
 			TradeData t = this.getReferencedTrade();
 			if(t instanceof FluidTradeData trade)
-			{
-				if(trade.isPurchase() && trade.getProduct().isFluidEqual(fluid))
-					return true;
-			}
+				return trade.isPurchase() && trade.getProduct().isFluidEqual(fluid);
 		}
 		else
 		{
@@ -97,7 +95,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			TraderData trader = this.getTrader();
 			if(trader instanceof FluidTraderData)
 			{
-				for(FluidTradeData trade : ((FluidTraderData) trader).getAllTrades())
+				for(FluidTradeData trade : ((FluidTraderData) trader).getTradeData())
 				{
 					if(trade.isSale())
 					{
@@ -166,7 +164,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound, false); }
 	
 	@Override
-	protected void saveAdditional(@NotNull CompoundTag compound) {
+	protected void saveAdditional(@Nonnull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveFluidBuffer(compound);
 	}
@@ -180,12 +178,6 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		this.setChanged();
 		if(!this.isClient())
 			BlockEntityUtil.sendUpdatePacket(this, this.saveFluidBuffer(new CompoundTag()));
-	}
-	
-	public void setUpgradesDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag()));
 	}
 	
 	@Override
@@ -224,7 +216,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
-			for(FluidTradeData trade : trader.getAllTrades())
+			for(FluidTradeData trade : trader.getTradeData())
 			{
 				if(trade.isValid() && trade.isPurchase())
 				{
@@ -257,7 +249,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
-			for(FluidTradeData trade : trader.getAllTrades())
+			for(FluidTradeData trade : trader.getTradeData())
 			{
 				if(trade.isValid() && trade.isSale())
 				{
@@ -321,9 +313,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
-				{
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
 				BlockEntity be = this.level.getBlockEntity(queryPos);

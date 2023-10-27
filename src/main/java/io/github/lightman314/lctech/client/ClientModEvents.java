@@ -9,8 +9,7 @@ import io.github.lightman314.lctech.client.models.items.FluidShardModel;
 import io.github.lightman314.lctech.client.models.items.FluidTankModel;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
-import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
-import io.github.lightman314.lctech.common.menu.slots.FluidInputSlot;
+import io.github.lightman314.lctech.common.menu.slots.*;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
@@ -25,14 +24,20 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientModEvents {
 
 	@SubscribeEvent
+	public static void stitchTextures(TextureStitchEvent.Pre event)
+	{
+		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS)
+		{
+			event.addSprite(BatteryInputSlot.EMPTY_BATTERY_SLOT);
+			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
+		}
+	}
+
+	@SubscribeEvent
 	public static void onModelBakeEvent(ModelEvent.BakingCompleted event)
 	{
-		FluidTankItem.getTankModelList().forEach(itemModelResourceLocation ->{
-			replaceModel(itemModelResourceLocation, event.getModels(), (existingModel) -> new FluidTankModel(existingModel));
-		});
-		FluidShardItem.getShardModelList().forEach(itemModelResourceLocation ->{
-			replaceModel(itemModelResourceLocation, event.getModels(), (existingModel) -> new FluidShardModel(existingModel));
-		});
+		FluidTankItem.getTankModelList().forEach(itemModelResourceLocation -> replaceModel(itemModelResourceLocation, event.getModels(), FluidTankModel::new));
+		FluidShardItem.getShardModelList().forEach(itemModelResourceLocation -> replaceModel(itemModelResourceLocation, event.getModels(), FluidShardModel::new));
 	}
 	
 	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ResourceLocation, BakedModel> modelRegistry, Function<BakedModel,BakedModel> modelGenerator)
@@ -46,17 +51,6 @@ public class ClientModEvents {
 			//LCTech.LOGGER.info("Replacing the Fluid Tank item model.");
 			BakedModel customModel = modelGenerator.apply(existingModel);
 			modelRegistry.put(itemModelResourceLocation, customModel);
-		}
-	}
-	
-	@SubscribeEvent
-	public static void stitchTextures(TextureStitchEvent.Pre event)
-	{
-		if(event.getAtlas().location() == InventoryMenu.BLOCK_ATLAS) {
-			//Add bucket slot background
-			event.addSprite(FluidInputSlot.EMPTY_FLUID_SLOT);
-			//Add battery slot background
-			event.addSprite(BatteryInputSlot.EMPTY_BATTERY_SLOT);
 		}
 	}
 	

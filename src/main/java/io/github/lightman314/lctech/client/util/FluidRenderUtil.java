@@ -11,8 +11,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Matrix4f;
 
+import com.mojang.math.Matrix4f;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -34,6 +35,7 @@ import net.minecraftforge.fluids.FluidStack;
 @OnlyIn(Dist.CLIENT)
 public class FluidRenderUtil {
 
+	public static void drawFluidTankInGUI(FluidStack tank, ScreenPosition corner, int x, int y, int width, int height, double percent) { drawFluidTankInGUI(tank, corner.x + x, corner.y + y, width, height, percent); }
 	public static void drawFluidTankInGUI(FluidStack tank, int x, int y, int width, int height, double percent)
 	{
 		if(tank == null || tank.isEmpty())

@@ -33,7 +33,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity {
 
@@ -90,7 +91,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound, false); }
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound) {
+	public void saveAdditional(@Nonnull CompoundTag compound) {
 		super.saveAdditional(compound);
 		this.saveEnergyBuffer(compound);
 	}
@@ -218,9 +219,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
-				{
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-				}
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
 				BlockEntity be = this.level.getBlockEntity(queryPos);

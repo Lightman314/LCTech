@@ -275,6 +275,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 	 * Returns the list of fluid tanks in the tank stack from bottom to top.
 	 */
 	public final List<FluidTankBlockEntity> getTankStack() { return this.stackCache.getOrderedTanks(); }
+	public final List<FluidTankBlockEntity> getTankStack(FluidStack fluid) { return this.stackCache.getOrderedTanks(fluid); }
 
 	@Override
 	@Nonnull
