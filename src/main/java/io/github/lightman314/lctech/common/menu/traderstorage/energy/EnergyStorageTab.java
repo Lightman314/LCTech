@@ -7,13 +7,13 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -25,9 +25,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class EnergyStorageTab extends TraderStorageTab{
+import javax.annotation.Nonnull;
 
-	public EnergyStorageTab(TraderStorageMenu menu) { super(menu); }
+public class EnergyStorageTab extends TraderStorageTab {
+
+	public EnergyStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -117,6 +119,6 @@ public class EnergyStorageTab extends TraderStorageTab{
 	
 	//No messages to receive. All storage interactions are done via the battery slots or the upgrade slots.
 	@Override
-	public void receiveMessage(LazyPacketData lazyPacketData) { }
+	public void receiveMessage(@Nonnull LazyPacketData lazyPacketData) { }
 
 }

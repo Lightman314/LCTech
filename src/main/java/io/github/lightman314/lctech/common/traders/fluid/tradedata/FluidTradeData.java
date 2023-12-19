@@ -9,16 +9,17 @@ import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.money.MoneyUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.ProductComparisonResult;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
@@ -66,7 +67,7 @@ public class FluidTradeData extends TradeData {
 	public boolean isSale() { return this.tradeDirection == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeDirection == TradeDirection.PURCHASE; }
 
-	public ItemStack getFilledBucket() { return FluidUtil.getFilledBucket(this.product);}
+	public ItemStack getFilledBucket() { return FluidItemUtil.getFluidDispayItem(this.product.getFluid()); }
 
 	public FluidTradeData(boolean validateRules) { super(validateRules); }
 
@@ -230,7 +231,7 @@ public class FluidTradeData extends TradeData {
 			//Compare product
 			result.addProductResult(ProductComparisonResult.CompareFluid(this.productOfQuantity(), otherFluidTrade.productOfQuantity()));
 			//Compare prices
-			result.setPriceResult(this.getCost().getValueNumber() - otherTrade.getCost().getValueNumber());
+			result.comparePrices(this.getCost(), otherTrade.getCost());
 			//Compare types
 			result.setTypeResult(this.tradeDirection == otherFluidTrade.tradeDirection);
 		}
@@ -282,11 +283,11 @@ public class FluidTradeData extends TradeData {
 		if(!differences.PriceMatches())
 		{
 			//Price difference (intended - actual = difference)
-			long difference = differences.priceDifference();
-			if(difference < 0) //More expensive
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", MoneyUtil.getStringOfValue(-difference)).withStyle(ChatFormatting.RED));
+			MoneyValue difference = differences.priceDifference();
+			if(differences.isPriceExpensive()) //More expensive
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", difference.getText()).withStyle(ChatFormatting.RED));
 			else //Cheaper
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", MoneyUtil.getStringOfValue(difference)).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", difference.getText()).withStyle(ChatFormatting.RED));
 		}
 		if(differences.getProductResultCount() > 0)
 		{

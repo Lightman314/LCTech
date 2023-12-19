@@ -5,15 +5,16 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.en
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -37,7 +38,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
 
 
     @Override
-    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, int mouseX, int mouseY, TradeContext context) {
+    public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, TradeContext context) {
         //Manually render the drainable icon
         if(this.allowsDrainage(context))
         {
@@ -52,15 +53,15 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     }
 
     @Override
-    public TradeButton.DisplayData inputDisplayArea(TradeContext context) {
+    public DisplayData inputDisplayArea(TradeContext context) {
         if(this.trade.isSale())
-            return new TradeButton.DisplayData(1, 1, 34, 16);
+            return new DisplayData(1, 1, 34, 16);
         else
-            return new TradeButton.DisplayData(1, 1, 68, 16);
+            return new DisplayData(1, 1, 68, 16);
     }
 
     @Override
-    public List<TradeButton.DisplayEntry> getInputDisplays(TradeContext context) {
+    public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isSale())
             return this.getCostEntry(context);
         else
@@ -68,26 +69,26 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     }
 
     @Override
-    public TradeButton.DisplayData outputDisplayArea(TradeContext context) {
+    public DisplayData outputDisplayArea(TradeContext context) {
         if(this.trade.isSale())
-            return new TradeButton.DisplayData(59, 1, 68, 16);
+            return new DisplayData(59, 1, 68, 16);
         else
-            return new TradeButton.DisplayData(93, 1, 34, 16);
+            return new DisplayData(93, 1, 34, 16);
     }
 
     @Override
-    public List<TradeButton.DisplayEntry> getOutputDisplays(TradeContext context) {
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) {
         if(this.trade.isSale())
             return this.getProductEntry();
         else
             return this.getCostEntry(context);
     }
 
-    private List<TradeButton.DisplayEntry> getCostEntry(TradeContext context) {
-        return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getCost(context)));
+    private List<DisplayEntry> getCostEntry(TradeContext context) {
+        return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context)));
     }
 
-    private List<TradeButton.DisplayEntry> getProductEntry() { return Lists.newArrayList(TradeButton.DisplayEntry.of(EasyText.literal(EnergyUtil.formatEnergyAmount(this.trade.getAmount())), TextRenderUtil.TextFormatting.create().centered().middle())); }
+    private List<DisplayEntry> getProductEntry() { return Lists.newArrayList(DisplayEntry.of(EasyText.literal(EnergyUtil.formatEnergyAmount(this.trade.getAmount())), TextRenderUtil.TextFormatting.create().centered().middle())); }
 
     @Override
     public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {

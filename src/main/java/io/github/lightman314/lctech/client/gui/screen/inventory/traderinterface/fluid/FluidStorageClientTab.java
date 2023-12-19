@@ -11,9 +11,8 @@ import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.Flui
 import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
@@ -85,7 +84,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + (18 * TANKS), Y_OFFSET), 53, this));
 		this.scrollBar.smallKnob = true;
 		
-		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this::mouseScrolled));
+		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this));
 		
 		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
 		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getOutputSettings().ignoreSides, this::ToggleOutputSide, this::addChild);
@@ -183,26 +182,6 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 			return ((FluidTraderInterfaceBlockEntity)this.menu.getBE()).getFluidBuffer().getTanks();
 		}
 		return 0;
-	}
-	
-	private boolean canScrollDown() { return this.totalTankSlots() - this.scroll > TANKS; }	
-
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{			
-			if(this.canScrollDown())
-				this.scroll++;
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				scroll--;
-			else
-				return false;
-		}
-		return true;
 	}
 	
 	@Override

@@ -4,10 +4,15 @@ import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget.IFluidEditListener;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
@@ -17,12 +22,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -56,7 +56,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public int getTradeRuleTradeIndex() { return this.commonTab.getTradeIndex(); }
 
 	TradeButton tradeDisplay;
-	CoinValueInput priceSelection;
+	MoneyValueWidget priceSelection;
 
 	EasyButton buttonAddBucket;
 	EasyButton buttonRemoveBucket;
@@ -77,7 +77,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
-		this.priceSelection = this.addChild(new CoinValueInput(screenArea.pos.offset(screenArea.width / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 40), EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.getFont(), this::onValueChanged));
+		this.priceSelection = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 40), this.priceSelection, trade == null ? MoneyValue.empty() : trade.getCost(), this::onValueChanged));
 		this.priceSelection.drawBG = false;
 
 		this.fluidEdit = this.addChild(new FluidEditWidget(screenArea.pos.offset(X_OFFSET, Y_OFFSET), COLUMNS, ROWS, this));
@@ -163,7 +163,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof FluidTradeData t)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.getHeldItem();
 			if(t.isSale())
 				this.changeSelection(-1);
 			else if(t.isPurchase())
@@ -180,7 +180,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
 		if(trade instanceof FluidTradeData t)
 		{
-			ItemStack heldItem = this.menu.getCarried();
+			ItemStack heldItem = this.menu.getHeldItem();
 			if(t.isSale())
 			{
 				if(this.selection != 0 && heldItem.isEmpty())
@@ -196,7 +196,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	private void changeSelection(int newSelection) {
 		this.selection = newSelection;
 		if(this.selection == -1)
-			this.priceSelection.setCoinValue(this.getTrade().getCost());
+			this.priceSelection.changeValue(this.getTrade().getCost());
 		if(this.selection == 0 && !this.getTrade().isSale())
 			this.fluidEdit.refreshSearch();
 	}
@@ -213,7 +213,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	@Override
 	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
-	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
+	public void onValueChanged(MoneyValue value) { this.commonTab.setPrice(value); }
 
 	public FluidTradeData getTrade() { return this.commonTab.getTrade(); }
 

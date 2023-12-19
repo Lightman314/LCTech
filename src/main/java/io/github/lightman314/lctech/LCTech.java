@@ -1,6 +1,8 @@
 package io.github.lightman314.lctech;
 
 import io.github.lightman314.lctech.integration.lcdiscord.TechDiscord;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -24,9 +26,6 @@ import io.github.lightman314.lctech.common.core.ModRegistries;
 import io.github.lightman314.lctech.common.crafting.condition.TechCraftingConditions;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.TraderSearchFilter;
 
 @Mod("lctech")
 public class LCTech
@@ -68,15 +67,15 @@ public class LCTech
         LCTechPacketHandler.init();
 
         //Register Trader Search Filters
-        TraderSearchFilter.addFilter(new FluidTraderSearchFilter());
+        TraderAPI.registerSearchFilter(new FluidTraderSearchFilter());
 
         //Register the universal data deserializer
-        TraderData.register(FluidTraderData.TYPE, FluidTraderData::new);
-        TraderData.register(EnergyTraderData.TYPE, EnergyTraderData::new);
+        TraderAPI.registerTrader(FluidTraderData.TYPE);
+        TraderAPI.registerTrader(EnergyTraderData.TYPE);
 
         //Register custom notification types
-        Notification.register(FluidTradeNotification.TYPE, FluidTradeNotification::new);
-        Notification.register(EnergyTradeNotification.TYPE, EnergyTradeNotification::new);
+        NotificationAPI.registerNotification(FluidTradeNotification.TYPE);
+        NotificationAPI.registerNotification(EnergyTradeNotification.TYPE);
 
         //Register Crafting Conditions
         CraftingHelper.register(TechCraftingConditions.FluidTrader.SERIALIZER);

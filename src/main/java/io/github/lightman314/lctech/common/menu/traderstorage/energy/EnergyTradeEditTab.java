@@ -5,12 +5,12 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyTradeEditClientTab;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData.TradeDirection;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class EnergyTradeEditTab extends TraderStorageTab {
 
-	public EnergyTradeEditTab(TraderStorageMenu menu) {super(menu); }
+	public EnergyTradeEditTab(ITraderStorageMenu menu) {super(menu); }
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -54,7 +54,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 
 	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
 	
-	public void setType(TradeDirection type) {
+	public void setType(TradeData.TradeDirection type) {
 		EnergyTradeData trade = this.getTrade();
 		if(trade != null)
 		{
@@ -76,14 +76,14 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 		}
 	}
 	
-	public void setPrice(CoinValue price) {
+	public void setPrice(MoneyValue price) {
 		EnergyTradeData trade = this.getTrade();
 		if(trade != null)
 		{
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleCoinValue("NewPrice", price));
+				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
 		}
 	}
 	
@@ -99,11 +99,11 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewPrice"))
 		{
-			this.setPrice(message.getCoinValue("NewPrice"));
+			this.setPrice(message.getMoneyValue("NewPrice"));
 		}
 		else if(message.contains("NewType"))
 		{
-			this.setType(TradeDirection.fromIndex(message.getInt("NewType")));
+			this.setType(TradeData.TradeDirection.fromIndex(message.getInt("NewType")));
 		}
 	}
 

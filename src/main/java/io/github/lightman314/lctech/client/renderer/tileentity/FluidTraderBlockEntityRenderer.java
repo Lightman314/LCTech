@@ -16,10 +16,7 @@ import javax.annotation.Nonnull;
 
 public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<FluidTraderBlockEntity>{
 
-	public FluidTraderBlockEntityRenderer(BlockEntityRendererProvider.Context context)
-	{
-		
-	}
+	public FluidTraderBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
 	public void render(FluidTraderBlockEntity blockEntity, float partialTicket, @Nonnull PoseStack pose, @Nonnull MultiBufferSource bufferSource, int light, int overlay)
