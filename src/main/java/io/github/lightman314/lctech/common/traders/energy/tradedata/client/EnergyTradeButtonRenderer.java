@@ -5,6 +5,7 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.en
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -96,9 +96,9 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
         {
             LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             AtomicBoolean mouseOver = new AtomicBoolean(false);
-            arrowPosOptional.ifPresent(arrowPos -> {
-                mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8));
-            });
+            arrowPosOptional.ifPresent(arrowPos ->
+                mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8))
+            );
             if(mouseOver.get())
                 return Lists.newArrayList(EasyText.translatable("tooltip.lctech.trader.fluid_settings.drainable"));
         }

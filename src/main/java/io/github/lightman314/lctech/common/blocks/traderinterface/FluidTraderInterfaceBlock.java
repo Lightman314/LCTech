@@ -6,7 +6,7 @@ import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlo
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;

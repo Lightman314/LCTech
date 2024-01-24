@@ -7,9 +7,7 @@ import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.ParallelDispatchEvent;
@@ -45,9 +43,8 @@ public class LCTech
         // Register the doClientStuff method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
-        //Register configs
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, TechConfig.commonSpec);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, TechConfig.serverSpec);
+        //Force config class loading
+        TechConfig.init();
         
         //.Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -64,6 +61,7 @@ public class LCTech
     private void doCommonStuff(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
 
     private void commonSetupWork() {
+
         LCTechPacketHandler.init();
 
         //Register Trader Search Filters

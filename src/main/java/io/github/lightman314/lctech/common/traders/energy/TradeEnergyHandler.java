@@ -3,7 +3,6 @@ package io.github.lightman314.lctech.common.traders.energy;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lctech.common.util.EnergyUtil.EnergyActionResult;
 import net.minecraft.core.Direction;
