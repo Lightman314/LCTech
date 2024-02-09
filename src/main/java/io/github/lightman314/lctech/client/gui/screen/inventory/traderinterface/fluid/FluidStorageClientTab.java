@@ -11,8 +11,10 @@ import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.Flui
 import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
@@ -22,9 +24,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceClientTab;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
@@ -84,7 +84,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + (18 * TANKS), Y_OFFSET), 53, this));
 		this.scrollBar.smallKnob = true;
 
-		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this::mouseScrolled));
+		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this));
 
 		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
 		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getOutputSettings().ignoreSides, this::ToggleOutputSide, this::addChild);
@@ -182,26 +182,6 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 			return ((FluidTraderInterfaceBlockEntity)this.menu.getBE()).getFluidBuffer().getTanks();
 		}
 		return 0;
-	}
-
-	private boolean canScrollDown() { return this.totalTankSlots() - this.scroll > TANKS; }
-
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{
-			if(this.canScrollDown())
-				this.scroll++;
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				scroll--;
-			else
-				return false;
-		}
-		return true;
 	}
 
 	@Override

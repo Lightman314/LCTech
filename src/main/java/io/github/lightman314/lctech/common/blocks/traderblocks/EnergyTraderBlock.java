@@ -5,7 +5,7 @@ import java.util.List;
 import io.github.lightman314.lctech.common.blockentities.trader.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.templates.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;

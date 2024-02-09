@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.client.gui.settings.energy.EnergyInputAddon;
@@ -19,23 +20,24 @@ import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStora
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.*;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -44,6 +46,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -62,7 +65,7 @@ public class EnergyTraderData extends InputTraderData {
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.ENERGY_CAPACITY);
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"energy_trader");
+	public static final TraderType<EnergyTraderData> TYPE = new TraderType<>(new ResourceLocation(LCTech.MODID,"energy_trader"),EnergyTraderData::new);
 
 	protected final TradeEnergyHandler energyHandler = new TradeEnergyHandler(this);
 
@@ -105,10 +108,8 @@ public class EnergyTraderData extends InputTraderData {
 	int energyStorage = 0;
 	int pendingDrain = 0;
 
-	public EnergyTraderData() { super(TYPE);}
-	public EnergyTraderData(Level level, BlockPos pos) {
-		super(TYPE, level, pos);
-	}
+	private EnergyTraderData() { super(TYPE);}
+	public EnergyTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
 
 	@Override
 	public void saveAdditional(CompoundTag compound) {
@@ -175,7 +176,7 @@ public class EnergyTraderData extends InputTraderData {
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
 			return;
 
-		if(this.getTradeCount() >= DEFAULT_TRADE_LIMIT && !CommandLCAdmin.isAdminPlayer(requestor))
+		if(this.getTradeCount() >= DEFAULT_TRADE_LIMIT && !LCAdminMode.isAdminPlayer(requestor))
 		{
 			Permissions.PermissionWarning(requestor, "add creative trade slot", Permissions.ADMIN_MODE);
 			return;
@@ -294,6 +295,7 @@ public class EnergyTraderData extends InputTraderData {
 	@Override @OnlyIn(Dist.CLIENT)
 	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(EnergyInputAddon.INSTANCE); }
 
+
 	@Override
 	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
 		super.handleSettingsChange(player, message);
@@ -323,7 +325,7 @@ public class EnergyTraderData extends InputTraderData {
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
 		//Get the cost of the trade
-		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 
 		//Abort if not enough stock
 		if(!trade.hasStock(context) && !this.isCreative())
@@ -351,7 +353,7 @@ public class EnergyTraderData extends InputTraderData {
 				drainStorage = false;
 			}
 
-			CoinValue taxesPaid = CoinValue.EMPTY;
+			MoneyValue taxesPaid = MoneyValue.empty();
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -364,7 +366,7 @@ public class EnergyTraderData extends InputTraderData {
 				}
 
 				//Give the paid price to storage
-				taxesPaid = this.addStoredMoney(price, false);
+				taxesPaid = this.addStoredMoney(price, true);
 			}
 
 			//Push the notification
@@ -399,7 +401,7 @@ public class EnergyTraderData extends InputTraderData {
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 
-			CoinValue taxesPaid = CoinValue.EMPTY;
+			MoneyValue taxesPaid = MoneyValue.empty();
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -450,7 +452,7 @@ public class EnergyTraderData extends InputTraderData {
 	}
 
 	@Override
-	public void initStorageTabs(TraderStorageMenu menu) {
+	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
 		//Storage tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new EnergyStorageTab(menu));
 		//Energy Trade interaction tab
@@ -458,38 +460,32 @@ public class EnergyTraderData extends InputTraderData {
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) throws Exception {
-		if(!json.has("Trades"))
-			throw new Exception("Energy Trader must have a trade list.");
-
-		JsonArray tradeList = json.get("Trades").getAsJsonArray();
+	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+		JsonArray tradeList = GsonHelper.getAsJsonArray(json, "Trades");
 		this.trades = new ArrayList<>();
 		for(int i = 0; i < tradeList.size() && this.trades.size() < TraderData.GLOBAL_TRADE_LIMIT; ++i)
 		{
 			try {
-
-				JsonObject tradeData = tradeList.get(i).getAsJsonObject();
+				JsonObject tradeData = GsonHelper.convertToJsonObject(tradeList.get(i), "Trades[" + i + "]");
 				EnergyTradeData newTrade = new EnergyTradeData(false);
 				//Trade Type
 				if(tradeData.has("TradeType"))
-					newTrade.setTradeDirection(EnergyTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
+					newTrade.setTradeDirection(EnergyTradeData.loadTradeType(GsonHelper.getAsString(tradeData, "TradeType")));
 				//Quantity
-				newTrade.setAmount(tradeData.get("Quantity").getAsInt());
+				newTrade.setAmount(GsonHelper.getAsInt(tradeData,"Quantity"));
 				//Price
-				newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
+				newTrade.setCost(MoneyValue.loadFromJson(tradeData.get("Price")));
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
-				{
-					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray(), newTrade));
-				}
+					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade));
 
 				this.trades.add(newTrade);
 
-			} catch(Exception e) { LCTech.LOGGER.error("Error parsing energy trade at index " + i, e); }
+			} catch(JsonSyntaxException | ResourceLocationException e) { LCTech.LOGGER.error("Error parsing energy trade at index " + i, e); }
 		}
 
 		if(this.trades.size() == 0)
-			throw new Exception("Trader has no valid trades!");
+			throw new JsonSyntaxException("Trader has no valid trades!");
 
 		this.energyStorage = this.getMaxEnergy();
 

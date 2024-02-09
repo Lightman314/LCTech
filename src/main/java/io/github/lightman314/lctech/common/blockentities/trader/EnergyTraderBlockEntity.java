@@ -2,8 +2,8 @@ package io.github.lightman314.lctech.common.blockentities.trader;
 
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

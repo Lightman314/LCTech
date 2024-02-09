@@ -6,7 +6,7 @@ import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.integration.discord.CurrencyMessages;
 import io.github.lightman314.lightmanscurrency.integration.discord.events.DiscordTraderSearchEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -87,7 +87,7 @@ public class TechDiscord {
                 EnergyTradeData trade = energyTrader.getTrade(i);
                 if(trade.isValid() && event.acceptTradeType(trade))
                 {
-                    if(searchText.isEmpty() || EnergyUtil.ENERGY_UNIT.toLowerCase().contains(searchText) || "Energy".toLowerCase().contains(searchText))
+                    if(EnergyUtil.ENERGY_UNIT.toLowerCase().contains(searchText) || "Energy".toLowerCase().contains(searchText))
                     {
                         if(firstTrade)
                         {

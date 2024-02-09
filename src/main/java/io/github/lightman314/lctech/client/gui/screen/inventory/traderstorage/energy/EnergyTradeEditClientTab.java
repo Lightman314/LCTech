@@ -4,10 +4,16 @@ import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.CoinValueInput;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
@@ -15,13 +21,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageClientTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -48,7 +48,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	public int getTradeRuleTradeIndex() { return this.commonTab.getTradeIndex(); }
 
 	TradeButton tradeDisplay;
-	CoinValueInput priceSelection;
+	MoneyValueWidget priceSelection;
 
 	EditBox quantityInput;
 
@@ -65,7 +65,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 
 		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
 		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
-		this.priceSelection = this.addChild(new CoinValueInput(screenArea.pos.offset(screenArea.width / 2 - CoinValueInput.DISPLAY_WIDTH / 2, 40), EasyText.empty(), trade == null ? CoinValue.EMPTY : trade.getCost(), this.getFont(), this::onValueChanged));
+		this.priceSelection = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 40), this.priceSelection, trade == null ? MoneyValue.empty() : trade.getCost(), this::onValueChanged));
 		this.priceSelection.drawBG = false;
 
 		this.quantityInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 75, this.screen.getXSize() - 42 - this.getFont().width(EnergyUtil.ENERGY_UNIT), 20, EasyText.empty()));
@@ -165,7 +165,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	private void changeSelection(int newSelection) {
 		this.selection = newSelection;
 		if(this.selection == -1)
-			this.priceSelection.setCoinValue(this.commonTab.getTrade().getCost());
+			this.priceSelection.changeValue(this.commonTab.getTrade().getCost());
 		if(this.selection >= 0)
 			this.quantityInput.setValue(String.valueOf(this.commonTab.getTrade().getAmount()));
 	}
@@ -182,7 +182,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	@Override
 	public boolean onMouseReleased(double mouseX, double mouseY, int button) { return false; }
 
-	public void onValueChanged(CoinValue value) { this.commonTab.setPrice(value); }
+	public void onValueChanged(MoneyValue value) { this.commonTab.setPrice(value); }
 
 	public EnergyTradeData getTrade() { return this.commonTab.getTrade(); }
 

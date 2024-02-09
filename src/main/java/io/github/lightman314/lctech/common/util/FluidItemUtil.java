@@ -3,12 +3,15 @@ package io.github.lightman314.lctech.common.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
@@ -50,9 +53,9 @@ public class FluidItemUtil {
 		return json;
 	}
 	
-	public static FluidStack parseFluidStack(JsonObject json) throws Exception {
-		String id = json.get("id").getAsString();
-		int amount = json.get("amount").getAsInt();
+	public static FluidStack parseFluidStack(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+		String id = GsonHelper.getAsString(json, "id");
+		int amount = GsonHelper.getAsInt(json,"amount");
 		FluidStack result = new FluidStack(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(id)), amount);
 		try {
 			if(json.has("tag"))

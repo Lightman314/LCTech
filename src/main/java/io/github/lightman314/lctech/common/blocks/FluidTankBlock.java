@@ -10,8 +10,8 @@ import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackState;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
-import io.github.lightman314.lightmanscurrency.common.blocks.interfaces.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.util.LazyShapes;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -34,6 +34,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTankBlock{
@@ -146,6 +147,7 @@ public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTan
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return new FluidTankBlockEntity(pos, state); }
 
+	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.FLUID_TANK.get()); }
 

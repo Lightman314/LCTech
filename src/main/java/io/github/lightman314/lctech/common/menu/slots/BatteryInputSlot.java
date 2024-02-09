@@ -9,7 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
 
 public class BatteryInputSlot extends SimpleSlot {
 
@@ -24,7 +25,7 @@ public class BatteryInputSlot extends SimpleSlot {
 	}
 	
 	@Override
-	public boolean mayPlace(@NotNull ItemStack stack)
+	public boolean mayPlace(@Nonnull ItemStack stack)
 	{
 		if(locked)
 			return false;

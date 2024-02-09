@@ -8,8 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public class EnergyUtil {
@@ -95,7 +93,7 @@ public class EnergyUtil {
     
     /**
      * Fill a destination energy handler from a source energy handler with a max amount.
-     * To specify a fluid to transfer instead of max amount, use {@link #tryEnergyTransfer(IFluidHandler, IFluidHandler, FluidStack, boolean)}
+     * To specify a fluid to transfer instead of max amount, use {@link #tryEnergyTransfer(IEnergyStorage, IEnergyStorage, int, boolean)}
      * To transfer as much as possible, use {@link Integer#MAX_VALUE} for maxAmount.
      *
      * @param energyDestination The energy handler to be filled.
@@ -104,12 +102,12 @@ public class EnergyUtil {
      * @param doTransfer       True if the transfer should actually be done, false if it should be simulated.
      * @return the amount of energy that was transferred from the source to the destination. 0 on failure.
      */
-    private static int tryEnergyTransfer(IEnergyStorage fluidDestination, IEnergyStorage fluidSource, int maxAmount, boolean doTransfer)
+    private static int tryEnergyTransfer(IEnergyStorage energyDestination, IEnergyStorage energySource, int maxAmount, boolean doTransfer)
     {
-        int drainable = fluidSource.extractEnergy(maxAmount, true);
+        int drainable = energySource.extractEnergy(maxAmount, true);
         if (drainable > 0)
         {
-            return tryEnergyTransfer_Internal(fluidDestination, fluidSource, drainable, doTransfer);
+            return tryEnergyTransfer_Internal(energyDestination, energySource, drainable, doTransfer);
         }
         return 0;
     }
@@ -118,7 +116,6 @@ public class EnergyUtil {
      * Internal method for filling a destination energy handler from a source energy handler using a specific fluid.
      * Assumes that "amount" can be drained from "energySource".
      */
-    @Nonnull
     private static int tryEnergyTransfer_Internal(IEnergyStorage energyDestination, IEnergyStorage energySource, int amount, boolean doTransfer)
     {
         int fillableAmount = energyDestination.receiveEnergy(amount, true);

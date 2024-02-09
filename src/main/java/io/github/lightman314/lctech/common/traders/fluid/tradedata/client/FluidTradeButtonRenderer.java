@@ -7,12 +7,13 @@ import io.github.lightman314.lctech.common.menu.slots.FluidInputSlot;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.easy.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.client.TradeRenderManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.LazyOptional;
@@ -36,30 +37,30 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
     }
 
     @Override
-    public TradeButton.DisplayData inputDisplayArea(TradeContext context) {
-        return new TradeButton.DisplayData(1, 1, this.trade.isSale() ? 34 : 16, 16);
+    public DisplayData inputDisplayArea(TradeContext context) {
+        return new DisplayData(1, 1, this.trade.isSale() ? 34 : 16, 16);
     }
 
     @Override
-    public List<TradeButton.DisplayEntry> getInputDisplays(TradeContext context) {
+    public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isSale())
-            return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
         if(this.trade.isPurchase())
             return this.getFluidEntry(context);
         return null;
     }
 
     @Override
-    public TradeButton.DisplayData outputDisplayArea(TradeContext context) {
-        return new TradeButton.DisplayData(this.trade.isSale() ? 58 : 40, 1, this.trade.isSale() ? (this.allowsDrainage(context) ? 32 : 16) : 34, 16);
+    public DisplayData outputDisplayArea(TradeContext context) {
+        return new DisplayData(this.trade.isSale() ? 58 : 40, 1, this.trade.isSale() ? (this.allowsDrainage(context) ? 32 : 16) : 34, 16);
     }
 
     @Override
-    public List<TradeButton.DisplayEntry> getOutputDisplays(TradeContext context) {
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) {
         if(this.trade.isSale())
             return this.getFluidEntry(context);
         if(this.trade.isPurchase())
-            return Lists.newArrayList(TradeButton.DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(Component.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
+            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? Lists.newArrayList(EasyText.translatable("tooltip.lightmanscurrency.trader.price_edit")) : null));
         return null;
     }
 
@@ -70,26 +71,26 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
             if(!trader.isCreative())
             {
                 if(this.trade.getStock(context) <= 0)
-                    alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.outofstock")));
+                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofstock")));
                 if(!this.trade.hasSpace(trader))
-                    alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.outofspace")));
+                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
             }
             if(!this.trade.canAfford(context))
-                alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.cannotafford")));
+                alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.cannotafford")));
         }
         if(this.trade.isSale() && !(context.canFitFluid(this.trade.productOfQuantity()) || this.allowsDrainage(context)))
-            alerts.add(AlertData.warn(Component.translatable("tooltip.lightmanscurrency.nooutputcontainer")));
+            alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.nooutputcontainer")));
     }
 
-    private List<TradeButton.DisplayEntry> getFluidEntry(TradeContext context) {
-        List<TradeButton.DisplayEntry> entries = new ArrayList<>();
+    private List<DisplayEntry> getFluidEntry(TradeContext context) {
+        List<DisplayEntry> entries = new ArrayList<>();
         if(!this.trade.getProduct().isEmpty())
-            entries.add(TradeButton.DisplayEntry.of(this.trade.getFilledBucket(), this.trade.getBucketQuantity(), getFluidTooltip(context)));
+            entries.add(DisplayEntry.of(this.trade.getFilledBucket(), this.trade.getBucketQuantity(), getFluidTooltip(context)));
         else if(context.isStorageMode)
-            entries.add(TradeButton.DisplayEntry.of(FluidInputSlot.BACKGROUND, Lists.newArrayList(Component.translatable("tooltip.lctech.trader.fluid_edit"))));
+            entries.add(DisplayEntry.of(FluidInputSlot.BACKGROUND, Lists.newArrayList(EasyText.translatable("tooltip.lctech.trader.fluid_edit"))));
         //Add drainage entry if draining is allowed
         if(this.allowsDrainage(context))
-            entries.add(SpriteDisplayEntry.of(FluidStorageClientTab.GUI_TEXTURE, 0, 0, 8, 8, Lists.newArrayList(Component.translatable("tooltip.lctech.trader.fluid_settings.drainable"))));
+            entries.add(SpriteDisplayEntry.of(FluidStorageClientTab.GUI_TEXTURE, 0, 0, 8, 8, Lists.newArrayList(EasyText.translatable("tooltip.lctech.trader.fluid_settings.drainable"))));
         return entries;
     }
 
@@ -106,7 +107,7 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
         //Stock
         if(context.hasTrader())
         {
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().isCreative() ? Component.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : Component.literal(String.valueOf(this.trade.getStock(context))).withStyle(ChatFormatting.GOLD)));
+            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.getStock(context))).withStyle(ChatFormatting.GOLD)));
         }
 
 
@@ -120,6 +121,5 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
             return trader.drainCapable() && trader.hasOutputSide() && trader.getStorage().isDrainable(this.trade.getProduct());
         return false;
     }
-
 
 }

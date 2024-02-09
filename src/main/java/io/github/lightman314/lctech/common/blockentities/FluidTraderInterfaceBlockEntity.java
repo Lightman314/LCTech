@@ -17,18 +17,18 @@ import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
-import io.github.lightman314.lightmanscurrency.common.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.templates.interfaces.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.TraderInterfaceTab;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -93,9 +93,9 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		{
 			//Scan all trades for sell fluids to restock
 			TraderData trader = this.getTrader();
-			if(trader instanceof FluidTraderData)
+			if(trader instanceof FluidTraderData ft)
 			{
-				for(FluidTradeData trade : ((FluidTraderData) trader).getTradeData())
+				for(FluidTradeData trade : ft.getTradeData())
 				{
 					if(trade.isSale())
 					{

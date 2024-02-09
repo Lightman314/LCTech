@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
@@ -18,20 +19,21 @@ import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorage
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.traders.*;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
-import io.github.lightman314.lightmanscurrency.common.commands.CommandLCAdmin;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.TradeContext.TradeResult;
-import io.github.lightman314.lightmanscurrency.common.traders.tradedata.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.money.CoinValue;
-import io.github.lightman314.lightmanscurrency.common.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -40,6 +42,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -55,7 +58,7 @@ import javax.annotation.Nonnull;
 
 public class FluidTraderData extends InputTraderData implements ITraderFluidFilter {
 
-	public final static ResourceLocation TYPE = new ResourceLocation(LCTech.MODID,"fluid_trader");
+	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(new ResourceLocation(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.FLUID_CAPACITY);
 
@@ -69,7 +72,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 	public final boolean drainCapable() { return !this.showOnTerminal(); }
 
-	public FluidTraderData() { super(TYPE); }
+	private FluidTraderData() { super(TYPE); }
 	public FluidTraderData(int tradeCount, Level level, BlockPos pos) {
 		super(TYPE, level, pos);
 		this.trades = FluidTradeData.listOfSize(tradeCount, true);
@@ -113,7 +116,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public void addTrade(Player requester) {
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
 			return;
-		if(!CommandLCAdmin.isAdminPlayer(requester))
+		if(!LCAdminMode.isAdminPlayer(requester))
 		{
 			Permissions.PermissionWarning(requester, "add trade slot", Permissions.ADMIN_MODE);
 			return;
@@ -125,7 +128,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public void removeTrade(Player requester) {
 		if(this.getTradeCount() <= 1)
 			return;
-		if(!CommandLCAdmin.isAdminPlayer(requester))
+		if(!LCAdminMode.isAdminPlayer(requester))
 		{
 			Permissions.PermissionWarning(requester, "remove trade slot", Permissions.ADMIN_MODE);
 			return;
@@ -242,7 +245,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
 		//Get the cost of the trade
-		CoinValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
 
 		//Abort if not enough stock
 		if(!trade.hasStock(context) && !this.isCreative())
@@ -273,7 +276,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				this.markStorageDirty();
 			}
 
-			CoinValue taxesPaid = CoinValue.EMPTY;
+			MoneyValue taxesPaid = MoneyValue.empty();
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -321,7 +324,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 
-			CoinValue taxesPaid = CoinValue.EMPTY;
+			MoneyValue taxesPaid = MoneyValue.empty();
 
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
@@ -379,7 +382,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	public void initStorageTabs(TraderStorageMenu menu) {
+	public void initStorageTabs(ITraderStorageMenu menu) {
 		//Storage tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new FluidStorageTab(menu));
 		//Fluid Trade interaction tab
@@ -387,12 +390,12 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) throws Exception {
+	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 
 		if(!json.has("Trades"))
-			throw new Exception("Fluid Trader must have a trade list.");
+			throw new JsonSyntaxException("Fluid Trader must have a trade list.");
 
-		JsonArray tradeList = json.get("Trades").getAsJsonArray();
+		JsonArray tradeList = GsonHelper.getAsJsonArray(json,"Trades");
 
 		this.trades = new ArrayList<>();
 		for(int i = 0; i < tradeList.size() && this.trades.size() < TraderData.GLOBAL_TRADE_LIMIT; ++i)
@@ -404,21 +407,19 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				FluidTradeData newTrade = new FluidTradeData(false);
 
 				//Product
-				JsonObject product = tradeData.get("Product").getAsJsonObject();
+				JsonObject product = GsonHelper.getAsJsonObject(tradeData, "Product");
 				newTrade.setProduct(FluidItemUtil.parseFluidStack(product));
 				//Trade Type
 				if(tradeData.has("TradeType"))
 					newTrade.setTradeDirection(FluidTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
 				//Price
-				newTrade.setCost(CoinValue.Parse(tradeData.get("Price")));
+				newTrade.setCost(MoneyValue.loadFromJson(tradeData.get("Price")));
 				//Quantity
 				if(tradeData.has("Quantity"))
-					newTrade.setBucketQuantity(tradeData.get("Quantity").getAsInt());
+					newTrade.setBucketQuantity(GsonHelper.getAsInt(tradeData, "Quantity"));
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
-				{
-					newTrade.setRules(TradeRule.Parse(tradeData.get("TradeRules").getAsJsonArray(), newTrade));
-				}
+					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade));
 
 				this.trades.add(newTrade);
 
@@ -426,7 +427,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 
 		if(this.trades.size() == 0)
-			throw new Exception("Trader has no valid trades!");
+			throw new JsonSyntaxException("Trader has no valid trades!");
 
 	}
 

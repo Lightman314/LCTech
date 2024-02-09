@@ -2,13 +2,13 @@ package io.github.lightman314.lctech.client.gui.widget.button.trade;
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class SpriteDisplayEntry extends DisplayEntry{
+public class SpriteDisplayEntry extends DisplayEntry {
 
 	private final ResourceLocation sprite;
 	private final int u;

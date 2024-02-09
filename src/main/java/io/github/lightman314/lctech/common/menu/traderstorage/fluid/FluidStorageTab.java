@@ -7,11 +7,11 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid.FluidStorageClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.network.packet.LazyPacketData;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -23,9 +23,9 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.items.ItemHandlerHelper;
 
-public class FluidStorageTab extends TraderStorageTab{
+public class FluidStorageTab extends TraderStorageTab {
 
-	public FluidStorageTab(TraderStorageMenu menu) { super(menu); }
+	public FluidStorageTab(ITraderStorageMenu menu) { super(menu); }
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
@@ -78,16 +78,16 @@ public class FluidStorageTab extends TraderStorageTab{
 				return;
 			}
 
-			ItemStack heldStack = this.menu.getCarried();
+			ItemStack heldStack = this.menu.getHeldItem();
 			if(heldStack.isEmpty()) //If held stack is empty, do nothing
 				return;
 
 			//Try and fill the tank
-			FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trader.getStorage(), Integer.MAX_VALUE, this.menu.player, true);
+			FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trader.getStorage(), Integer.MAX_VALUE, this.menu.getPlayer(), true);
 			if(result.isSuccess())
 			{
 				//If creative, and the item was a bucket, don't move the items around
-				if(this.menu.player.isCreative() && result.getResult().getItem() == Items.BUCKET)
+				if(this.menu.getPlayer().isCreative() && result.getResult().getItem() == Items.BUCKET)
 				{
 					if(shiftHeld)
 					{
@@ -103,12 +103,12 @@ public class FluidStorageTab extends TraderStorageTab{
 				if(heldStack.getCount() > 1)
 				{
 					heldStack.shrink(1);
-					this.menu.setCarried(heldStack);
-					ItemHandlerHelper.giveItemToPlayer(this.menu.player, result.getResult());
+					this.menu.setHeldItem(heldStack);
+					ItemHandlerHelper.giveItemToPlayer(this.menu.getPlayer(), result.getResult());
 				}
 				else
 				{
-					this.menu.setCarried(result.getResult());
+					this.menu.setHeldItem(result.getResult());
 				}
 			}
 			else
@@ -117,11 +117,11 @@ public class FluidStorageTab extends TraderStorageTab{
 				if(tank < 0 || tank >= trader.getStorage().getTanks())
 					return;
 				FluidEntry tankEntry = trader.getStorage().getContents().get(tank);
-				result = FluidUtil.tryFillContainer(heldStack, tankEntry, Integer.MAX_VALUE, this.menu.player, true);
+				result = FluidUtil.tryFillContainer(heldStack, tankEntry, Integer.MAX_VALUE, this.menu.getPlayer(), true);
 				if(result.isSuccess())
 				{
 					//If creative, and the item was a bucket, don't move the items around
-					if(this.menu.player.isCreative() && heldStack.getItem() == Items.BUCKET)
+					if(this.menu.getPlayer().isCreative() && heldStack.getItem() == Items.BUCKET)
 					{
 						if(shiftHeld)
 						{
@@ -140,12 +140,12 @@ public class FluidStorageTab extends TraderStorageTab{
 					if(heldStack.getCount() > 1)
 					{
 						heldStack.shrink(1);
-						this.menu.setCarried(heldStack);
-						ItemHandlerHelper.giveItemToPlayer(this.menu.player, result.getResult());
+						this.menu.setHeldItem(heldStack);
+						ItemHandlerHelper.giveItemToPlayer(this.menu.getPlayer(), result.getResult());
 					}
 					else
 					{
-						this.menu.setCarried(result.getResult());
+						this.menu.setHeldItem(result.getResult());
 					}
 				}
 

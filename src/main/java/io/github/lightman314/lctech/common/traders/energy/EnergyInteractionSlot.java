@@ -6,7 +6,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.InteractionSlotData;
+import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 

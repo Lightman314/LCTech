@@ -19,11 +19,8 @@ public class TraderFluidStorage implements IFluidHandler {
 	
 	public CompoundTag save(CompoundTag compound, String tag) {
 		ListTag list = new ListTag();
-		for(int i = 0; i < this.tanks.size(); ++i)
-		{
-			FluidEntry tank = this.tanks.get(i);
-			if(!tank.filter.isEmpty())
-			{
+		for (FluidEntry tank : this.tanks) {
+			if (!tank.filter.isEmpty()) {
 				CompoundTag fluidTag = new CompoundTag();
 				tank.save(fluidTag);
 				list.add(fluidTag);
@@ -49,20 +46,6 @@ public class TraderFluidStorage implements IFluidHandler {
 		this.refactorTanks();
 	}
 	
-	public void loadFromTrades(ListTag fluidTradeList) {
-		for(int i = 0; i < fluidTradeList.size(); ++i)
-		{
-			CompoundTag fluidTrade = fluidTradeList.getCompound(i);
-			if(fluidTrade.contains("Tank"))
-			{
-				FluidStack tankContents = FluidStack.loadFluidStackFromNBT(fluidTrade.getCompound("Tank"));
-				int pendingDrain = fluidTrade.contains("PendingDrain") ? fluidTrade.getInt("PendingDrain") : 0;
-				if(!tankContents.isEmpty())
-					this.tanks.add(new FluidEntry(this, tankContents, pendingDrain));
-			}
-		}
-	}
-	
 	/**
 	 * Gets whether the given fluid is allowed to be drained externally.
 	 * If the only trades for this fluid are purchase trades, then this fluid will be drained by a pump automatically.
@@ -72,7 +55,7 @@ public class TraderFluidStorage implements IFluidHandler {
 	 */
 	public boolean isDrainable(FluidStack fluid) {
 		FluidEntry entry = this.getTank(fluid);
-		return entry == null ? false : entry.drainable || !this.allowFluid(entry.filter);
+		return entry != null && (entry.drainable || !this.allowFluid(entry.filter));
 	}
 	
 	/**
