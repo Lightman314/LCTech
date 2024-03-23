@@ -55,7 +55,7 @@
     "tooltip.lightmanscurrency.nooutputcontainer": "No room for output.",
     
     "gui.lctech.interface.difference.product.sale": "selling",
-    "gui.lctech.interface.difference.product.purchase": "purchasing",
+    "gui.lctech.interface.difference.product.purchase": "expecting",
     "gui.lctech.interface.fluid.difference.fluidtype": "Trade is %s a different fluid.",
     "gui.lctech.interface.fluid.difference.fluidnbt": "Fluid NBT does not match.",
     "gui.lctech.interface.fluid.difference.quantity.more": "Trade is %1$s %2$smB more.",

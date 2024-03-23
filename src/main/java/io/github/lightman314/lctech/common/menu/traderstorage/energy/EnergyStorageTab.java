@@ -7,12 +7,12 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
+import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -41,8 +41,9 @@ public class EnergyStorageTab extends TraderStorageTab {
 	List<SimpleSlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
-	BatteryInputSlot inputSlot;
-	
+	BatteryInputSlot drainSlot;
+	BatteryInputSlot fillSlot;
+
 	Container batterySlots = new SimpleContainer(2);
 	
 	@Override
@@ -61,14 +62,16 @@ public class EnergyStorageTab extends TraderStorageTab {
 		}
 		
 		//Battery Input Slot
-		this.inputSlot = new BatteryInputSlot(this.batterySlots, 0, TraderMenu.SLOT_OFFSET + 8, 122);
-		this.slots.add(this.inputSlot);
-		addSlot.apply(this.inputSlot);
-		this.inputSlot.locked = true;
+		this.drainSlot = new BatteryInputSlot(this.batterySlots, 0, TraderMenu.SLOT_OFFSET + 8, 122);
+		this.drainSlot.requireEnergy = true;
+		this.slots.add(this.drainSlot);
+		addSlot.apply(this.drainSlot);
+		this.drainSlot.locked = true;
 		//Battery Output Slot
-		SimpleSlot outputSlot = new OutputSlot(this.batterySlots, 1, TraderMenu.SLOT_OFFSET + 44, 122);
-		this.slots.add(outputSlot);
-		addSlot.apply(outputSlot);
+		this.fillSlot = new BatteryInputSlot(this.batterySlots, 1, TraderMenu.SLOT_OFFSET + 44, 122);
+		this.slots.add(this.fillSlot);
+		addSlot.apply(this.fillSlot);
+		this.fillSlot.locked = true;
 		
 		SimpleSlot.SetInactive(this.slots);
 		
@@ -79,7 +82,8 @@ public class EnergyStorageTab extends TraderStorageTab {
 		
 		SimpleSlot.SetInactive(this.slots);
 		MinecraftForge.EVENT_BUS.unregister(this);
-		this.inputSlot.locked = true;
+		this.drainSlot.locked = true;
+		this.fillSlot.locked = true;
 		
 	}
 	
@@ -93,7 +97,8 @@ public class EnergyStorageTab extends TraderStorageTab {
 		
 		SimpleSlot.SetActive(this.slots);
 		MinecraftForge.EVENT_BUS.register(this);
-		this.inputSlot.locked = false;
+		this.drainSlot.locked = false;
+		this.fillSlot.locked = false;
 		
 	}
 	
@@ -102,17 +107,32 @@ public class EnergyStorageTab extends TraderStorageTab {
 	{
 		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getTrader() instanceof EnergyTraderData trader)
 		{
-			if(!this.batterySlots.getItem(0).isEmpty() && this.batterySlots.getItem(1).isEmpty())
+			//Drain from slot 1
+			if(!this.batterySlots.getItem(0).isEmpty())
 			{
-				//Try to fill the energy storage with the battery, or vice-versa
 				ItemStack batteryStack = this.batterySlots.getItem(0);
-				ItemStack batteryOutput = trader.getEnergyHandler().batteryInteraction(batteryStack);
-				if(batteryStack.getCount() > 1)
-					batteryStack.shrink(1);
-				else
-					batteryStack = ItemStack.EMPTY;
-				this.batterySlots.setItem(0, batteryStack);
-				this.batterySlots.setItem(1, batteryOutput);
+				if(batteryStack.getCount() == 1)
+				{
+					EnergyUtil.getEnergyHandler(batteryStack).ifPresent(energyStorage -> {
+						//Get extractable amount
+						int extractedAmount = energyStorage.extractEnergy(trader.getMaxEnergy() - trader.getTotalEnergy(), false);
+						if(extractedAmount > 0)
+							trader.addEnergy(extractedAmount);
+					});
+				}
+			}
+			//Store into slot 2
+			if(!this.batterySlots.getItem(1).isEmpty())
+			{
+				ItemStack batteryStack = this.batterySlots.getItem(1);
+				if(batteryStack.getCount() == 1)
+				{
+					EnergyUtil.getEnergyHandler(batteryStack).ifPresent(energyStorage -> {
+						int drainedAmount = energyStorage.receiveEnergy(trader.getAvailableEnergy(), false);
+						if(drainedAmount > 0)
+							trader.shrinkEnergy(drainedAmount);
+					});
+				}
 			}
 		}
 	}

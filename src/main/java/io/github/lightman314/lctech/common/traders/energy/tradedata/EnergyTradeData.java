@@ -8,6 +8,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.client.EnergyTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -213,13 +214,13 @@ public class EnergyTradeData extends TradeData {
 			if(this.isSale())
 			{
 				//Product should be greater than or equal to pass
-				if(productResult.ProductQuantityDifference() > 0)
+				if(productResult.ProductQuantityDifference() < 0)
 					return false;
 			}
 			else if(this.isPurchase())
 			{
 				//Purchase product should be less than or equal to pass
-				if(productResult.ProductQuantityDifference() < 0)
+				if(productResult.ProductQuantityDifference() > 0)
 					return false;
 			}
 		}
@@ -243,24 +244,28 @@ public class EnergyTradeData extends TradeData {
 		{
 			//Price difference (intended - actual = difference)
 			MoneyValue difference = differences.priceDifference();
+			ChatFormatting moreColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
+			ChatFormatting lessColor = this.isSale() ? ChatFormatting.GOLD : ChatFormatting.RED;
 			if(differences.isPriceExpensive()) //More expensive
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", difference.getText()).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", difference.getText()).withStyle(moreColor));
 			else //Cheaper
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", difference.getText()).withStyle(ChatFormatting.RED));
+				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", difference.getText()).withStyle(lessColor));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
 			Component directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
+			ChatFormatting moreColor = this.isSale() ? ChatFormatting.GOLD : ChatFormatting.RED;
+			ChatFormatting lessColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				LightmansCurrency.LogWarning("Somehow an energy trade has a different product type?");
 			if(!productCheck.SameProductQuantity())
 			{
 				int quantityDifference = productCheck.ProductQuantityDifference();
-				if(quantityDifference < 0) //More items
-					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+				if(quantityDifference > 0) //More energy
+					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(moreColor));
 				else //Less items
-					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(lessColor));
 			}
 		}
 		

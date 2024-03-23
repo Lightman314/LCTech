@@ -18,8 +18,10 @@ import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeD
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
@@ -56,6 +58,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -325,7 +328,8 @@ public class EnergyTraderData extends InputTraderData {
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
-		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		//Get the cost from TradeData#getCost(TradeContext) as it will still run the trade cost event, but
+		MoneyValue price = trade.getCost(context);
 		
 		//Abort if not enough stock
 		if(!trade.hasStock(context) && !this.isCreative())
@@ -554,5 +558,23 @@ public class EnergyTraderData extends InputTraderData {
 	}
 	
 	public final boolean canDrainExternally() { return this.drainCapable() && this.hasOutputSide(); }
-	
+
+	@Override
+	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+		int tradeCount = 0;
+		int outOfStock = 0;
+		for(EnergyTradeData trade : this.trades)
+		{
+			if(trade.isValid())
+			{
+				++tradeCount;
+				if(!this.isCreative() && !trade.hasStock(this))
+					++outOfStock;
+			}
+		}
+		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count",tradeCount));
+		if(outOfStock > 0)
+			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock",outOfStock));
+	}
+
 }

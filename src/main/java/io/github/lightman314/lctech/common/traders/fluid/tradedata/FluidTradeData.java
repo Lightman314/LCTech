@@ -254,13 +254,13 @@ public class FluidTradeData extends TradeData {
 			if(this.isSale())
 			{
 				//Product should be greater than or equal to pass
-				if(productResult.ProductQuantityDifference() > 0)
+				if(productResult.ProductQuantityDifference() < 0)
 					return false;
 			}
 			else if(this.isPurchase())
 			{
 				//Purchase product should be less than or equal to pass
-				if(productResult.ProductQuantityDifference() < 0)
+				if(productResult.ProductQuantityDifference() > 0)
 					return false;
 			}
 		}
@@ -302,10 +302,12 @@ public class FluidTradeData extends TradeData {
 				else if(!productCheck.SameProductQuantity())
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
-					if(quantityDifference < 0) //More items
-						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+					ChatFormatting moreColor = this.isPurchase() ? ChatFormatting.RED : ChatFormatting.GOLD;
+					ChatFormatting lessColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
+					if(quantityDifference > 0) //More fluids
+						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(moreColor));
 					else //Less items
-						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(lessColor));
 				}
 			}
 		}

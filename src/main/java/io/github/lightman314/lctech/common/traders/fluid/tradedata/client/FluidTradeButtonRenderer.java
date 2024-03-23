@@ -107,7 +107,7 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
         //Stock
         if(context.hasTrader())
         {
-            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.getStock(context))).withStyle(ChatFormatting.GOLD)));
+            tooltips.add(EasyText.translatable("tooltip.lightmanscurrency.trader.stock", context.getTrader().isCreative() ? EasyText.translatable("tooltip.lightmanscurrency.trader.stock.infinite").withStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(this.trade.getStock(context)))).withStyle(ChatFormatting.GOLD));
         }
 
 

@@ -34,6 +34,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTankBlock{
@@ -146,6 +147,7 @@ public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTan
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return new FluidTankBlockEntity(pos, state); }
 
+	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.FLUID_TANK.get()); }
 
