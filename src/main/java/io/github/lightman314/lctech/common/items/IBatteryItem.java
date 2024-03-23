@@ -16,9 +16,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IBatteryItem {
 
-	
+
 	int getMaxEnergyStorage(ItemStack stack);
-	
+
 	static ICapabilityProvider createCapability(ItemStack stack)
 	{
 		if(stack.getItem() instanceof IBatteryItem)
@@ -31,7 +31,7 @@ public interface IBatteryItem {
 			return null;
 		}
 	}
-	
+
 	static int getStoredEnergy(ItemStack stack)
 	{
 		CompoundTag tag = stack.getOrCreateTag();
@@ -39,7 +39,7 @@ public interface IBatteryItem {
 			return tag.getInt("Battery");
 		return 0;
 	}
-	
+
 	static <T extends IBatteryItem & ItemLike> ItemStack getFullBattery(T item) {
 		ItemStack newStack = new ItemStack(item);
 		newStack.getOrCreateTag().putInt("Battery", item.getMaxEnergyStorage(newStack));
@@ -70,10 +70,10 @@ public interface IBatteryItem {
 
 	class BatteryEnergyStorage implements IEnergyStorage, ICapabilityProvider
 	{
-		
+
 		private final ItemStack stack;
 		private final LazyOptional<IEnergyStorage> optional;
-		
+
 		private BatteryEnergyStorage(ItemStack stack)
 		{
 			this.stack = stack;
@@ -82,22 +82,18 @@ public interface IBatteryItem {
 			if(this.getEnergyStored() == 0)
 				this.setEnergyStored(0);
 		}
-		
-		public ItemStack getContainer() { return this.stack; }
 
 		private void setEnergyStored(int energyStored) {
 			CompoundTag tag = stack.getOrCreateTag();
 			tag.putInt("Battery", energyStored);
 			stack.setTag(tag);
 		}
-		
+
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {
 			int receiveAmount = Math.min(maxReceive, this.getMaxEnergyStored() - this.getEnergyStored());
 			if(!simulate)
-			{
 				this.setEnergyStored(this.getEnergyStored() + receiveAmount);
-			}
 			return receiveAmount;
 		}
 
@@ -105,39 +101,31 @@ public interface IBatteryItem {
 		public int extractEnergy(int maxExtract, boolean simulate) {
 			int extractAmount = Math.min(maxExtract, this.getEnergyStored());
 			if(!simulate)
-			{
 				this.setEnergyStored(this.getEnergyStored() - extractAmount);
-			}
 			return extractAmount;
 		}
 
 		@Override
-		public int getEnergyStored() {
-			return IBatteryItem.getStoredEnergy(this.stack);
-		}
+		public int getEnergyStored() { return IBatteryItem.getStoredEnergy(this.stack); }
 
 		@Override
 		public int getMaxEnergyStored() {
-			if(this.stack.getItem() instanceof IBatteryItem)
-				return ((IBatteryItem)this.stack.getItem()).getMaxEnergyStorage(this.stack);
+			if(this.stack.getItem() instanceof IBatteryItem battery)
+				return battery.getMaxEnergyStorage(this.stack);
 			return 0;
 		}
 
 		@Override
-		public boolean canExtract() {
-			return true;
-		}
+		public boolean canExtract() { return true; }
 
 		@Override
-		public boolean canReceive() {
-			return true;
-		}
+		public boolean canReceive() { return true; }
 
 		@Override
 		public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
 			return ForgeCapabilities.ENERGY.orEmpty(cap, this.optional);
 		}
-		
+
 	}
-	
+
 }

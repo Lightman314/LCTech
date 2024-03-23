@@ -6,7 +6,6 @@ import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
@@ -15,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSett
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -35,7 +35,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	private static final int FRAME_HEIGHT = 90;
 	private static final int ENERGY_BAR_HEIGHT = FRAME_HEIGHT - 2;
 
-	private static final int WIDGET_OFFSET = 53;
+	private static final int WIDGET_OFFSET = 43;
 
 	DirectionalSettingsWidget inputSettings;
 	DirectionalSettingsWidget outputSettings;
@@ -85,8 +85,10 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 			for(Slot slot : this.commonTab.getSlots())
 				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 
-			//Render the arrow between the arrow slots
-			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 25, 121, 36, 0, 18, 18);
+			//Render the up arrow
+			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 11, 110, 46, 0, 10, 10);
+			//Render the down arrow
+			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 47, 110, 36, 0, 10, 10);
 
 			//Render the background for the energy bar
 			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET, 0, 0, 18, FRAME_HEIGHT);
@@ -98,9 +100,9 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET + yOffset, 18, yOffset, 18, fillHeight);
 
 			//Render the input/output labels
-			gui.drawString(EasyText.translatable("gui.lctech.settings.fluidinput.side"), 33, WIDGET_OFFSET, 0x404040);
-			int textWidth = gui.font.width(EasyText.translatable("gui.lctech.settings.fluidoutput.side"));
-			gui.drawString(EasyText.translatable("gui.lctech.settings.fluidoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
+			gui.drawString(EasyText.translatable("gui.lctech.settings.energyinput.side"), 33, WIDGET_OFFSET, 0x404040);
+			int textWidth = gui.font.width(EasyText.translatable("gui.lctech.settings.energyoutput.side"));
+			gui.drawString(EasyText.translatable("gui.lctech.settings.energyoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
 
 		}
 

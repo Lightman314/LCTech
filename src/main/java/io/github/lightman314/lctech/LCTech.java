@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -79,10 +78,7 @@ public class LCTech
         NotificationAPI.registerNotification(EnergyTradeNotification.TYPE);
 
         //Register Crafting Conditions
-        CraftingHelper.register(TechCraftingConditions.FluidTrader.SERIALIZER);
-        CraftingHelper.register(TechCraftingConditions.FluidTank.SERIALIZER);
-        CraftingHelper.register(TechCraftingConditions.EnergyTrader.SERIALIZER);
-        CraftingHelper.register(TechCraftingConditions.Batteries.SERIALIZER);
+        TechCraftingConditions.register();
 
         //Add our items/blocks to the creative tab sorting
         try {

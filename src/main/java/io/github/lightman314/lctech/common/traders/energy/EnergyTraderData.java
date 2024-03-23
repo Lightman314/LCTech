@@ -20,6 +20,7 @@ import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStora
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
@@ -58,6 +59,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EnergyTraderData extends InputTraderData {
 
@@ -324,8 +326,8 @@ public class EnergyTraderData extends InputTraderData {
 		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
-		//Get the cost of the trade
-		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		//Get the cost from TradeData#getCost(TradeContext) as it will still run the trade cost event, but
+		MoneyValue price = trade.getCost(context);
 
 		//Abort if not enough stock
 		if(!trade.hasStock(context) && !this.isCreative())
@@ -484,7 +486,7 @@ public class EnergyTraderData extends InputTraderData {
 			} catch(JsonSyntaxException | ResourceLocationException e) { LCTech.LOGGER.error("Error parsing energy trade at index " + i, e); }
 		}
 
-		if(this.trades.size() == 0)
+		if(this.trades.isEmpty())
 			throw new JsonSyntaxException("Trader has no valid trades!");
 
 		this.energyStorage = this.getMaxEnergy();
@@ -504,7 +506,7 @@ public class EnergyTraderData extends InputTraderData {
 				tradeData.add("Price", trade.getCost().toJson());
 				tradeData.addProperty("Quantity", trade.getAmount());
 
-				if(trade.getRules().size() > 0)
+				if(!trade.getRules().isEmpty())
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
 
 				trades.add(tradeData);
@@ -554,5 +556,23 @@ public class EnergyTraderData extends InputTraderData {
 	}
 
 	public final boolean canDrainExternally() { return this.drainCapable() && this.hasOutputSide(); }
+
+	@Override
+	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+		int tradeCount = 0;
+		int outOfStock = 0;
+		for(EnergyTradeData trade : this.trades)
+		{
+			if(trade.isValid())
+			{
+				++tradeCount;
+				if(!this.isCreative() && !trade.hasStock(this))
+					++outOfStock;
+			}
+		}
+		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count",tradeCount));
+		if(outOfStock > 0)
+			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock",outOfStock));
+	}
 
 }

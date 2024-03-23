@@ -19,6 +19,7 @@ import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorage
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -53,6 +54,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -245,7 +247,8 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 
 		//Get the cost of the trade
-		MoneyValue price = this.runTradeCostEvent(context.getPlayerReference(), trade).getCostResult();
+		//Update get the price from TradeData#getCost as it will avoid doing any unecessary calculations.
+		MoneyValue price = trade.getCost(context);
 
 		//Abort if not enough stock
 		if(!trade.hasStock(context) && !this.isCreative())
@@ -426,7 +429,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			} catch(Exception e) { LCTech.LOGGER.error("Error parsing fluid trade at index " + i, e); }
 		}
 
-		if(this.trades.size() == 0)
+		if(this.trades.isEmpty())
 			throw new JsonSyntaxException("Trader has no valid trades!");
 
 	}
@@ -445,7 +448,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				tradeData.add("Product", FluidItemUtil.convertFluidStack(trade.getProduct()));
 				tradeData.addProperty("Quantity", trade.getBucketQuantity());
 
-				if(trade.getRules().size() > 0)
+				if(!trade.getRules().isEmpty())
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
 
 				trades.add(tradeData);
@@ -482,4 +485,21 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 	}
 
+	@Override
+	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+		int tradeCount = 0;
+		int outOfStock = 0;
+		for(FluidTradeData trade : this.trades)
+		{
+			if(trade.isValid())
+			{
+				++tradeCount;
+				if(!this.isCreative() && !trade.hasStock(this))
+					++outOfStock;
+			}
+		}
+		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count",tradeCount));
+		if(outOfStock > 0)
+			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock",outOfStock));
+	}
 }

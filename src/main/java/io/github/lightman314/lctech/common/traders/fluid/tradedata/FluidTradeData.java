@@ -10,7 +10,6 @@ import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -19,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -254,13 +254,13 @@ public class FluidTradeData extends TradeData {
 			if(this.isSale())
 			{
 				//Product should be greater than or equal to pass
-				if(productResult.ProductQuantityDifference() > 0)
+				if(productResult.ProductQuantityDifference() < 0)
 					return false;
 			}
 			else if(this.isPurchase())
 			{
 				//Purchase product should be less than or equal to pass
-				if(productResult.ProductQuantityDifference() < 0)
+				if(productResult.ProductQuantityDifference() > 0)
 					return false;
 			}
 		}
@@ -302,10 +302,12 @@ public class FluidTradeData extends TradeData {
 				else if(!productCheck.SameProductQuantity())
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
-					if(quantityDifference < 0) //More items
-						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(ChatFormatting.RED));
+					ChatFormatting moreColor = this.isPurchase() ? ChatFormatting.RED : ChatFormatting.GOLD;
+					ChatFormatting lessColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
+					if(quantityDifference > 0) //More fluids
+						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(moreColor));
 					else //Less items
-						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(ChatFormatting.RED));
+						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(lessColor));
 				}
 			}
 		}

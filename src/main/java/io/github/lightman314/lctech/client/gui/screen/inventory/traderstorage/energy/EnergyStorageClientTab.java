@@ -60,8 +60,10 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 			for(Slot slot : this.commonTab.getSlots())
 				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 
-			//Render the arrow between the arrow slots
-			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 25, 121, 36, 0, 18, 18);
+			//Render the up arrow
+			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 11, 110, 46, 0, 10, 10);
+			//Render the down arrow
+			gui.blit(GUI_TEXTURE, TraderMenu.SLOT_OFFSET + 47, 110, 36, 0, 10, 10);
 
 			//Render the background for the energy bar
 			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET, 0, 0, 18, FRAME_HEIGHT);

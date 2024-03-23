@@ -18,7 +18,7 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 	
 	public final IEnergyStorage tradeHandler;
 	
-	private final Map<Direction,Handler> handlers = new HashMap<Direction,Handler>();
+	private final Map<Direction,Handler> handlers = new HashMap<>();
 	
 	public EnergyInterfaceHandler(EnergyTraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; this.tradeHandler = new Handler(this, null); }
 	
@@ -50,10 +50,10 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 		Handler(EnergyInterfaceHandler handler, Direction side) { this.handler = handler; this.side = side; }
 
 		@Override
-		public boolean canExtract() { return this.side == null ? true : this.handler.outputSides.get(this.side); }
+		public boolean canExtract() { return this.side == null || this.handler.outputSides.get(this.side); }
 
 		@Override
-		public boolean canReceive() { return this.side == null ? true : this.handler.inputSides.get(this.side); }
+		public boolean canReceive() { return this.side == null || this.handler.inputSides.get(this.side); }
 		
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {
