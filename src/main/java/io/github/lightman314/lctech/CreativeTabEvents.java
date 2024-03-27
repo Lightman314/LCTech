@@ -19,6 +19,7 @@ public class CreativeTabEvents {
             event.accept(ModBlocks.IRON_TANK.get());
             event.accept(ModBlocks.GOLD_TANK.get());
             event.accept(ModBlocks.DIAMOND_TANK.get());
+            event.accept(ModBlocks.VOID_TANK.get());
             //Fluid Interface
             event.accept(ModBlocks.FLUID_TRADER_INTERFACE.get());
             //Batteries

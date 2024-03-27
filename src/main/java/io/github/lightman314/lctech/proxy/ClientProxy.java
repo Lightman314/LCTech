@@ -1,8 +1,8 @@
 package io.github.lightman314.lctech.proxy;
 
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
-import io.github.lightman314.lctech.client.renderer.tileentity.FluidTankTileEntityRenderer;
-import io.github.lightman314.lctech.client.renderer.tileentity.FluidTraderBlockEntityRenderer;
+import io.github.lightman314.lctech.client.renderer.blockentity.FluidTankBlockEntityRenderer;
+import io.github.lightman314.lctech.client.renderer.blockentity.FluidTraderBlockEntityRenderer;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ public class ClientProxy extends CommonProxy{
 	{
 		//Register Tile Entity Renderers
 		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER.get(), FluidTraderBlockEntityRenderer::new);
-		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK.get(), FluidTankTileEntityRenderer::new);
+		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK.get(), FluidTankBlockEntityRenderer::new);
 	}
 	
 	@SubscribeEvent

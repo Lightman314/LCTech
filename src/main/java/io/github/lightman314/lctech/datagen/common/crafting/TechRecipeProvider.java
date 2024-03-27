@@ -252,6 +252,20 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu3");
 
 
+        //0.2.1.3
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.VOID_TANK.get())
+                .pattern("mgm")
+                .pattern("geg")
+                .pattern("mgm")
+                .unlockedBy("material", LazyTrigger(Tags.Items.OBSIDIAN))
+                .unlockedBy("glass", LazyTrigger(Tags.Items.GLASS_COLORLESS))
+                .unlockedBy("bucket", LazyTrigger(Items.BUCKET))
+                .unlockedBy("pearl", LazyTrigger(Tags.Items.ENDER_PEARLS))
+                .define('m', Tags.Items.OBSIDIAN)
+                .define('g', Tags.Items.GLASS_COLORLESS)
+                .define('e', Tags.Items.ENDER_PEARLS)
+                .save(makeConditional(ID("fluid_tanks/void_tank"), consumer, TechCraftingConditions.VoidTank.INSTANCE));
+
     }
 
     private static void GenerateTankRecipe(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull TagKey<Item> ingredient, @Nonnull RegistryObject<? extends ItemLike> result)

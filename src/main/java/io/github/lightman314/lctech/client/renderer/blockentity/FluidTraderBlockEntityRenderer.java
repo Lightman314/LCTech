@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.client.renderer.tileentity;
+package io.github.lightman314.lctech.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 

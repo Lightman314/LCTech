@@ -88,6 +88,7 @@ dependencies {
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 
     runtimeOnly fg.deobf("curse.maven:jei-238222:4595492")
+    runtimeOnly fg.deobf("curse.maven:pipez-443900:4916633")
 
 }
 
