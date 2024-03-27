@@ -84,6 +84,7 @@ public class LCTech
         try {
             ModCreativeGroups.getMachineGroup().addToSortingList(Lists.newArrayList(
                     ModBlocks.IRON_TANK.get(), ModBlocks.GOLD_TANK.get(), ModBlocks.DIAMOND_TANK.get(),
+                    ModBlocks.VOID_TANK.get(),
                     ModBlocks.FLUID_TRADER_INTERFACE.get(),
                     ModItems.BATTERY.get(), ModItems.BATTERY_LARGE.get(),
                     ModBlocks.ENERGY_TRADER_INTERFACE.get()

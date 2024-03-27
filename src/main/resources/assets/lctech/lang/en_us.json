@@ -4,6 +4,8 @@
     "block.lctech.iron_tank": "Iron Tank",
     "block.lctech.gold_tank": "Gold Tank",
     "block.lctech.diamond_tank": "Diamond Tank",
+    "block.lctech.void_tank": "Void Tank",
+    "block.lctech.void_tank.tooltip": "Deletes all fluids placed inside",
     "block.lctech.fluid_trader_server_sml": "Fluid Network Trader T1",
     "block.lctech.fluid_trader_server_med": "Fluid Network Trader T2",
     "block.lctech.fluid_trader_server_lrg": "Fluid Network Trader T3",

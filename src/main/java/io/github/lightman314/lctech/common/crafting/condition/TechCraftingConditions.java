@@ -40,6 +40,21 @@ public class TechCraftingConditions {
 			public ResourceLocation getID() { return TYPE; }
 		}
 	}
+
+	public static class VoidTank extends SimpleCraftingCondition {
+		public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "void_tank_craftable");
+		public static final VoidTank INSTANCE = new VoidTank();
+		public static final IConditionSerializer<VoidTank> SERIALIZER = new Serializer();
+		private VoidTank() { super(TYPE, TechConfig.COMMON.canCraftVoidTanks); }
+		private static class Serializer implements IConditionSerializer<VoidTank> {
+			@Override
+			public void write(JsonObject json, VoidTank value) {}
+			@Override
+			public VoidTank read(JsonObject json) { return INSTANCE; }
+			@Override
+			public ResourceLocation getID() { return TYPE; }
+		}
+	}
 	
 	public static class EnergyTrader extends SimpleCraftingCondition {
 		public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "energy_trader_craftable");
@@ -75,6 +90,7 @@ public class TechCraftingConditions {
 	{
 		CraftingHelper.register(FluidTrader.SERIALIZER);
 		CraftingHelper.register(FluidTank.SERIALIZER);
+		CraftingHelper.register(VoidTank.SERIALIZER);
 		CraftingHelper.register(EnergyTrader.SERIALIZER);
 		CraftingHelper.register(Batteries.SERIALIZER);
 	}

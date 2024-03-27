@@ -19,7 +19,9 @@ public class ModBlockEntities {
 	static {
 		
 		FLUID_TANK = ModRegistries.BLOCK_ENTITIES.register("fluid_tank", () -> BlockEntityType.Builder.of(FluidTankBlockEntity::new, ModBlocks.IRON_TANK.get(), ModBlocks.GOLD_TANK.get(), ModBlocks.DIAMOND_TANK.get()).build(null));
-		
+
+		VOID_TANK = ModRegistries.BLOCK_ENTITIES.register("void_tank", () -> BlockEntityType.Builder.of(VoidTankBlockEntity::new, ModBlocks.VOID_TANK.get()).build(null));
+
 		FLUID_TRADER = ModRegistries.BLOCK_ENTITIES.register("fluid_trader", () -> BlockEntityType.Builder.of(FluidTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(TechBlockEntityBlockHelper.FLUID_TRADER_TYPE)).build(null));
 		
 		ENERGY_TRADER = ModRegistries.BLOCK_ENTITIES.register("energy_trader", () -> BlockEntityType.Builder.of(EnergyTraderBlockEntity::new, BlockEntityBlockHelper.getBlocksForBlockEntity(TechBlockEntityBlockHelper.ENERGY_TRADER_TYPE)).build(null));
@@ -32,6 +34,8 @@ public class ModBlockEntities {
 	
 	//Fluid Tank
 	public static final RegistryObject<BlockEntityType<FluidTankBlockEntity>> FLUID_TANK;
+
+	public static final RegistryObject<BlockEntityType<VoidTankBlockEntity>> VOID_TANK;
 	
 	//Fluid Trader
 	public static final RegistryObject<BlockEntityType<FluidTraderBlockEntity>> FLUID_TRADER;

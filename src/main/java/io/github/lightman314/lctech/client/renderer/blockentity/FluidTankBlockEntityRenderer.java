@@ -1,4 +1,4 @@
-package io.github.lightman314.lctech.client.renderer.tileentity;
+package io.github.lightman314.lctech.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -11,9 +11,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
-public class FluidTankTileEntityRenderer implements BlockEntityRenderer<FluidTankBlockEntity>{
+public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTankBlockEntity>{
 
-	public FluidTankTileEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
+	public FluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) { }
 	
 	@Override
 	public void render(FluidTankBlockEntity tileEntity, float partialTicket, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int light, int overlay)

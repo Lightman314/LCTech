@@ -26,6 +26,7 @@ public class TechConfig {
 		//Crafting
 		public final BooleanOption canCraftFluidTraders = BooleanOption.createTrue();
 		public final BooleanOption canCraftFluidTanks = BooleanOption.createTrue();
+		public final BooleanOption canCraftVoidTanks = BooleanOption.createTrue();
 		public final BooleanOption canCraftEnergyTraders = BooleanOption.createTrue();
 		public final BooleanOption canCraftBatteries = BooleanOption.createTrue();
 
@@ -44,6 +45,11 @@ public class TechConfig {
 							"Disabling will not remove any existing fluid tanks from the world, nor prevent their use.",
 							"/reload required for changes to take effect.")
 					.add("allowFluidTankCrafting", this.canCraftFluidTanks);
+
+			configBuilder.comment("Wheter the Void Tank can be crafted.",
+							"Disabling will not remove any existing fluid tanks from the world, nor prevent their use.",
+							"/reload required for changes to take effect.")
+					.add("allowVoidTankCrafting", this.canCraftVoidTanks);
 
 			configBuilder.comment("Whether Energy Traders can be crafted.",
 							"Also affects crafting of energy trader accessories (Energy Trader Interface, Energy Capacity Upgrades, etc.)",

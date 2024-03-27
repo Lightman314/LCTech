@@ -65,6 +65,13 @@ public class ModBlocks {
 						.sound(SoundType.GLASS)
 		));
 
+		VOID_TANK = register("void_tank", ModCreativeGroups::getMachineGroup, () -> new VoidTankBlock(
+				Block.Properties.of(Material.GLASS)
+						.color(MaterialColor.COLOR_BLACK)
+						.strength(3.0f, 5.0f)
+						.sound(SoundType.GLASS)
+		));
+
 		FLUID_TAP = register("fluid_tap", ModCreativeGroups::getTradingGroup, () -> new FluidTapBlock(
 				Block.Properties.of(Material.GLASS)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
@@ -140,6 +147,7 @@ public class ModBlocks {
 	public static final RegistryObject<Block> IRON_TANK;
 	public static final RegistryObject<Block> GOLD_TANK;
 	public static final RegistryObject<Block> DIAMOND_TANK;
+	public static final RegistryObject<Block> VOID_TANK;
 
 	//Fluid traders
 	public static final RegistryObject<Block> FLUID_TAP;
