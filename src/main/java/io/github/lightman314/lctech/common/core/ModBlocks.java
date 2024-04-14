@@ -13,6 +13,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
@@ -68,7 +69,7 @@ public class ModBlocks {
 		VOID_TANK = register("void_tank", ModCreativeGroups::getMachineGroup, () -> new VoidTankBlock(
 				Block.Properties.of(Material.GLASS)
 						.color(MaterialColor.COLOR_BLACK)
-						.strength(3.0f, 5.0f)
+						.strength(25f, 600f)
 						.sound(SoundType.GLASS)
 		));
 
