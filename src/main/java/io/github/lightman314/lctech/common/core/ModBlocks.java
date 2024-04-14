@@ -11,6 +11,7 @@ import io.github.lightman314.lctech.common.items.*;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -58,7 +59,7 @@ public class ModBlocks {
 		VOID_TANK = register("void_tank", () -> new VoidTankBlock(
 				BlockBehaviour.Properties.of()
 						.mapColor(MapColor.COLOR_BLACK)
-						.strength(3.0f, 5.0f)
+						.strength(25f, 600f)
 						.sound(SoundType.GLASS)
 		));
 		
