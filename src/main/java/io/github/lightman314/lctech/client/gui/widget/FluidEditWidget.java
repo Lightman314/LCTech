@@ -101,7 +101,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		this.searchString = newSearch.toLowerCase();
 
 		//Repopulate the searchResultFluids list
-		if(this.searchString.length() > 0)
+		if(!this.searchString.isEmpty())
 		{
 			//Search the display name
 			this.searchResultFluids = Lists.newArrayList();

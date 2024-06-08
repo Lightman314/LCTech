@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -85,6 +86,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 
 		this.fluidEditScroll = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + 18 * COLUMNS, Y_OFFSET), 18 * ROWS, this.fluidEdit));
 		this.fluidEditScroll.smallKnob = true;
+		this.fluidEditScroll.withAddons(EasyAddonHelper.visibleCheck(() -> this.fluidEdit.isVisible()));
 
 		this.buttonAddBucket = this.addChild(new IconButton(screenArea.pos.offset(74, 38), this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 32, 0)));
 		this.buttonRemoveBucket = this.addChild(new IconButton(screenArea.pos.offset(113, 38), this::ChangeQuantity, IconData.of(FluidStorageClientTab.GUI_TEXTURE, 48, 0)));
