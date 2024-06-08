@@ -7,6 +7,7 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.fluid.FluidStorageClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
@@ -14,8 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +25,8 @@ import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import javax.annotation.Nonnull;
 
 public class FluidStorageTab extends TraderInterfaceTab {
 
@@ -69,10 +70,9 @@ public class FluidStorageTab extends TraderInterfaceTab {
 			
 			if(this.menu.isClient())
 			{
-				CompoundTag message = new CompoundTag();
-				message.putInt("InteractWithTank", tank);
-				message.putBoolean("ShiftHeld", shiftHeld);
-				this.menu.sendMessage(message);
+				this.menu.SendMessage(LazyPacketData.builder()
+						.setInt("InteractWithTank", tank)
+						.setBoolean("ShiftHeld", shiftHeld));
 			}
 
 			ItemStack heldStack = this.menu.getCarried();
@@ -167,13 +167,11 @@ public class FluidStorageTab extends TraderInterfaceTab {
 			be.setHandlerDirty(be.getFluidHandler());
 		}
 	}
-	
+
 	@Override
-	public void receiveMessage(CompoundTag message) { 
-		if(message.contains("InteractWithTank", Tag.TAG_INT))
-		{
+	public void handleMessage(@Nonnull LazyPacketData message) {
+		if(message.contains("InteractWithTank", LazyPacketData.TYPE_INT))
 			this.interactWithTank(message.getInt("InteractWithTank"), message.getBoolean("ShiftHeld"));
-		}
 	}
-	
+
 }

@@ -9,8 +9,7 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.menu.util.MenuUtil;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lctech.common.util.EnergyUtil.EnergyActionResult;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
@@ -19,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -30,6 +28,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import javax.annotation.Nonnull;
 
 public class EnergyStorageTab extends TraderInterfaceTab {
 
@@ -153,6 +153,6 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	
 	//No messages to receive. All storage interactions are done via the battery slots or the upgrade slots.
 	@Override
-	public void receiveMessage(CompoundTag message) { }
-	
+	public void handleMessage(@Nonnull LazyPacketData lazyPacketData) { }
+
 }

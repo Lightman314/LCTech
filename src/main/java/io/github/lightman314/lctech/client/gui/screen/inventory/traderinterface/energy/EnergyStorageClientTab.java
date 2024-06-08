@@ -6,6 +6,7 @@ import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
@@ -20,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
@@ -47,7 +49,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	public IconData getIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY_LARGE)); }
 	
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -75,7 +77,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-		gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), 8, 6, 0x404040);
+		gui.drawString(LCText.TOOLTIP_INTERFACE_STORAGE.get(), 8, 6, 0x404040);
 		
 		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be)
 		{
@@ -100,9 +102,10 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET + yOffset, 18, yOffset, 18, fillHeight);
 			
 			//Render the input/output labels
-			gui.drawString(EasyText.translatable("gui.lctech.settings.energyinput.side"), 33, WIDGET_OFFSET, 0x404040);
-			int textWidth = gui.font.width(EasyText.translatable("gui.lctech.settings.energyoutput.side"));
-			gui.drawString(EasyText.translatable("gui.lctech.settings.energyoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
+			gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 33, WIDGET_OFFSET, 0x404040);
+			Component text = LCText.GUI_SETTINGS_OUTPUT_SIDE.get();
+			int textWidth = gui.font.width(text);
+			gui.drawString(text, 173 - textWidth, WIDGET_OFFSET, 0x404040);
 			
 		}
 		

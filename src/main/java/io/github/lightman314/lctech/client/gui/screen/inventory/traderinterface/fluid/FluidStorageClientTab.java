@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
@@ -11,6 +12,7 @@ import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.Flui
 import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
@@ -59,7 +61,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 	
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.interface.storage"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
@@ -94,7 +96,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-		gui.drawString(EasyText.translatable("tooltip.lightmanscurrency.interface.storage"), 8, 6, 0x404040);
+		gui.drawString(LCText.TOOLTIP_INTERFACE_STORAGE.get(), 8, 6, 0x404040);
 		
 		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
 		{
@@ -128,9 +130,10 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 			
 			//Render the input/output labels
-			gui.drawString(EasyText.translatable("gui.lctech.settings.fluidinput.side"), 33, WIDGET_OFFSET, 0x404040);
-			int textWidth = gui.font.width(EasyText.translatable("gui.lctech.settings.fluidoutput.side"));
-			gui.drawString(EasyText.translatable("gui.lctech.settings.fluidoutput.side"), 173 - textWidth, WIDGET_OFFSET, 0x404040);
+			gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 33, WIDGET_OFFSET, 0x404040);
+			Component text = LCText.GUI_SETTINGS_OUTPUT_SIDE.get();
+			int textWidth = gui.font.width(text);
+			gui.drawString(text, 173 - textWidth, WIDGET_OFFSET, 0x404040);
 			
 		}
 		
@@ -154,7 +157,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				tooltips.add(FluidFormatUtil.getFluidName(entry.filter));
 				//'amount'/'capacity'mB
 				tooltips.add(EasyText.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
-				tooltips.add(EasyText.translatable("tooltip.lctech.trader.fluid.fill_tank"));
+				tooltips.add(TechText.TOOLTIP_FLUID_INTERACT.get());
 				gui.renderComponentTooltip(tooltips);
 			}
 		}

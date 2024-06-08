@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.datagen;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.datagen.client.language.TechEnglishProvider;
 import io.github.lightman314.lctech.datagen.common.crafting.TechRecipeProvider;
 import io.github.lightman314.lctech.datagen.common.tags.TechBlockTagProvider;
 import io.github.lightman314.lctech.datagen.common.tags.TechItemTagProvider;
@@ -32,6 +33,9 @@ public class LCTechDataEventListener {
         TechBlockTagProvider blockTagProvider = new TechBlockTagProvider(output, lookupHolder, existingFileHelper);
         generator.addProvider(event.includeServer(), blockTagProvider);
         generator.addProvider(event.includeServer(), new TechItemTagProvider(output, lookupHolder, blockTagProvider.contentsGetter(), existingFileHelper));
+
+        //Language
+        generator.addProvider(event.includeClient(), new TechEnglishProvider(output));
 
     }
 }

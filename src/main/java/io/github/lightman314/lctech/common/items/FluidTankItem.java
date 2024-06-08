@@ -2,13 +2,14 @@ package io.github.lightman314.lctech.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
-import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
@@ -17,8 +18,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -40,9 +39,9 @@ public class FluidTankItem extends BlockItem{
 	@OnlyIn(Dist.CLIENT)
 	public static List<ModelResourceLocation> getTankModelList(){
 		List<ModelResourceLocation> list = Lists.newArrayList();
-		TANK_ITEMS.forEach(tankItem ->{
-			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(tankItem),"inventory"));
-		});
+		TANK_ITEMS.forEach(tankItem ->
+			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(tankItem),"inventory"))
+		);
 		return list;
 	}
 	
@@ -53,7 +52,7 @@ public class FluidTankItem extends BlockItem{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		FluidStack fluid = GetFluid(stack);
@@ -65,29 +64,18 @@ public class FluidTankItem extends BlockItem{
 		}
 		else
 		{
-			tooltip.add(Component.translatable("tooltip.lctech.fluid_tank.capacity", FluidFormatUtil.formatFluidAmount(GetCapacity(stack))));
+			tooltip.add(TechText.TOOLTIP_TANK_CAPACITY.get(FluidFormatUtil.formatFluidAmount(GetCapacity(stack))));
 		}
-	}
-	
-	//Force the tank item to have it's tank data
-	@Override
-	public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
-		if(!stack.hasTag())
-			InitTankData(stack);
-	}
-	
-	//Force the tank item to have it's tank data
-	@Override
-	public void onCraftedBy(ItemStack stack, Level worldIn, Player playerIn) {
-		InitTankData(stack);
 	}
 	
 	public static FluidStack GetFluid(ItemStack stack)
 	{
 		if(stack.getItem() instanceof FluidTankItem)
 		{
-			CompoundTag tag = stack.getOrCreateTag();
-			if(tag.contains("Tank", Tag.TAG_COMPOUND))
+			CompoundTag tag = stack.getTag();
+			if(tag == null)
+				return FluidStack.EMPTY;
+			else if(tag.contains("Tank", Tag.TAG_COMPOUND))
 				return FluidStack.loadFluidStackFromNBT(tag.getCompound("Tank"));
 		}
 		return FluidStack.EMPTY;
@@ -111,21 +99,8 @@ public class FluidTankItem extends BlockItem{
 		return FluidTankBlockEntity.DEFAULT_CAPACITY;
 	}
 	
-	public static double GetTankFillPercent(ItemStack stack)
+	public static ItemStack GetItemFromTank(@Nonnull FluidTankBlockEntity blockEntity)
 	{
-		return MathUtil.clamp((double)GetFluid(stack).getAmount() / (double)GetCapacity(stack), 0d, 1d);
-	}
-	
-	public static ItemStack GetItemFromTank(@Nullable FluidTankBlockEntity blockEntity)
-	{
-		if(blockEntity == null)
-		{
-			//Return a default tank
-			ItemStack returnStack = new ItemStack(ModBlocks.IRON_TANK.get());
-			InitTankData(returnStack);
-			return returnStack;
-		}
-		
 		ItemStack returnStack = new ItemStack(blockEntity.getBlockState().getBlock().asItem());
 		FluidStack tank = blockEntity.getTankContents();
 		WriteTankData(returnStack, tank);
@@ -134,23 +109,24 @@ public class FluidTankItem extends BlockItem{
 		
 	}
 	
-	public static void InitTankData(ItemStack stack)
-	{
-		WriteTankData(stack, FluidStack.EMPTY);
-	}
-	
 	public static void WriteTankData(ItemStack stack, FluidStack tank)
 	{
-		CompoundTag tag = stack.getOrCreateTag();
-		tag.put("Tank", tank.writeToNBT(new CompoundTag()));
-		stack.setTag(tag);
-	}
-	
-	@Override
-	public ItemStack getDefaultInstance() {
-		ItemStack stack = new ItemStack(this);
-		InitTankData(stack);
-		return stack;
+		if(tank.isEmpty())
+		{
+			//Delete the tank tag if the tank is empty
+			CompoundTag tag = stack.getTag();
+			if(tag == null)
+				return;
+			tag.remove("Tank");
+			if(tag.isEmpty())
+				stack.setTag(null);
+		}
+		else
+		{
+			CompoundTag tag = stack.getOrCreateTag();
+			tag.put("Tank", tank.writeToNBT(new CompoundTag()));
+			stack.setTag(tag);
+		}
 	}
 	
 	@Override
@@ -166,10 +142,10 @@ public class FluidTankItem extends BlockItem{
 		
 		final ItemStack stack;
 		
-		private final FluidStack tank() { return GetFluid(this.stack); }
-		private final void setTank(FluidStack tank) { WriteTankData(this.stack, tank); }
-		private final int capacity() { return GetCapacity(this.stack); }
-		private final int getTankSpace() { return this.capacity() - this.tank().getAmount(); }
+		private FluidStack tank() { return GetFluid(this.stack); }
+		private void setTank(FluidStack tank) { WriteTankData(this.stack, tank); }
+		private int capacity() { return GetCapacity(this.stack); }
+		private int getTankSpace() { return this.capacity() - this.tank().getAmount(); }
 		
 		public FluidTankCapability(ItemStack stack) { this.stack = stack; }
 
@@ -178,6 +154,7 @@ public class FluidTankItem extends BlockItem{
 			return 1;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) {
 			return tank == 0 ? this.tank().copy() : FluidStack.EMPTY;
@@ -189,8 +166,8 @@ public class FluidTankItem extends BlockItem{
 		}
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			return tank == 0 ? this.tank().isEmpty() || this.tank().isFluidEqual(stack) : false;
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+			return tank == 0 && (this.tank().isEmpty() || this.tank().isFluidEqual(stack));
 		}
 
 		@Override
@@ -214,6 +191,7 @@ public class FluidTankItem extends BlockItem{
 			return 0;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if(this.tank().isEmpty() || !this.tank().isFluidEqual(resource))
@@ -234,6 +212,7 @@ public class FluidTankItem extends BlockItem{
 			return resultStack;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(this.tank().isEmpty())
@@ -254,13 +233,15 @@ public class FluidTankItem extends BlockItem{
 			return resultStack;
 		}
 
+		@Nonnull
 		@Override
 		public ItemStack getContainer() {
 			return this.stack;
 		}
 		
+		@Nonnull
 		@Override
-		public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
+		public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction side) {
 			return ForgeCapabilities.FLUID_HANDLER_ITEM.orEmpty(capability, holder);
 		}
 		

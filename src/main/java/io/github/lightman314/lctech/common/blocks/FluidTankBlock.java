@@ -12,6 +12,7 @@ import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
+import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -37,9 +38,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTankBlock{
+public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFluidTankBlock{
 
-	public static final VoxelShape SHAPE = LazyShapes.BOX_T;
+	public static final VoxelShape SHAPE = LazyShapes.BOX;
 	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 14f, 15.98f);
 	public static final FluidRenderData RENDER_DATA_BOTTOM = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 15f, 15.98f);
 	public static final FluidRenderData RENDER_DATA_TOP = FluidRenderData.CreateFluidRender(0.01f, 0f, 0.01f, 15.98f, 15f, 15.98f);
@@ -63,6 +64,9 @@ public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTan
 		this.tankCapacity = tankCapacity;
 		this.shape = shape;
 	}
+
+	@Override
+	protected boolean isBlockOpaque() { return false; }
 
 	@Override
 	protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
@@ -99,10 +103,9 @@ public class FluidTankBlock extends Block implements IEasyEntityBlock, IFluidTan
 	{
 		if(!level.isClientSide && !player.isCreative())
 		{
-			BlockEntity tileEntity = level.getBlockEntity(pos);
-			if(tileEntity instanceof FluidTankBlockEntity)
+			if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity be)
 			{
-				popResource(level, pos, FluidTankItem.GetItemFromTank((FluidTankBlockEntity)tileEntity));
+				popResource(level, pos, FluidTankItem.GetItemFromTank(be));
 			}
 		}
 		super.playerWillDestroy(level, pos, state, player);

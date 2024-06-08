@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
@@ -147,7 +148,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 		if(this.buttonRemoveBucket.visible)
 			this.buttonRemoveBucket.active = this.getTrade().getBucketQuantity() > 1;
 
-		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.getTrade().getTradeDirection().name().toLowerCase()));
+		this.buttonToggleTradeType.setMessage(this.getTrade().getTradeDirection().getName());
 
 	}
 
@@ -234,7 +235,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	private void ToggleTradeType(EasyButton button) {
 		FluidTradeData trade = this.getTrade();
 		if(trade != null)
-			this.commonTab.setType(trade.isSale() ? TradeData.TradeDirection.PURCHASE : TradeData.TradeDirection.SALE);
+			this.commonTab.setType(trade.isSale() ? TradeDirection.PURCHASE : TradeDirection.SALE);
 	}
 
 }

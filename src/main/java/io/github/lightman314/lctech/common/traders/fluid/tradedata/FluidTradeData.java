@@ -6,19 +6,21 @@ import java.util.function.Consumer;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -72,7 +74,7 @@ public class FluidTradeData extends TradeData {
 	public FluidTradeData(boolean validateRules) { super(validateRules); }
 
 	public boolean hasStock(FluidTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
+	public boolean hasStock(@Nonnull TradeContext context) { return this.getStock(context) > 0; }
 	public int getStock(FluidTraderData trader)
 	{
 		if(this.product.isEmpty())
@@ -90,7 +92,7 @@ public class FluidTradeData extends TradeData {
 		return 0;
 	}
 
-	public int getStock(TradeContext context) {
+	public int getStock(@Nonnull TradeContext context) {
 		if(this.product.isEmpty())
 			return 0;
 
@@ -162,7 +164,7 @@ public class FluidTradeData extends TradeData {
 		try {
 			return TradeDirection.valueOf(name);
 		} catch (IllegalArgumentException e) {
-			LCTech.LOGGER.error("Could not load '" + name + "' as a TradeType.");
+            LCTech.LOGGER.error("Could not load '{}' as a TradeType.", name);
 			return TradeDirection.SALE;
 		}
 	}
@@ -284,30 +286,32 @@ public class FluidTradeData extends TradeData {
 		{
 			//Price difference (intended - actual = difference)
 			MoneyValue difference = differences.priceDifference();
+			ChatFormatting moreColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
+			ChatFormatting lessColor = this.isSale() ? ChatFormatting.GOLD : ChatFormatting.RED;
 			if(differences.isPriceExpensive()) //More expensive
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", difference.getText()).withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_EXPENSIVE.get(difference.getText()).withStyle(moreColor));
 			else //Cheaper
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", difference.getText()).withStyle(ChatFormatting.RED));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_CHEAPER.get(difference.getText()).withStyle(lessColor));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
+			Component directionName = this.isSale() ? TechText.GUI_TRADE_DIFFERENCE_PRODUCT_SALE.get() : TechText.GUI_TRADE_DIFFERENCE_PRODUCT_PURCHASE.get();
 			ProductComparisonResult productCheck = differences.getProductResult(0);
 			if(!productCheck.SameProductType())
-				list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidtype", directionName).withStyle(ChatFormatting.RED));
+				list.add(TechText.GUI_TRADE_DIFFERENCE_FLUID_TYPE.get(directionName).withStyle(ChatFormatting.RED));
 			else
 			{
 				if(!productCheck.SameProductNBT())
-					list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.fluidnbt"));
+					list.add(TechText.GUI_TRADE_DIFFERENCE_FLUID_NBT.getWithStyle(ChatFormatting.RED));
 				else if(!productCheck.SameProductQuantity())
 				{
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					ChatFormatting moreColor = this.isPurchase() ? ChatFormatting.RED : ChatFormatting.GOLD;
 					ChatFormatting lessColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
 					if(quantityDifference > 0) //More fluids
-						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.more", directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(moreColor));
+						list.add(TechText.GUI_TRADE_DIFFERENCE_FLUID_MORE.get(directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(moreColor));
 					else //Less items
-						list.add(EasyText.translatable("gui.lctech.interface.fluid.difference.quantity.less", directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(lessColor));
+						list.add(TechText.GUI_TRADE_DIFFERENCE_FLUID_LESS.get(directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(lessColor));
 				}
 			}
 		}
@@ -315,6 +319,7 @@ public class FluidTradeData extends TradeData {
 		return list;
 	}
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new FluidTradeButtonRenderer(this); }
@@ -375,7 +380,7 @@ public class FluidTradeData extends TradeData {
 				trader.markTradesDirty();
 				if(trader.getStorage().refactorTanks())
 					trader.markStorageDirty();
-				LCTech.LOGGER.debug("Set Fluid from held stack on the " + DebugUtil.getSideText(tab.menu.isClient()));
+                LCTech.LOGGER.debug("Set Fluid from held stack on the {}", DebugUtil.getSideText(tab.menu.isClient()));
 			}
 			else if(!this.product.isEmpty())
 			{
@@ -383,10 +388,10 @@ public class FluidTradeData extends TradeData {
 				trader.markTradesDirty();
 				if(trader.getStorage().refactorTanks())
 					trader.markStorageDirty();
-				LCTech.LOGGER.debug("Cleared Fluid on the " + DebugUtil.getSideText(tab.menu.isClient()));
+                LCTech.LOGGER.debug("Cleared Fluid on the {}", DebugUtil.getSideText(tab.menu.isClient()));
 			}
 			else
-				LCTech.LOGGER.debug("Doing nothing as both the held Fluid and the current Product are empty on the " + DebugUtil.getSideText(tab.menu.isClient()));
+                LCTech.LOGGER.debug("Doing nothing as both the held Fluid and the current Product are empty on the {}", DebugUtil.getSideText(tab.menu.isClient()));
 
 			return tab.menu.isClient();
 		}

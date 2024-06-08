@@ -13,6 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
+import javax.annotation.Nonnull;
+
 public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandler> {
 	
 	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "fluid_interface");
@@ -21,11 +23,9 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 	
 	protected final TraderFluidStorage getFluidBuffer() { return this.blockEntity.getFluidBuffer(); }
 	
-	private final Map<Direction,Handler> handlers = new HashMap<Direction,Handler>();
-	
-	public FluidInterfaceHandler(FluidTraderInterfaceBlockEntity blockEntity) {
-		this.blockEntity = blockEntity;
-	}
+	private final Map<Direction,Handler> handlers = new HashMap<>();
+
+	public FluidInterfaceHandler(FluidTraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; }
 	
 	@Override
 	public ResourceLocation getType() { return TYPE; }
@@ -57,6 +57,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 		@Override
 		public int getTanks() { return this.handler.getFluidBuffer().getTanks(); }
 
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) { return this.handler.getFluidBuffer().getFluidInTank(tank); }
 
@@ -64,7 +65,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 		public int getTankCapacity(int tank) { return this.handler.getFluidBuffer().getTankCapacity(tank); }
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) { return this.handler.getFluidBuffer().isFluidValid(tank, stack); }
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) { return this.handler.getFluidBuffer().isFluidValid(tank, stack); }
 
 		@Override
 		public int fill(FluidStack resource, FluidAction action) {
@@ -78,6 +79,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 			return 0;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if(resource.isEmpty())
@@ -99,6 +101,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 			return FluidStack.EMPTY;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(!this.allowOutputs())

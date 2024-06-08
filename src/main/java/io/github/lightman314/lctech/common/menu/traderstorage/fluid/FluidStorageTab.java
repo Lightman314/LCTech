@@ -72,7 +72,7 @@ public class FluidStorageTab extends TraderStorageTab {
 		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
 
-			LCTech.LOGGER.debug("Fluid Tank Interaction. Tank " + tank + " on " + DebugUtil.getSideText(this.menu.isClient()));
+            LCTech.LOGGER.debug("Fluid Tank Interaction. Tank {} on {}", tank, DebugUtil.getSideText(this.menu.isClient()));
 
 			if(this.menu.isClient())
 			{

@@ -1,5 +1,6 @@
 package io.github.lightman314.lctech.client.gui.settings.energy;
 
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -51,7 +52,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	
 	private NonNullSupplier<Component> getOutputModeTextSource(SettingsSubTab settingsSubTab)
 	{
-		return () -> EasyText.translatable("gui.lctech.settings.energy.drainmode", this.getOutputModeText(settingsSubTab));
+		return () -> TechText.GUI_SETTINGS_ENERGY_DRAINMODE.get(this.getOutputModeText(settingsSubTab));
 	}
 	
 	private MutableComponent getOutputModeText(SettingsSubTab settingsSubTab)
@@ -60,9 +61,9 @@ public class EnergyInputAddon extends InputTabAddon {
 		if(trader instanceof EnergyTraderData e)
 		{
 			if(e.isAlwaysDrainMode())
-				return EasyText.translatable("gui.lctech.settings.energy.drainmode.full");
+				return TechText.GUI_SETTINGS_ENERGY_DRAINMODE_FULL.get();
 			else
-				return EasyText.translatable("gui.lctech.settings.energy.drainmode.sales");
+				return TechText.GUI_SETTINGS_ENERGY_DRAINMODE_SALES.get();
 		}
 		else
 			return EasyText.literal("NULL");

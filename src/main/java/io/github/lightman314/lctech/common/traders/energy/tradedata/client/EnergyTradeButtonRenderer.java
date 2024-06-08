@@ -1,10 +1,12 @@
 package io.github.lightman314.lctech.common.traders.energy.tradedata.client;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -100,7 +102,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
                 mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8))
             );
             if(mouseOver.get())
-                return Lists.newArrayList(EasyText.translatable("tooltip.lctech.trader.fluid_settings.drainable"));
+                return TechText.TOOLTIP_TRADE_DRAINABLE.getAsList();
         }
         return null;
     }
@@ -120,15 +122,15 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
             if(!trader.isCreative())
             {
                 if(this.trade.getStock(context) <= 0)
-                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofstock")));
+                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
                 if(!this.trade.hasSpace(trader))
-                    alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.outofspace")));
+                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
             }
             if(!this.trade.canAfford(context))
-                alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.cannotafford")));
+                alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
         }
         if(this.trade.isSale() && !(context.canFitEnergy(this.trade.getAmount()) || this.allowsDrainage(context)))
-            alerts.add(AlertData.warn(EasyText.translatable("tooltip.lightmanscurrency.nooutputcontainer")));
+            alerts.add(AlertData.warn(TechText.TOOLTIP_ALERT_NO_OUTPUT));
     }
 
 }

@@ -13,7 +13,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     public FluidTankFluidHandler(FluidTankBlockEntity tank) { this.fluidTank = tank; }
     public final FluidStack getTankContents() {
         List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack();
-        if(tanks.size() == 0)
+        if(tanks.isEmpty())
             return FluidStack.EMPTY;
         FluidStack contents = tanks.get(0).getTankContents().copy();
         if(contents.isEmpty())

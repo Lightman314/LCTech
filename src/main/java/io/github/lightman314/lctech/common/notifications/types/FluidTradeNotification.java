@@ -1,14 +1,14 @@
 package io.github.lightman314.lctech.common.notifications.types;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -27,7 +27,7 @@ public class FluidTradeNotification extends TaxableNotification {
 	
 	TraderCategory traderData;
 	
-	TradeData.TradeDirection tradeType;
+	TradeDirection tradeType;
 	Component fluidName;
 	int fluidCount;
 	MoneyValue cost = MoneyValue.empty();
@@ -65,13 +65,13 @@ public class FluidTradeNotification extends TaxableNotification {
 	@Override
 	public MutableComponent getNormalMessage() {
 		
-		Component boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = this.tradeType.getActionPhrase();
 		
-		Component fluidText = EasyText.translatable("log.shoplog.fluid.fluidformat", FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
+		Component fluidText = TechText.NOTIFICATION_FLUID_FORMAT.get(FluidFormatUtil.formatFluidAmount(this.fluidCount), this.fluidName);
 		
 		Component cost = this.cost.getText("0");
 		
-		return EasyText.translatable("notifications.message.fluid_trade", this.customer, boughtText, fluidText, cost);
+		return TechText.NOTIFICATION_TRADE_FLUID.get(this.customer, boughtText, fluidText, cost);
 		
 	}
 	
@@ -91,7 +91,7 @@ public class FluidTradeNotification extends TaxableNotification {
 	protected void loadNormal(CompoundTag compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
-		this.tradeType = TradeData.TradeDirection.fromIndex(compound.getInt("TradeType"));
+		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.fluidName = Component.Serializer.fromJson(compound.getString("Fluid"));
 		this.fluidCount = compound.getInt("FluidCount");
 		this.cost = MoneyValue.safeLoad(compound, "Price");

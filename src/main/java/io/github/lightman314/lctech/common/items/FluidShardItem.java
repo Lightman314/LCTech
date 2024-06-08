@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
@@ -18,7 +19,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -39,12 +39,12 @@ public class FluidShardItem extends Item{
 	
 	private static final List<FluidShardItem> SHARD_ITEMS = Lists.newArrayList();
 	@OnlyIn(Dist.CLIENT)
-	public static final List<ModelResourceLocation> getShardModelList(){
+	public static List<ModelResourceLocation> getShardModelList(){
 		
 		List<ModelResourceLocation> list = Lists.newArrayList();
-		SHARD_ITEMS.forEach(shardItem ->{
-			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(shardItem),"inventory"));
-		});
+		SHARD_ITEMS.forEach(shardItem ->
+			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(shardItem),"inventory"))
+		);
 		return list;
 	}
 	
@@ -65,7 +65,7 @@ public class FluidShardItem extends Item{
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  level,  tooltip,  flagIn);
 		FluidStack fluid = GetFluid(stack);
@@ -76,14 +76,13 @@ public class FluidShardItem extends Item{
 		}
 	}
 	
-	//Force the tank item to have it's tank data
+	//Force the tank item to have its tank data
 	@Override
-	public void inventoryTick(ItemStack stack, Level world, Entity entity, int itemSlot, boolean isSelected) {
-		if(GetFluid(stack).isEmpty() && entity instanceof Player)
+	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level world, @Nonnull Entity entity, int itemSlot, boolean isSelected) {
+		if(GetFluid(stack).isEmpty())
 		{
 			//Remove the empty fluid shard from the players inventory
-			Player player = (Player)entity;
-			player.getInventory().setItem(itemSlot, ItemStack.EMPTY);
+			stack.setCount(0);
 		}
 	}
 	
@@ -129,8 +128,8 @@ public class FluidShardItem extends Item{
 		
 		final ItemStack stack;
 		
-		private final FluidStack tank() { return GetFluid(this.stack); }
-		private final void setTank(FluidStack tank) { WriteTankData(this.stack, tank); }
+		private FluidStack tank() { return GetFluid(this.stack); }
+		private void setTank(FluidStack tank) { WriteTankData(this.stack, tank); }
 		
 		public FluidShardCapability(ItemStack stack) { this.stack = stack; }
 
@@ -139,6 +138,7 @@ public class FluidShardItem extends Item{
 			return 1;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) {
 			return tank == 0 ? this.tank().copy() : FluidStack.EMPTY;
@@ -150,7 +150,7 @@ public class FluidShardItem extends Item{
 		}
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
 			return false;
 		}
 
@@ -160,6 +160,7 @@ public class FluidShardItem extends Item{
 			return 0;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if(this.tank().isEmpty() || !this.tank().isFluidEqual(resource))
@@ -182,6 +183,7 @@ public class FluidShardItem extends Item{
 			return resultStack;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(this.tank().isEmpty())
@@ -204,12 +206,12 @@ public class FluidShardItem extends Item{
 			return resultStack;
 		}
 
+		@Nonnull
 		@Override
-		public ItemStack getContainer() {
-			return this.stack;
-		}
+		public ItemStack getContainer() { return this.stack; }
+		@Nonnull
 		@Override
-		public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
+		public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction side) {
 			return ForgeCapabilities.FLUID_HANDLER_ITEM.orEmpty(capability, holder);
 		}
 		

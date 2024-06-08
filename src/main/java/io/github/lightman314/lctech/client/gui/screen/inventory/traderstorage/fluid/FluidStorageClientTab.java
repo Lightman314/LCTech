@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
@@ -15,6 +16,7 @@ import io.github.lightman314.lctech.common.core.ModBlocks;
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
@@ -43,10 +45,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
 	private static final int TANKS = 8;
-	
-	public static final int ENABLED_COLOR = 0x00FF00;
-	public static final int DISABLED_COLOR = 0xFF0000;
-	
+
 	public FluidStorageClientTab(Object screen, FluidStorageTab tab) { super(screen, tab); }
 
 	int scroll = 0;
@@ -58,7 +57,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.storage"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_STORAGE.get(); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -80,7 +79,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.storage"), 8, 6, 0x404040);
+		gui.drawString(LCText.TOOLTIP_TRADER_STORAGE.get(), 8, 6, 0x404040);
 		
 		if(this.menu.getTrader() instanceof FluidTraderData trader)
 		{
@@ -143,8 +142,8 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				tooltips.add(EasyText.literal(FluidFormatUtil.formatFluidAmount(entry.getStoredAmount()) + "mB/" + FluidFormatUtil.formatFluidAmount(storage.getTankCapacity()) + "mB").withStyle(ChatFormatting.GRAY));
 				//Pending drain
 				if(entry.hasPendingDrain())
-					tooltips.add(EasyText.translatable("gui.lctech.fluidtrade.pending_drain", FluidFormatUtil.formatFluidAmount(entry.getPendingDrain())));
-				tooltips.add(EasyText.translatable("tooltip.lctech.trader.fluid.fill_tank"));
+					tooltips.add(TechText.TOOLTIP_FLUID_PENDING_DRAIN.get(FluidFormatUtil.formatFluidAmount(entry.getPendingDrain())));
+				tooltips.add(TechText.TOOLTIP_FLUID_INTERACT.get());
 				gui.renderComponentTooltip(tooltips);
 			}
 			Pair<Integer,Boolean> hoveredToggle = this.isMouseOverDrainFill(gui.mousePos);
@@ -156,9 +155,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 					return;
 				FluidEntry entry = storage.getContents().get(tank);
 				if(drainState)
-					gui.renderTooltip(EasyText.translatable("tooltip.lctech.trader.fluid_settings.drain." + (entry.drainable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.drainable ? ENABLED_COLOR : DISABLED_COLOR)));
+					gui.renderTooltip(entry.drainable ? TechText.TOOLTIP_FLUID_SETTINGS_DRAIN_ENABLED.getWithStyle(ChatFormatting.GREEN) : TechText.TOOLTIP_FLUID_SETTINGS_DRAIN_DISABLED.getWithStyle(ChatFormatting.RED));
 				else
-					gui.renderTooltip(EasyText.translatable("tooltip.lctech.trader.fluid_settings.fill." + (entry.fillable ? "enabled" : "disabled")).withStyle(Style.EMPTY.withColor(entry.fillable ? ENABLED_COLOR : DISABLED_COLOR)));
+					gui.renderTooltip(entry.fillable ? TechText.TOOLTIP_FLUID_SETTINGS_FILL_ENABLED.getWithStyle(ChatFormatting.GREEN) : TechText.TOOLTIP_FLUID_SETTINGS_FILL_DISABLED.getWithStyle(ChatFormatting.RED));
 			}
 		}
 	}

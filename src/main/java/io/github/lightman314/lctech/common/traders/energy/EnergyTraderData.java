@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.client.gui.settings.energy.EnergyInputAddon;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
@@ -18,10 +19,9 @@ import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeD
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
-import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
@@ -324,7 +324,7 @@ public class EnergyTraderData extends InputTraderData {
 		if(!context.hasPlayerReference())
 			return TradeResult.FAIL_NULL;
 		
-		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+		if(this.runPreTradeEvent(trade, context).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
@@ -377,7 +377,7 @@ public class EnergyTraderData extends InputTraderData {
 			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -421,7 +421,7 @@ public class EnergyTraderData extends InputTraderData {
 			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -485,10 +485,11 @@ public class EnergyTraderData extends InputTraderData {
 				
 				this.trades.add(newTrade);
 				
-			} catch(JsonSyntaxException | ResourceLocationException e) { LCTech.LOGGER.error("Error parsing energy trade at index " + i, e); }
+			} catch(JsonSyntaxException | ResourceLocationException e) {
+                LCTech.LOGGER.error("Error parsing energy trade at index {}", i, e); }
 		}
 		
-		if(this.trades.size() == 0)
+		if(this.trades.isEmpty())
 			throw new JsonSyntaxException("Trader has no valid trades!");
 		
 		this.energyStorage = this.getMaxEnergy();
@@ -508,7 +509,7 @@ public class EnergyTraderData extends InputTraderData {
 				tradeData.add("Price", trade.getCost().toJson());
 				tradeData.addProperty("Quantity", trade.getAmount());
 				
-				if(trade.getRules().size() > 0)
+				if(!trade.getRules().isEmpty())
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
 				
 				trades.add(tradeData);
@@ -552,7 +553,7 @@ public class EnergyTraderData extends InputTraderData {
 		tooltip.add(Component.literal(EnergyUtil.formatEnergyAmount(trader.getTotalEnergy()) + "/" + EnergyUtil.formatEnergyAmount(trader.getMaxEnergy())).withStyle(ChatFormatting.AQUA));
 		if(trader.getPendingDrain() > 0)
 		{
-			tooltip.add(Component.translatable("gui.lctech.energytrade.pending_drain", EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(ChatFormatting.AQUA));
+			tooltip.add(TechText.TOOLTIP_ENERGY_PENDING_DRAIN.get(EnergyUtil.formatEnergyAmount(trader.getPendingDrain())).withStyle(ChatFormatting.AQUA));
 		}
 		return tooltip;
 	}
@@ -572,9 +573,9 @@ public class EnergyTraderData extends InputTraderData {
 					++outOfStock;
 			}
 		}
-		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count",tradeCount));
+		list.add(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT.get(tradeCount));
 		if(outOfStock > 0)
-			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock",outOfStock));
+			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
 	}
 
 }

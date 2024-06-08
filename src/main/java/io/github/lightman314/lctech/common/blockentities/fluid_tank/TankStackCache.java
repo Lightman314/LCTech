@@ -107,7 +107,7 @@ public class TankStackCache {
     public final Object getSyncPacket() { return new SMessageSyncTankStack(new PacketBuilder(this)); }
 
     private void syncToClients() {
-        if(this.tanksBottomToTop.size() > 0)
+        if(!this.tanksBottomToTop.isEmpty())
         {
             LevelChunk chunk = this.tanksBottomToTop.get(0).getLevel().getChunkAt(this.tanksBottomToTop.get(0).getBlockPos());
             LCTechPacketHandler.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), this.getSyncPacket());
@@ -122,7 +122,7 @@ public class TankStackCache {
         private final List<Integer> yPos;
 
         private PacketBuilder(TankStackCache parent) {
-            if(parent.tanksBottomToTop.size() == 0)
+            if(parent.tanksBottomToTop.isEmpty())
             {
                 this.startPos = new BlockPos(0,0,0);
                 this.yPos = new ArrayList<>();

@@ -10,6 +10,8 @@ import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
+import javax.annotation.Nonnull;
+
 public class TradeFluidHandler{
 
 	final FluidTraderData trader;
@@ -75,6 +77,7 @@ public class TradeFluidHandler{
 			return this.trader.getTradeCount();
 		}
 		
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) {
 			if(tank >= 0 && tank < this.trader.getStorage().getContents().size())
@@ -87,13 +90,13 @@ public class TradeFluidHandler{
 			return this.trader.getTankCapacity();
 		}
 		
-		protected final boolean canFill() {
-			return this.trader.allowInputSide(this.relativeDirection);
+		protected final boolean cannotFill() {
+			return !this.trader.allowInputSide(this.relativeDirection);
 		}
 		
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
-			if(!this.canFill())
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+			if(this.cannotFill())
 				return false;
 			FluidEntry entry = this.getTankEntry(tank);
 			if(entry == null)
@@ -103,7 +106,7 @@ public class TradeFluidHandler{
 		
 		@Override
 		public int fill(FluidStack resource, FluidAction action) {
-			if(!this.canFill())
+			if(this.cannotFill())
 				return 0;
 			FluidEntry tank = this.getTankEntry(resource);
 			if(tank != null)
@@ -120,20 +123,21 @@ public class TradeFluidHandler{
 			return 0;
 		}
 		
-		protected final boolean canDrain() {
-			return this.trader.allowOutputSide(this.relativeDirection);
+		protected final boolean cannotDrain() {
+			return !this.trader.allowOutputSide(this.relativeDirection);
 		}
 		
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
-			if(!this.canDrain())
+			if(this.cannotDrain())
 				return FluidStack.EMPTY;
 			if(resource.isEmpty())
 				return FluidStack.EMPTY;
 			FluidEntry tank = this.getValidDrainTank(resource);
 			if(tank != null)
 			{
-				int drainAmount = 0;
+				int drainAmount;
 				if(tank.hasPendingDrain()) //Limit drain amount to pending drain
 					drainAmount = Math.min(resource.getAmount(), this.isCreative() ? tank.getPendingDrain() : Math.min(tank.getPendingDrain(), tank.getStoredAmount()));
 				else //Allow full drainage, as this is a purchase tank drainage
@@ -160,14 +164,15 @@ public class TradeFluidHandler{
 			return FluidStack.EMPTY;
 		}
 		
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
-			if(!this.canDrain())
+			if(this.cannotDrain())
 				return FluidStack.EMPTY;
 			FluidEntry tank = getValidDrainTank(FluidStack.EMPTY);
 			if(tank != null)
 			{
-				int drainAmount = 0;
+				int drainAmount;
 				if(tank.hasPendingDrain()) //Limit drain amount to pending drain
 					drainAmount = Math.min(maxDrain, this.isCreative() ? tank.getPendingDrain() : Math.min(tank.getPendingDrain(), tank.getTankContents().getAmount()));
 				else //Allow full drainage, as this is a purchase tank drainage
@@ -195,62 +200,5 @@ public class TradeFluidHandler{
 		
 		
 	}
-	
-	//Run when the player clicks on the tank gui with a held item on both client and server.
-	//Removed, as this will be handled in the FluidStorageTab.
-	/*public void OnPlayerInteraction(AbstractContainerMenu menu, Player player, int tradeIndex)
-	{
-		ItemStack heldStack = menu.getCarried();
-		if(heldStack.isEmpty()) //If held stack is empty, do nothing
-			return;
-		
-		FluidTradeData trade = this.trader.getTrade(tradeIndex);
-		if(trade == null)
-			return;
-		
-		//Try and fill the tank
-		FluidActionResult result = FluidUtil.tryEmptyContainer(heldStack, trade, Integer.MAX_VALUE, player, true);
-		if(result.isSuccess())
-		{
-			this.trader.markTradesDirty();
-			//If creative, and the item was a bucket, don't move the items around
-			if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldStack.getItem() == Items.BUCKET))
-				return;
-			if(heldStack.getCount() > 1)
-			{
-				heldStack.shrink(1);
-				menu.setCarried(heldStack);
-				ItemHandlerHelper.giveItemToPlayer(player, result.getResult());
-			}
-			else
-			{
-				menu.setCarried(result.getResult());
-			}
-		}
-		else
-		{
-			//Failed to fill the tank, now attempt to drain it
-			result = FluidUtil.tryFillContainer(heldStack, trade, Integer.MAX_VALUE, player, true);
-			if(result.isSuccess())
-			{
-				this.trader.markTradesDirty();
-				//If creative, and the item was a bucket, don't move the items around
-				if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldStack.getItem() == Items.BUCKET))
-					return;
-				if(heldStack.getCount() > 1)
-				{
-					heldStack.shrink(1);
-					menu.setCarried(heldStack);
-					ItemHandlerHelper.giveItemToPlayer(player, result.getResult());
-				}
-				else
-				{
-					menu.setCarried(result.getResult());
-				}
-			}
-				
-		}
-		
-	}*/
 	
 }

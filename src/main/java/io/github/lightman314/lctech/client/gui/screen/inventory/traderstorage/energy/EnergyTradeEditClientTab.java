@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
@@ -128,7 +129,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				this.commonTab.setQuantity(currentAmount);
 		}
 
-		this.buttonToggleTradeType.setMessage(EasyText.translatable("gui.button.lightmanscurrency.tradedirection." + this.commonTab.getTrade().getTradeDirection().name().toLowerCase()));
+		this.buttonToggleTradeType.setMessage(this.commonTab.getTrade().getTradeDirection().getName());
 
 	}
 
@@ -189,7 +190,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	private void ToggleTradeType(EasyButton button) {
 		EnergyTradeData trade = this.getTrade();
 		if(trade != null)
-			this.commonTab.setType(trade.isSale() ? TradeData.TradeDirection.PURCHASE : TradeData.TradeDirection.SALE);
+			this.commonTab.setType(trade.isSale() ? TradeDirection.PURCHASE : TradeDirection.SALE);
 	}
 
 }

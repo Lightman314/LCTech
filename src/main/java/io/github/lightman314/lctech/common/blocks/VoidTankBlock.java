@@ -1,7 +1,8 @@
 package io.github.lightman314.lctech.common.blocks;
 
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.VoidTankBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -12,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class VoidTankBlock extends Block implements EntityBlock {
+public class VoidTankBlock extends EasyBlock implements EntityBlock {
 
     public VoidTankBlock(Properties properties) { super(properties); }
 
@@ -57,7 +57,7 @@ public class VoidTankBlock extends Block implements EntityBlock {
 
     @Override
     public void appendHoverText(@Nonnull ItemStack stack, @Nullable BlockGetter level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
-        tooltip.add(EasyText.translatable("block.lctech.void_tank.tooltip").withStyle(ChatFormatting.GRAY));
+        tooltip.add(TechText.TOOLTIP_VOID_TANK.getWithStyle(ChatFormatting.GRAY));
     }
 
     @Nullable

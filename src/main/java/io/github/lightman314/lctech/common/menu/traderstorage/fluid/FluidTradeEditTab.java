@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -56,7 +56,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 
 	public void setTradeIndex(int tradeIndex) { this.tradeIndex = tradeIndex; }
 	
-	public void setType(TradeData.TradeDirection type) {
+	public void setType(TradeDirection type) {
 		FluidTradeData trade = this.getTrade();
 		if(trade != null)
 		{
@@ -127,7 +127,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewType"))
 		{
-			this.setType(TradeData.TradeDirection.fromIndex(message.getInt("NewType")));
+			this.setType(TradeDirection.fromIndex(message.getInt("NewType")));
 		}
 	}
 

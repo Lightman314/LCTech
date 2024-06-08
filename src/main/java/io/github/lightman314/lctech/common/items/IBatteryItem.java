@@ -1,7 +1,6 @@
 package io.github.lightman314.lctech.common.items;
 
 import io.github.lightman314.lctech.LCTech;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

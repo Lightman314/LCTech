@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.common.notifications.types;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -8,8 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import net.minecraft.nbt.CompoundTag;
@@ -26,7 +26,7 @@ public class EnergyTradeNotification extends TaxableNotification {
 	
 	TraderCategory traderData;
 	
-	TradeData.TradeDirection tradeType;
+	TradeDirection tradeType;
 	int quantity;
 	MoneyValue cost = MoneyValue.empty();
 	
@@ -61,9 +61,9 @@ public class EnergyTradeNotification extends TaxableNotification {
 	@Override
 	public MutableComponent getNormalMessage() {
 		
-		Component boughtText = EasyText.translatable("log.shoplog." + this.tradeType.name().toLowerCase());
+		Component boughtText = this.tradeType.getActionPhrase();
 		
-		return EasyText.translatable("notifications.message.energy_trade", this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
+		return TechText.NOTIFICATION_TRADE_ENERGY.get(this.customer, boughtText, EnergyUtil.formatEnergyAmount(this.quantity), this.cost.getString());
 		
 	}
 	
@@ -82,7 +82,7 @@ public class EnergyTradeNotification extends TaxableNotification {
 	protected void loadNormal(CompoundTag compound) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
-		this.tradeType = TradeData.TradeDirection.fromIndex(compound.getInt("TradeType"));
+		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.quantity = compound.getInt("Quantity");
 		this.cost = MoneyValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");

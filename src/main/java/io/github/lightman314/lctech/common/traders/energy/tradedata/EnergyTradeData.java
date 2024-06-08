@@ -4,17 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.client.EnergyTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
@@ -46,7 +47,7 @@ public class EnergyTradeData extends TradeData {
 	public EnergyTradeData(boolean validateRules) { super(validateRules); }
 	
 	public boolean hasStock(EnergyTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
+	public boolean hasStock(@Nonnull TradeContext context) { return this.getStock(context) > 0; }
 	public int getStock(EnergyTraderData trader) {
 		if(this.amount <= 0)
 			return 0;
@@ -61,7 +62,7 @@ public class EnergyTradeData extends TradeData {
 		}
 		return 0;
 	}
-	public int getStock(TradeContext context) {
+	public int getStock(@Nonnull TradeContext context) {
 		if(this.amount <= 0)
 			return 0;
 		
@@ -130,7 +131,7 @@ public class EnergyTradeData extends TradeData {
 		try {
 			return TradeDirection.valueOf(name);
 		} catch (IllegalArgumentException e) {
-			LCTech.LOGGER.error("Could not load '" + name + "' as a TradeType.");
+			LightmansCurrency.LogError("Error loading " + name + " as a TradeDirection");
 			return TradeDirection.SALE;
 		}
 	}
@@ -247,13 +248,13 @@ public class EnergyTradeData extends TradeData {
 			ChatFormatting moreColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
 			ChatFormatting lessColor = this.isSale() ? ChatFormatting.GOLD : ChatFormatting.RED;
 			if(differences.isPriceExpensive()) //More expensive
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.expensive", difference.getText()).withStyle(moreColor));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_EXPENSIVE.get(difference.getText()).withStyle(moreColor));
 			else //Cheaper
-				list.add(EasyText.translatable("gui.lightmanscurrency.interface.difference.cheaper", difference.getText()).withStyle(lessColor));
+				list.add(LCText.GUI_TRADE_DIFFERENCE_CHEAPER.get(difference.getText()).withStyle(lessColor));
 		}
 		if(differences.getProductResultCount() > 0)
 		{
-			Component directionName = this.isSale() ? EasyText.translatable("gui.lctech.interface.difference.product.sale") : EasyText.translatable("gui.lctech.interface.difference.product.purchase");
+			Component directionName = this.isSale() ? TechText.GUI_TRADE_DIFFERENCE_PRODUCT_SALE.get() : TechText.GUI_TRADE_DIFFERENCE_PRODUCT_PURCHASE.get();
 			ChatFormatting moreColor = this.isSale() ? ChatFormatting.GOLD : ChatFormatting.RED;
 			ChatFormatting lessColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
 			ProductComparisonResult productCheck = differences.getProductResult(0);
@@ -263,15 +264,16 @@ public class EnergyTradeData extends TradeData {
 			{
 				int quantityDifference = productCheck.ProductQuantityDifference();
 				if(quantityDifference > 0) //More energy
-					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.more", directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(moreColor));
+					list.add(TechText.GUI_TRADE_DIFFERENCE_ENERGY_MORE.get(directionName, EnergyUtil.formatEnergyAmount(quantityDifference)).withStyle(moreColor));
 				else //Less items
-					list.add(EasyText.translatable("gui.lctech.interface.energy.difference.quantity.less", directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(lessColor));
+					list.add(TechText.GUI_TRADE_DIFFERENCE_ENERGY_LESS.get(directionName, EnergyUtil.formatEnergyAmount(-quantityDifference)).withStyle(lessColor));
 			}
 		}
 		
 		return list;
 	}
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new EnergyTradeButtonRenderer(this); }

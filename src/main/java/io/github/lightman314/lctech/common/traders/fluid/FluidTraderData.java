@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
@@ -19,7 +20,7 @@ import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorage
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -230,7 +231,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.WATER_BUCKET); }
 	@Override
-	public MutableComponent inputSettingsTabTooltip() { return Component.translatable("tooltip.lctech.settings.fluidinput"); }
+	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_FLUID.get(); }
 	
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
@@ -243,7 +244,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			return TradeResult.FAIL_NULL;
 		
 		//Check if the player is allowed to do the trade
-		if(this.runPreTradeEvent(context.getPlayerReference(), trade).isCanceled())
+		if(this.runPreTradeEvent(trade, context).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		
 		//Get the cost of the trade
@@ -298,7 +299,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			this.pushNotification(FluidTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -343,7 +344,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			this.pushNotification(FluidTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
 			//Push the post-trade event
-			this.runPostTradeEvent(context.getPlayerReference(), trade, price, taxesPaid);
+			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
 			return TradeResult.SUCCESS;
 			
@@ -426,10 +427,10 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				
 				this.trades.add(newTrade);
 				
-			} catch(Exception e) { LCTech.LOGGER.error("Error parsing fluid trade at index " + i, e); }
+			} catch(Exception e) { LCTech.LOGGER.error("Error parsing fluid trade at index {}", i, e); }
 		}
 		
-		if(this.trades.size() == 0)
+		if(this.trades.isEmpty())
 			throw new JsonSyntaxException("Trader has no valid trades!");
 		
 	}
@@ -448,7 +449,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				tradeData.add("Product", FluidItemUtil.convertFluidStack(trade.getProduct()));
 				tradeData.addProperty("Quantity", trade.getBucketQuantity());
 				
-				if(trade.getRules().size() > 0)
+				if(!trade.getRules().isEmpty())
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
 				
 				trades.add(tradeData);
@@ -498,8 +499,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 					++outOfStock;
 			}
 		}
-		list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count",tradeCount));
+		list.add(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT.get(tradeCount));
 		if(outOfStock > 0)
-			list.add(EasyText.translatable("tooltip.lightmanscurrency.terminal.info.trade_count.out_of_stock",outOfStock));
+			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
 	}
+
 }

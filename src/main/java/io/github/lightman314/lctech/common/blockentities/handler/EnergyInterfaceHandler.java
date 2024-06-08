@@ -18,7 +18,7 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 	
 	public final IEnergyStorage tradeHandler;
 	
-	private final Map<Direction,Handler> handlers = new HashMap<Direction,Handler>();
+	private final Map<Direction,Handler> handlers = new HashMap<>();
 	
 	public EnergyInterfaceHandler(EnergyTraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; this.tradeHandler = new Handler(this, null); }
 	

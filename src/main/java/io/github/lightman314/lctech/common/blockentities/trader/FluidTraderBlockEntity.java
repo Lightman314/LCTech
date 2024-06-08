@@ -55,9 +55,7 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	@Override
 	public AABB getRenderBoundingBox()
 	{
-		if(this.getBlockState() != null)
-			return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
-		return super.getRenderBoundingBox();
+		return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 	}
 	
 	@OnlyIn(Dist.CLIENT)

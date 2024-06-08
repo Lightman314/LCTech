@@ -6,12 +6,12 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import io.github.lightman314.lctech.common.items.tooltips.TechTooltips;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,28 +35,19 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 		super(properties);
 	}
 	
-	public FluidTapBundleBlock(Properties properties, VoxelShape shape)
-	{
-		super(properties, shape);
-	}
+	public FluidTapBundleBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 
 	@Override
-	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {
-		return new FluidTraderBlockEntity(pos, state, 4);
-	}
+	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new FluidTraderBlockEntity(pos, state, 4); }
 
 	@Override
-	protected BlockEntityType<?> traderType() {
-		return ModBlockEntities.FLUID_TRADER.get();
-	}
+	protected BlockEntityType<?> traderType() { return ModBlockEntities.FLUID_TRADER.get(); }
 	
 	@Override
-	public int getTradeRenderLimit() {
-		return 4;
-	}
+	public int getTradeRenderLimit() { return 4; }
 	
-	private static List<Direction> IGNORELIST = Lists.newArrayList(Direction.UP, Direction.DOWN);
-	private static Map<Direction,List<FluidRenderData>> RENDERMAP = Maps.newHashMap();
+	private static final List<Direction> IGNORELIST = Lists.newArrayList(Direction.UP, Direction.DOWN);
+	private static final Map<Direction,List<FluidRenderData>> RENDERMAP = Maps.newHashMap();
 	
 	@Override
 	public FluidRenderData getRenderPosition(BlockState state, int index){
@@ -94,7 +85,7 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 			break;
 		default:
 		}
-		if(list.size() > 0)
+		if(!list.isEmpty())
 			RENDERMAP.put(direction, list);
 		else //No results, so return nothing
 			IGNORELIST.add(direction);
@@ -112,6 +103,6 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 	}
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechTooltips.FLUID_TRADER; }
+	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_FLUID_TRADER.asTooltip(4); }
 	
 }

@@ -9,6 +9,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
+import javax.annotation.Nonnull;
+
 public class TraderFluidStorage implements IFluidHandler {
 	
 	private final ITraderFluidFilter filter;
@@ -163,19 +165,18 @@ public class TraderFluidStorage implements IFluidHandler {
 	 * Forcibly fills the fluid storage with the given fluid, ignoring the allowFluid check.
 	 * Used internally in several places after proper checks have been made.
 	 */
-	public boolean forceFillTank(FluidStack fluid) {
+	public void forceFillTank(FluidStack fluid) {
 		if(fluid.isEmpty())
-			return true;
+			return;
 		FluidEntry entry = this.getTank(fluid);
 		if(entry != null)
 		{
 			entry.addAmount(fluid.getAmount());
-			return true;
+			return;
 		}
 		if(this.tanks.size() >= 8)
-			return false;
-		this.tanks.add(new FluidEntry(this, fluid, 0));
-		return true;
+			return;
+		this.tanks.add(new FluidEntry(this, fluid));
 	}
 	
 	/**
@@ -187,13 +188,13 @@ public class TraderFluidStorage implements IFluidHandler {
 		if(entry == null)
 			return;
 		entry.removeAmount(fluid.getAmount());
-		return;
 	}
 	
 	@Override
 	public int getTanks() { return this.tanks.size(); }
 
 	
+	@Nonnull
 	@Override
 	public FluidStack getFluidInTank(int tank) {
 		if(tank < this.tanks.size())
@@ -207,12 +208,13 @@ public class TraderFluidStorage implements IFluidHandler {
 	public int getTankCapacity() { return this.filter.getTankCapacity(); }
 
 	@Override
-	public boolean isFluidValid(int tank, FluidStack stack) {
+	public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
 		if(tank < 0 || tank >= this.tanks.size())
 			return false;
 		return this.tanks.get(tank).filter.isFluidEqual(stack);
 	}
 
+	@Nonnull
 	@Override
 	public FluidStack drain(FluidStack resource, FluidAction action) {
 		int drainableAmount = Math.min(resource.getAmount(), this.getAvailableFluidCount(resource));
@@ -227,6 +229,7 @@ public class TraderFluidStorage implements IFluidHandler {
 		return drainedFluid;
 	}
 
+	@Nonnull
 	@Override
 	public FluidStack drain(int maxDrain, FluidAction action) {
 		//Should never drain without a defined fluid.
@@ -249,7 +252,7 @@ public class TraderFluidStorage implements IFluidHandler {
 	
 	public interface ITraderFluidFilter
 	{
-		public default boolean isFluidRelevant(FluidStack fluid) {
+		default boolean isFluidRelevant(FluidStack fluid) {
 			for(FluidStack f : this.getRelevantFluids())
 			{
 				if(f.isFluidEqual(fluid))
@@ -257,15 +260,15 @@ public class TraderFluidStorage implements IFluidHandler {
 			}
 			return false;
 		}
-		public List<FluidStack> getRelevantFluids();
-		public int getTankCapacity();
+		List<FluidStack> getRelevantFluids();
+		int getTankCapacity();
 	}
 
 	public static class FluidEntry implements IFluidHandler
 	{
 		private final TraderFluidStorage parent;
 		public final FluidStack filter;
-		private int storedAmount = 0;
+		private int storedAmount;
 		public int getStoredAmount() { return this.storedAmount; }
 		public boolean isEmpty() { return this.storedAmount <= 0; }
 		public void addAmount(int amount) { this.storedAmount += amount; }
@@ -339,6 +342,7 @@ public class TraderFluidStorage implements IFluidHandler {
 		@Override
 		public int getTanks() { return 1; }
 
+		@Nonnull
 		@Override
 		public FluidStack getFluidInTank(int tank) { return this.getTankContents(); }
 
@@ -346,7 +350,7 @@ public class TraderFluidStorage implements IFluidHandler {
 		public int getTankCapacity(int tank) { return this.parent.getTankCapacity(); }
 
 		@Override
-		public boolean isFluidValid(int tank, FluidStack stack) {
+		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
 			//Should never be used. Only draining should be done from a specific entry.
 			return false;
 		}
@@ -357,6 +361,7 @@ public class TraderFluidStorage implements IFluidHandler {
 			return 0;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(FluidStack resource, FluidAction action) {
 			if(resource.isFluidEqual(this.filter) && !this.filter.isEmpty())
@@ -364,6 +369,7 @@ public class TraderFluidStorage implements IFluidHandler {
 			return FluidStack.EMPTY;
 		}
 
+		@Nonnull
 		@Override
 		public FluidStack drain(int maxDrain, FluidAction action) {
 			if(this.filter.isEmpty())

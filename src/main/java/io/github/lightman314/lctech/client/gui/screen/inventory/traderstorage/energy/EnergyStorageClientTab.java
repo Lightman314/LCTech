@@ -5,6 +5,7 @@ import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStorageTab;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
@@ -36,7 +37,7 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	public IconData getIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY_LARGE)); }
 
 	@Override
-	public MutableComponent getTooltip() { return EasyText.translatable("tooltip.lightmanscurrency.trader.storage"); }
+	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_STORAGE.get(); }
 	
 	@Override
 	public boolean tabButtonVisible() { return true; }
@@ -50,7 +51,7 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 	@Override
 	public void renderBG(@Nonnull EasyGuiGraphics gui) {
 
-		gui.drawString(EasyText.translatable("gui.lightmanscurrency.storage"), 8, 6, 0x404040);
+		gui.drawString(LCText.TOOLTIP_TRADER_STORAGE.get(), 8, 6, 0x404040);
 		
 		if(this.menu.getTrader() instanceof EnergyTraderData trader)
 		{

@@ -27,7 +27,6 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -252,6 +251,6 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	public void getAdditionalContents(List<ItemStack> contents) {}
 	
 	@Override
-	public MutableComponent getName() { return Component.translatable("block.lctech.energy_trader_interface"); }
+	public MutableComponent getName() { return this.getBlockState().getBlock().getName(); }
 	
 }
