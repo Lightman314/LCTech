@@ -1,5 +1,6 @@
 package io.github.lightman314.lctech.client.gui.widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -77,12 +78,19 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		if(allFluids != null)
 			return;
 
-		allFluids = Lists.newArrayList();
+		allFluids = new ArrayList<>();
 
 		ForgeRegistries.FLUIDS.forEach(fluid ->{
 			if(!BLACKLISTED_FLUIDS.contains(fluid) && fluid.isSource(fluid.defaultFluidState()))
 				allFluids.add(fluid);
 		});
+
+		//Add extra fluids for debug purposes
+		/*for(int i = 0; i < 30; ++i)
+		{
+			allFluids.add(Fluids.WATER);
+			allFluids.add(Fluids.LAVA);
+		}//*/
 
 	}
 
