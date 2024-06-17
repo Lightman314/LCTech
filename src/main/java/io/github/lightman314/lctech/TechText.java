@@ -16,16 +16,19 @@ public class TechText {
     public static final TextEntry ITEM_FLUID_CAPACITY_UPGRADE_1 = TextEntry.item(ModItems.FLUID_CAPACITY_UPGRADE_1);
     public static final TextEntry ITEM_FLUID_CAPACITY_UPGRADE_2 = TextEntry.item(ModItems.FLUID_CAPACITY_UPGRADE_2);
     public static final TextEntry ITEM_FLUID_CAPACITY_UPGRADE_3 = TextEntry.item(ModItems.FLUID_CAPACITY_UPGRADE_3);
+    public static final TextEntry ITEM_FLUID_CAPACITY_UPGRADE_4 = TextEntry.item(ModItems.FLUID_CAPACITY_UPGRADE_4);
     public static final TextEntry ITEM_BATTERY = TextEntry.item(ModItems.BATTERY);
     public static final TextEntry ITEM_LARGE_BATTERY = TextEntry.item(ModItems.BATTERY_LARGE);
     public static final TextEntry ITEM_ENERGY_CAPACITY_UPGRADE_1 = TextEntry.item(ModItems.ENERGY_CAPACITY_UPGRADE_1);
     public static final TextEntry ITEM_ENERGY_CAPACITY_UPGRADE_2 = TextEntry.item(ModItems.ENERGY_CAPACITY_UPGRADE_2);
     public static final TextEntry ITEM_ENERGY_CAPACITY_UPGRADE_3 = TextEntry.item(ModItems.ENERGY_CAPACITY_UPGRADE_3);
+    public static final TextEntry ITEM_ENERGY_CAPACITY_UPGRADE_4 = TextEntry.item(ModItems.ENERGY_CAPACITY_UPGRADE_4);
 
     //Blocks
     public static final TextEntry BLOCK_IRON_TANK = TextEntry.block(ModBlocks.IRON_TANK);
     public static final TextEntry BLOCK_GOLD_TANK = TextEntry.block(ModBlocks.GOLD_TANK);
     public static final TextEntry BLOCK_DIAMOND_TANK = TextEntry.block(ModBlocks.DIAMOND_TANK);
+    public static final TextEntry BLOCK_NETHERITE_TANK = TextEntry.block(ModBlocks.NETHERITE_TANK);
     public static final TextEntry BLOCK_VOID_TANK = TextEntry.block(ModBlocks.VOID_TANK);
     public static final TextEntry BLOCK_FLUID_TAP = TextEntry.block(ModBlocks.FLUID_TAP);
     public static final TextEntry BLOCK_FLUID_TAP_BUNDLE = TextEntry.block(ModBlocks.FLUID_TAP_BUNDLE);

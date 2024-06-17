@@ -17,16 +17,19 @@ public class TechEnglishProvider extends TranslationProvider {
         this.translate(TechText.ITEM_FLUID_CAPACITY_UPGRADE_1,"Fluid Capacity Upgrade (Iron)");
         this.translate(TechText.ITEM_FLUID_CAPACITY_UPGRADE_2,"Fluid Capacity Upgrade (Gold)");
         this.translate(TechText.ITEM_FLUID_CAPACITY_UPGRADE_3,"Fluid Capacity Upgrade (Diamond)");
+        this.translate(TechText.ITEM_FLUID_CAPACITY_UPGRADE_4,"Fluid Capacity Upgrade (Netherite)");
         this.translate(TechText.ITEM_BATTERY,"Battery");
         this.translate(TechText.ITEM_LARGE_BATTERY,"Large Battery");
         this.translate(TechText.ITEM_ENERGY_CAPACITY_UPGRADE_1,"Energy Capacity Upgrade (Iron)");
         this.translate(TechText.ITEM_ENERGY_CAPACITY_UPGRADE_2,"Energy Capacity Upgrade (Gold)");
         this.translate(TechText.ITEM_ENERGY_CAPACITY_UPGRADE_3,"Energy Capacity Upgrade (Diamond)");
+        this.translate(TechText.ITEM_ENERGY_CAPACITY_UPGRADE_4,"Energy Capacity Upgrade (Netherite)");
 
         //Blocks
         this.translate(TechText.BLOCK_IRON_TANK,"Iron Tank");
         this.translate(TechText.BLOCK_GOLD_TANK,"Gold Tank");
         this.translate(TechText.BLOCK_DIAMOND_TANK,"Diamond Tank");
+        this.translate(TechText.BLOCK_NETHERITE_TANK,"Netherite Tank");
         this.translate(TechText.BLOCK_VOID_TANK,"Void Tank");
         this.translate(TechText.BLOCK_FLUID_TAP,"Fluid Tap");
         this.translate(TechText.BLOCK_FLUID_TAP_BUNDLE,"Fluid Tap Bundle");

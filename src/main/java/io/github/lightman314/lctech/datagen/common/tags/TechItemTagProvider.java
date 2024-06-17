@@ -43,7 +43,8 @@ public class TechItemTagProvider extends ItemTagsProvider {
         this.cTag(TechTags.Items.FLUID_TANK)
                 .add(ModBlocks.IRON_TANK)
                 .add(ModBlocks.GOLD_TANK)
-                .add(ModBlocks.DIAMOND_TANK);
+                .add(ModBlocks.DIAMOND_TANK)
+                .add(ModBlocks.NETHERITE_TANK);
 
         //Trader Tags
         //Add Tech tags to LC Tags

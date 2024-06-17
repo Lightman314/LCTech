@@ -19,6 +19,7 @@ public class CreativeTabEvents {
             event.accept(ModBlocks.IRON_TANK.get());
             event.accept(ModBlocks.GOLD_TANK.get());
             event.accept(ModBlocks.DIAMOND_TANK.get());
+            event.accept(ModBlocks.NETHERITE_TANK.get());
             event.accept(ModBlocks.VOID_TANK.get());
             //Fluid Interface
             event.accept(ModBlocks.FLUID_TRADER_INTERFACE.get());
@@ -51,10 +52,12 @@ public class CreativeTabEvents {
             event.accept(ModItems.FLUID_CAPACITY_UPGRADE_1.get());
             event.accept(ModItems.FLUID_CAPACITY_UPGRADE_2.get());
             event.accept(ModItems.FLUID_CAPACITY_UPGRADE_3.get());
+            event.accept(ModItems.FLUID_CAPACITY_UPGRADE_4.get());
             //Energy Capacity Upgrades
             event.accept(ModItems.ENERGY_CAPACITY_UPGRADE_1.get());
             event.accept(ModItems.ENERGY_CAPACITY_UPGRADE_2.get());
             event.accept(ModItems.ENERGY_CAPACITY_UPGRADE_3.get());
+            event.accept(ModItems.ENERGY_CAPACITY_UPGRADE_4.get());
         }
     }
 

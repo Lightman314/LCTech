@@ -21,6 +21,9 @@ public class EnergyTraderBlock extends TraderBlockRotatable {
 	public EnergyTraderBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 
 	@Override
+	protected boolean isBlockOpaque() { return false; }
+
+	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new EnergyTraderBlockEntity(pos, state); }
 
 	@Override

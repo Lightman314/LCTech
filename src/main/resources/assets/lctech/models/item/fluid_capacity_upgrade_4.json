@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "lctech:item/fluid_capacity_upgrade_4"
+  }
+}

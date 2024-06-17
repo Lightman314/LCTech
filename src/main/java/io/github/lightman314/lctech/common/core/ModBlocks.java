@@ -30,6 +30,9 @@ public class ModBlocks {
 	private static Function<Block,Item> getFluidTankGenerator() {
 		return (block) -> new FluidTankItem(block, new Item.Properties());
 	}
+	private static Function<Block,Item> getNetheriteTankGenerator() {
+		return (block) -> new FluidTankItem(block, new Item.Properties().fireResistant());
+	}
 	
 	static {
 		
@@ -54,6 +57,13 @@ public class ModBlocks {
 						.strength(3.0f, 5.0f)
 						.sound(SoundType.GLASS)
 				));
+		NETHERITE_TANK = register("netherite_tank", getNetheriteTankGenerator(), () -> new FluidTankBlock(
+				() -> TechConfig.SERVER.netheriteTankCapacity.get() * FluidType.BUCKET_VOLUME,
+				Block.Properties.of()
+						.mapColor(MapColor.DIAMOND)
+						.strength(3.0f, 5.0f)
+						.sound(SoundType.GLASS)
+		));
 
 		VOID_TANK = register("void_tank", () -> new VoidTankBlock(
 				BlockBehaviour.Properties.of()
@@ -137,6 +147,7 @@ public class ModBlocks {
 	public static final RegistryObject<Block> IRON_TANK;
 	public static final RegistryObject<Block> GOLD_TANK;
 	public static final RegistryObject<Block> DIAMOND_TANK;
+	public static final RegistryObject<Block> NETHERITE_TANK;
 	public static final RegistryObject<Block> VOID_TANK;
 	
 	//Fluid traders

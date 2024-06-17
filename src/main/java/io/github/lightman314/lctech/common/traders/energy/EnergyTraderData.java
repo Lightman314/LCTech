@@ -24,6 +24,7 @@ import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
@@ -373,6 +374,10 @@ public class EnergyTraderData extends InputTraderData {
 				taxesPaid = this.addStoredMoney(price, true);
 			}
 
+			this.incrementStat(StatKeys.Traders.MONEY_EARNED, price);
+			if(!taxesPaid.isEmpty())
+				this.incrementStat(StatKeys.Taxables.TAXES_PAID, taxesPaid);
+
 			//Push the notification
 			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 			
@@ -416,6 +421,10 @@ public class EnergyTraderData extends InputTraderData {
 				//Remove the coins from storage
 				taxesPaid = this.removeStoredMoney(price, true);
 			}
+
+			this.incrementStat(StatKeys.Traders.MONEY_PAID, price);
+			if(!taxesPaid.isEmpty())
+				this.incrementStat(StatKeys.Taxables.TAXES_PAID,taxesPaid);
 
 			//Push the notification
 			this.pushNotification(EnergyTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));

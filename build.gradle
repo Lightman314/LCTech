@@ -83,7 +83,7 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf('curse.maven:lightmanscurrency-472521:5404893')
+    implementation fg.deobf('curse.maven:lightmanscurrency-472521:5436393')
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 

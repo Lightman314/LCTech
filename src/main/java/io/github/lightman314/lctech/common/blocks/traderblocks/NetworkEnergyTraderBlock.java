@@ -18,7 +18,10 @@ import net.minecraftforge.common.util.NonNullSupplier;
 public class NetworkEnergyTraderBlock extends TraderBlockRotatable {
 	
 	public NetworkEnergyTraderBlock(Properties properties) { super(properties); }
-	
+
+	@Override
+	protected boolean isBlockOpaque() { return false; }
+
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new EnergyTraderBlockEntity(pos, state, true); }
 	

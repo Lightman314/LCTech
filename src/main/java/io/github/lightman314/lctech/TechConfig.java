@@ -78,16 +78,18 @@ public class TechConfig {
 		
 		//Fluid Tanks
 		
-		public final IntOption ironTankCapacity = IntOption.create(10,1,1000);
-		public final IntOption goldTankCapacity = IntOption.create(25,1,1000);
-		public final IntOption diamondTankCapacity = IntOption.create(100,1,1000);
-		
+		public final IntOption ironTankCapacity = IntOption.create(10,1,5000);
+		public final IntOption goldTankCapacity = IntOption.create(25,1,5000);
+		public final IntOption diamondTankCapacity = IntOption.create(100,1,5000);
+		public final IntOption netheriteTankCapacity = IntOption.create(200,1,5000);
+
 		//Fluid Upgrades
 		
-		public final IntOption fluidUpgradeCapacity1 = IntOption.create(10,1,1000);
-		public final IntOption fluidUpgradeCapacity2 = IntOption.create(25,1,1000);
-		public final IntOption fluidUpgradeCapacity3 = IntOption.create(100,1,1000);
-		
+		public final IntOption fluidUpgradeCapacity1 = IntOption.create(10,1,100000);
+		public final IntOption fluidUpgradeCapacity2 = IntOption.create(25,1,100000);
+		public final IntOption fluidUpgradeCapacity3 = IntOption.create(100,1,100000);
+		public final IntOption fluidUpgradeCapacity4 = IntOption.create(200,1,100000);
+
 		//Fluid Trader Interface
 		public final IntOption fluidRestockSpeed = IntOption.create(10 * FluidType.BUCKET_VOLUME, 1);
 
@@ -103,7 +105,8 @@ public class TechConfig {
 		public final IntOption energyUpgradeCapacity1 = IntOption.create(100000, 1000, 100000000);
 		public final IntOption energyUpgradeCapacity2 = IntOption.create(250000, 1000, 100000000);
 		public final IntOption energyUpgradeCapacity3 = IntOption.create(1000000, 1000, 100000000);
-		
+		public final IntOption energyUpgradeCapacity4 = IntOption.create(2000000, 1000, 100000000);
+
 		//Energy Trader Interface
 		public final IntOption energyRestockSpeed = IntOption.create(100000, 1000);
 
@@ -125,27 +128,33 @@ public class TechConfig {
 
 			configBuilder.comment("Fluid Tank Settings").push("tank");
 
-			configBuilder.comment("The amount of fluid storage the Iron Tank can hold in Buckets (1,000mB).")
+			configBuilder.comment("The amount of fluid storage the Iron Tank can hold in Buckets (1,000mB)")
 					.add("ironTankCapacity", this.ironTankCapacity);
 
-			configBuilder.comment("The amount of fluid storage the Gold Tank can hold in Buckets (1,000mB).")
+			configBuilder.comment("The amount of fluid storage the Gold Tank can hold in Buckets (1,000mB)")
 					.add("goldTankCapacity", this.goldTankCapacity);
 
-			configBuilder.comment("The amount of fluid storage the Diamond Tank can hold in Buckets (1,000mB).")
+			configBuilder.comment("The amount of fluid storage the Diamond Tank can hold in Buckets (1,000mB)")
 					.add("diamondTankCapacity", this.diamondTankCapacity);
+
+			configBuilder.comment("The amount of fluid storage the Netherite Tank can hold in Buckets (1,000mB)")
+					.add("netheriteTankCapacity", this.netheriteTankCapacity);
 
 			configBuilder.pop();
 
 			configBuilder.comment("Fluid Upgrade Settings").push("upgrades");
 
-			configBuilder.comment("The amount of fluid storage added by the first Fluid Capacity upgrade (Iron) in Buckets (1,000mB).")
+			configBuilder.comment("The amount of fluid storage added by the first Fluid Capacity upgrade (Iron) in Buckets (1,000mB)")
 					.add("upgradeCapacity1", this.fluidUpgradeCapacity1);
 
-			configBuilder.comment("The amount of fluid storage added by the second Fluid Capacity upgrade (Gold) in Buckets (1,000mB).")
+			configBuilder.comment("The amount of fluid storage added by the second Fluid Capacity upgrade (Gold) in Buckets (1,000mB)")
 					.add("upgradeCapacity2", this.fluidUpgradeCapacity2);
 
-			configBuilder.comment("The amount of fluid storage added by the third Fluid Capacity upgrade (Diamond) in Buckets (1,000mB).")
+			configBuilder.comment("The amount of fluid storage added by the third Fluid Capacity upgrade (Diamond) in Buckets (1,000mB)")
 					.add("upgradeCapacity3", this.fluidUpgradeCapacity3);
+
+			configBuilder.comment("The amount of fluid storage added by the fourth Fluid Capacity upgrade (Netherite) in Buckets (1,000mB)")
+					.add("upgradeCapacity4", this.fluidUpgradeCapacity4);
 
 			configBuilder.pop();
 
@@ -188,6 +197,9 @@ public class TechConfig {
 
 			configBuilder.comment("The amount of energy storage added by the third Energy Capacity Upgrade (Diamond).")
 					.add("upgradeCapacity3", this.energyUpgradeCapacity3);
+
+			configBuilder.comment("The amount of energy storage added by the fourth Energy Capacity Upgrade (Netherite).")
+					.add("upgradeCapacity4", this.energyUpgradeCapacity4);
 
 			configBuilder.pop();
 

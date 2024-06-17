@@ -68,6 +68,17 @@ public class TechRecipeProvider extends EasyRecipeProvider {
         GenerateTankRecipe(consumer, Tags.Items.INGOTS_IRON, ModBlocks.IRON_TANK);
         GenerateTankRecipe(consumer, Tags.Items.INGOTS_GOLD, ModBlocks.GOLD_TANK);
         GenerateTankRecipe(consumer, Tags.Items.GEMS_DIAMOND, ModBlocks.DIAMOND_TANK);
+        SmithingTransformRecipeBuilder.smithing(
+                    Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
+                    Ingredient.of(ModBlocks.DIAMOND_TANK.get()),
+                    Ingredient.of(Tags.Items.INGOTS_NETHERITE),
+                    RecipeCategory.MISC,
+                    ModBlocks.NETHERITE_TANK.get().asItem())
+                .unlocks("material", LazyTrigger(Tags.Items.INGOTS_NETHERITE))
+                .unlocks("glass", LazyTrigger(Tags.Items.GLASS_COLORLESS))
+                .unlocks("bucket", LazyTrigger(Items.BUCKET))
+                .unlocks("previous", LazyTrigger(ModBlocks.DIAMOND_TANK))
+                .save(makeConditional(ItemID("fluid_tanks/", ModBlocks.NETHERITE_TANK), consumer, TechCraftingConditions.FluidTank.INSTANCE), ItemID("fluid_tanks/", ModBlocks.NETHERITE_TANK));
 
         //Fluid traders
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_TAP.get())
@@ -216,7 +227,17 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("bucket", LazyTrigger(Items.BUCKET))
                 .unlocks("previous", LazyTrigger(ModItems.FLUID_CAPACITY_UPGRADE_2))
-                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.FluidTrader.INSTANCE),"tcu3");
+                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.FluidTrader.INSTANCE),"fcu3");
+        SmithingTransformRecipeBuilder.smithing(
+                        SmithingTemplate(),
+                        Ingredient.of(ModItems.FLUID_CAPACITY_UPGRADE_3.get()),
+                        Ingredient.of(Tags.Items.INGOTS_NETHERITE),
+                        RecipeCategory.MISC,
+                        ModItems.FLUID_CAPACITY_UPGRADE_4.get())
+                .unlocks("trader", TraderKnowledge())
+                .unlocks("bucket", LazyTrigger(Items.BUCKET))
+                .unlocks("previous", LazyTrigger(ModItems.FLUID_CAPACITY_UPGRADE_3))
+                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_4), consumer, TechCraftingConditions.FluidTrader.INSTANCE),"fcu4");
 
         //Energy Capacity Upgrades
         SmithingTransformRecipeBuilder.smithing(
@@ -250,6 +271,17 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("battery", LazyTrigger(TechTags.Items.BATTERIES))
                 .unlocks("previous", LazyTrigger(ModItems.ENERGY_CAPACITY_UPGRADE_2))
                 .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu3");
+
+        SmithingTransformRecipeBuilder.smithing(
+                        SmithingTemplate(),
+                        Ingredient.of(ModItems.ENERGY_CAPACITY_UPGRADE_3.get()),
+                        Ingredient.of(Tags.Items.INGOTS_NETHERITE),
+                        RecipeCategory.MISC,
+                        ModItems.ENERGY_CAPACITY_UPGRADE_4.get())
+                .unlocks("trader", TraderKnowledge())
+                .unlocks("battery", LazyTrigger(TechTags.Items.BATTERIES))
+                .unlocks("previous", LazyTrigger(ModItems.ENERGY_CAPACITY_UPGRADE_3))
+                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_4), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu4");
 
 
         //0.2.1.3

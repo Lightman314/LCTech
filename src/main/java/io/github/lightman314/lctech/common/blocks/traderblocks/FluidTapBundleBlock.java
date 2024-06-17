@@ -38,6 +38,9 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 	public FluidTapBundleBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
 
 	@Override
+	protected boolean isBlockOpaque() { return false; }
+
+	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new FluidTraderBlockEntity(pos, state, 4); }
 
 	@Override

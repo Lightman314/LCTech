@@ -48,6 +48,7 @@ public class TechBlockTagProvider extends BlockTagsProvider {
                 .add(ModBlocks.IRON_TANK)
                 .add(ModBlocks.GOLD_TANK)
                 .add(ModBlocks.DIAMOND_TANK)
+                .add(ModBlocks.NETHERITE_TANK)
                 .add(ModBlocks.VOID_TANK)
                 .add(ModBlocks.FLUID_TAP)
                 .add(ModBlocks.FLUID_TAP_BUNDLE)

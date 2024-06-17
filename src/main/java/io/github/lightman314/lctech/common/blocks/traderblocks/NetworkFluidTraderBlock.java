@@ -29,7 +29,10 @@ public class NetworkFluidTraderBlock extends TraderBlockRotatable {
 		super(properties);
 		this.tradeCount = tradeCount;
 	}
-	
+
+	@Override
+	protected boolean isBlockOpaque() { return false; }
+
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) { return new FluidTraderBlockEntity(pos, state, this.tradeCount, true); }
 	

@@ -1,0 +1,6 @@
+{
+    "parent": "lctech:block/tank_middle",
+	"textures": {
+		"middle": "lctech:block/tank_netherite_middle"
+	}
+}
