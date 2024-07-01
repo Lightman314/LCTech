@@ -4,6 +4,7 @@ import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -27,7 +29,15 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		this.tradeCount = tradeCount;
 		this.networkTrader = networkTrader;
 	}
-	
+
+	@Nullable
+	@Override
+	protected FluidTraderData castOrNullify(@Nonnull TraderData traderData) {
+		if(traderData instanceof FluidTraderData ft)
+			return ft;
+		return null;
+	}
+
 	@Nonnull
 	public FluidTraderData buildNewTrader() {
 		FluidTraderData trader = new FluidTraderData(this.tradeCount, this.level, this.worldPosition);

@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.common.blockentities.trader;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +26,15 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 		super(ModBlockEntities.ENERGY_TRADER.get(), pos, state);
 		this.networkTrader = networkTrader;
 	}
-	
+
+	@Nullable
+	@Override
+	protected EnergyTraderData castOrNullify(@Nonnull TraderData traderData) {
+		if(traderData instanceof EnergyTraderData et)
+			return et;
+		return null;
+	}
+
 	@Nonnull
 	public EnergyTraderData buildNewTrader() {
 		EnergyTraderData trader = new EnergyTraderData(this.level, this.worldPosition);
