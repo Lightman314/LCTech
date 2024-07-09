@@ -1,10 +1,11 @@
 package io.github.lightman314.lctech.common.blockentities.fluid_tank;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class FluidTankFluidHandler implements IFluidHandler {
@@ -43,6 +44,11 @@ public class FluidTankFluidHandler implements IFluidHandler {
 
     public final void setTankContents(FluidStack newContents) {
         List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack(newContents);
+        if(tanks.isEmpty())
+        {
+            LightmansCurrency.LogError("Somehow a Fluid Tank stack has no tanks in it!");
+            return;
+        }
         FluidStack fill = newContents.copy();
         for(FluidTankBlockEntity tank : tanks)
         {
@@ -85,8 +91,9 @@ public class FluidTankFluidHandler implements IFluidHandler {
         return 1;
     }
 
+    @Nonnull
     @Override
-    public @NotNull FluidStack getFluidInTank(int tank) { return tank == 0 ? this.getTankContents() : FluidStack.EMPTY; }
+    public FluidStack getFluidInTank(int tank) { return tank == 0 ? this.getTankContents() : FluidStack.EMPTY; }
 
     @Override
     public int getTankCapacity(int tank) {
@@ -94,7 +101,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
     }
 
     @Override
-    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
+    public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
         if(tank != 0)
             return false;
         FluidStack contents = this.getTankContents();
@@ -106,11 +113,16 @@ public class FluidTankFluidHandler implements IFluidHandler {
         if(isFluidValid(0, resource))
         {
             int fillAmount = MathUtil.clamp(resource.getAmount(), 0, this.getTankSpace());
-            if(action.execute())
+            if(fillAmount > 0 && action.execute())
             {
                 FluidStack contents = this.getTankContents();
                 if(contents.isEmpty())
-                    this.setTankContents(resource);
+                {
+                    FluidStack fluidToSet = resource.copy();
+                    if(!fluidToSet.isEmpty())
+                        fluidToSet.setAmount(fillAmount);
+                    this.setTankContents(fluidToSet);
+                }
                 else
                     this.growTankContents(fillAmount);
             }
@@ -119,8 +131,9 @@ public class FluidTankFluidHandler implements IFluidHandler {
         return 0;
     }
 
+    @Nonnull
     @Override
-    public @NotNull FluidStack drain(FluidStack resource, FluidAction action) {
+    public FluidStack drain(FluidStack resource, FluidAction action) {
         FluidStack contents = this.getTankContents();
         if(contents.isEmpty() || !contents.isFluidEqual(resource))
             return FluidStack.EMPTY;
@@ -138,8 +151,9 @@ public class FluidTankFluidHandler implements IFluidHandler {
         return resultStack;
     }
 
+    @Nonnull
     @Override
-    public @NotNull FluidStack drain(int maxDrain, FluidAction action) {
+    public FluidStack drain(int maxDrain, FluidAction action) {
         FluidStack contents = this.getTankContents();
         if(contents.isEmpty())
             return FluidStack.EMPTY;
