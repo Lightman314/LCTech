@@ -1,22 +1,21 @@
 package io.github.lightman314.lctech.common.util;
 
 import java.text.DecimalFormat;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class EnergyUtil {
 
 	public static final String ENERGY_UNIT = "FE";
 	
-	public static LazyOptional<IEnergyStorage> getEnergyHandler(ItemStack itemStack)
+	public static Optional<IEnergyStorage> getEnergyHandler(ItemStack itemStack)
 	{
-		return itemStack.getCapability(ForgeCapabilities.ENERGY);
+		return Optional.ofNullable(itemStack.getCapability(Capabilities.EnergyStorage.ITEM));
 	}
 	
 	public static String formatEnergyAmount(int amount) { return formatEnergyAmount(amount, true); }
@@ -33,7 +32,7 @@ public class EnergyUtil {
      * Fill a container from the given energySource.
      *
      * @param container   The container to be filled. Will not be modified.
-     *                    Separate handling must be done to reduce the stack size, stow containers, etc, on success.
+     *                    Separate handling must be done to reduce the stack size, stow containers, etc., on success.
      * @param energySource The energy handler to be drained.
      * @param maxAmount   The largest amount of energy that should be transferred.
      * @param doFill      true if the container should actually be filled, false if it should be simulated.
@@ -42,32 +41,30 @@ public class EnergyUtil {
     @Nonnull
     public static EnergyActionResult tryFillContainer(@Nonnull ItemStack container, IEnergyStorage energySource, int maxAmount, boolean doFill)
     {
-        ItemStack containerCopy = ItemHandlerHelper.copyStackWithSize(container, 1); // do not modify the input
-        return getEnergyHandler(containerCopy)
-                .map(containerEnergyHandler -> {
-                    int simulatedTransfer = tryEnergyTransfer(containerEnergyHandler, energySource, maxAmount, false);
-                    if (simulatedTransfer > 0)
-                    {
-                        if (doFill)
-                        {
-                        	tryEnergyTransfer(containerEnergyHandler, energySource, maxAmount, true);
-                        }
-                        else
-                        {
-                        	containerEnergyHandler.receiveEnergy(simulatedTransfer, !doFill);
-                        }
-                        return new EnergyActionResult(containerCopy);
-                    }
-                    return EnergyActionResult.FAILURE;
-                })
-                .orElse(EnergyActionResult.FAILURE);
+        ItemStack containerCopy = container.copyWithCount(1); // do not modify the input
+        return getEnergyHandler(containerCopy).map(containerEnergyHandler -> {
+            int simulatedTransfer = tryEnergyTransfer(containerEnergyHandler, energySource, maxAmount, false);
+            if (simulatedTransfer > 0)
+            {
+                if (doFill)
+                {
+                    tryEnergyTransfer(containerEnergyHandler, energySource, maxAmount, true);
+                }
+                else
+                {
+                    containerEnergyHandler.receiveEnergy(simulatedTransfer, !doFill);
+                }
+                return new EnergyActionResult(containerCopy);
+            }
+            return EnergyActionResult.FAILURE;
+        }).orElse(EnergyActionResult.FAILURE);
     }
     
     /**
      * Takes a filled container and tries to empty it into the given energy storage.
      *
      * @param container        The filled container. Will not be modified.
-     *                         Separate handling must be done to reduce the stack size, stow containers, etc, on success.
+     *                         Separate handling must be done to reduce the stack size, stow containers, etc., on success.
      * @param energyDestination The energy storage to be filled by the container.
      * @param maxAmount        The largest amount of energy that should be transferred.
      * @param doDrain          true if the container should actually be drained, false if it should be simulated.
@@ -77,23 +74,19 @@ public class EnergyUtil {
     @Nonnull
     public static EnergyActionResult tryEmptyContainer(@Nonnull ItemStack container, IEnergyStorage energyDestination, int maxAmount, boolean doDrain)
     {
-        ItemStack containerCopy = ItemHandlerHelper.copyStackWithSize(container, 1); // do not modify the input
-        return getEnergyHandler(containerCopy)
-                .map(containerEnergyHandler -> {
+        ItemStack containerCopy = container.copyWithCount(1); // do not modify the input
+        return getEnergyHandler(containerCopy).map(containerEnergyHandler -> {
+            // We are acting on a COPY of the stack, so performing changes is acceptable even if we are simulating.
+            int transfer = tryEnergyTransfer(energyDestination, containerEnergyHandler, maxAmount, true);
+            if (transfer <= 0)
+                return EnergyActionResult.FAILURE;
 
-                    // We are acting on a COPY of the stack, so performing changes is acceptable even if we are simulating.
-                    int transfer = tryEnergyTransfer(energyDestination, containerEnergyHandler, maxAmount, true);
-                    if (transfer <= 0)
-                        return EnergyActionResult.FAILURE;
-                    
-                    return new EnergyActionResult(containerCopy);
-                })
-                .orElse(EnergyActionResult.FAILURE);
+            return new EnergyActionResult(containerCopy);
+        }).orElse(EnergyActionResult.FAILURE);
     }
     
     /**
      * Fill a destination energy handler from a source energy handler with a max amount.
-     * To specify a fluid to transfer instead of max amount, use {@link #tryEnergyTransfer(IEnergyStorage, IEnergyStorage, int, boolean)}
      * To transfer as much as possible, use {@link Integer#MAX_VALUE} for maxAmount.
      *
      * @param energyDestination The energy handler to be filled.

@@ -4,22 +4,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.lightman314.lctech.LCTech;
+import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+
+import javax.annotation.Nonnull;
 
 public class FluidItemUtil {
 
@@ -42,40 +39,12 @@ public class FluidItemUtil {
 		return getFluidDisplayItem(new FluidStack(fluid, FluidType.BUCKET_VOLUME));
 	}
 	
-	public static JsonObject convertFluidStack(FluidStack fluid) {
-		JsonObject json = new JsonObject();
-		json.addProperty("id", ForgeRegistries.FLUIDS.getKey(fluid.getFluid()).toString());
-		json.addProperty("amount", fluid.getAmount());
-		if(fluid.hasTag())
-		{
-			String tag = fluid.getTag().getAsString();
-			json.addProperty("tag", tag);
-		}
-		return json;
+	public static JsonElement convertFluidStack(@Nonnull FluidStack fluid, @Nonnull HolderLookup.Provider lookup) {
+		return FluidStack.CODEC.encodeStart(RegistryOps.create(JsonOps.INSTANCE,lookup),fluid).getOrThrow();
 	}
 	
-	public static FluidStack parseFluidStack(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-		String id = GsonHelper.getAsString(json, "id");
-		int amount = GsonHelper.getAsInt(json,"amount");
-		FluidStack result = new FluidStack(ForgeRegistries.FLUIDS.getValue(new ResourceLocation(id)), amount);
-		try {
-			if(json.has("tag"))
-			{
-				JsonElement tag = json.get("tag");
-				if(tag.isJsonPrimitive() && tag.getAsJsonPrimitive().isString())
-				{
-					//Parse the compound tag
-					CompoundTag compound = TagParser.parseTag(tag.getAsString());
-					result.setTag(compound);
-				}
-				else
-				{
-					CompoundTag compound = TagParser.parseTag(FileUtil.GSON.toJson(tag));
-					result.setTag(compound);
-				}
-			}
-		} catch(CommandSyntaxException e) { LCTech.LOGGER.error("Error parsing fluid tag data.", e); }
-		return result;
+	public static FluidStack parseFluidStack(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+		return FluidStack.CODEC.decode(RegistryOps.create(JsonOps.INSTANCE,lookup),json).getOrThrow(JsonSyntaxException::new).getFirst();
 	}
 	
 }

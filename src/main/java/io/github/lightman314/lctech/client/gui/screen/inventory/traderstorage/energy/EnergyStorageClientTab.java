@@ -22,7 +22,7 @@ import javax.annotation.Nonnull;
 
 public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorageTab> {
 
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/energy_trade_extras.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "textures/gui/energy_trade_extras.png");
 	
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;

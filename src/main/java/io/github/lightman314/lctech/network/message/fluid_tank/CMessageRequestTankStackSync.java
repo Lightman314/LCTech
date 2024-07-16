@@ -1,29 +1,38 @@
 package io.github.lightman314.lctech.network.message.fluid_tank;
 
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
+import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 
-public class CMessageRequestTankStackSync {
+public class CMessageRequestTankStackSync extends ClientToServerPacket {
+
+    private static final Type<CMessageRequestTankStackSync> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"c_tank_stack_sync_request"));
+    public static final Handler<CMessageRequestTankStackSync> HANDLER = new H();
 
     private final BlockPos tankPos;
-    public CMessageRequestTankStackSync(BlockPos tankPos) { this.tankPos = tankPos; }
+    public CMessageRequestTankStackSync(BlockPos tankPos) {
+        super(TYPE);
+        this.tankPos = tankPos;
+    }
 
-    public static void encode(CMessageRequestTankStackSync message, FriendlyByteBuf buffer) { buffer.writeBlockPos(message.tankPos); }
+    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CMessageRequestTankStackSync message) { buffer.writeBlockPos(message.tankPos); }
+    private static CMessageRequestTankStackSync decode(@Nonnull FriendlyByteBuf buffer) { return new CMessageRequestTankStackSync(buffer.readBlockPos()); }
 
-    public static CMessageRequestTankStackSync decode(FriendlyByteBuf buffer) { return new CMessageRequestTankStackSync(buffer.readBlockPos()); }
-
-    public static void handle(CMessageRequestTankStackSync message, Supplier<NetworkEvent.Context> supplier) {
-        supplier.get().enqueueWork(() -> {
-            ServerPlayer player = supplier.get().getSender();
+    private static final class H extends Handler<CMessageRequestTankStackSync>
+    {
+        private H() { super(TYPE, easyCodec(CMessageRequestTankStackSync::encode,CMessageRequestTankStackSync::decode)); }
+        @Override
+        protected void handle(@Nonnull CMessageRequestTankStackSync message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             if(player.level().getBlockEntity(message.tankPos) instanceof FluidTankBlockEntity tank)
                 tank.sendTankStackPacket(player);
-        });
-        supplier.get().setPacketHandled(true);
+        }
     }
 
 }

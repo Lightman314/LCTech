@@ -12,18 +12,19 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class FluidTradeNotification extends TaxableNotification {
 
-	public static final NotificationType<FluidTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LCTech.MODID, "fluid_trade"),FluidTradeNotification::new);
+	public static final NotificationType<FluidTradeNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "fluid_trade"),FluidTradeNotification::new);
 	
 	TraderCategory traderData;
 	
@@ -51,7 +52,7 @@ public class FluidTradeNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> create(FluidTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new FluidTradeNotification(trade, cost, customer, traderData, taxesPaid); }
+	public static Supplier<Notification> create(FluidTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new FluidTradeNotification(trade, cost, customer, traderData, taxesPaid); }
 	
 	@Nonnull
 	@Override
@@ -76,11 +77,11 @@ public class FluidTradeNotification extends TaxableNotification {
 	}
 	
 	@Override
-	protected void saveNormal(CompoundTag compound) {
+	protected void saveNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
-		compound.put("TraderInfo", this.traderData.save());
+		compound.put("TraderInfo", this.traderData.save(lookup));
 		compound.putInt("TradeType", this.tradeType.index);
-		compound.putString("Fluid", Component.Serializer.toJson(this.fluidName));
+		compound.putString("Fluid", Component.Serializer.toJson(this.fluidName,lookup));
 		compound.putInt("FluidCount", this.fluidCount);
 		compound.put("Price", this.cost.save());
 		compound.putString("Customer", this.customer);
@@ -88,11 +89,11 @@ public class FluidTradeNotification extends TaxableNotification {
 	}
 	
 	@Override
-	protected void loadNormal(CompoundTag compound) {
+	protected void loadNormal(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
 		
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
+		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
-		this.fluidName = Component.Serializer.fromJson(compound.getString("Fluid"));
+		this.fluidName = Component.Serializer.fromJson(compound.getString("Fluid"),lookup);
 		this.fluidCount = compound.getInt("FluidCount");
 		this.cost = MoneyValue.safeLoad(compound, "Price");
 		this.customer = compound.getString("Customer");

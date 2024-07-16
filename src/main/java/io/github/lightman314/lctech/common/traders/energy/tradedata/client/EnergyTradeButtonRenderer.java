@@ -18,9 +18,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeData> {
@@ -31,7 +31,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     public int tradeButtonWidth(TradeContext context) { return 128; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext tradeContext) {
+    public Optional<ScreenPosition> arrowPosition(TradeContext tradeContext) {
         if(this.trade.isSale())
             return ScreenPosition.ofOptional(36, 1);
         else
@@ -45,7 +45,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
         if(this.allowsDrainage(context))
         {
             gui.resetColor();
-            LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
+            Optional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             arrowPosOptional.ifPresent(arrowPos -> {
                 gui.pushOffsetZero();
                 gui.blit(EnergyStorageClientTab.GUI_TEXTURE, button.getX() + arrowPos.x, button.getY() + arrowPos.y + 9, 36, 18, 8, 7);
@@ -96,7 +96,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) {
         if(this.allowsDrainage(context))
         {
-            LazyOptional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
+            Optional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             AtomicBoolean mouseOver = new AtomicBoolean(false);
             arrowPosOptional.ifPresent(arrowPos ->
                 mouseOver.set(arrowPos.offset(ScreenPosition.of(0, 9)).isMouseInArea(mouseX, mouseY, 8, 8))

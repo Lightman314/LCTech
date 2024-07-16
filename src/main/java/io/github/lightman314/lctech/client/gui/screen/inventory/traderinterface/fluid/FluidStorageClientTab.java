@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
 
 public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorageTab> implements IScrollable, IMouseListener {
 	
-	public static final ResourceLocation GUI_TEXTURE = new ResourceLocation(LCTech.MODID, "textures/gui/fluid_trade_extras.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "textures/gui/fluid_trade_extras.png");
 	
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
@@ -116,7 +116,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				gui.resetColor();
 				gui.blit(GUI_TEXTURE, xPos, yPos, 36, 16, 18, 53);
 				//Render the fluid in the tank
-				FluidRenderUtil.drawFluidTankInGUI(entry.filter, this.screen.getCorner(), xPos + 1, yPos + 1, 16, 51, (double)entry.getStoredAmount() / (double)storage.getTankCapacity());
+				FluidRenderUtil.drawFluidTankInGUI(entry.filter, this.screen.getCorner(), xPos + 1, yPos + 1, 16, 51, (float)entry.getStoredAmount() / (float)storage.getTankCapacity());
 				//Render the tank overlay (glass)
 				gui.resetColor();
 				gui.blit(GUI_TEXTURE, xPos, yPos, 54, 16, 18, 53);

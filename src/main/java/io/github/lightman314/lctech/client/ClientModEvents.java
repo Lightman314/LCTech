@@ -11,13 +11,12 @@ import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ModelEvent;
 
-@Mod.EventBusSubscriber(modid = LCTech.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = LCTech.MODID, value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
 
 	@SubscribeEvent
@@ -27,7 +26,7 @@ public class ClientModEvents {
 		FluidShardItem.getShardModelList().forEach(itemModelResourceLocation -> replaceModel(itemModelResourceLocation, event.getModels(), FluidShardModel::new));
 	}
 	
-	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ResourceLocation, BakedModel> modelRegistry, Function<BakedModel,BakedModel> modelGenerator)
+	private static void replaceModel(ModelResourceLocation itemModelResourceLocation, Map<ModelResourceLocation, BakedModel> modelRegistry, Function<BakedModel,BakedModel> modelGenerator)
 	{
 		BakedModel existingModel = modelRegistry.get(itemModelResourceLocation);
 		if(existingModel == null) {

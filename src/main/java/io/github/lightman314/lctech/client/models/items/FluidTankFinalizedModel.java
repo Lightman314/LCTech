@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.client.models.items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
@@ -13,7 +14,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 
@@ -21,10 +22,10 @@ public class FluidTankFinalizedModel implements BakedModel{
 	
 	private final BakedModel parentModel;
 	private final FluidStack tank;
-	private final int capacity;
+	private final Supplier<Integer> capacity;
 	private final FluidRenderData renderData;
 	
-	public FluidTankFinalizedModel(BakedModel parentModel, FluidStack tank, int capacity, FluidRenderData renderData)
+	public FluidTankFinalizedModel(BakedModel parentModel, FluidStack tank, Supplier<Integer> capacity, FluidRenderData renderData)
 	{
 		this.parentModel = parentModel;
 		this.tank = tank;
@@ -37,12 +38,10 @@ public class FluidTankFinalizedModel implements BakedModel{
 	@SuppressWarnings("deprecation")
 	public List<BakedQuad> getQuads(BlockState state, Direction side, @Nonnull RandomSource rand) {
 		if(side != null)
-		{
 			return parentModel.getQuads(state, side, rand);
-		}
 		
 		List<BakedQuad> combinedQuadsList = new ArrayList<>(parentModel.getQuads(state, side, rand));
-		combinedQuadsList.addAll(FluidRenderUtil.getBakedFluidQuads(this.tank, this.capacity, this.renderData));
+		combinedQuadsList.addAll(FluidRenderUtil.getBakedFluidQuads(this.tank, this.capacity.get(), this.renderData));
 		return combinedQuadsList;
 	}
 

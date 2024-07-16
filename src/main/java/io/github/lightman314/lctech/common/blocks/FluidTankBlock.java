@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -24,16 +24,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fluids.FluidType;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,16 +70,17 @@ public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFlui
 	protected boolean isBlockOpaque() { return false; }
 
 	@Override
-	protected void createBlockStateDefinition(@NotNull StateDefinition.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
 		super.createBlockStateDefinition(builder);
 		builder.add(TANK_STATE);
 	}
 	
 	@Override
-	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) { return this.shape; }
+	@Nonnull
+	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return this.shape; }
 	
 	@Override
-	public void setPlacedBy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity player, @NotNull ItemStack stack)
+	public void setPlacedBy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -86,20 +88,21 @@ public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFlui
 				tank.loadFromItem(stack);
 		}
 	}
-	
+
+	@Nonnull
 	@Override
-	public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult result)
-	{
-		if(result.getDirection().getAxis().isVertical() && player.getItemInHand(hand).getItem() instanceof BlockItem)
-			return InteractionResult.PASS;
+	protected ItemInteractionResult useItemOn(@Nonnull ItemStack heldItem, @Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, BlockHitResult hit) {
+		if(hit.getDirection().getAxis().isVertical() && player.getItemInHand(hand).getItem() instanceof BlockItem)
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity tank)
-			return tank.onInteraction(player, hand);
-		return InteractionResult.PASS;
+			return tank.onInteraction(heldItem, player, hand);
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 	
 	//Drop tank item
+	@Nonnull
 	@Override
-	public void playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player)
+	public BlockState playerWillDestroy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
 	{
 		if(!level.isClientSide && !player.isCreative())
 		{
@@ -108,14 +111,14 @@ public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFlui
 				popResource(level, pos, FluidTankItem.GetItemFromTank(be));
 			}
 		}
-		super.playerWillDestroy(level, pos, state, player);
+		return super.playerWillDestroy(level, pos, state, player);
 	}
-	
+
+	@Nonnull
 	@Override
-	public @NotNull ItemStack getCloneItemStack(BlockGetter level, @NotNull BlockPos pos, @NotNull BlockState state) {
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof FluidTankBlockEntity)
-			return FluidTankItem.GetItemFromTank((FluidTankBlockEntity)blockEntity);
+	public ItemStack getCloneItemStack(@Nonnull BlockState state, @Nonnull HitResult target, @Nonnull LevelReader level, @Nonnull BlockPos pos, @Nonnull Player player) {
+		if(level.getBlockEntity(pos) instanceof FluidTankBlockEntity tank)
+			return FluidTankItem.GetItemFromTank(tank);
 		return new ItemStack(this);
 	}
 
@@ -148,14 +151,15 @@ public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFlui
 	}
 
 	@Override
-	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) { return new FluidTankBlockEntity(pos, state); }
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new FluidTankBlockEntity(pos, state); }
 
 	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.FLUID_TANK.get()); }
 
 	@Override
-	public @NotNull BlockState updateShape(@NotNull BlockState stateIn, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor worldIn, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos)
+	@Nonnull
+	public BlockState updateShape(@Nonnull BlockState stateIn, @Nonnull Direction facing, @Nonnull BlockState facingState, @Nonnull LevelAccessor worldIn, @Nonnull BlockPos currentPos, @Nonnull BlockPos facingPos)
 	{
 		if(facing.getAxis().isVertical())
 		{

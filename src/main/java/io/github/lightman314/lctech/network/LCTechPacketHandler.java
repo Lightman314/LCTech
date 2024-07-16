@@ -3,46 +3,40 @@ package io.github.lightman314.lctech.network;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTankStackSync;
 import io.github.lightman314.lctech.network.message.fluid_tank.SMessageSyncTankStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.PacketDistributor.PacketTarget;
-import net.minecraftforge.network.simple.SimpleChannel;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = LCTech.MODID)
 public class LCTechPacketHandler {
 	
 	public static final String PROTOCOL_VERSION = "1";
 	
-	public static SimpleChannel instance;
-	private static int nextId = 0;
-	
-	public static void init()
-	{
-		 instance = NetworkRegistry.ChannelBuilder
-				 .named(new ResourceLocation(LCTech.MODID,"network"))
-				 .networkProtocolVersion(() -> PROTOCOL_VERSION)
-				 .clientAcceptedVersions(PROTOCOL_VERSION::equals)
-				 .serverAcceptedVersions(PROTOCOL_VERSION::equals)
-				 .simpleChannel();
+	private static PayloadRegistrar registrar = null;
 
+	@SubscribeEvent
+	public static void onPayloadRegister(RegisterPayloadHandlersEvent event) {
+
+		registrar = event.registrar(PROTOCOL_VERSION);
 		 //Fluid Tanks
-		register(CMessageRequestTankStackSync.class, CMessageRequestTankStackSync::encode, CMessageRequestTankStackSync::decode, CMessageRequestTankStackSync::handle);
-		register(SMessageSyncTankStack.class, SMessageSyncTankStack::encode, SMessageSyncTankStack::decode, SMessageSyncTankStack::handle);
+		registerC2S(CMessageRequestTankStackSync.HANDLER);
+		registerS2C(SMessageSyncTankStack.HANDLER);
 
 	}
 
-	private static <T> void register(Class<T> clazz, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> handler)
+	private static <T extends ServerToClientPacket> void registerS2C(CustomPacket.AbstractHandler<T> handler)
 	{
-		instance.registerMessage(nextId++, clazz, encoder, decoder, handler);
+		registrar.playToClient(handler.type, handler.codec, handler);
+	}
+
+	private static <T extends ClientToServerPacket> void registerC2S(CustomPacket.AbstractHandler<T> handler)
+	{
+		registrar.playToServer(handler.type, handler.codec, handler);
 	}
 
 	

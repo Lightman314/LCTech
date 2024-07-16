@@ -12,17 +12,18 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class EnergyTradeNotification extends TaxableNotification {
 
-	public static final NotificationType<EnergyTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LCTech.MODID, "energy_trade"),EnergyTradeNotification::new);
+	public static final NotificationType<EnergyTradeNotification> TYPE = new NotificationType<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "energy_trade"),EnergyTradeNotification::new);
 	
 	TraderCategory traderData;
 	
@@ -47,7 +48,7 @@ public class EnergyTradeNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> create(EnergyTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new EnergyTradeNotification(trade, cost, customer, traderData, taxesPaid); }
+	public static Supplier<Notification> create(EnergyTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new EnergyTradeNotification(trade, cost, customer, traderData, taxesPaid); }
 	
 	@Nonnull
 	@Override
@@ -68,9 +69,9 @@ public class EnergyTradeNotification extends TaxableNotification {
 	}
 	
 	@Override
-	protected void saveNormal(CompoundTag compound) {
+	protected void saveNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
-		compound.put("TraderInfo", this.traderData.save());
+		compound.put("TraderInfo", this.traderData.save(lookup));
 		compound.putInt("TradeType", this.tradeType.index);
 		compound.putInt("Quantity", this.quantity);
 		compound.put("Price", this.cost.save());
@@ -79,9 +80,9 @@ public class EnergyTradeNotification extends TaxableNotification {
 	}
 	
 	@Override
-	protected void loadNormal(CompoundTag compound) {
+	protected void loadNormal(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"));
+		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		this.quantity = compound.getInt("Quantity");
 		this.cost = MoneyValue.safeLoad(compound, "Price");

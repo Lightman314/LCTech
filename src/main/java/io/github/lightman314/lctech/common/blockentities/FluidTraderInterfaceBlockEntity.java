@@ -31,14 +31,15 @@ import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 import javax.annotation.Nonnull;
 
@@ -86,7 +87,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 			//Check trade for purchase fluid to restock
 			TradeData t = this.getReferencedTrade();
 			if(t instanceof FluidTradeData trade)
-				return trade.isPurchase() && trade.getProduct().isFluidEqual(fluid);
+				return trade.isPurchase() && FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid);
 		}
 		else
 		{
@@ -98,7 +99,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				{
 					if(trade.isSale())
 					{
-						if(trade.getProduct().isFluidEqual(fluid))
+						if(FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid))
 							return true;
 					}
 				}
@@ -125,8 +126,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		else
 		{
 			TraderData trader = this.getTrader();
-			if(trader instanceof FluidTraderData)
-				return ((FluidTraderData)trader).getRelevantFluids();
+			if(trader instanceof FluidTraderData fluidTrader)
+				return fluidTrader.getRelevantFluids();
 		}
 		return new ArrayList<>();
 	}
@@ -145,7 +146,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
-						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
 							addAmount -= defaultCapacity;
@@ -160,30 +161,30 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	protected FluidTradeData deserializeTrade(CompoundTag compound) { return FluidTradeData.loadData(compound, false); }
+	protected FluidTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return FluidTradeData.loadData(compound, false, lookup); }
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
-		super.saveAdditional(compound);
-		this.saveFluidBuffer(compound);
+	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound,lookup);
+		this.saveFluidBuffer(compound,lookup);
 	}
 	
-	protected final CompoundTag saveFluidBuffer(CompoundTag compound) {
-		this.fluidBuffer.save(compound, "Storage");
+	protected final CompoundTag saveFluidBuffer(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		this.fluidBuffer.save(compound, "Storage",lookup);
 		return compound;
 	}
 	
 	public void setFluidBufferDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveFluidBuffer(new CompoundTag()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveFluidBuffer(new CompoundTag(),this.level.registryAccess()));
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound,lookup);
 		if(compound.contains("Storage"))
-			this.fluidBuffer.load(compound, "Storage");
+			this.fluidBuffer.load(compound, "Storage", lookup);
 	}
 	
 	@Override
@@ -315,52 +316,50 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
-				BlockEntity be = this.level.getBlockEntity(queryPos);
-				if(be != null)
+				IFluidHandler fluidHandler = this.level.getCapability(Capabilities.FluidHandler.BLOCK, queryPos, actualSide.getOpposite());
+				if(fluidHandler != null)
 				{
-					be.getCapability(ForgeCapabilities.FLUID_HANDLER, actualSide.getOpposite()).ifPresent(fluidHandler -> {
-						//Collect fluids from neighboring blocks
-						if(this.fluidHandler.getInputSides().get(relativeSide))
+					//Collect fluids from neighboring blocks
+					if(this.fluidHandler.getInputSides().get(relativeSide))
+					{
+						boolean query = true;
+						for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
 						{
-							boolean query = true;
-							for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
+							FluidStack stack = fluidHandler.getFluidInTank(i);
+							int fillableAmount = this.fluidBuffer.getFillableAmount(stack);
+							if(fillableAmount > 0)
 							{
-								FluidStack stack = fluidHandler.getFluidInTank(i);
-								int fillableAmount = this.fluidBuffer.getFillableAmount(stack);
-								if(fillableAmount > 0)
+								query = false;
+								FluidStack drainStack = stack.copy();
+								drainStack.setAmount(fillableAmount);
+								FluidStack result = fluidHandler.drain(drainStack, FluidAction.EXECUTE);
+								this.fluidBuffer.forceFillTank(result);
+								markBufferDirty.set(true);
+							}
+						}
+					}
+					//Output fluids to neighboring blocks
+					if(this.fluidHandler.getOutputSides().get(relativeSide))
+					{
+						List<FluidEntry> entries = this.fluidBuffer.getContents();
+						boolean query = true;
+						for(int i = 0; query && i < entries.size(); ++i)
+						{
+							FluidStack fluid = entries.get(i).getTankContents();
+							if(this.allowOutput(fluid))
+							{
+								int fillAmount = fluidHandler.fill(fluid.copy(), FluidAction.EXECUTE);
+								if(fillAmount > 0)
 								{
 									query = false;
-									FluidStack drainStack = stack.copy();
-									drainStack.setAmount(fillableAmount);
-									FluidStack result = fluidHandler.drain(drainStack, FluidAction.EXECUTE);
-									this.fluidBuffer.forceFillTank(result);
+									if(!fluid.isEmpty())
+										fluid.setAmount(fillAmount);
+									this.fluidBuffer.drain(fluid);
 									markBufferDirty.set(true);
 								}
 							}
 						}
-						//Output fluids to neighboring blocks
-						if(this.fluidHandler.getOutputSides().get(relativeSide))
-						{
-							List<FluidEntry> entries = this.fluidBuffer.getContents();
-							boolean query = true;
-							for(int i = 0; query && i < entries.size(); ++i)
-							{
-								FluidStack fluid = entries.get(i).getTankContents();
-								if(this.allowOutput(fluid))
-								{
-									int fillAmount = fluidHandler.fill(fluid.copy(), FluidAction.EXECUTE);
-									if(fillAmount > 0)
-									{
-										query = false;
-										if(!fluid.isEmpty())
-											fluid.setAmount(fillAmount);
-										this.fluidBuffer.drain(fluid);
-										markBufferDirty.set(true);
-									}
-								}
-							}
-						}
-					});
+					}
 				}
 			}
 		}

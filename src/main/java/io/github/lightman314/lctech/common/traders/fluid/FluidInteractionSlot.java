@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidUtil;
 
 public class FluidInteractionSlot extends InteractionSlotData {
 

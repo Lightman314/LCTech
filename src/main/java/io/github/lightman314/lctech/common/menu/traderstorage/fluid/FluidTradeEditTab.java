@@ -14,9 +14,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidTradeEditTab extends TraderStorageTab {
 
@@ -63,7 +63,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 			trade.setTradeDirection(type);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewType", type.index));
+				this.menu.SendMessage(this.builder().setInt("NewType", type.index));
 		}
 	}
 	
@@ -76,7 +76,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 			trade.setBucketQuantity(amount);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewQuantity", amount));
+				this.menu.SendMessage(this.builder().setInt("NewQuantity", amount));
 		}
 	}
 	
@@ -87,7 +87,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
+				this.menu.SendMessage(this.builder().setMoneyValue("NewPrice", price));
 		}
 	}
 	
@@ -103,7 +103,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 					fluidTrader.markStorageDirty();
 			}
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleTag("NewFluid", fluid.writeToNBT(new CompoundTag())));
+				this.menu.SendMessage(this.builder().setCompound("NewFluid", (CompoundTag)fluid.saveOptional(this.registryAccess())));
 		}
 	}
 	
@@ -115,7 +115,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 		}
 		else if(message.contains("NewFluid"))
 		{
-			this.setFluid(FluidStack.loadFluidStackFromNBT(message.getNBT("NewFluid")));
+			this.setFluid(FluidStack.parseOptional(message.lookup,message.getNBT("NewFluid")));
 		}
 		else if(message.contains("NewQuantity"))
 		{

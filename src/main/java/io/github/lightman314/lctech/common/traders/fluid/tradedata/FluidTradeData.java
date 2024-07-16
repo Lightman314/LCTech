@@ -25,17 +25,18 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -133,11 +134,11 @@ public class FluidTradeData extends TradeData {
 	public boolean isValid() { return super.isValid() && !this.product.isEmpty(); }
 
 	@Override
-	public CompoundTag getAsNBT()
+	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup)
 	{
-		CompoundTag compound = super.getAsNBT();
+		CompoundTag compound = super.getAsNBT(lookup);
 
-		compound.put("Trade", this.product.writeToNBT(new CompoundTag()));
+		compound.put("Trade", this.product.saveOptional(lookup));
 		compound.putInt("Quantity", this.bucketQuantity);
 		//compound.putInt("PendingDrain", this.pendingDrain);
 		compound.putString("TradeType", this.tradeDirection.name());
@@ -146,11 +147,11 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void loadFromNBT(CompoundTag compound)
+	public void loadFromNBT(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.loadFromNBT(compound);
+		super.loadFromNBT(compound,lookup);
 		//Load the product
-		this.product = FluidStack.loadFluidStackFromNBT(compound.getCompound("Trade"));
+		this.product = FluidStack.parseOptional(lookup,compound.getCompound("Trade"));
 		//Load the quantity
 		if(compound.contains("Quantity", Tag.TAG_INT))
 			this.bucketQuantity = compound.getInt("Quantity");
@@ -179,27 +180,27 @@ public class FluidTradeData extends TradeData {
 		return list;
 	}
 
-	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound)
+	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY);
+		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY, lookup);
 	}
 
-	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, String tag)
+	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, String tag, @Nonnull HolderLookup.Provider lookup)
 	{
 		ListTag list = new ListTag();
 		for (FluidTradeData fluidTradeData : tradeList) {
-			list.add(fluidTradeData.getAsNBT());
+			list.add(fluidTradeData.getAsNBT(lookup));
 			//LCTech.LOGGER.info("Wrote to NBT List: \n" + tradeList.get(i).getAsNBT().toString());
 		}
 		compound.put(tag, list);
 	}
 
-	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, boolean validateRules)
+	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
 	{
-		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules);
+		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules, lookup);
 	}
 
-	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules)
+	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
 	{
 
 		if(!compound.contains(tag))
@@ -211,15 +212,15 @@ public class FluidTradeData extends TradeData {
 
 		for(int i = 0; i < list.size(); i++)
 		{
-			tradeData.add(loadData(list.getCompound(i), validateRules));
+			tradeData.add(loadData(list.getCompound(i), validateRules,lookup));
 		}
 
 		return tradeData;
 	}
 
-	public static FluidTradeData loadData(CompoundTag compound, boolean validateRules) {
+	public static FluidTradeData loadData(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup) {
 		FluidTradeData trade = new FluidTradeData(validateRules);
-		trade.loadFromNBT(compound);
+		trade.loadFromNBT(compound, lookup);
 		return trade;
 	}
 
@@ -333,7 +334,7 @@ public class FluidTradeData extends TradeData {
 				return;
 			if(this.isSale())
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", -1));
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setInt("StartingSlot", -1));
 			}
 			if(this.isPurchase())
 			{
@@ -357,7 +358,7 @@ public class FluidTradeData extends TradeData {
 			}
 			else if(this.isPurchase())
 			{
-				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", -1));
+				tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setInt("StartingSlot", -1));
 			}
 		}
 	}
@@ -368,7 +369,7 @@ public class FluidTradeData extends TradeData {
 		if(heldItem.isEmpty() && this.product.isEmpty())
 		{
 			//Open fluid edit
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", 0));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setInt("StartingSlot", 0));
 			return false;
 		}
 		else

@@ -7,8 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class TechBlockEntityBlockHelper {
 
-	public static final ResourceLocation FLUID_TRADER_TYPE = new ResourceLocation(LCTech.MODID, "fluid_trader");
-	public static final ResourceLocation ENERGY_TRADER_TYPE = new ResourceLocation(LCTech.MODID, "energy_trader");
+	public static final ResourceLocation FLUID_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "fluid_trader");
+	public static final ResourceLocation ENERGY_TRADER_TYPE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "energy_trader");
 	
 	public static void init() {}
 	

@@ -12,18 +12,19 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import javax.annotation.Nonnull;
 
@@ -80,7 +81,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 		allFluids = new ArrayList<>();
 
-		ForgeRegistries.FLUIDS.forEach(fluid ->{
+		BuiltInRegistries.FLUID.forEach(fluid ->{
 			if(!BLACKLISTED_FLUIDS.contains(fluid) && fluid.isSource(fluid.defaultFluidState()))
 				allFluids.add(fluid);
 		});
@@ -120,7 +121,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 					this.searchResultFluids.add(fluid);
 				}
 				//Search the registry name
-				else if(ForgeRegistries.FLUIDS.getKey(fluid).toString().contains(this.searchString)) {
+				else if(BuiltInRegistries.FLUID.getKey(fluid).toString().contains(this.searchString)) {
 					this.searchResultFluids.add(fluid);
 				}
 			}
@@ -136,6 +137,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 		this.searchInput.setResponder(this::modifySearch);
+		this.addChild(new ScrollListener(this.getArea(), this));
 	}
 
 	@Override
@@ -219,25 +221,6 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-		if(delta < 0)
-		{
-			if(this.scroll < this.getMaxScroll())
-				this.scroll++;
-			else
-				return false;
-		}
-		else if(delta > 0)
-		{
-			if(this.scroll > 0)
-				this.scroll--;
-			else
-				return false;
-		}
-		return true;
 	}
 
 	@Override

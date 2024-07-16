@@ -2,8 +2,8 @@ package io.github.lightman314.lctech.common.blockentities.fluid_tank;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -16,15 +16,15 @@ public class FluidTankFluidHandler implements IFluidHandler {
         List<FluidTankBlockEntity> tanks = this.fluidTank.getTankStack();
         if(tanks.isEmpty())
             return FluidStack.EMPTY;
-        FluidStack contents = tanks.get(0).getTankContents().copy();
+        FluidStack contents = tanks.getFirst().getTankContents().copy();
         if(contents.isEmpty())
             return FluidStack.EMPTY;
         for(int i = 1; i < tanks.size(); ++i)
         {
             FluidStack tc = tanks.get(i).getTankContents().copy();
-            if(tc.isFluidEqual(contents))
+            if(FluidStack.isSameFluidSameComponents(tc,contents))
                 contents.grow(tc.getAmount());
-            if(!tc.isFluidEqual(contents) && !tc.isEmpty())
+            else if(!tc.isEmpty())
                 this.fluidTank.refactorTankStack();
         }
         return contents;
@@ -68,7 +68,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
         if(!fill.isEmpty())
         {
             //Forcibly overflow the last tank to keep us from losing fluid
-            FluidTankBlockEntity lastTank = tanks.get(tanks.size() - 1);
+            FluidTankBlockEntity lastTank = tanks.getLast();
             FluidStack contents = lastTank.getTankContents();
             contents.grow(fill.getAmount());
             lastTank.setTankContents(contents);
@@ -105,11 +105,11 @@ public class FluidTankFluidHandler implements IFluidHandler {
         if(tank != 0)
             return false;
         FluidStack contents = this.getTankContents();
-        return contents.isEmpty() || contents.isFluidEqual(stack);
+        return contents.isEmpty() || FluidStack.isSameFluidSameComponents(contents, stack);
     }
 
     @Override
-    public int fill(FluidStack resource, FluidAction action) {
+    public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
         if(isFluidValid(0, resource))
         {
             int fillAmount = MathUtil.clamp(resource.getAmount(), 0, this.getTankSpace());
@@ -133,9 +133,9 @@ public class FluidTankFluidHandler implements IFluidHandler {
 
     @Nonnull
     @Override
-    public FluidStack drain(FluidStack resource, FluidAction action) {
+    public FluidStack drain(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
         FluidStack contents = this.getTankContents();
-        if(contents.isEmpty() || !contents.isFluidEqual(resource))
+        if(contents.isEmpty() || !FluidStack.isSameFluidSameComponents(contents,resource))
             return FluidStack.EMPTY;
         //Tank is not empty, and the resource is equal to the tank contents
         int drainAmount = MathUtil.clamp(resource.getAmount(), 0, contents.getAmount());
@@ -153,7 +153,7 @@ public class FluidTankFluidHandler implements IFluidHandler {
 
     @Nonnull
     @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
+    public FluidStack drain(int maxDrain, @Nonnull FluidAction action) {
         FluidStack contents = this.getTankContents();
         if(contents.isEmpty())
             return FluidStack.EMPTY;

@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.trader.EnergyTraderBlockEntity;
@@ -12,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class EnergyTraderBlock extends TraderBlockRotatable {
 	
@@ -30,6 +30,6 @@ public class EnergyTraderBlock extends TraderBlockRotatable {
 	protected BlockEntityType<?> traderType() { return ModBlockEntities.ENERGY_TRADER.get(); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_ENERGY_TRADER.asTooltip(); }
+	protected Supplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_ENERGY_TRADER.asTooltip(); }
 
 }

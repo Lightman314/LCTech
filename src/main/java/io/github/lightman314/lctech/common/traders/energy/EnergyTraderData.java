@@ -43,6 +43,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -53,15 +54,11 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EnergyTraderData extends InputTraderData {
 
@@ -69,7 +66,7 @@ public class EnergyTraderData extends InputTraderData {
 	
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.ENERGY_CAPACITY);
 	
-	public static final TraderType<EnergyTraderData> TYPE = new TraderType<>(new ResourceLocation(LCTech.MODID,"energy_trader"),EnergyTraderData::new);
+	public static final TraderType<EnergyTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"energy_trader"),EnergyTraderData::new);
 	
 	protected final TradeEnergyHandler energyHandler = new TradeEnergyHandler(this);
 	
@@ -116,17 +113,17 @@ public class EnergyTraderData extends InputTraderData {
 	public EnergyTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
 	
 	@Override
-	public void saveAdditional(CompoundTag compound) {
-		super.saveAdditional(compound);
+	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound,lookup);
 		
-		this.saveTrades(compound);
+		this.saveTrades(compound,lookup);
 		this.saveEnergyStorage(compound);
 		this.saveDrainMode(compound);
 		
 	}
 	
-	protected final void saveTrades(CompoundTag compound) {
-		EnergyTradeData.WriteNBTList(this.trades, compound);
+	protected final void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		EnergyTradeData.WriteNBTList(this.trades, compound, lookup);
 	}
 	
 	protected final void saveDrainMode(CompoundTag compound) {
@@ -138,11 +135,11 @@ public class EnergyTraderData extends InputTraderData {
 		compound.putInt("PendingDrain", this.pendingDrain);
 	}
 	
-	public void loadAdditional(CompoundTag compound) {
-		super.loadAdditional(compound);
+	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound,lookup);
 
 		if(compound.contains(TradeData.DEFAULT_KEY))
-			this.trades = EnergyTradeData.LoadNBTList(compound, !this.isPersistent());
+			this.trades = EnergyTradeData.LoadNBTList(compound, !this.isPersistent(), lookup);
 		
 		if(compound.contains("Battery"))
 			this.energyStorage = Math.max(0,compound.getInt("Battery"));
@@ -268,7 +265,7 @@ public class EnergyTraderData extends InputTraderData {
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
-						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
 							addAmount -= defaultCapacity;
@@ -286,11 +283,6 @@ public class EnergyTraderData extends InputTraderData {
 	public void addEnergy(int amount) { this.energyStorage += amount; }
 	
 	public void markEnergyStorageDirty() { this.markDirty(this::saveEnergyStorage); }
-	
-	@Override
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide) {
-		return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> this.getEnergyHandler().getExternalHandler(relativeSide)));
-	}
 
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY)); }
@@ -473,7 +465,7 @@ public class EnergyTraderData extends InputTraderData {
 	}
 	
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		JsonArray tradeList = GsonHelper.getAsJsonArray(json, "Trades");
 		this.trades = new ArrayList<>();
 		for(int i = 0; i < tradeList.size() && this.trades.size() < TraderData.GLOBAL_TRADE_LIMIT; ++i)
@@ -490,7 +482,7 @@ public class EnergyTraderData extends InputTraderData {
 				newTrade.setCost(MoneyValue.loadFromJson(tradeData.get("Price")));
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
-					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade));
+					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade,lookup));
 				
 				this.trades.add(newTrade);
 				
@@ -506,7 +498,7 @@ public class EnergyTraderData extends InputTraderData {
 	}
 	
 	@Override
-	protected void saveAdditionalToJson(JsonObject json) {
+	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		
 		JsonArray trades = new JsonArray();
 		for(EnergyTradeData trade : this.trades)
@@ -519,7 +511,7 @@ public class EnergyTraderData extends InputTraderData {
 				tradeData.addProperty("Quantity", trade.getAmount());
 				
 				if(!trade.getRules().isEmpty())
-					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
+					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules(),lookup));
 				
 				trades.add(tradeData);
 			}
@@ -529,12 +521,12 @@ public class EnergyTraderData extends InputTraderData {
 	}
 	
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) {
+	protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
 		for (EnergyTradeData trade : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
+			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData",lookup))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
 		}
@@ -543,7 +535,7 @@ public class EnergyTraderData extends InputTraderData {
 	}
 	
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) {
+	protected void loadAdditionalPersistentData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("PersistentTradeData"))
 		{
 			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
@@ -551,7 +543,7 @@ public class EnergyTraderData extends InputTraderData {
 			{
 				EnergyTradeData trade = this.trades.get(i);
 				CompoundTag ptTag = tradePersistentData.getCompound(i);
-				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData");
+				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData",lookup);
 			}
 		}
 	}

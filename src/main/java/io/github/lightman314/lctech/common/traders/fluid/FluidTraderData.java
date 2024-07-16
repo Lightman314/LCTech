@@ -2,7 +2,6 @@ package io.github.lightman314.lctech.common.traders.fluid;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -40,7 +39,7 @@ import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -52,19 +51,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FluidTraderData extends InputTraderData implements ITraderFluidFilter {
 
-	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(new ResourceLocation(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
+	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
 
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.FLUID_CAPACITY);
 
@@ -85,34 +82,34 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound) {
-		super.loadAdditional(compound);
+	protected void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound,lookup);
 
 		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
-			this.trades = FluidTradeData.LoadNBTList(compound, !this.isPersistent());
+			this.trades = FluidTradeData.LoadNBTList(compound, !this.isPersistent(),lookup);
 
 		if(compound.contains("FluidStorage"))
-			this.storage.load(compound, "FluidStorage");
+			this.storage.load(compound, "FluidStorage",lookup);
 
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound) {
-		super.saveAdditional(compound);
+	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound,lookup);
 
-		this.saveTrades(compound);
-		this.saveStorage(compound);
+		this.saveTrades(compound,lookup);
+		this.saveStorage(compound,lookup);
 
 	}
 
-	protected final void saveTrades(CompoundTag compound)
+	protected final void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		FluidTradeData.WriteNBTList(this.trades, compound);
+		FluidTradeData.WriteNBTList(this.trades, compound,lookup);
 	}
 
-	protected final void saveStorage(CompoundTag compound)
+	protected final void saveStorage(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		this.storage.save(compound, "FluidStorage");
+		this.storage.save(compound, "FluidStorage",lookup);
 	}
 
 	@Override
@@ -190,7 +187,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			return true;
 		for(FluidStack query : list)
 		{
-			if(query.isFluidEqual(fluid))
+			if(FluidStack.isSameFluidSameComponents(query,fluid))
 				return true;
 		}
 		return false;
@@ -212,7 +209,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
-						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
 							addAmount -= defaultCapacity;
@@ -224,12 +221,6 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			}
 		}
 		return tankCapacity;
-	}
-
-	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide) {
-		return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
 
 	@Override
@@ -407,7 +398,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
 		if(!json.has("Trades"))
 			throw new JsonSyntaxException("Fluid Trader must have a trade list.");
@@ -425,7 +416,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 				//Product
 				JsonObject product = GsonHelper.getAsJsonObject(tradeData, "Product");
-				newTrade.setProduct(FluidItemUtil.parseFluidStack(product));
+				newTrade.setProduct(FluidItemUtil.parseFluidStack(product,lookup));
 				//Trade Type
 				if(tradeData.has("TradeType"))
 					newTrade.setTradeDirection(FluidTradeData.loadTradeType(tradeData.get("TradeType").getAsString()));
@@ -436,7 +427,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 					newTrade.setBucketQuantity(GsonHelper.getAsInt(tradeData, "Quantity"));
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
-					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade));
+					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade, lookup));
 
 				this.trades.add(newTrade);
 
@@ -449,7 +440,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void saveAdditionalToJson(JsonObject json) {
+	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
 		JsonArray trades = new JsonArray();
 		for(FluidTradeData trade : this.trades)
 		{
@@ -459,11 +450,11 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 				tradeData.addProperty("TradeType", trade.getTradeDirection().name());
 				tradeData.add("Price", trade.getCost().toJson());
-				tradeData.add("Product", FluidItemUtil.convertFluidStack(trade.getProduct()));
+				tradeData.add("Product", FluidItemUtil.convertFluidStack(trade.getProduct(),lookup));
 				tradeData.addProperty("Quantity", trade.getBucketQuantity());
 
 				if(!trade.getRules().isEmpty())
-					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
+					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules(),lookup));
 
 				trades.add(tradeData);
 			}
@@ -472,12 +463,12 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void saveAdditionalPersistentData(CompoundTag compound) {
+	protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
 		for (FluidTradeData trade : this.trades) {
 			CompoundTag ptTag = new CompoundTag();
-			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData"))
+			if (TradeRule.savePersistentData(ptTag, trade.getRules(), "RuleData",lookup))
 				tradesAreRelevant = true;
 			tradePersistentData.add(ptTag);
 		}
@@ -486,7 +477,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound) {
+	protected void loadAdditionalPersistentData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains("PersistentTradeData"))
 		{
 			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
@@ -494,7 +485,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			{
 				FluidTradeData trade = this.trades.get(i);
 				CompoundTag ptTag = tradePersistentData.getCompound(i);
-				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData");
+				TradeRule.loadPersistentData(ptTag, trade.getRules(), "RuleData",lookup);
 			}
 		}
 	}
@@ -521,10 +512,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	@Override
 	public IconData getIconForItem(@Nonnull ItemStack stack) {
 
-		FluidStack fluid;
-		fluid = findFluid(stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM));
-		if(fluid == null)
-			fluid = findFluid(stack.getCapability(ForgeCapabilities.FLUID_HANDLER));
+		FluidStack fluid = findFluid(stack.getCapability(Capabilities.FluidHandler.ITEM));
 		if(fluid != null && !fluid.isEmpty())
 		{
 			fluid.setAmount(FluidType.BUCKET_VOLUME);
@@ -539,18 +527,19 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Nullable
-	private static FluidStack findFluid(@Nonnull LazyOptional<? extends IFluidHandler> optional)
+	private static FluidStack findFluid(@Nullable IFluidHandler handler)
 	{
-		AtomicReference<FluidStack> result = new AtomicReference<>(null);
-		optional.ifPresent(handler -> {
-			for(int i = 0; i < handler.getTanks() && result.get() == null; ++i)
+		FluidStack result = null;
+		if(handler != null)
+		{
+			for(int i = 0; i < handler.getTanks() && result == null; ++i)
 			{
 				FluidStack contents = handler.getFluidInTank(i);
 				if(!contents.isEmpty())
-					result.set(contents.copy());
+					result = contents.copy();
 			}
-		});
-		return result.get();
+		}
+		return result;
 	}
 
 }

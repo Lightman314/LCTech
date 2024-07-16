@@ -1,25 +1,21 @@
 package io.github.lightman314.lctech.common.items;
 
 import io.github.lightman314.lctech.LCTech;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import io.github.lightman314.lctech.common.core.ModDataComponents;
+import io.github.lightman314.lctech.common.items.data.BatteryData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+
+import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public interface IBatteryItem {
 
 	
 	int getMaxEnergyStorage(ItemStack stack);
 	
-	static ICapabilityProvider createCapability(ItemStack stack)
+	static IEnergyStorage createCapability(ItemStack stack)
 	{
 		if(stack.getItem() instanceof IBatteryItem)
 		{
@@ -32,61 +28,49 @@ public interface IBatteryItem {
 		}
 	}
 	
-	static int getStoredEnergy(ItemStack stack)
-	{
-		CompoundTag tag = stack.getOrCreateTag();
-		if(tag.contains("Battery", Tag.TAG_INT))
-			return tag.getInt("Battery");
-		return 0;
-	}
+	static int getStoredEnergy(ItemStack stack) { return getData(stack).energy(); }
+
+	@Nonnull
+	static BatteryData getData(@Nonnull ItemStack stack) { return stack.getOrDefault(ModDataComponents.ENERGY_DATA,BatteryData.EMPTY); }
 	
 	static <T extends IBatteryItem & ItemLike> ItemStack getFullBattery(T item) {
 		ItemStack newStack = new ItemStack(item);
-		newStack.getOrCreateTag().putInt("Battery", item.getMaxEnergyStorage(newStack));
+		BatteryData data = getData(newStack);
+		newStack.set(ModDataComponents.ENERGY_DATA, data.withEnergy(item.getMaxEnergyStorage(newStack)));
 		return newStack;
 	}
 
-	static ItemStack HideEnergyBar(RegistryObject<? extends ItemLike> item) { return HideEnergyBar(new ItemStack(item.get())); }
+	static ItemStack HideEnergyBar(Supplier<? extends ItemLike> item) { return HideEnergyBar(new ItemStack(item.get())); }
 	static ItemStack HideEnergyBar(ItemLike item) { return HideEnergyBar(new ItemStack(item)); }
 	static ItemStack HideEnergyBar(ItemStack stack) {
-		CompoundTag tag = stack.getOrCreateTag();
-		tag.putBoolean("HideEnergyBar", true);
+		BatteryData data = getData(stack);
+		stack.set(ModDataComponents.ENERGY_DATA,data.withEnergyBarVisible(false));
 		return stack;
 	}
 
 	static boolean isEnergyBarVisible(ItemStack batteryStack)
 	{
 		if(batteryStack.getItem() instanceof IBatteryItem)
-		{
-			if(batteryStack.hasTag())
-			{
-				CompoundTag tag = batteryStack.getTag();
-				return !tag.contains("HideEnergyBar") || !tag.getBoolean("HideEnergyBar");
-			}
-			return true;
-		}
+			return getData(batteryStack).energyBarVisible();
 		return false;
 	}
 	
-	class BatteryEnergyStorage implements IEnergyStorage, ICapabilityProvider
+	class BatteryEnergyStorage implements IEnergyStorage
 	{
 		
 		private final ItemStack stack;
-		private final LazyOptional<IEnergyStorage> optional;
 		
 		private BatteryEnergyStorage(ItemStack stack)
 		{
 			this.stack = stack;
-			this.optional = LazyOptional.of(() -> this);
 			//Create the tag should it not exist
 			if(this.getEnergyStored() == 0)
 				this.setEnergyStored(0);
 		}
 
 		private void setEnergyStored(int energyStored) {
-			CompoundTag tag = stack.getOrCreateTag();
-			tag.putInt("Battery", energyStored);
-			stack.setTag(tag);
+			BatteryData data = getData(this.stack);
+			stack.set(ModDataComponents.ENERGY_DATA, data.withEnergy(energyStored));
 		}
 		
 		@Override
@@ -120,11 +104,6 @@ public interface IBatteryItem {
 
 		@Override
 		public boolean canReceive() { return true; }
-
-		@Override
-		public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
-			return ForgeCapabilities.ENERGY.orEmpty(cap, this.optional);
-		}
 		
 	}
 	

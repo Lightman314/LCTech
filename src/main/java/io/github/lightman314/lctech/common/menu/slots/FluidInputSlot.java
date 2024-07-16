@@ -9,11 +9,11 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidUtil;
 
 public class FluidInputSlot extends Slot{
 
-	public static final ResourceLocation EMPTY_FLUID_SLOT = new ResourceLocation(LCTech.MODID, "item/empty_fluid_slot");
+	public static final ResourceLocation EMPTY_FLUID_SLOT = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "item/empty_fluid_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_FLUID_SLOT);
 	
 	public FluidInputSlot(Container inventory, int index, int x, int y)

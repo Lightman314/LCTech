@@ -14,8 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.fluids.FluidType;
 
 public class ModBlocks {
 	
@@ -144,46 +143,46 @@ public class ModBlocks {
 	}
 	
 	//Fluid Tanks
-	public static final RegistryObject<Block> IRON_TANK;
-	public static final RegistryObject<Block> GOLD_TANK;
-	public static final RegistryObject<Block> DIAMOND_TANK;
-	public static final RegistryObject<Block> NETHERITE_TANK;
-	public static final RegistryObject<Block> VOID_TANK;
+	public static final Supplier<Block> IRON_TANK;
+	public static final Supplier<Block> GOLD_TANK;
+	public static final Supplier<Block> DIAMOND_TANK;
+	public static final Supplier<Block> NETHERITE_TANK;
+	public static final Supplier<Block> VOID_TANK;
 	
 	//Fluid traders
-	public static final RegistryObject<Block> FLUID_TAP;
+	public static final Supplier<Block> FLUID_TAP;
 	
-	public static final RegistryObject<Block> FLUID_TAP_BUNDLE;
+	public static final Supplier<Block> FLUID_TAP_BUNDLE;
 	
 	//Universal Fluid Traders
-	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_1;
-	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_2;
-	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_3;
-	public static final RegistryObject<Block> FLUID_NETWORK_TRADER_4;
+	public static final Supplier<Block> FLUID_NETWORK_TRADER_1;
+	public static final Supplier<Block> FLUID_NETWORK_TRADER_2;
+	public static final Supplier<Block> FLUID_NETWORK_TRADER_3;
+	public static final Supplier<Block> FLUID_NETWORK_TRADER_4;
 	
 	//Fluid Trader Interface
-	public static final RegistryObject<Block> FLUID_TRADER_INTERFACE;
+	public static final Supplier<Block> FLUID_TRADER_INTERFACE;
 	
 	//Energy Trader
-	public static final RegistryObject<Block> BATTERY_SHOP;
+	public static final Supplier<Block> BATTERY_SHOP;
 	
 	//Universal Energy Trader
-	public static final RegistryObject<Block> ENERGY_NETWORK_TRADER;
+	public static final Supplier<Block> ENERGY_NETWORK_TRADER;
 	
 	//Energy Trader Interface
-	public static final RegistryObject<Block> ENERGY_TRADER_INTERFACE;
+	public static final Supplier<Block> ENERGY_TRADER_INTERFACE;
 	
 	/**
 	* Block Registration Code
 	*/
-	private static RegistryObject<Block> register(String name, Supplier<Block> sup)
+	private static Supplier<Block> register(String name, Supplier<Block> sup)
 	{
 		return register(name, getDefaultGenerator(), sup);
 	}
 	
-	private static RegistryObject<Block> register(String name, Function<Block,Item> itemGenerator, Supplier<Block> sup)
+	private static Supplier<Block> register(String name, Function<Block,Item> itemGenerator, Supplier<Block> sup)
 	{
-		RegistryObject<Block> block = ModRegistries.BLOCKS.register(name, sup);
+		Supplier<Block> block = ModRegistries.BLOCKS.register(name, sup);
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get()));
 		return block;

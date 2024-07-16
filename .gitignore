@@ -20,10 +20,14 @@ build
 # other
 eclipse
 run
+runs
 
 # Files from Forge MDK
 forge*changelog.txt
 
 #custom
-generated
+/src/generated/resources/.cache
+/src/generated/resources/data
+/src/generated/resources/assets/*/*
+!/src/generated/resources/assets/*/lang
 Build Backups

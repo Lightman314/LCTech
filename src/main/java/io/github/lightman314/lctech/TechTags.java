@@ -25,8 +25,8 @@ public class TechTags {
         public static final TagKey<Item> BATTERIES = techTag("batteries");
 
 
-        private static TagKey<Item> lcTag(String id) { return ItemTags.create(new ResourceLocation(LightmansCurrency.MODID, id)); }
-        private static TagKey<Item> techTag(String id) { return ItemTags.create(new ResourceLocation(LCTech.MODID, id)); }
+        private static TagKey<Item> lcTag(String id) { return ItemTags.create(ResourceLocation.fromNamespaceAndPath(LightmansCurrency.MODID, id)); }
+        private static TagKey<Item> techTag(String id) { return ItemTags.create(ResourceLocation.fromNamespaceAndPath(LCTech.MODID, id)); }
     }
 
 }

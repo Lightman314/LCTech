@@ -3,11 +3,12 @@ package io.github.lightman314.lctech.common.traders.fluid;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
@@ -19,19 +20,19 @@ public class TraderFluidStorage implements IFluidHandler {
 	
 	public TraderFluidStorage(ITraderFluidFilter filter) { this.filter = filter; }
 	
-	public void save(CompoundTag compound, String tag) {
+	public void save(CompoundTag compound, String tag, @Nonnull HolderLookup.Provider lookup) {
 		ListTag list = new ListTag();
 		for (FluidEntry tank : this.tanks) {
 			if (!tank.filter.isEmpty()) {
 				CompoundTag fluidTag = new CompoundTag();
-				tank.save(fluidTag);
+				tank.save(fluidTag,lookup);
 				list.add(fluidTag);
 			}
 		}
 		compound.put(tag, list);
 	}
 	
-	public void load(CompoundTag compound, String tag) {
+	public void load(CompoundTag compound, String tag, @Nonnull HolderLookup.Provider lookup) {
 		if(compound.contains(tag, Tag.TAG_LIST))
 		{
 			ListTag list = compound.getList(tag, Tag.TAG_COMPOUND);
@@ -39,7 +40,7 @@ public class TraderFluidStorage implements IFluidHandler {
 			for(int i = 0; i < list.size(); ++i)
 			{
 				CompoundTag fluidTag = list.getCompound(i);
-				FluidEntry tank = FluidEntry.load(this, fluidTag);
+				FluidEntry tank = FluidEntry.load(this, fluidTag, lookup);
 				if(!tank.filter.isEmpty())
 					this.tanks.add(tank);
 			}
@@ -96,7 +97,7 @@ public class TraderFluidStorage implements IFluidHandler {
 	public FluidEntry getTank(FluidStack fluid) {
 		for(FluidEntry entry : this.tanks)
 		{
-			if(entry.filter.isFluidEqual(fluid))
+			if(FluidStack.isSameFluidSameComponents(entry.filter,fluid))
 				return entry;
 		}
 		return null;
@@ -211,12 +212,12 @@ public class TraderFluidStorage implements IFluidHandler {
 	public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
 		if(tank < 0 || tank >= this.tanks.size())
 			return false;
-		return this.tanks.get(tank).filter.isFluidEqual(stack);
+		return FluidStack.isSameFluidSameComponents(this.tanks.get(tank).filter,stack);
 	}
 
 	@Nonnull
 	@Override
-	public FluidStack drain(FluidStack resource, FluidAction action) {
+	public FluidStack drain(FluidStack resource, @Nonnull FluidAction action) {
 		int drainableAmount = Math.min(resource.getAmount(), this.getAvailableFluidCount(resource));
 		if(drainableAmount <= 0)
 			return FluidStack.EMPTY;
@@ -231,13 +232,13 @@ public class TraderFluidStorage implements IFluidHandler {
 
 	@Nonnull
 	@Override
-	public FluidStack drain(int maxDrain, FluidAction action) {
+	public FluidStack drain(int maxDrain, @Nonnull FluidAction action) {
 		//Should never drain without a defined fluid.
 		return FluidStack.EMPTY;
 	}
 	
 	@Override
-	public int fill(FluidStack resource, FluidAction action) {
+	public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
 		if(!this.allowFluid(resource))
 			return 0;
 		int fillAmount = Math.min(resource.getAmount(), this.getFillableAmount(resource));
@@ -255,7 +256,7 @@ public class TraderFluidStorage implements IFluidHandler {
 		default boolean isFluidRelevant(FluidStack fluid) {
 			for(FluidStack f : this.getRelevantFluids())
 			{
-				if(f.isFluidEqual(fluid))
+				if(FluidStack.isSameFluidSameComponents(f,fluid))
 					return true;
 			}
 			return false;
@@ -320,8 +321,8 @@ public class TraderFluidStorage implements IFluidHandler {
 			this.fillable = fillable;
 		}
 		
-		public static FluidEntry load(TraderFluidStorage parent, CompoundTag compound) {
-			FluidStack filter = FluidStack.loadFluidStackFromNBT(compound.getCompound("Filter"));
+		public static FluidEntry load(TraderFluidStorage parent, CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			FluidStack filter = FluidStack.parseOptional(lookup, compound.getCompound("Filter"));
 			int amount = compound.getInt("Amount");
 			int pendingDrain = compound.getInt("PendingDrain");
 			boolean drainable = compound.getBoolean("Drainable");
@@ -329,10 +330,8 @@ public class TraderFluidStorage implements IFluidHandler {
 			return new FluidEntry(parent, filter, amount, pendingDrain, drainable, fillable);
 		}
 		
-		private void save(CompoundTag compound) {
-			CompoundTag filterTag = new CompoundTag();
-			this.filter.writeToNBT(filterTag);
-			compound.put("Filter", filterTag);
+		private void save(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+			compound.put("Filter", this.filter.saveOptional(lookup));
 			compound.putInt("Amount", this.storedAmount);
 			compound.putInt("PendingDrain", this.pendingDrain);
 			compound.putBoolean("Drainable", this.drainable);
@@ -356,22 +355,22 @@ public class TraderFluidStorage implements IFluidHandler {
 		}
 
 		@Override
-		public int fill(FluidStack resource, FluidAction action) {
+		public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
 			//Should never be used. Only draining should be done from a specific entry.
 			return 0;
 		}
 
 		@Nonnull
 		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			if(resource.isFluidEqual(this.filter) && !this.filter.isEmpty())
+		public FluidStack drain(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
+			if(FluidStack.isSameFluidSameComponents(resource,this.filter) && !this.filter.isEmpty())
 				return drain(resource.getAmount(), action);
 			return FluidStack.EMPTY;
 		}
 
 		@Nonnull
 		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
+		public FluidStack drain(int maxDrain, @Nonnull FluidAction action) {
 			if(this.filter.isEmpty())
 				return FluidStack.EMPTY;
 			int drainableAmount = Math.min(maxDrain, this.storedAmount - this.pendingDrain);

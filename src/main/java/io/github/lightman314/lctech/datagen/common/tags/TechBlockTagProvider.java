@@ -7,19 +7,20 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class TechBlockTagProvider extends BlockTagsProvider {
     public TechBlockTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
@@ -71,23 +72,20 @@ public class TechBlockTagProvider extends BlockTagsProvider {
         return new CustomTagAppender(this.tag(BlockTags.create(tag)));
     }
 
-    private static record CustomTagAppender(IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> appender) {
-        private CustomTagAppender(IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> appender) {
-            this.appender = appender;
-        }
+    private record CustomTagAppender(IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> appender) {
 
         public CustomTagAppender add(Block block) {
             this.appender.add(block);
             return this;
         }
 
-        public CustomTagAppender add(RegistryObject<? extends Block> block) {
-            this.appender.add((Block)block.get());
+        public CustomTagAppender add(Supplier<? extends Block> block) {
+            this.appender.add(block.get());
             return this;
         }
 
-        public CustomTagAppender addOptional(RegistryObject<? extends Block> block) {
-            this.appender.addOptional(block.getId());
+        public CustomTagAppender addOptional(Supplier<? extends Block> block) {
+            this.appender.addOptional(BuiltInRegistries.BLOCK.getKey(block.get()));
             return this;
         }
 

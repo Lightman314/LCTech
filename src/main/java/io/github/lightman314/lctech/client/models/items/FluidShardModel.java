@@ -18,8 +18,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 public class FluidShardModel implements BakedModel {
 	
@@ -87,15 +87,14 @@ public class FluidShardModel implements BakedModel {
 		public BakedModel resolve(@Nonnull BakedModel model, @Nonnull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
 			FluidStack tank = FluidStack.EMPTY;
-			int capacity = FluidType.BUCKET_VOLUME;
 			FluidRenderData renderData = FluidShardItem.RENDER_DATA;
 			if(stack != null)
 			{
 				tank = FluidShardItem.GetFluid(stack);
-				if(stack.getItem() instanceof FluidShardItem)
-					renderData = ((FluidShardItem)stack.getItem()).renderData;
+				if(stack.getItem() instanceof FluidShardItem shard)
+					renderData = shard.renderData;
 			}
-			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
+			return new FluidTankFinalizedModel(model, tank, () -> FluidType.BUCKET_VOLUME, renderData);
 		}
 		
 	}

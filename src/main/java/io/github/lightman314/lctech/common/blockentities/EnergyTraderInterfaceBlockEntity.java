@@ -26,12 +26,13 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 
@@ -59,7 +60,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
-						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
 							addAmount -= defaultCapacity;
@@ -87,11 +88,11 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	protected TradeData deserializeTrade(CompoundTag compound) { return EnergyTradeData.loadData(compound, false); }
+	protected TradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return EnergyTradeData.loadData(compound, false, lookup); }
 	
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound) {
-		super.saveAdditional(compound);
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.saveAdditional(compound,lookup);
 		this.saveEnergyBuffer(compound);
 	}
 	
@@ -107,8 +108,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	public void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+		super.loadAdditional(compound,lookup);
 		if(compound.contains("Energy"))
 			this.energyStorage = compound.getInt("Energy");
 	}
@@ -195,14 +196,12 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 				if(this.energyHandler.getOutputSides().get(direction) && this.energyStorage > 0)
 				{
 					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? IRotatableBlock.getActualSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
-					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(trueSide));
-					if(be != null)
+					IEnergyStorage energyHandler = this.level.getCapability(Capabilities.EnergyStorage.BLOCK, this.worldPosition.relative(trueSide), trueSide.getOpposite());
+					if(energyHandler != null)
 					{
-						be.getCapability(ForgeCapabilities.ENERGY, trueSide.getOpposite()).ifPresent(energyHandler ->{
-							int extractedAmount = energyHandler.receiveEnergy(this.energyStorage, false);
-							if(extractedAmount > 0) //Automatically marks the energy storage dirty
-								this.drainStoredEnergy(extractedAmount);
-						});
+						int extractedAmount = energyHandler.receiveEnergy(this.energyStorage, false);
+						if(extractedAmount > 0) //Automatically marks the energy storage dirty
+							this.drainStoredEnergy(extractedAmount);
 					}
 				}
 			}
@@ -221,17 +220,15 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 					actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
 				
 				BlockPos queryPos = this.worldPosition.relative(actualSide);
-				BlockEntity be = this.level.getBlockEntity(queryPos);
-				if(be != null)
+				IEnergyStorage energyHandler = this.level.getCapability(Capabilities.EnergyStorage.BLOCK, queryPos, actualSide.getOpposite());
+				if(energyHandler != null)
 				{
-					be.getCapability(ForgeCapabilities.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
-						int extractedAmount = energyHandler.extractEnergy(this.getMaxEnergy() - this.energyStorage, false);
-						if(extractedAmount > 0)
-						{
-							this.energyStorage += extractedAmount;
-							markBufferDirty.set(true);
-						}
-					});
+					int extractedAmount = energyHandler.extractEnergy(this.getMaxEnergy() - this.energyStorage, false);
+					if(extractedAmount > 0)
+					{
+						this.energyStorage += extractedAmount;
+						markBufferDirty.set(true);
+					}
 				}
 			}
 		}

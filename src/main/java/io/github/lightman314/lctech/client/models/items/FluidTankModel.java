@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
@@ -21,8 +22,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidTankModel implements BakedModel {
 	
@@ -36,14 +36,16 @@ public class FluidTankModel implements BakedModel {
 	
 	
 	@Override
+	@Nonnull
 	@SuppressWarnings("deprecation")
-	public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand)
+	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand)
 	{
 		return this.baseFluidTankModel.getQuads(state, side, rand);
 	}
 	
 	@Override
-	public @NotNull ItemOverrides getOverrides() { return this.fluidTankItemOverrideList; }
+	@Nonnull
+	public ItemOverrides getOverrides() { return this.fluidTankItemOverrideList; }
 	
 	@Override
 	public boolean useAmbientOcclusion() { return this.baseFluidTankModel.useAmbientOcclusion(); }
@@ -58,30 +60,31 @@ public class FluidTankModel implements BakedModel {
 	public boolean isCustomRenderer() { return this.baseFluidTankModel.isCustomRenderer(); }
 	
 	@Override
+	@Nonnull
 	@SuppressWarnings("deprecation")
-	public @NotNull TextureAtlasSprite getParticleIcon() { return this.baseFluidTankModel.getParticleIcon(); }
+	public TextureAtlasSprite getParticleIcon() { return this.baseFluidTankModel.getParticleIcon(); }
 	
 	@Override
+	@Nonnull
 	@SuppressWarnings("deprecation")
-	public @NotNull ItemTransforms getTransforms() { return this.baseFluidTankModel.getTransforms(); }
+	public ItemTransforms getTransforms() { return this.baseFluidTankModel.getTransforms(); }
 	
 	public static class FluidTankItemOverrideList extends ItemOverrides{
 
 		public FluidTankItemOverrideList() { super(); }
 		
 		@Override
-		public BakedModel resolve(@NotNull BakedModel model, @NotNull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
+		public BakedModel resolve(@Nonnull BakedModel model, @Nonnull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
 			FluidRenderData renderData = FluidTankBlock.RENDER_DATA;
 			FluidStack tank = FluidTankItem.GetFluid(stack);
-			int capacity = FluidTankItem.GetCapacity(stack);
-			if(stack.getItem() instanceof BlockItem)
+			if(stack.getItem() instanceof BlockItem blockItem)
 			{
-				Block block = ((BlockItem)stack.getItem()).getBlock();
+				Block block = blockItem.getBlock();
 				if(block instanceof IFluidTankBlock tankBlock)
 					renderData = tankBlock.getItemRenderData();
 			}
-			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
+			return new FluidTankFinalizedModel(model, tank, () -> FluidTankItem.GetCapacity(stack), renderData);
 		}
 		
 	}

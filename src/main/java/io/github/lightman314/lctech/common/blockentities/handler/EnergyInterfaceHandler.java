@@ -8,11 +8,11 @@ import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBl
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStorage> {
 
-	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "energy_interface");
+	public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "energy_interface");
 	
 	protected final EnergyTraderInterfaceBlockEntity blockEntity;
 	

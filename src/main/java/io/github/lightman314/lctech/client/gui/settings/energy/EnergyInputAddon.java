@@ -3,7 +3,6 @@ package io.github.lightman314.lctech.client.gui.settings.energy;
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
@@ -13,9 +12,9 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class EnergyInputAddon extends InputTabAddon {
 
@@ -50,7 +49,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	@Override
 	public void onClose(@Nonnull SettingsSubTab settingsSubTab) { }
 	
-	private NonNullSupplier<Component> getOutputModeTextSource(SettingsSubTab settingsSubTab)
+	private Supplier<Component> getOutputModeTextSource(SettingsSubTab settingsSubTab)
 	{
 		return () -> TechText.GUI_SETTINGS_ENERGY_DRAINMODE.get(this.getOutputModeText(settingsSubTab));
 	}
@@ -73,7 +72,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	{
 		TraderData trader = settingsSubTab.menu.getTrader();
 		if(trader instanceof EnergyTraderData e)
-			settingsSubTab.sendMessage(LazyPacketData.simpleInt("NewEnergyDrainMode", e.getDrainMode().index + 1));
+			settingsSubTab.sendMessage(settingsSubTab.builder().setInt("NewEnergyDrainMode", e.getDrainMode().index + 1));
 	}
 	
 }

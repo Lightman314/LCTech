@@ -7,15 +7,14 @@ import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	
@@ -47,25 +46,19 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 	}
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.saveAdditional(compound);
+		super.saveAdditional(compound,lookup);
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.load(compound);
+		super.loadAdditional(compound,lookup);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
-	}
-	
-	@Override
-	public AABB getRenderBoundingBox()
-	{
-		return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 	}
 	
 	@OnlyIn(Dist.CLIENT)

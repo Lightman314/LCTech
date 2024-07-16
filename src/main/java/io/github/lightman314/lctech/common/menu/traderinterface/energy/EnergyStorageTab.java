@@ -23,11 +23,11 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import javax.annotation.Nonnull;
 
@@ -52,7 +52,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	@Override
 	public void onTabOpen() {
 		SimpleSlot.SetActive(this.slots);
-		MinecraftForge.EVENT_BUS.register(this);
+		NeoForge.EVENT_BUS.register(this);
 		this.drainSlot.locked = false;
 		this.fillSlot.locked = false;
 	}
@@ -60,7 +60,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	@Override
 	public void onTabClose() {
 		SimpleSlot.SetInactive(this.slots);
-		MinecraftForge.EVENT_BUS.unregister(this);
+		NeoForge.EVENT_BUS.unregister(this);
 		this.drainSlot.locked = true;
 		this.fillSlot.locked = true;
 	}
@@ -102,9 +102,9 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	}
 	
 	@SubscribeEvent
-	public void onWorldTick(TickEvent.LevelTickEvent event)
+	public void onWorldTick(LevelTickEvent.Pre event)
 	{
-		if(event.side.isServer() && event.phase == TickEvent.Phase.START && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be)
+		if(!event.getLevel().isClientSide && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be)
 		{
 			//Drain from slot 1
 			if(!this.batterySlots.getItem(0).isEmpty())

@@ -3,16 +3,13 @@ package io.github.lightman314.lctech.common.traders.energy;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lctech.common.util.EnergyUtil.EnergyActionResult;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class TradeEnergyHandler {
 
 	final EnergyTraderData trader;
-	final Map<Direction,IEnergyStorage> externalHandlers = new HashMap<>();
+	final Map<Direction, IEnergyStorage> externalHandlers = new HashMap<>();
 	final IEnergyStorage batteryInteractable;
 	
 	public TradeEnergyHandler(EnergyTraderData trader)
@@ -101,26 +98,6 @@ public class TradeEnergyHandler {
 			return this.trader.allowInputSide(this.relativeDirection);
 		}
 		
-	}
-	
-	public ItemStack batteryInteraction(ItemStack batteryStack)
-	{
-		EnergyActionResult result = EnergyUtil.tryEmptyContainer(batteryStack, this.batteryInteractable, Integer.MAX_VALUE, true);
-		if(result.success())
-		{
-			this.trader.markEnergyStorageDirty();
-			return result.getResult();
-		}
-		else
-		{
-			result = EnergyUtil.tryFillContainer(batteryStack, this.batteryInteractable, Integer.MAX_VALUE, true);
-			if(result.success())
-			{
-				this.trader.markEnergyStorageDirty();
-				return result.getResult();
-			}
-		}
-		return batteryStack;
 	}
 
 	private record BatteryInteractionEnergyHandler(EnergyTraderData trader) implements IEnergyStorage {

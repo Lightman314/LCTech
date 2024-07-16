@@ -10,14 +10,14 @@ import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.Flui
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
 public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandler> {
 	
-	public static final ResourceLocation TYPE = new ResourceLocation(LCTech.MODID, "fluid_interface");
+	public static final ResourceLocation TYPE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "fluid_interface");
 	
 	protected final FluidTraderInterfaceBlockEntity blockEntity;
 	
@@ -68,7 +68,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 		public boolean isFluidValid(int tank, @Nonnull FluidStack stack) { return this.handler.getFluidBuffer().isFluidValid(tank, stack); }
 
 		@Override
-		public int fill(FluidStack resource, FluidAction action) {
+		public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
 			if(this.allowInputs() && this.handler.blockEntity.allowInput(resource))
 			{
 				int result = this.handler.getFluidBuffer().fill(resource, action);
@@ -81,7 +81,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 
 		@Nonnull
 		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
+		public FluidStack drain(FluidStack resource, @Nonnull FluidAction action) {
 			if(resource.isEmpty())
 				return FluidStack.EMPTY;
 			if(this.allowOutputs() && this.handler.blockEntity.allowOutput(resource))
@@ -103,7 +103,7 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 
 		@Nonnull
 		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
+		public FluidStack drain(int maxDrain, @Nonnull FluidAction action) {
 			if(!this.allowOutputs())
 				return FluidStack.EMPTY;
 			for(FluidEntry entry : this.handler.getFluidBuffer().getContents())

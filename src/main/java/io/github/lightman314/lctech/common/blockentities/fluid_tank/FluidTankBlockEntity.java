@@ -1,25 +1,22 @@
 package io.github.lightman314.lctech.common.blockentities.fluid_tank;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
-import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTankStackSync;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -27,13 +24,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.*;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.fluids.FluidActionResult;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -65,20 +60,19 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		this.stackCache = tankStack;
 		oldStack.refactorExcluded(this.stackCache);
 	}
-	public final void sendTankStackPacket(ServerPlayer player) { LCTechPacketHandler.instance.send(PacketDistributor.PLAYER.with(() -> player), this.stackCache.getSyncPacket()); }
+	public final void sendTankStackPacket(Player player) { this.stackCache.getSyncPacket().sendTo(player); }
 
 	public final FluidTankFluidHandler handler = new FluidTankFluidHandler(this);
-	private final LazyOptional<IFluidHandler> holder = LazyOptional.of(() -> this.handler);
 
 	public FluidTankBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.FLUID_TANK.get(), pos, state); }
 	
 	protected FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
-	
-	public InteractionResult onInteraction(Player player, InteractionHand hand)
+
+	@Nonnull
+	public ItemInteractionResult onInteraction(@Nonnull ItemStack heldItem, @Nonnull Player player, @Nonnull InteractionHand hand)
 	{
-		ItemStack heldItem = player.getItemInHand(hand);
-		if(!FluidUtil.getFluidHandler(heldItem).isPresent())
-			return InteractionResult.PASS;
+		if(FluidUtil.getFluidHandler(heldItem).isEmpty())
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		
 		//Try to fill the tank first
 		FluidActionResult result = FluidUtil.tryEmptyContainer(heldItem, this.handler, Integer.MAX_VALUE, player, true);
@@ -86,7 +80,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		{
 			//If creative, and the item was a bucket, don't move the items around
 			if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldItem.getItem() == Items.BUCKET))
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			if(heldItem.getCount() > 1)
 			{
 				heldItem.shrink(1);
@@ -106,7 +100,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 			{
 				//If creative, and the item was a bucket, don't move the items around
 				if(player.isCreative() && (result.getResult().getItem() == Items.BUCKET || heldItem.getItem() == Items.BUCKET))
-					return InteractionResult.SUCCESS;
+					return ItemInteractionResult.SUCCESS;
 				if(heldItem.getCount() > 1)
 				{
 					heldItem.shrink(1);
@@ -119,7 +113,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 				}
 			}
 		}
-		return InteractionResult.SUCCESS;
+		return ItemInteractionResult.SUCCESS;
 	}
 	
 	@Override
@@ -132,27 +126,22 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 			super.setChanged();
 		}
 	}
-	
+
 	@Override
-	public void saveAdditional(CompoundTag compound)
+	public void saveAdditional(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
 	{
-		
-		compound.put("Tank", this.tankContents.writeToNBT(new CompoundTag()));
-		
-		super.saveAdditional(compound);
-		
+		tag.put("Tank", this.tankContents.saveOptional(lookup));
+		super.saveAdditional(tag,lookup);
 	}
-	
+
 	@Override
-	public void load(CompoundTag compound)
+	public void loadAdditional(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
 	{
-		
-		if(compound.contains("Tank", Tag.TAG_COMPOUND))
-			this.tankContents = FluidStack.loadFluidStackFromNBT(compound.getCompound("Tank"));
-		
-		super.load(compound);
+		if(tag.contains("Tank", Tag.TAG_COMPOUND))
+			this.tankContents = FluidStack.parseOptional(lookup,tag.getCompound("Tank"));
+		super.loadAdditional(tag,lookup);
 	}
-	
+
 	public void loadFromItem(ItemStack stack)
 	{
 		this.tankContents = FluidTankItem.GetFluid(stack);
@@ -176,7 +165,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		if(this.level.isClientSide)
 		{
 			BlockEntityUtil.requestUpdatePacket(this.level, this.worldPosition);
-			LCTechPacketHandler.instance.sendToServer(new CMessageRequestTankStackSync(this.worldPosition));
+			new CMessageRequestTankStackSync(this.worldPosition).send();
 		}
 		else if(this.stackCache == TankStackCache.DUMMY)//Refactor tank stack on load to auto-stack existing tanks
 			this.enqueTankStackRefactor(); //Force it to wait a tick, otherwise it will incorporate it in a stack before it's contents are loaded from the item stack.
@@ -268,7 +257,7 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 		if(tank.getBlockState().getBlock() != this.getBlockState().getBlock())
 			return false;
 		FluidStack contents = tank.getTankContents();
-		return contents.isFluidEqual(mostRelevantFluid) || contents.isEmpty() || mostRelevantFluid.isEmpty();
+		return FluidStack.isSameFluidSameComponents(contents,mostRelevantFluid) || contents.isEmpty() || mostRelevantFluid.isEmpty();
 	}
 
 	/**
@@ -276,17 +265,5 @@ public class FluidTankBlockEntity extends EasyBlockEntity implements IServerTick
 	 */
 	public final List<FluidTankBlockEntity> getTankStack() { return this.stackCache.getOrderedTanks(); }
 	public final List<FluidTankBlockEntity> getTankStack(FluidStack fluid) { return this.stackCache.getOrderedTanks(fluid); }
-
-	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side)
-	{
-		//Return the fluid handler capability
-		if(cap == ForgeCapabilities.FLUID_HANDLER)
-			return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, this.holder);
-
-		//Otherwise return none
-		return super.getCapability(cap, side);
-	}
 	
 }

@@ -17,10 +17,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData> {
 
@@ -30,7 +30,7 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
     public int tradeButtonWidth(TradeContext context) { return this.allowsDrainage(context) ? 87 : 76; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext tradeContext) {
+    public Optional<ScreenPosition> arrowPosition(TradeContext tradeContext) {
         if (this.trade.isSale())
             return ScreenPosition.ofOptional(36, 1);
         else

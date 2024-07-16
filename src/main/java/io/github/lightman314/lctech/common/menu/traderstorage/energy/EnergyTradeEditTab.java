@@ -13,8 +13,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public class EnergyTradeEditTab extends TraderStorageTab {
 
@@ -61,7 +61,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			trade.setTradeDirection(type);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewType", type.index));
+				this.menu.SendMessage(this.builder().setInt("NewType", type.index));
 		}
 	}
 	
@@ -72,7 +72,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			trade.setAmount(amount);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleInt("NewQuantity", amount));
+				this.menu.SendMessage(this.builder().setInt("NewQuantity", amount));
 		}
 	}
 	
@@ -83,7 +83,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 			trade.setCost(price);
 			this.menu.getTrader().markTradesDirty();
 			if(this.menu.isClient())
-				this.menu.SendMessage(LazyPacketData.simpleMoneyValue("NewPrice", price));
+				this.menu.SendMessage(this.builder().setMoneyValue("NewPrice", price));
 		}
 	}
 	

@@ -3,35 +3,30 @@ package io.github.lightman314.lctech.common.items;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lctech.client.util.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
+import io.github.lightman314.lctech.common.core.ModDataComponents;
 import io.github.lightman314.lctech.common.core.ModItems;
+import io.github.lightman314.lctech.common.items.data.FluidData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 public class FluidShardItem extends Item{
 	
@@ -43,36 +38,34 @@ public class FluidShardItem extends Item{
 		
 		List<ModelResourceLocation> list = Lists.newArrayList();
 		SHARD_ITEMS.forEach(shardItem ->
-			list.add(new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(shardItem),"inventory"))
+			list.add(new ModelResourceLocation(BuiltInRegistries.ITEM.getKey(shardItem),ModelResourceLocation.INVENTORY_VARIANT))
 		);
 		return list;
 	}
 	
 	public final FluidRenderData renderData;
 	
-	public FluidShardItem(Properties properties)
-	{
-		super(properties.stacksTo(1));
-		this.renderData = RENDER_DATA;
-		SHARD_ITEMS.add(this);
-	}
+	public FluidShardItem(Properties properties) { this(properties,RENDER_DATA); }
 	
 	public FluidShardItem(Properties properties, FluidRenderData renderData)
 	{
-		super(properties);
+		super(properties.stacksTo(1));
 		this.renderData = renderData;
 		SHARD_ITEMS.add(this);
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
-		super.appendHoverText(stack,  level,  tooltip,  flagIn);
-		FluidStack fluid = GetFluid(stack);
-		if(!fluid.isEmpty())
+		super.appendHoverText(stack, context, tooltip, flagIn);
+		if(getData(stack).showTooltip)
 		{
-			tooltip.add(FluidFormatUtil.getFluidName(fluid));
-			tooltip.add(Component.literal(FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB").withStyle(ChatFormatting.GRAY));
+			FluidStack fluid = GetFluid(stack);
+			if(!fluid.isEmpty())
+			{
+				tooltip.add(FluidFormatUtil.getFluidName(fluid));
+				tooltip.add(Component.literal(FluidFormatUtil.formatFluidAmount(fluid.getAmount()) + "mB").withStyle(ChatFormatting.GRAY));
+			}
 		}
 	}
 	
@@ -85,17 +78,8 @@ public class FluidShardItem extends Item{
 			stack.setCount(0);
 		}
 	}
-	
-	public static FluidStack GetFluid(ItemStack stack)
-	{
-		if(stack.getItem() instanceof FluidShardItem)
-		{
-			CompoundTag tag = stack.getOrCreateTag();
-			if(tag.contains("Tank", Tag.TAG_COMPOUND))
-				return FluidStack.loadFluidStackFromNBT(tag.getCompound("Tank"));
-		}
-		return FluidStack.EMPTY;
-	}
+
+	public static FluidStack GetFluid(ItemStack stack) { return getData(stack).getFluid(); }
 	
 	public static ItemStack GetFluidShard(FluidStack stack)
 	{
@@ -107,24 +91,25 @@ public class FluidShardItem extends Item{
 		return returnStack;
 		
 	}
-	
+
+	@Nonnull
+	private static FluidData getData(@Nonnull ItemStack stack) { return stack.getOrDefault(ModDataComponents.FLUID_DATA,FluidData.EMPTY); }
+
 	public static void WriteTankData(ItemStack stack, FluidStack tank)
 	{
-		CompoundTag tag = stack.getOrCreateTag();
-		tag.put("Tank", tank.writeToNBT(new CompoundTag()));
-		stack.setTag(tag);
+		FluidData data = getData(stack);
+		stack.set(ModDataComponents.FLUID_DATA, data.withFluid(tank));
 	}
-	
-	@Override
-	public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag compound)
+
+	public static IFluidHandlerItem createHandler(@Nonnull ItemStack stack)
 	{
-		return new FluidShardCapability(stack);
+		if(stack.getItem() instanceof FluidShardItem)
+			return new FluidShardCapability(stack);
+		return null;
 	}
-	
-	public static class FluidShardCapability implements IFluidHandlerItem, ICapabilityProvider
+
+	public static class FluidShardCapability implements IFluidHandlerItem
 	{
-		
-		final LazyOptional<IFluidHandlerItem> holder = LazyOptional.of(() -> this);
 		
 		final ItemStack stack;
 		
@@ -156,14 +141,14 @@ public class FluidShardItem extends Item{
 
 		@Override
 		//Cannot fill, only drain
-		public int fill(FluidStack resource, FluidAction action) {
+		public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
 			return 0;
 		}
 
 		@Nonnull
 		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
-			if(this.tank().isEmpty() || !this.tank().isFluidEqual(resource))
+		public FluidStack drain(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
+			if(this.tank().isEmpty() || !FluidStack.isSameFluidSameComponents(this.tank(),resource))
 				return FluidStack.EMPTY;
 			//Tank is not empty, and the resource is equal to the tank contents
 			int drainAmount = MathUtil.clamp(resource.getAmount(), 0, this.tank().getAmount());
@@ -185,7 +170,7 @@ public class FluidShardItem extends Item{
 
 		@Nonnull
 		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
+		public FluidStack drain(int maxDrain, @Nonnull FluidAction action) {
 			if(this.tank().isEmpty())
 				return FluidStack.EMPTY;
 			//Tank is not empty, and the resource is equal to the tank contents
@@ -209,11 +194,6 @@ public class FluidShardItem extends Item{
 		@Nonnull
 		@Override
 		public ItemStack getContainer() { return this.stack; }
-		@Nonnull
-		@Override
-		public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, Direction side) {
-			return ForgeCapabilities.FLUID_HANDLER_ITEM.orEmpty(capability, holder);
-		}
 		
 	}
 	

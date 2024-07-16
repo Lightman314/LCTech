@@ -97,7 +97,7 @@ public class TechText {
 
 
     //Notifications
-    public static final TextEntry NOTIFICATION_FLUID_FORMAT = TextEntry.notification(new ResourceLocation(MODID,"fluids"),"format");
+    public static final TextEntry NOTIFICATION_FLUID_FORMAT = TextEntry.notification(ResourceLocation.fromNamespaceAndPath(MODID,"fluids"),"format");
     public static final TextEntry NOTIFICATION_TRADE_FLUID = TextEntry.notification(FluidTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_ENERGY = TextEntry.notification(EnergyTradeNotification.TYPE);
 

@@ -1,16 +1,15 @@
 package io.github.lightman314.lctech.common.blockentities.fluid_tank;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.network.message.fluid_tank.SMessageSyncTankStack;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -72,12 +71,12 @@ public class TankStackCache {
                 continue;
             if(totalContents.isEmpty())
                 totalContents = tankContents.copy();
-            else if(totalContents.isFluidEqual(tankContents))
+            else if(FluidStack.isSameFluidSameComponents(totalContents,tankContents))
                 totalContents.grow(tankContents.getAmount());
             else
-                LightmansCurrency.LogError("Tank in new Tank Stack doesn't contain a matching fluid. " + tankContents.getAmount() + "mB of " + ForgeRegistries.FLUIDS.getKey(tankContents.getFluid()) + " will be lost to the void!");
+                LightmansCurrency.LogError("Tank in new Tank Stack doesn't contain a matching fluid. " + tankContents.getAmount() + "mB of " + BuiltInRegistries.FLUID.getKey(tankContents.getFluid()) + " will be lost to the void!");
         }
-        this.tanksBottomToTop.get(0).handler.setTankContents(totalContents);
+        this.tanksBottomToTop.getFirst().handler.setTankContents(totalContents);
         if(isServer)
             this.syncToClients();
         return this;
@@ -104,13 +103,14 @@ public class TankStackCache {
 
     public static TankStackCache solo(FluidTankBlockEntity tank) { return new TankStackCache(tank); }
 
-    public final Object getSyncPacket() { return new SMessageSyncTankStack(new PacketBuilder(this)); }
+    public final SMessageSyncTankStack getSyncPacket() { return new SMessageSyncTankStack(new PacketBuilder(this)); }
 
     private void syncToClients() {
         if(!this.tanksBottomToTop.isEmpty())
         {
-            LevelChunk chunk = this.tanksBottomToTop.get(0).getLevel().getChunkAt(this.tanksBottomToTop.get(0).getBlockPos());
-            LCTechPacketHandler.instance.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), this.getSyncPacket());
+            FluidTankBlockEntity bottomTank = this.tanksBottomToTop.getFirst();
+            if(bottomTank.getLevel() instanceof ServerLevel level)
+                this.getSyncPacket().sendToPlayersTrackingChunk(level, new ChunkPos(bottomTank.getBlockPos()));
         }
     }
 
@@ -128,7 +128,7 @@ public class TankStackCache {
                 this.yPos = new ArrayList<>();
             }
             else {
-                this.startPos = parent.tanksBottomToTop.get(0).getBlockPos();
+                this.startPos = parent.tanksBottomToTop.getFirst().getBlockPos();
                 this.yPos = new ArrayList<>(parent.tanksBottomToTop.size());
                 for(FluidTankBlockEntity tank : parent.tanksBottomToTop)
                     this.yPos.add(tank.getBlockPos().getY());

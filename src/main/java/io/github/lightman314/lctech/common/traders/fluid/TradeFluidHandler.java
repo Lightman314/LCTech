@@ -7,8 +7,8 @@ import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.Flui
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.core.Direction;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
@@ -38,7 +38,6 @@ public class TradeFluidHandler{
 		protected ExternalFluidHandler(FluidTraderData trader, Direction relativeDirection) { this.trader = trader; this.relativeDirection = relativeDirection; }
 
 		public final boolean isCreative() { return this.trader.isCreative(); }
-		public final int getTankCount() { return this.trader.getStorage().getContents().size(); }
 		public final FluidEntry getTankEntry(FluidStack fluid) { return this.trader.getStorage().getTank(fluid); }
 		public final FluidEntry getTankEntry(int tank) { return (tank < 0 || tank >= this.trader.getStorage().getContents().size()) ? null : this.trader.getStorage().getContents().get(tank); }
 		public final void markStorageDirty() {	this.trader.getStorage().clearInvalidTanks(); this.trader.markStorageDirty(); }
@@ -50,7 +49,7 @@ public class TradeFluidHandler{
 				if(!entry.filter.isEmpty())
 				{
 					//Can drain sales trades if a pending drain has been made
-					if(entry.hasPendingDrain() && (entry.filter.isFluidEqual(resource) || resource.isEmpty()))
+					if(entry.hasPendingDrain() && (FluidStack.isSameFluidSameComponents(entry.filter,resource) || resource.isEmpty()))
 						return entry;
 					//Can also drain purchase trades if draining is enabled.
 					if(this.allowAutoDraining(entry.filter) && entry.drainable)
@@ -66,16 +65,14 @@ public class TradeFluidHandler{
 			for(int i = 0; i < this.trader.getTradeCount(); ++i)
 			{
 				FluidTradeData trade = this.trader.getTrade(i);
-				if(trade.isSale() && trade.getProduct().isFluidEqual(fluid))
+				if(trade.isSale() && FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid))
 					return false;
 			}
 			return true;
 		}
 		
 		@Override
-		public int getTanks() {
-			return this.trader.getTradeCount();
-		}
+		public int getTanks() { return this.trader.getStorage().getContents().size(); }
 		
 		@Nonnull
 		@Override
@@ -101,11 +98,11 @@ public class TradeFluidHandler{
 			FluidEntry entry = this.getTankEntry(tank);
 			if(entry == null)
 				return false;
-			return entry.fillable && entry.filter.isFluidEqual(stack);
+			return entry.fillable && FluidStack.isSameFluidSameComponents(entry.filter,stack);
 		}
 		
 		@Override
-		public int fill(FluidStack resource, FluidAction action) {
+		public int fill(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
 			if(this.cannotFill())
 				return 0;
 			FluidEntry tank = this.getTankEntry(resource);
@@ -129,7 +126,7 @@ public class TradeFluidHandler{
 		
 		@Nonnull
 		@Override
-		public FluidStack drain(FluidStack resource, FluidAction action) {
+		public FluidStack drain(@Nonnull FluidStack resource, @Nonnull FluidAction action) {
 			if(this.cannotDrain())
 				return FluidStack.EMPTY;
 			if(resource.isEmpty())
@@ -166,7 +163,7 @@ public class TradeFluidHandler{
 		
 		@Nonnull
 		@Override
-		public FluidStack drain(int maxDrain, FluidAction action) {
+		public FluidStack drain(int maxDrain, @Nonnull FluidAction action) {
 			if(this.cannotDrain())
 				return FluidStack.EMPTY;
 			FluidEntry tank = getValidDrainTank(FluidStack.EMPTY);

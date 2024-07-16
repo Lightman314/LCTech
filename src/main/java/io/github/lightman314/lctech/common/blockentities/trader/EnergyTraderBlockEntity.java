@@ -7,15 +7,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData> {
 
@@ -44,23 +43,17 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 	}
 	
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.saveAdditional(compound);
+		super.saveAdditional(compound,lookup);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.load(compound);
+		super.loadAdditional(compound,lookup);
 		this.networkTrader = compound.getBoolean("NetworkTrader");
-	}
-	
-	@Override
-	public AABB getRenderBoundingBox()
-	{
-		return this.getBlockState().getCollisionShape(this.level, this.worldPosition).bounds().move(this.worldPosition);
 	}
 	
 	@Override
@@ -78,21 +71,19 @@ public class EnergyTraderBlockEntity extends TraderBlockEntity<EnergyTraderData>
 					Direction actualSide = relativeSide;
 					if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
 						actualSide = IRotatableBlock.getActualSide(b.getFacing(this.getBlockState()), relativeSide);
-					
-					BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(actualSide));
-					if(be != null)
+
+					IEnergyStorage energyHandler = this.level.getCapability(Capabilities.EnergyStorage.BLOCK, this.worldPosition.relative(actualSide), actualSide.getOpposite());
+					if(energyHandler != null)
 					{
-						be.getCapability(ForgeCapabilities.ENERGY, actualSide.getOpposite()).ifPresent(energyHandler -> {
-							int extractedAmount = energyHandler.receiveEnergy(trader.getDrainableEnergy(), false);
-							if(extractedAmount > 0)
-							{
-								//LCTech.LOGGER.debug("Exporting " + extractedAmount + " energy from the trader.");
-								if(trader.isPurchaseDrainMode()) //Only shrink pending drain if in purchase mode.
-									trader.shrinkPendingDrain(extractedAmount);
-								trader.shrinkEnergy(extractedAmount);
-								trader.markEnergyStorageDirty();
-							}
-						});
+						int extractedAmount = energyHandler.receiveEnergy(trader.getDrainableEnergy(), false);
+						if(extractedAmount > 0)
+						{
+							//LCTech.LOGGER.debug("Exporting " + extractedAmount + " energy from the trader.");
+							if(trader.isPurchaseDrainMode()) //Only shrink pending drain if in purchase mode.
+								trader.shrinkPendingDrain(extractedAmount);
+							trader.shrinkEnergy(extractedAmount);
+							trader.markEnergyStorageDirty();
+						}
 					}
 				}
 			}

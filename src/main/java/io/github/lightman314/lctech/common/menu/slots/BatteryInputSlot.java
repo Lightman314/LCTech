@@ -9,15 +9,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BatteryInputSlot extends SimpleSlot {
 
-	public static final ResourceLocation EMPTY_BATTERY_SLOT = new ResourceLocation(LCTech.MODID, "item/empty_battery_slot");
+	public static final ResourceLocation EMPTY_BATTERY_SLOT = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "item/empty_battery_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_BATTERY_SLOT);
 
 	public boolean requireEnergy = false;
@@ -30,13 +28,12 @@ public class BatteryInputSlot extends SimpleSlot {
 	}
 
 	private boolean meetsRequirements(@Nonnull ItemStack stack) {
-		LazyOptional<IEnergyStorage> optional = EnergyUtil.getEnergyHandler(stack);
-		if(!optional.isPresent())
+		IEnergyStorage storage = EnergyUtil.getEnergyHandler(stack).orElse(null);
+		if(storage == null)
 			return false;
-		AtomicBoolean passes = new AtomicBoolean(true);
 		if(this.requireEnergy)
-			optional.ifPresent(storage -> passes.set(storage.getEnergyStored() > 0));
-		return passes.get();
+			return storage.getEnergyStored() > 0;
+		return true;
 	}
 	
 	@Override

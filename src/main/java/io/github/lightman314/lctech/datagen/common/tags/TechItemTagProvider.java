@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -17,13 +18,13 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class TechItemTagProvider extends ItemTagsProvider {
 
@@ -81,8 +82,8 @@ public class TechItemTagProvider extends ItemTagsProvider {
     private record CustomTagAppender(IntrinsicTagAppender<Item> appender) {
 
         public CustomTagAppender add(ItemLike item) { this.appender.add(item.asItem()); return this; }
-        public CustomTagAppender add(RegistryObject<? extends ItemLike> item) { this.add(item.get()); return this; }
-        public CustomTagAppender addOptional(RegistryObject<? extends ItemLike> item) { this.appender.addOptional(item.getId()); return this; }
+        public CustomTagAppender add(Supplier<? extends ItemLike> item) { this.add(item.get()); return this; }
+        public CustomTagAppender addOptional(Supplier<? extends ItemLike> item) { this.appender.addOptional(BuiltInRegistries.ITEM.getKey(item.get().asItem())); return this; }
         public CustomTagAppender add(RegistryObjectBundle<? extends ItemLike,?> bundle) {
             bundle.forEach((key,item) -> {
                 if(key instanceof IOptionalKey ok)

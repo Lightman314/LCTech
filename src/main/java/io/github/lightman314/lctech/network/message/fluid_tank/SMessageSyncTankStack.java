@@ -2,25 +2,36 @@ package io.github.lightman314.lctech.network.message.fluid_tank;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
+import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 
-public class SMessageSyncTankStack {
+public class SMessageSyncTankStack extends ServerToClientPacket {
+
+    private static final CustomPacketPayload.Type<SMessageSyncTankStack> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"s_tank_stack_sync"));
+    public static final Handler<SMessageSyncTankStack> HANDLER = new H();
 
     private final TankStackCache.PacketBuilder data;
-    public SMessageSyncTankStack(TankStackCache.PacketBuilder data) { this.data = data; }
+    public SMessageSyncTankStack(TankStackCache.PacketBuilder data) { super(TYPE); this.data = data; }
 
-    public static void encode(SMessageSyncTankStack message, FriendlyByteBuf buffer) { message.data.encode(buffer); }
+    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SMessageSyncTankStack message) { message.data.encode(buffer); }
 
-    public static SMessageSyncTankStack decode(FriendlyByteBuf buffer) { return new SMessageSyncTankStack(TankStackCache.decode(buffer)); }
+    @Nonnull
+    private static SMessageSyncTankStack decode(@Nonnull FriendlyByteBuf buffer) { return new SMessageSyncTankStack(TankStackCache.decode(buffer)); }
 
-    public static void handle(SMessageSyncTankStack message, Supplier<NetworkEvent.Context> supplier) {
-        supplier.get().enqueueWork(() -> {
+    private static class H extends Handler<SMessageSyncTankStack>
+    {
+
+        protected H() { super(TYPE, easyCodec(SMessageSyncTankStack::encode,SMessageSyncTankStack::decode)); }
+        @Override
+        protected void handle(@Nonnull SMessageSyncTankStack message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             LCTech.PROXY.handleTankStackPacket(message.data);
-        });
-        supplier.get().setPacketHandled(true);
+        }
     }
 
 }

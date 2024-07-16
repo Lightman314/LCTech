@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
@@ -15,7 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderBlock {
 
@@ -40,6 +40,6 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 	protected BlockEntityType<?> traderType() { return ModBlockEntities.FLUID_TRADER.get(); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_FLUID_TRADER.asTooltip(1); }
+	protected Supplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_FLUID_TRADER.asTooltip(1); }
 	
 }

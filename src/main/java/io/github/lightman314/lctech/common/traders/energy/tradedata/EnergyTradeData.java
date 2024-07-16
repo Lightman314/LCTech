@@ -21,13 +21,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.Prod
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.trades_basic.BasicTradeEditTab;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -104,9 +105,9 @@ public class EnergyTradeData extends TradeData {
 	}
 	
 	@Override
-	public CompoundTag getAsNBT()
+	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup)
 	{
-		CompoundTag compound = super.getAsNBT();
+		CompoundTag compound = super.getAsNBT(lookup);
 		
 		compound.putInt("Amount", this.amount);
 		compound.putString("TradeType", this.tradeDirection.name());
@@ -115,9 +116,9 @@ public class EnergyTradeData extends TradeData {
 	}
 	
 	@Override
-	public void loadFromNBT(CompoundTag compound)
+	public void loadFromNBT(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		super.loadFromNBT(compound);
+		super.loadFromNBT(compound,lookup);
 		
 		//Load the amount
 		this.amount = compound.getInt("Amount");
@@ -144,25 +145,25 @@ public class EnergyTradeData extends TradeData {
 		return list;
 	}
 	
-	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound)
+	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
-		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY);
+		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY, lookup);
 	}
 	
-	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound, String tag)
+	public static void WriteNBTList(List<EnergyTradeData> tradeList, CompoundTag compound, String tag, @Nonnull HolderLookup.Provider lookup)
 	{
 		ListTag list = new ListTag();
 		for (EnergyTradeData energyTradeData : tradeList)
-			list.add(energyTradeData.getAsNBT());
+			list.add(energyTradeData.getAsNBT(lookup));
 		compound.put(tag, list);
 	}
 	
-	public static List<EnergyTradeData> LoadNBTList(CompoundTag compound, boolean validateRules)
+	public static List<EnergyTradeData> LoadNBTList(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
 	{
-		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules);
+		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules,lookup);
 	}
 	
-	public static List<EnergyTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules)
+	public static List<EnergyTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
 	{
 		
 		if(!compound.contains(tag))
@@ -172,13 +173,13 @@ public class EnergyTradeData extends TradeData {
 		
 		ListTag list = compound.getList(tag,  Tag.TAG_COMPOUND);
 		for(int i = 0; i < list.size(); ++i)
-			tradeData.add(loadData(list.getCompound(i), validateRules));
+			tradeData.add(loadData(list.getCompound(i), validateRules,lookup));
 		return tradeData;
 	}
 	
-	public static EnergyTradeData loadData(CompoundTag compound, boolean validateRules) {
+	public static EnergyTradeData loadData(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup) {
 		EnergyTradeData trade = new EnergyTradeData(validateRules);
-		trade.loadFromNBT(compound);
+		trade.loadFromNBT(compound,lookup);
 		return trade;
 	}
 	
@@ -286,7 +287,7 @@ public class EnergyTradeData extends TradeData {
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? -1 : 0;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
 		}
 	}
 	
@@ -298,7 +299,7 @@ public class EnergyTradeData extends TradeData {
 			if(tradeIndex < 0)
 				return;
 			int openSlot = this.isSale() ? 0 : -1;
-			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
+			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, tab.builder().setInt("TradeIndex", tradeIndex).setInt("StartingSlot", openSlot));
 		}
 	}
 	

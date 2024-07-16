@@ -5,8 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.IntOption;
 import net.minecraft.resources.ResourceLocation;
-
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import javax.annotation.Nonnull;
 
@@ -69,7 +68,7 @@ public class TechConfig {
 	public static class Server extends SyncedConfigFile
 	{
 
-		protected Server() { super("lctech-server", new ResourceLocation(LCTech.MODID,"server")); }
+		protected Server() { super("lctech-server", ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"server")); }
 
 		//Fluid
 		//Fluid Trader
