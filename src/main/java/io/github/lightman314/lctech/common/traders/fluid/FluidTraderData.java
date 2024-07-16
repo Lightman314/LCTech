@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.traders.fluid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -20,6 +21,7 @@ import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorage
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidTradeEditTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
+import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
@@ -28,13 +30,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconData;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
@@ -55,67 +57,67 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FluidTraderData extends InputTraderData implements ITraderFluidFilter {
 
 	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(new ResourceLocation(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
-	
+
 	public static final List<UpgradeType> ALLOWED_UPGRADES = Lists.newArrayList(TechUpgradeTypes.FLUID_CAPACITY);
-	
+
 	public final TradeFluidHandler fluidHandler = new TradeFluidHandler(this);
-	
+
 	TraderFluidStorage storage = new TraderFluidStorage(this);
 	public TraderFluidStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
-	
+
 	List<FluidTradeData> trades = FluidTradeData.listOfSize(1, true);
-	
+
 	public final boolean drainCapable() { return !this.showOnTerminal(); }
-	
+
 	private FluidTraderData() { super(TYPE); }
 	public FluidTraderData(int tradeCount, Level level, BlockPos pos) {
 		super(TYPE, level, pos);
 		this.trades = FluidTradeData.listOfSize(tradeCount, true);
 	}
-	
+
 	@Override
 	protected void loadAdditional(CompoundTag compound) {
 		super.loadAdditional(compound);
-		
+
 		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
 			this.trades = FluidTradeData.LoadNBTList(compound, !this.isPersistent());
-		
+
 		if(compound.contains("FluidStorage"))
 			this.storage.load(compound, "FluidStorage");
-		
+
 	}
-	
+
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		super.saveAdditional(compound);
-		
+
 		this.saveTrades(compound);
 		this.saveStorage(compound);
-		
+
 	}
-	
+
 	protected final void saveTrades(CompoundTag compound)
 	{
 		FluidTradeData.WriteNBTList(this.trades, compound);
 	}
-	
+
 	protected final void saveStorage(CompoundTag compound)
 	{
 		this.storage.save(compound, "FluidStorage");
 	}
-	
+
 	@Override
 	public int getTradeCount() { return this.trades.size(); }
-	
+
 	@Override
 	public void addTrade(Player requester) {
 		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
@@ -127,7 +129,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 		this.overrideTradeCount(this.getTradeCount() + 1);
 	}
-	
+
 	@Override
 	public void removeTrade(Player requester) {
 		if(this.getTradeCount() <= 1)
@@ -139,7 +141,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 		this.overrideTradeCount(this.getTradeCount() - 1);
 	}
-	
+
 	public void overrideTradeCount(int newTradeCount)
 	{
 		if(this.getTradeCount() == newTradeCount)
@@ -154,22 +156,22 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 		this.markTradesDirty();
 	}
-	
+
 	public FluidTradeData getTrade(int tradeIndex) {
 		if(tradeIndex >= 0 && tradeIndex < this.trades.size())
 			return this.trades.get(tradeIndex);
 		return new FluidTradeData(false);
 	}
-	
+
 	@Override
 	public int getTradeStock(int index) { return this.getTrade(index).getStock(this); }
 
 	@Nonnull
 	@Override
 	public List<FluidTradeData> getTradeData() { return new ArrayList<>(this.trades); }
-	
+
 	public TradeFluidHandler getFluidHandler() { return this.fluidHandler; }
-	
+
 	@Override
 	public List<FluidStack> getRelevantFluids() {
 		List<FluidStack> result = new ArrayList<>();
@@ -181,7 +183,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 		return result;
 	}
-	
+
 	private boolean isInList(List<FluidStack> list, FluidStack fluid)
 	{
 		if(fluid.isEmpty())
@@ -193,9 +195,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 		return false;
 	}
-	
+
 	public static int getDefaultTankCapacity() { return TechConfig.SERVER.fluidTraderDefaultStorage.get() * FluidType.BUCKET_VOLUME; }
-	
+
 	@Override
 	public int getTankCapacity() {
 		int defaultCapacity = getDefaultTankCapacity();
@@ -218,14 +220,15 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 						}
 						tankCapacity += addAmount;
 					}
-				}	
+				}
 			}
 		}
 		return tankCapacity;
 	}
-	
+
 	@Override
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide) {
+	@Nonnull
+	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide) {
 		return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
 
@@ -233,42 +236,42 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public IconData inputSettingsTabIcon() { return IconData.of(Items.WATER_BUCKET); }
 	@Override
 	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_FLUID.get(); }
-	
+
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
-		
+
 		FluidTradeData trade = this.getTrade(tradeIndex);
 		if(trade == null || !trade.isValid())
 			return TradeResult.FAIL_INVALID_TRADE;
-		
+
 		if(!context.hasPlayerReference())
 			return TradeResult.FAIL_NULL;
-		
+
 		//Check if the player is allowed to do the trade
 		if(this.runPreTradeEvent(trade, context).isCanceled())
 			return TradeResult.FAIL_TRADE_RULE_DENIAL;
-		
+
 		//Get the cost of the trade
 		//Update get the price from TradeData#getCost as it will avoid doing any unecessary calculations.
 		MoneyValue price = trade.getCost(context);
-		
+
 		//Abort if not enough stock
 		if(!trade.hasStock(context) && !this.isCreative())
 			return TradeResult.FAIL_OUT_OF_STOCK;
-		
+
 		if(trade.isSale())
 		{
-			
+
 			FluidEntry tankEntry = this.getStorage().getTank(trade.getProduct());
-			
+
 			//Abort if the purchased fluid cannot be given
 			if(!context.canFitFluid(trade.productOfQuantity()) && !(this.hasOutputSide() && tankEntry != null && tankEntry.drainable))
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
-			
+
 			//Process the trades payment
 			if(!context.getPayment(price))
 				return TradeResult.FAIL_CANNOT_AFFORD;
-			
+
 			//We have enough money, and the trade is valid. Execute the trade
 			//Give the product
 			boolean drainTank = true;
@@ -303,28 +306,28 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 			//Post the notification
 			this.pushNotification(FluidTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
-			
+
 			//Push the post-trade event
 			this.runPostTradeEvent(trade, context, price, taxesPaid);
-			
+
 			return TradeResult.SUCCESS;
-			
+
 		}
 		else if(trade.isPurchase())
 		{
-			
+
 			//Abort if not enough fluid to buy
 			if(!context.hasFluid(trade.productOfQuantity()))
 				return TradeResult.FAIL_CANNOT_AFFORD;
-			
+
 			//Abort if not enough space to put the purchased fluid
 			if(!trade.hasSpace(this) && !this.isCreative())
 				return TradeResult.FAIL_NO_INPUT_SPACE;
-			
+
 			//Give the payment to the player
 			if(!context.givePayment(price))
 				return TradeResult.FAIL_NO_OUTPUT_SPACE;
-			
+
 			//We have enough money, and the trade is valid. Execute the trade
 			//Collect the product
 			if(!context.drainFluid(trade.productOfQuantity()))
@@ -352,39 +355,39 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 			//Post the notification
 			this.pushNotification(FluidTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
-			
+
 			//Push the post-trade event
 			this.runPostTradeEvent(trade, context, price, taxesPaid);
-			
+
 			return TradeResult.SUCCESS;
-			
+
 		}
-		
+
 		return TradeResult.FAIL_INVALID_TRADE;
 	}
-	
+
 	@Override
 	public void addInteractionSlots(List<InteractionSlotData> interactionSlots) { interactionSlots.add(FluidInteractionSlot.INSTANCE); }
-	
+
 	@Override
 	protected boolean allowAdditionalUpgradeType(UpgradeType type) { return ALLOWED_UPGRADES.contains(type); }
-	
+
 	@Override
 	public boolean canMakePersistent() { return true; }
-	
+
 	@Override
 	protected void getAdditionalContents(List<ItemStack> results) {
-		
+
 		for(FluidEntry entry : this.storage.getContents())
 		{
 			if(!entry.getTankContents().isEmpty())
 				results.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
 		}
 	}
-	
+
 	@Override
 	public IconData getIcon() { return IconData.of(Items.WATER_BUCKET); }
-	
+
 	@Override
 	public boolean hasValidTrade() {
 		for(FluidTradeData trade : this.trades)
@@ -394,7 +397,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void initStorageTabs(ITraderStorageMenu menu) {
 		//Storage tab
@@ -402,24 +405,24 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		//Fluid Trade interaction tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new FluidTradeEditTab(menu));
 	}
-	
+
 	@Override
 	protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
-		
+
 		if(!json.has("Trades"))
 			throw new JsonSyntaxException("Fluid Trader must have a trade list.");
-		
+
 		JsonArray tradeList = GsonHelper.getAsJsonArray(json,"Trades");
-		
+
 		this.trades = new ArrayList<>();
 		for(int i = 0; i < tradeList.size() && this.trades.size() < TraderData.GLOBAL_TRADE_LIMIT; ++i)
 		{
 			try {
-				
+
 				JsonObject tradeData = tradeList.get(i).getAsJsonObject();
-				
+
 				FluidTradeData newTrade = new FluidTradeData(false);
-				
+
 				//Product
 				JsonObject product = GsonHelper.getAsJsonObject(tradeData, "Product");
 				newTrade.setProduct(FluidItemUtil.parseFluidStack(product));
@@ -434,17 +437,17 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 				//Trade Rules
 				if(tradeData.has("TradeRules"))
 					newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "TradeRules"), newTrade));
-				
+
 				this.trades.add(newTrade);
-				
+
 			} catch(Exception e) { LCTech.LOGGER.error("Error parsing fluid trade at index {}", i, e); }
 		}
-		
+
 		if(this.trades.isEmpty())
 			throw new JsonSyntaxException("Trader has no valid trades!");
-		
+
 	}
-	
+
 	@Override
 	protected void saveAdditionalToJson(JsonObject json) {
 		JsonArray trades = new JsonArray();
@@ -453,21 +456,21 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			if(trade.isValid())
 			{
 				JsonObject tradeData = new JsonObject();
-				
+
 				tradeData.addProperty("TradeType", trade.getTradeDirection().name());
 				tradeData.add("Price", trade.getCost().toJson());
 				tradeData.add("Product", FluidItemUtil.convertFluidStack(trade.getProduct()));
 				tradeData.addProperty("Quantity", trade.getBucketQuantity());
-				
+
 				if(!trade.getRules().isEmpty())
 					tradeData.add("TradeRules", TradeRule.saveRulesToJson(trade.getRules()));
-				
+
 				trades.add(tradeData);
 			}
 		}
 		json.add("Trades", trades);
 	}
-	
+
 	@Override
 	protected void saveAdditionalPersistentData(CompoundTag compound) {
 		ListTag tradePersistentData = new ListTag();
@@ -481,7 +484,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		if(tradesAreRelevant)
 			compound.put("PersistentTradeData", tradePersistentData);
 	}
-	
+
 	@Override
 	protected void loadAdditionalPersistentData(CompoundTag compound) {
 		if(compound.contains("PersistentTradeData"))
@@ -512,6 +515,42 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		list.add(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT.get(tradeCount));
 		if(outOfStock > 0)
 			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
+	}
+
+	@Nonnull
+	@Override
+	public IconData getIconForItem(@Nonnull ItemStack stack) {
+
+		FluidStack fluid;
+		fluid = findFluid(stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM));
+		if(fluid == null)
+			fluid = findFluid(stack.getCapability(ForgeCapabilities.FLUID_HANDLER));
+		if(fluid != null && !fluid.isEmpty())
+		{
+			fluid.setAmount(FluidType.BUCKET_VOLUME);
+			FluidIcon newIcon = FluidIcon.of(fluid);
+			//If already a fluid icon, and we attempt to set the icon as the same fluid, use the default icon instead
+			if(this.getCustomIcon() instanceof FluidIcon fi && newIcon.matches(fi))
+				return super.getIconForItem(stack);
+			return newIcon;
+		}
+
+		return super.getIconForItem(stack);
+	}
+
+	@Nullable
+	private static FluidStack findFluid(@Nonnull LazyOptional<? extends IFluidHandler> optional)
+	{
+		AtomicReference<FluidStack> result = new AtomicReference<>(null);
+		optional.ifPresent(handler -> {
+			for(int i = 0; i < handler.getTanks() && result.get() == null; ++i)
+			{
+				FluidStack contents = handler.getFluidInTank(i);
+				if(!contents.isEmpty())
+					result.set(contents.copy());
+			}
+		});
+		return result.get();
 	}
 
 }

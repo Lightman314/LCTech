@@ -46,7 +46,7 @@ public class TechDiscord {
                         {
                             if(firstTrade)
                             {
-                                event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(trader.getOwner().getOwnerName(false), trader.getName()));
+                                event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(trader.getOwner().getName(), trader.getName()));
                                 firstTrade = false;
                             }
                             //Passed the search
@@ -66,7 +66,7 @@ public class TechDiscord {
                         {
                             if(firstTrade)
                             {
-                                event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(trader.getOwner().getOwnerName(false), trader.getName()));
+                                event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(trader.getOwner().getName(), trader.getName()));
                                 firstTrade = false;
                             }
                             String priceText = trade.getCost().getString();
@@ -91,7 +91,7 @@ public class TechDiscord {
                     {
                         if(firstTrade)
                         {
-                            event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(trader.getOwner().getOwnerName(false), trader.getName()));
+                            event.addToOutput(CurrencyMessages.M_SEARCH_TRADER_NAME.format(trader.getOwner().getName(), trader.getName()));
                             firstTrade = false;
                         }
                         if(trade.isSale())

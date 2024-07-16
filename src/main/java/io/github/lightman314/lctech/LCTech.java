@@ -1,5 +1,6 @@
 package io.github.lightman314.lctech;
 
+import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lctech.integration.lcdiscord.TechDiscord;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
@@ -18,7 +19,7 @@ import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotifi
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
-import io.github.lightman314.lctech.common.traders.terminal.traderSearching.FluidTraderSearchFilter;
+import io.github.lightman314.lctech.common.traders.terminal.filters.FluidTraderSearchFilter;
 import io.github.lightman314.lctech.common.core.ModRegistries;
 import io.github.lightman314.lctech.common.crafting.condition.TechCraftingConditions;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
@@ -64,11 +65,11 @@ public class LCTech
         LCTechPacketHandler.init();
 
         //Register Trader Search Filters
-        TraderAPI.registerSearchFilter(new FluidTraderSearchFilter());
+        TraderAPI.API.RegisterSearchFilter(new FluidTraderSearchFilter());
 
         //Register the universal data deserializer
-        TraderAPI.registerTrader(FluidTraderData.TYPE);
-        TraderAPI.registerTrader(EnergyTraderData.TYPE);
+        TraderAPI.API.RegisterTrader(FluidTraderData.TYPE);
+        TraderAPI.API.RegisterTrader(EnergyTraderData.TYPE);
 
         //Register custom notification types
         NotificationAPI.registerNotification(FluidTradeNotification.TYPE);
@@ -76,6 +77,9 @@ public class LCTech
 
         //Register Crafting Conditions
         TechCraftingConditions.register();
+
+        //Register Custom Icons
+        FluidIcon.register();
 
     }
 
