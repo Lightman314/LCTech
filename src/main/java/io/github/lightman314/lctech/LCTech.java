@@ -3,6 +3,7 @@ package io.github.lightman314.lctech;
 import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -75,6 +76,9 @@ public class LCTech
         //Register custom notification types
         NotificationAPI.registerNotification(FluidTradeNotification.TYPE);
         NotificationAPI.registerNotification(EnergyTradeNotification.TYPE);
+
+        //Register Custom Upgrade Targets
+        Upgrades.TRADE_OFFERS.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());
 
         //Register Custom Icons
         FluidIcon.register();

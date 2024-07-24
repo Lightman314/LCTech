@@ -110,7 +110,7 @@ dependencies {
     localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     //Lightman's Currency (obviously)
-    implementation 'curse.maven:lightmanscurrency-472521:5532751'
+    implementation 'curse.maven:lightmanscurrency-472521:5559812'
 
 
 }

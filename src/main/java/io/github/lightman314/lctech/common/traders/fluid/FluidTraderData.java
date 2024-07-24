@@ -22,6 +22,8 @@ import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
@@ -29,12 +31,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
@@ -59,7 +63,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class FluidTraderData extends InputTraderData implements ITraderFluidFilter {
+public class FluidTraderData extends InputTraderData implements ITraderFluidFilter, IFlexibleOfferTrader {
 
 	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
 
@@ -71,6 +75,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public TraderFluidStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 
+	private int baseTradeCount = 0;
 	List<FluidTradeData> trades = FluidTradeData.listOfSize(1, true);
 
 	public final boolean drainCapable() { return !this.showOnTerminal(); }
@@ -79,6 +84,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public FluidTraderData(int tradeCount, Level level, BlockPos pos) {
 		super(TYPE, level, pos);
 		this.trades = FluidTradeData.listOfSize(tradeCount, true);
+		this.baseTradeCount = tradeCount;
 	}
 
 	@Override
@@ -90,6 +96,11 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 		if(compound.contains("FluidStorage"))
 			this.storage.load(compound, "FluidStorage",lookup);
+
+		if(compound.contains("BaseTradeCount"))
+			this.baseTradeCount = compound.getInt("BaseTradeCount");
+		if(this.baseTradeCount <= 0) //Reset base trade count to current trade count if the current value is invalid
+			this.baseTradeCount = this.trades.size();
 
 	}
 
@@ -104,6 +115,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 	protected final void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
 	{
+		compound.putInt("BaseTradeCount", this.baseTradeCount);
 		FluidTradeData.WriteNBTList(this.trades, compound,lookup);
 	}
 
@@ -116,32 +128,49 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public int getTradeCount() { return this.trades.size(); }
 
 	@Override
-	public void addTrade(Player requester) {
-		if(this.getTradeCount() >= TraderData.GLOBAL_TRADE_LIMIT)
+	public void addTrade(Player requestor) {
+		if(this.isClient())
 			return;
-		if(!LCAdminMode.isAdminPlayer(requester))
+		if(LCAdminMode.isAdminPlayer(requestor) && this.baseTradeCount < TraderData.GLOBAL_TRADE_LIMIT)
 		{
-			Permissions.PermissionWarning(requester, "add trade slot", Permissions.ADMIN_MODE);
-			return;
+
+			this.baseTradeCount++;
+			this.refactorTrades();
+
+			this.pushLocalNotification(new AddRemoveTradeNotification(PlayerReference.of(requestor), true, this.getTradeCount()));
+
 		}
-		this.overrideTradeCount(this.getTradeCount() + 1);
+		else
+			Permissions.PermissionWarning(requestor, "add a trade slot", Permissions.ADMIN_MODE);
+	}
+
+	public void removeTrade(Player requestor)
+	{
+		if(this.isClient())
+			return;
+		if(LCAdminMode.isAdminPlayer(requestor) && this.baseTradeCount > 1)
+		{
+
+			this.baseTradeCount--;
+			this.refactorTrades();
+
+			this.pushLocalNotification(new AddRemoveTradeNotification(PlayerReference.of(requestor), false, this.getTradeCount()));
+
+		}
+		else
+			Permissions.PermissionWarning(requestor, "remove a trade slot", Permissions.ADMIN_MODE);
 	}
 
 	@Override
-	public void removeTrade(Player requester) {
-		if(this.getTradeCount() <= 1)
-			return;
-		if(!LCAdminMode.isAdminPlayer(requester))
-		{
-			Permissions.PermissionWarning(requester, "remove trade slot", Permissions.ADMIN_MODE);
-			return;
-		}
-		this.overrideTradeCount(this.getTradeCount() - 1);
+	public void refactorTrades() {
+		int newCount = MathUtil.clamp(this.baseTradeCount + TradeOfferUpgrade.getBonusTrades(this.getUpgrades()), 1, TraderData.GLOBAL_TRADE_LIMIT);
+		if(newCount != this.trades.size())
+			this.overrideTradeCount(newCount);
 	}
 
 	public void overrideTradeCount(int newTradeCount)
 	{
-		if(this.getTradeCount() == newTradeCount)
+		if(this.getTradeCount() == MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT))
 			return;
 		int tradeCount = MathUtil.clamp(newTradeCount, 1, TraderData.GLOBAL_TRADE_LIMIT);
 		List<FluidTradeData> oldTrades = this.trades;
@@ -151,7 +180,8 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		{
 			this.trades.set(i, oldTrades.get(i));
 		}
-		this.markTradesDirty();
+		if(this.isServer())
+			this.markTradesDirty();
 	}
 
 	public FluidTradeData getTrade(int tradeIndex) {
