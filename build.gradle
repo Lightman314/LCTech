@@ -1,8 +1,3 @@
-buildscript {
-    dependencies {
-        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
-    }
-}
 plugins {
     id 'eclipse'
     id 'idea'
@@ -16,10 +11,6 @@ group = mod_group_id
 
 base {
     archivesName = mod_id
-}
-mixin {
-    add sourceSets.main, "lctech.refmap.json"
-    config "lctech.mixins.json"
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -95,7 +86,7 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf('curse.maven:lightmanscurrency-472521:5536502')
+    implementation fg.deobf('curse.maven:lightmanscurrency-472521:5561884')
 
     compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
 

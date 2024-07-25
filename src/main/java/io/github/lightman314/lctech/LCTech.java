@@ -4,6 +4,7 @@ import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lctech.integration.lcdiscord.TechDiscord;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
@@ -77,6 +78,9 @@ public class LCTech
 
         //Register Crafting Conditions
         TechCraftingConditions.register();
+
+        //Register Custom Upgrade Targets
+        Upgrades.TRADE_OFFERS.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());
 
         //Register Custom Icons
         FluidIcon.register();
