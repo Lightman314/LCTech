@@ -6,7 +6,6 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 
-import io.github.lightman314.lctech.mixin.client.EasyGuiGraphicsAccessor;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -30,13 +29,10 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 @OnlyIn(Dist.CLIENT)
 public class FluidRenderUtil {
 
-	public static void drawFluidTankInGUI(FluidStack tank, EasyGuiGraphics gui, int x, int y, int width, int height, float percent) { drawFluidTankInGUI(tank, getGuiCorner(gui), x, y, width, height, percent); }
+	public static void drawFluidTankInGUI(FluidStack tank, EasyGuiGraphics gui, int x, int y, int width, int height, float percent) { drawFluidTankInGUI(tank, gui.getOffset(), x, y, width, height, percent); }
 	public static void drawFluidTankInGUI(FluidStack tank, ScreenPosition corner, int x, int y, int width, int height, float percent) { drawFluidTankInGUI(tank, corner.x + x, corner.y + y, width, height, percent); }
 	public static void drawFluidTankInGUI(FluidStack tank, int x, int y, int width, int height, float percent)
 	{
@@ -80,25 +76,6 @@ public class FluidRenderUtil {
 			
 		}
 		
-	}
-
-	private static ScreenPosition getGuiCorner(@Nonnull EasyGuiGraphics gui)
-	{
-		ScreenPosition corner = ScreenPosition.ZERO;
-		EasyGuiGraphicsAccessor accessor = getAccessor(gui);
-		if(accessor != null)
-			corner = accessor.getOffset();
-		return corner;
-	}
-
-	//Simple function to trick the compiler into not realizing the object is the final EasyGuiGraphics class
-	//Which it naturally thinks cannot implement the EasyGuiGraphicsAccessor interface, as it's added by a mixin
-	@Nullable
-	private static EasyGuiGraphicsAccessor getAccessor(@Nonnull Object obj)
-	{
-		if(obj instanceof EasyGuiGraphicsAccessor accessor)
-			return accessor;
-		return null;
 	}
 
 	private static void drawQuad(float x, float y, float width, float height, float minU, float minV, float maxU, float maxV, float red, float green, float blue)
