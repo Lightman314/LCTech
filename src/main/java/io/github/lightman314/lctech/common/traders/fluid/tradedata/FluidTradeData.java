@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
@@ -325,7 +326,7 @@ public class FluidTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new FluidTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -337,14 +338,14 @@ public class FluidTradeData extends TradeData {
 			}
 			if(this.isPurchase())
 			{
-				if(this.onProductInteraction(tab, tradeIndex, trader, heldItem))
-					tab.sendInputInteractionMessage(tradeIndex, index, button, heldItem);
+				if(this.onProductInteraction(tab, tradeIndex, trader, data, heldItem))
+					tab.SendInputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 		}
 	}
 
 	@Override
-	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, int button, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -352,8 +353,8 @@ public class FluidTradeData extends TradeData {
 				return;
 			if(this.isSale())
 			{
-				if(this.onProductInteraction(tab, tradeIndex, trader, heldItem))
-					tab.sendOutputInteractionMessage(tradeIndex, index, button, heldItem);
+				if(this.onProductInteraction(tab, tradeIndex, trader, data, heldItem))
+					tab.SendOutputInteractionMessage(tradeIndex, index, data, heldItem);
 			}
 			else if(this.isPurchase())
 			{
@@ -362,10 +363,10 @@ public class FluidTradeData extends TradeData {
 		}
 	}
 
-	private boolean onProductInteraction(BasicTradeEditTab tab, int tradeIndex, FluidTraderData trader, ItemStack heldItem)
+	private boolean onProductInteraction(@Nonnull BasicTradeEditTab tab, int tradeIndex, @Nonnull FluidTraderData trader, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem)
 	{
 		//Set the fluid to the held fluid
-		if(heldItem.isEmpty() && this.product.isEmpty())
+		if(data.shiftHeld() || (heldItem.isEmpty() && this.product.isEmpty()))
 		{
 			//Open fluid edit
 			tab.sendOpenTabMessage(TraderStorageTab.TAB_TRADE_ADVANCED, LazyPacketData.simpleInt("TradeIndex", tradeIndex).setInt("StartingSlot", 0));
@@ -398,6 +399,6 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int mouseX, int mouseY, int button, @Nonnull ItemStack heldItem) { }
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
 
 }
