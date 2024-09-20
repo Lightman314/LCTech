@@ -16,9 +16,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class EnergyTradeNotification extends TaxableNotification {
 
@@ -47,7 +47,7 @@ public class EnergyTradeNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> create(EnergyTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new EnergyTradeNotification(trade, cost, customer, traderData, taxesPaid); }
+	public static Supplier<Notification> create(EnergyTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new EnergyTradeNotification(trade, cost, customer, traderData, taxesPaid); }
 	
 	@Nonnull
 	@Override

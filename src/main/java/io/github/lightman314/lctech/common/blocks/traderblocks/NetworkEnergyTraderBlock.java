@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.common.blocks.traderblocks;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 
@@ -13,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class NetworkEnergyTraderBlock extends TraderBlockRotatable {
 	
@@ -32,5 +32,5 @@ public class NetworkEnergyTraderBlock extends TraderBlockRotatable {
 	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(ModBlockEntities.ENERGY_TRADER.get()); }
 
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_NETWORK_ENERGY_TRADER.asTooltip(); }
+	protected Supplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_NETWORK_ENERGY_TRADER.asTooltip(); }
 }

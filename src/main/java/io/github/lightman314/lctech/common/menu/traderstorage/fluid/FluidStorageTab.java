@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -36,7 +36,7 @@ public class FluidStorageTab extends TraderStorageTab {
 	@Override
 	public boolean canOpen(Player player) { return true; }
 	
-	List<SimpleSlot> slots = new ArrayList<>();
+	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	@Override
@@ -46,7 +46,7 @@ public class FluidStorageTab extends TraderStorageTab {
 		{
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
+				EasySlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
 				upgradeSlot.active = false;
 				addSlot.apply(upgradeSlot);
 				this.slots.add(upgradeSlot);
@@ -57,14 +57,14 @@ public class FluidStorageTab extends TraderStorageTab {
 	@Override
 	public void onTabClose() {
 		
-		SimpleSlot.SetInactive(this.slots);
+		EasySlot.SetInactive(this.slots);
 		
 	}
 
 	@Override
 	public void onTabOpen() {
 		
-		SimpleSlot.SetActive(this.slots);
+		EasySlot.SetActive(this.slots);
 		
 	}
 

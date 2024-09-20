@@ -17,9 +17,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class FluidTradeNotification extends TaxableNotification {
 
@@ -51,7 +51,7 @@ public class FluidTradeNotification extends TaxableNotification {
 		
 	}
 
-	public static NonNullSupplier<Notification> create(FluidTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new FluidTradeNotification(trade, cost, customer, traderData, taxesPaid); }
+	public static Supplier<Notification> create(FluidTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new FluidTradeNotification(trade, cost, customer, traderData, taxesPaid); }
 	
 	@Nonnull
 	@Override

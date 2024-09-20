@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlo
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -39,7 +39,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	@OnlyIn(Dist.CLIENT)
 	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new EnergyStorageClientTab(screen, this); }
 	
-	List<SimpleSlot> slots = new ArrayList<>();
+	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	BatteryInputSlot drainSlot;
@@ -51,7 +51,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	
 	@Override
 	public void onTabOpen() {
-		SimpleSlot.SetActive(this.slots);
+		EasySlot.SetActive(this.slots);
 		MinecraftForge.EVENT_BUS.register(this);
 		this.drainSlot.locked = false;
 		this.fillSlot.locked = false;
@@ -59,7 +59,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	
 	@Override
 	public void onTabClose() {
-		SimpleSlot.SetInactive(this.slots);
+		EasySlot.SetInactive(this.slots);
 		MinecraftForge.EVENT_BUS.unregister(this);
 		this.drainSlot.locked = true;
 		this.fillSlot.locked = true;
@@ -69,7 +69,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE());
+			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE());
 			upgradeSlot.active = false;
 			upgradeSlot.setListener(this::onUpgradeModified);
 			addSlot.apply(upgradeSlot);
@@ -88,7 +88,7 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 		addSlot.apply(this.fillSlot);
 		this.fillSlot.locked = true;
 		
-		SimpleSlot.SetInactive(this.slots);
+		EasySlot.SetInactive(this.slots);
 		
 	}
 	

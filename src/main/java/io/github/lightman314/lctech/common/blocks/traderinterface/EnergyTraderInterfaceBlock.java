@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.common.blocks.traderinterface;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBlockEntity;
@@ -13,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 public class EnergyTraderInterfaceBlock extends TraderInterfaceBlock {
 
@@ -28,7 +28,7 @@ public class EnergyTraderInterfaceBlock extends TraderInterfaceBlock {
 	protected BlockEntityType<?> interfaceType() { return ModBlockEntities.TRADER_INTERFACE_ENERGY.get(); }
 	
 	@Override
-	protected NonNullSupplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_ENERGY_TRADER_INTERFACE.asTooltip(); }
+	protected Supplier<List<Component>> getItemTooltips() { return TechText.TOOLTIP_ENERGY_TRADER_INTERFACE.asTooltip(); }
 
 	@Override
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderInterfaceBlockEntity blockEntity) { }
