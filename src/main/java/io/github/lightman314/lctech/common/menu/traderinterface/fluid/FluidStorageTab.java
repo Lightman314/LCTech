@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderI
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -39,20 +39,20 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	@Override
 	public boolean canOpen(Player player) { return true; }
 	
-	List<SimpleSlot> slots = new ArrayList<>();
+	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	@Override
-	public void onTabOpen() { SimpleSlot.SetActive(this.slots); }
+	public void onTabOpen() { EasySlot.SetActive(this.slots); }
 	
 	@Override
-	public void onTabClose() { SimpleSlot.SetInactive(this.slots); }
+	public void onTabClose() { EasySlot.SetInactive(this.slots); }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
 		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
 		{
-			SimpleSlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE());
+			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE());
 			upgradeSlot.active = false;
 			upgradeSlot.setListener(this::onUpgradeModified);
 			addSlot.apply(upgradeSlot);

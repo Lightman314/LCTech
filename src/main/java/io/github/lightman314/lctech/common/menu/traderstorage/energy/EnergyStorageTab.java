@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +38,7 @@ public class EnergyStorageTab extends TraderStorageTab {
 	@Override
 	public boolean canOpen(Player player) { return true; }
 	
-	List<SimpleSlot> slots = new ArrayList<>();
+	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }
 	
 	BatteryInputSlot drainSlot;
@@ -54,7 +54,7 @@ public class EnergyStorageTab extends TraderStorageTab {
 		{
 			for(int i = 0; i < trader.getUpgrades().getContainerSize(); ++i)
 			{
-				SimpleSlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
+				EasySlot upgradeSlot = new UpgradeInputSlot(trader.getUpgrades(), i, 176, 18 + 18 * i, trader);
 				upgradeSlot.active = false;
 				addSlot.apply(upgradeSlot);
 				this.slots.add(upgradeSlot);
@@ -72,15 +72,15 @@ public class EnergyStorageTab extends TraderStorageTab {
 		this.slots.add(this.fillSlot);
 		addSlot.apply(this.fillSlot);
 		this.fillSlot.locked = true;
-		
-		SimpleSlot.SetInactive(this.slots);
+
+		EasySlot.SetInactive(this.slots);
 		
 	}
 
 	@Override
 	public void onTabClose() {
-		
-		SimpleSlot.SetInactive(this.slots);
+
+		EasySlot.SetInactive(this.slots);
 		NeoForge.EVENT_BUS.unregister(this);
 		this.drainSlot.locked = true;
 		this.fillSlot.locked = true;
@@ -94,8 +94,8 @@ public class EnergyStorageTab extends TraderStorageTab {
 
 	@Override
 	public void onTabOpen() {
-		
-		SimpleSlot.SetActive(this.slots);
+
+		EasySlot.SetActive(this.slots);
 		NeoForge.EVENT_BUS.register(this);
 		this.drainSlot.locked = false;
 		this.fillSlot.locked = false;

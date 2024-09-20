@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.SimpleSlot;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -13,7 +13,7 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 
-public class BatteryInputSlot extends SimpleSlot {
+public class BatteryInputSlot extends EasySlot {
 
 	public static final ResourceLocation EMPTY_BATTERY_SLOT = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "item/empty_battery_slot");
 	public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_BATTERY_SLOT);

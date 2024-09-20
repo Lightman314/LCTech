@@ -30,6 +30,6 @@ displayTest="MATCH_VERSION"
 [[dependencies.${mod_id}]]
     modId="lightmanscurrency"
     mandatory=true
-    versionRange="#{lightmanscurrency_version_range}"
+    versionRange="${lightmanscurrency_version_range}"
     ordering="AFTER"
     side="BOTH"

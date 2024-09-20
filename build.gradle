@@ -92,8 +92,16 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
-    maven {
-        url "https://cursemaven.com"
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
     }
 }
 
@@ -110,7 +118,7 @@ dependencies {
     localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     //Lightman's Currency (obviously)
-    implementation 'curse.maven:lightmanscurrency-472521:5606436'
+    implementation "maven.modrinth:lightmans-currency:${lightmanscurrency_version}"
 
 
 }
@@ -132,7 +140,8 @@ tasks.withType(ProcessResources).configureEach {
             mod_version            : mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description,
-            lightmanscurrency_version_range      : lightmanscurrency_version_range
+            lightmanscurrency_version      : lightmanscurrency_version,
+            lightmanscurrency_version_range: lightmanscurrency_version_range
     ]
     inputs.properties replaceProperties
 
