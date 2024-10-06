@@ -268,7 +268,7 @@ public class EnergyTraderData extends InputTraderData {
 				{
 					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
 					{
-						int addAmount = upgradeItem.getDefaultUpgradeData().getIntValue(CapacityUpgrade.CAPACITY);
+						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)
 						{
 							addAmount -= defaultCapacity;
