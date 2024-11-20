@@ -23,7 +23,6 @@ import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
@@ -79,6 +78,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	List<FluidTradeData> trades = FluidTradeData.listOfSize(1, true);
 
 	public final boolean drainCapable() { return !this.showOnTerminal(); }
+
+	@Override
+	protected boolean allowVoidUpgrade() { return true; }
 
 	private FluidTraderData() { super(TYPE); }
 	public FluidTraderData(int tradeCount, Level level, BlockPos pos) {
@@ -307,6 +309,10 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 			MoneyValue taxesPaid = MoneyValue.empty();
 
+			//Give the paid price to storage
+			if(this.canStoreMoney())
+				taxesPaid = this.addStoredMoney(price,true);
+
 			//Ignore internal editing if this is creative
 			if(!this.isCreative())
 			{
@@ -316,8 +322,6 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 					this.getStorage().drain(trade.productOfQuantity());
 					this.markStorageDirty();
 				}
-				//Give the paid price to storage
-				taxesPaid = this.addStoredMoney(price, true);
 			}
 
 			//Update stats
@@ -360,15 +364,16 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 			MoneyValue taxesPaid = MoneyValue.empty();
 
-			//Ignore internal editing if this is creative
-			if(!this.isCreative())
+			//Put the purchased fluid in storage
+			if(this.shouldStoreGoods())
 			{
-				//Put the purchased fluid in storage
 				this.getStorage().forceFillTank(trade.productOfQuantity());
 				this.markStorageDirty();
-				//Remove the coins from storage
-				taxesPaid = this.removeStoredMoney(price, true);
 			}
+
+			//Remove the coins from storage
+			if(!this.isCreative())
+				taxesPaid = this.removeStoredMoney(price, true);
 
 			this.incrementStat(StatKeys.Traders.MONEY_PAID, price);
 			if(!taxesPaid.isEmpty())

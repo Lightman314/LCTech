@@ -26,7 +26,12 @@ public class EnergyInputAddon extends InputTabAddon {
 
 	@Override
 	public void onOpen(SettingsSubTab settingsSubTab, ScreenArea screenArea, boolean firstOpen) {
-		this.buttonDrainMode = settingsSubTab.addChild(new EasyTextButton(screenArea.pos.offset(20, 100), settingsSubTab.screen.getXSize() - 40, 20, this.getOutputModeTextSource(settingsSubTab), b -> this.ToggleDrainMode(settingsSubTab)));
+		this.buttonDrainMode = settingsSubTab.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(20,100))
+				.width(screenArea.width - 40)
+				.text(this.getOutputModeTextSource(settingsSubTab))
+				.pressAction(() -> this.ToggleDrainMode(settingsSubTab))
+				.build());
 
 		this.tick(settingsSubTab);
 	}
@@ -70,8 +75,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	
 	private void ToggleDrainMode(SettingsSubTab settingsSubTab)
 	{
-		TraderData trader = settingsSubTab.menu.getTrader();
-		if(trader instanceof EnergyTraderData e)
+		if(settingsSubTab.menu.getTrader() instanceof EnergyTraderData e)
 			settingsSubTab.sendMessage(settingsSubTab.builder().setInt("NewEnergyDrainMode", e.getDrainMode().index + 1));
 	}
 	

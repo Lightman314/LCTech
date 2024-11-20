@@ -13,9 +13,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea.InteractionConsumer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -28,7 +29,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
 
-public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements InteractionConsumer, IMouseListener {
+public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements TradeInteractionHandler, IMouseListener {
 
 	public EnergyTradeEditClientTab(Object screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
 
@@ -40,7 +41,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	public MutableComponent getTooltip() { return EasyText.empty(); }
 
 	@Override
-	public boolean tabButtonVisible() { return false; }
+	public boolean tabVisible() { return false; }
 
 	@Override
 	public boolean blockInventoryClosing() { return true; }
@@ -64,15 +65,27 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 
 		EnergyTradeData trade = this.commonTab.getTrade();
 
-		this.tradeDisplay = this.addChild(new TradeButton(this.menu::getContext, this.commonTab::getTrade, button -> {}));
-		this.tradeDisplay.setPosition(screenArea.pos.offset(10, 18));
-		this.priceSelection = this.addChild(new MoneyValueWidget(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 40), this.priceSelection, trade == null ? MoneyValue.empty() : trade.getCost(), this::onValueChanged));
-		this.priceSelection.drawBG = false;
+		this.tradeDisplay = this.addChild(TradeButton.builder()
+				.position(screenArea.pos.offset(10,18))
+				.context(this.menu::getContext)
+				.trade(this.commonTab::getTrade)
+				.build());
+		this.priceSelection = this.addChild(MoneyValueWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width / 2 - MoneyValueWidget.WIDTH / 2, 40))
+				.oldIfNotFirst(firstOpen,this.priceSelection)
+				.startingValue(trade)
+				.valueHandler(this::onValueChanged)
+				.build());
 
 		this.quantityInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 75, this.screen.getXSize() - 42 - this.getFont().width(EnergyUtil.ENERGY_UNIT), 20, EasyText.empty()));
 		this.quantityInput.setValue(trade != null ? String.valueOf(trade.getAmount()): "");
 
-		this.buttonToggleTradeType = this.addChild(new EasyTextButton(screenArea.pos.offset(20, 120), 72, 20, EasyText.empty(), this::ToggleTradeType));
+		this.buttonToggleTradeType = this.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(20,120))
+				.size(72,20)
+				.text(() -> this.commonTab.getTrade().getTradeDirection().getName())
+				.pressAction(this::ToggleTradeType)
+				.build());
 
 	}
 
@@ -129,12 +142,10 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				this.commonTab.setQuantity(currentAmount);
 		}
 
-		this.buttonToggleTradeType.setMessage(this.commonTab.getTrade().getTradeDirection().getName());
-
 	}
 
 	@Override
-	public void receiveSelfMessage(LazyPacketData message) {
+	protected void OpenMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -142,7 +153,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void onTradeButtonInputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
+	public void HandleTradeInputInteraction(@Nonnull TraderData traderData, @Nonnull TradeData trade, @Nonnull TradeInteractionData tradeInteractionData, int i) {
 		if(trade instanceof EnergyTradeData t)
 		{
 			if(t.isSale())
@@ -153,7 +164,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void onTradeButtonOutputInteraction(TraderData trader, TradeData trade, int index, int mouseButton) {
+	public void HandleTradeOutputInteraction(@Nonnull TraderData traderData, @Nonnull TradeData trade, @Nonnull TradeInteractionData tradeInteractionData, int i) {
 		if(trade instanceof EnergyTradeData t)
 		{
 			if(t.isSale())
@@ -161,6 +172,11 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 			else if(t.isPurchase())
 				this.changeSelection(-1);
 		}
+	}
+
+	@Override
+	public void HandleOtherTradeInteraction(@Nonnull TraderData traderData, @Nonnull TradeData tradeData, @Nonnull TradeInteractionData tradeInteractionData) {
+
 	}
 
 	private void changeSelection(int newSelection) {
@@ -172,11 +188,8 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void onTradeButtonInteraction(TraderData trader, TradeData trade, int localMouseX, int localMouseY, int mouseButton) { }
-
-	@Override
 	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-		this.tradeDisplay.onInteractionClick((int)mouseX, (int)mouseY, button, this);
+		this.tradeDisplay.HandleInteractionClick((int)mouseX, (int)mouseY, button, this);
 		return false;
 	}
 

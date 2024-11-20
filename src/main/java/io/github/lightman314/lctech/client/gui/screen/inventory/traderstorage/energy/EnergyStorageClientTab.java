@@ -37,9 +37,6 @@ public class EnergyStorageClientTab extends TraderStorageClientTab<EnergyStorage
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_STORAGE.get(); }
-	
-	@Override
-	public boolean tabButtonVisible() { return true; }
 
 	@Override
 	public boolean blockInventoryClosing() { return false; }

@@ -10,10 +10,8 @@ import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.menu.util.MenuUtil;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
@@ -35,9 +33,10 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 
 	public EnergyStorageTab(TraderInterfaceMenu menu) { super(menu); }
 	
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public TraderInterfaceClientTab<?> createClientTab(TraderInterfaceScreen screen) { return new EnergyStorageClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new EnergyStorageClientTab(screen, this); }
 	
 	List<EasySlot> slots = new ArrayList<>();
 	public List<? extends Slot> getSlots() { return this.slots; }

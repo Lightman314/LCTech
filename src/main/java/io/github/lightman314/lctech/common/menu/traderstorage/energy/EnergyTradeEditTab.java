@@ -16,13 +16,16 @@ import net.minecraft.world.inventory.Slot;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
+
 public class EnergyTradeEditTab extends TraderStorageTab {
 
 	public EnergyTradeEditTab(ITraderStorageMenu menu) {super(menu); }
 	
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object menu) { return new EnergyTradeEditClientTab(menu, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new EnergyTradeEditClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
@@ -34,8 +37,7 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 		{
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
-				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
+				this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return null;
 			}
 			return trader.getTrade(this.tradeIndex);
@@ -86,14 +88,18 @@ public class EnergyTradeEditTab extends TraderStorageTab {
 				this.menu.SendMessage(this.builder().setMoneyValue("NewPrice", price));
 		}
 	}
-	
+
 	@Override
-	public void receiveMessage(LazyPacketData message) {
+	public void OpenMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");
 		}
-		else if(message.contains("NewQuantity"))
+	}
+
+	@Override
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("NewQuantity"))
 		{
 			this.setQuantity(message.getInt("NewQuantity"));
 		}

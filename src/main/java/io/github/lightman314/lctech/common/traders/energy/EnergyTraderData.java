@@ -71,6 +71,9 @@ public class EnergyTraderData extends InputTraderData {
 	protected final TradeEnergyHandler energyHandler = new TradeEnergyHandler(this);
 	
 	public final boolean drainCapable() { return !this.showOnTerminal(); }
+
+	@Override
+	protected boolean allowVoidUpgrade() { return true; }
 	
 	public enum DrainMode { ALWAYS(0), PURCHASES_ONLY(1);
 		
@@ -352,18 +355,15 @@ public class EnergyTraderData extends InputTraderData {
 
 			MoneyValue taxesPaid = MoneyValue.empty();
 
-			//Ignore internal editing if this is creative
-			if(!this.isCreative())
-			{
-				//Remove the purchased energy from storage
-				if(drainStorage)
-				{
-					this.shrinkEnergy(trade.getAmount());
-					this.markEnergyStorageDirty();
-				}
-
-				//Give the paid price to storage
+			//Give the paid price to storage
+			if(this.canStoreMoney())
 				taxesPaid = this.addStoredMoney(price, true);
+
+			//Remove the purchased energy from storage
+			if(!this.isCreative() && drainStorage)
+			{
+				this.shrinkEnergy(trade.getAmount());
+				this.markEnergyStorageDirty();
 			}
 
 			this.incrementStat(StatKeys.Traders.MONEY_EARNED, price);
@@ -404,15 +404,16 @@ public class EnergyTraderData extends InputTraderData {
 
 			MoneyValue taxesPaid = MoneyValue.empty();
 
-			//Ignore internal editing if this is creative
-			if(!this.isCreative())
+			//Put the purchased energy in storage
+			if(this.shouldStoreGoods())
 			{
-				//Put the purchased fluid in storage
 				this.addEnergy(trade.getAmount());
 				this.markEnergyStorageDirty();
-				//Remove the coins from storage
-				taxesPaid = this.removeStoredMoney(price, true);
 			}
+
+			//Remove the coins from storage
+			if(!this.isCreative())
+				taxesPaid = this.removeStoredMoney(price, true);
 
 			this.incrementStat(StatKeys.Traders.MONEY_PAID, price);
 			if(!taxesPaid.isEmpty())

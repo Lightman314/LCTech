@@ -28,7 +28,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -246,8 +245,5 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	
 	@Override
 	public void getAdditionalContents(List<ItemStack> contents) {}
-	
-	@Override
-	public MutableComponent getName() { return this.getBlockState().getBlock().getName(); }
 	
 }

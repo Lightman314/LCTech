@@ -2,6 +2,8 @@ package io.github.lightman314.lctech.client.gui.widget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 
@@ -9,13 +11,17 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.WidgetAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.FieldsAreNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
@@ -27,6 +33,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
@@ -38,8 +46,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 	private final int columns;
 	private final int rows;
 
-	private final int searchOffX;
-	private final int searchOffY;
+	private final ScreenPosition searchOffset;
 
 	private static List<Fluid> allFluids = null;
 
@@ -49,20 +56,19 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 	EditBox searchInput;
 
-	private final IFluidEditListener listener;
+	private final Consumer<FluidStack> handler;
 
 	private final Font font;
 
-	public FluidEditWidget(ScreenPosition pos, int columns, int rows, IFluidEditListener listener) { this(pos.x, pos.y, columns, rows, listener); }
-	public FluidEditWidget(int x, int y, int columns, int rows, IFluidEditListener listener) {
-		super(x, y, columns * 18, rows * 18);
-		this.listener = listener;
 
-		this.columns = columns;
-		this.rows = rows;
+	private FluidEditWidget(@Nonnull Builder builder) {
+		super(builder);
+		this.handler = builder.handler;
 
-		this.searchOffX = this.width - 90;
-		this.searchOffY = -13;
+		this.columns = builder.columns;
+		this.rows = builder.rows;
+
+        this.searchOffset = Objects.requireNonNullElse(builder.searchOffset,ScreenPosition.of(this.width - 90, -13));
 
 		Minecraft mc = Minecraft.getInstance();
 		this.font = mc.font;
@@ -71,9 +77,6 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		this.modifySearch("");
 
 	}
-
-	@Override
-	public FluidEditWidget withAddons(WidgetAddon... widgetAddons) { this.withAddonsInternal(widgetAddons); return this; }
 
 	public static void initFluidList() {
 		if(allFluids != null)
@@ -131,13 +134,21 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 	}
 
 	@Override
-	public void addChildren() {
-		this.searchInput = this.addChild(new EditBox(this.font, this.getX() + this.searchOffX + 2, this.getY() + this.searchOffY + 2, 79, 9, LCText.GUI_ITEM_EDIT_SEARCH.get()));
+	public void addChildren(@Nonnull ScreenArea area) {
+		this.searchInput = this.addChild(new EditBox(this.font, area.x + this.searchOffset.x + 2, area.y + this.searchOffset.y + 2, 79, 9, LCText.GUI_ITEM_EDIT_SEARCH.get()));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
 		this.searchInput.setTextColor(0xFFFFFF);
 		this.searchInput.setResponder(this::modifySearch);
-		this.addChild(new ScrollListener(this.getArea(), this));
+		this.addChild(ScrollListener.builder()
+				.area(area)
+				.listener(this)
+				.build());
+		this.addChild(ScrollBarWidget.builder()
+				.onRight(this)
+				.smallKnob()
+				.addon(EasyAddonHelper.visibleCheck(this::isVisible))
+				.build());
 	}
 
 	@Override
@@ -165,7 +176,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 		//Render the search field
 		gui.resetColor();
-		gui.blit(ItemEditWidget.GUI_TEXTURE, this.searchOffX, this.searchOffY, 18, 0, 90, 12);
+		gui.blit(ItemEditWidget.GUI_TEXTURE, this.searchOffset, 18, 0, 90, 12);
 
 	}
 
@@ -203,10 +214,6 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 		return (foundRow * this.columns) + foundColumn;
 	}
 
-	public interface IFluidEditListener {
-		void onFluidClicked(FluidStack fluid);
-	}
-
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
@@ -216,7 +223,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 			if(hoveredSlot < this.searchResultFluids.size())
 			{
 				FluidStack fluid = new FluidStack(this.searchResultFluids.get(hoveredSlot), FluidType.BUCKET_VOLUME);
-				this.listener.onFluidClicked(fluid);
+				this.handler.accept(fluid);
 				return true;
 			}
 		}
@@ -230,6 +237,35 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 	public void setScroll(int newScroll) {
 		this.scroll = newScroll;
 		this.refreshPage();
+	}
+
+	@Nonnull
+	public static Builder builder() { return new Builder(); }
+
+	@MethodsReturnNonnullByDefault
+	@ParametersAreNonnullByDefault
+	@FieldsAreNonnullByDefault
+	public static class Builder extends EasyBuilder<Builder>
+	{
+		private Builder() { super(18,18); }
+
+		@Override
+		protected Builder getSelf() { return this; }
+
+		int columns = 1;
+		int rows = 1;
+		@Nullable
+		ScreenPosition searchOffset = null;
+		private Consumer<FluidStack> handler = s -> {};
+
+		public Builder columns(int columns) { this.columns = columns; this.changeWidth(this.columns * 18); return this; }
+		public Builder rows(int rows) { this.rows = rows; this.changeHeight(this.rows * 18); return this; }
+		public Builder searchOffset(int searchOffX, int searchOffY) { return this.searchOffset(ScreenPosition.of(searchOffX,searchOffY)); }
+		public Builder searchOffset(ScreenPosition searchOffset) { this.searchOffset = searchOffset; return this; }
+		public Builder handler(Consumer<FluidStack> handler) { this.handler = handler; return this; }
+
+		public FluidEditWidget build() { return new FluidEditWidget(this); }
+
 	}
 
 }

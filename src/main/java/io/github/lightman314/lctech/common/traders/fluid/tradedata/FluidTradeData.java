@@ -2,7 +2,6 @@ package io.github.lightman314.lctech.common.traders.fluid.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
@@ -13,7 +12,6 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -40,7 +38,6 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class FluidTradeData extends TradeData {
 
@@ -327,7 +324,7 @@ public class FluidTradeData extends TradeData {
 	public TradeRenderManager<?> getButtonRenderer() { return new FluidTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientMessage, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -345,8 +342,9 @@ public class FluidTradeData extends TradeData {
 		}
 	}
 
+
 	@Override
-	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -400,6 +398,6 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nullable Consumer<LazyPacketData.Builder> clientHandler, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
+	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
 
 }

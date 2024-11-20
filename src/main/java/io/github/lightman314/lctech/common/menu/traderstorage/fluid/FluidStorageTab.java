@@ -25,13 +25,16 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
+import javax.annotation.Nonnull;
+
 public class FluidStorageTab extends TraderStorageTab {
 
 	public FluidStorageTab(ITraderStorageMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new FluidStorageClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new FluidStorageClientTab(screen, this); }
 
 	@Override
 	public boolean canOpen(Player player) { return true; }

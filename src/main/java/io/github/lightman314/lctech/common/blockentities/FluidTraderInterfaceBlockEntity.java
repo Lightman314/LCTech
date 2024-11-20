@@ -33,7 +33,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -382,8 +381,5 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
 		});
 	}
-
-	@Override
-	public MutableComponent getName() { return this.getBlockState().getBlock().getName(); }
 	
 }

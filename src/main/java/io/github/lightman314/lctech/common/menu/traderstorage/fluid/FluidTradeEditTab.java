@@ -18,13 +18,16 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
+
 public class FluidTradeEditTab extends TraderStorageTab {
 
 	public FluidTradeEditTab(ITraderStorageMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new FluidTradeEditClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new FluidTradeEditClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
@@ -36,8 +39,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 		{
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
-				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
+				this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return null;
 			}
 			return trader.getTrade(this.tradeIndex);
