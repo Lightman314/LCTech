@@ -13,9 +13,9 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public class EnergyInputAddon extends InputTabAddon {
 
@@ -27,7 +27,12 @@ public class EnergyInputAddon extends InputTabAddon {
 
 	@Override
 	public void onOpen(SettingsSubTab settingsSubTab, ScreenArea screenArea, boolean firstOpen) {
-		this.buttonDrainMode = settingsSubTab.addChild(new EasyTextButton(screenArea.pos.offset(20, 100), settingsSubTab.screen.getXSize() - 40, 20, this.getOutputModeTextSource(settingsSubTab), b -> this.ToggleDrainMode(settingsSubTab)));
+		this.buttonDrainMode = settingsSubTab.addChild(EasyTextButton.builder()
+				.position(screenArea.pos.offset(20,100))
+				.width(screenArea.width - 40)
+				.text(this.getOutputModeTextSource(settingsSubTab))
+				.pressAction(() -> this.ToggleDrainMode(settingsSubTab))
+				.build());
 
 		this.tick(settingsSubTab);
 	}
@@ -50,7 +55,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	@Override
 	public void onClose(@Nonnull SettingsSubTab settingsSubTab) { }
 	
-	private NonNullSupplier<Component> getOutputModeTextSource(SettingsSubTab settingsSubTab)
+	private Supplier<Component> getOutputModeTextSource(SettingsSubTab settingsSubTab)
 	{
 		return () -> TechText.GUI_SETTINGS_ENERGY_DRAINMODE.get(this.getOutputModeText(settingsSubTab));
 	}
@@ -71,8 +76,7 @@ public class EnergyInputAddon extends InputTabAddon {
 	
 	private void ToggleDrainMode(SettingsSubTab settingsSubTab)
 	{
-		TraderData trader = settingsSubTab.menu.getTrader();
-		if(trader instanceof EnergyTraderData e)
+		if(settingsSubTab.menu.getTrader() instanceof EnergyTraderData e)
 			settingsSubTab.sendMessage(LazyPacketData.simpleInt("NewEnergyDrainMode", e.getDrainMode().index + 1));
 	}
 	

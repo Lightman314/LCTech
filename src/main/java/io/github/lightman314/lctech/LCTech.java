@@ -81,6 +81,8 @@ public class LCTech
 
         //Register Custom Upgrade Targets
         Upgrades.TRADE_OFFERS.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());
+        Upgrades.VOID.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());
+        Upgrades.VOID.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_ENERGY.get());
 
         //Register Custom Icons
         FluidIcon.register();

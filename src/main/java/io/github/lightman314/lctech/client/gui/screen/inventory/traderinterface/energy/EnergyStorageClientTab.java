@@ -42,7 +42,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	DirectionalSettingsWidget inputSettings;
 	DirectionalSettingsWidget outputSettings;
 	
-	public EnergyStorageClientTab(TraderInterfaceScreen screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
+	public EnergyStorageClientTab(Object screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Nonnull
 	@Override
@@ -69,9 +69,19 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
-		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getOutputSettings().ignoreSides, this::ToggleOutputSide, this::addChild);
-		
+		this.inputSettings = this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(33,WIDGET_OFFSET + 9))
+				.currentValue(this.getInputSettings()::get)
+				.ignore(this.getInputSettings().ignoreSides)
+				.handler(this::ToggleInputSide)
+				.build());
+		this.outputSettings = this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(116,WIDGET_OFFSET + 9))
+				.currentValue(this.getOutputSettings()::get)
+				.ignore(this.getOutputSettings().ignoreSides)
+				.handler(this::ToggleOutputSide)
+				.build());
+
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
@@ -34,8 +35,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorageTab> implements IScrollable, IMouseListener {
 	
@@ -52,7 +55,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	DirectionalSettingsWidget inputSettings;
 	DirectionalSettingsWidget outputSettings;
 	
-	public FluidStorageClientTab(TraderInterfaceScreen screen, FluidStorageTab commonTab) { super(screen, commonTab); }
+	public FluidStorageClientTab(Object screen, FluidStorageTab commonTab) { super(screen, commonTab); }
 
 	int scroll = 0;
 	
@@ -83,14 +86,29 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 
 		this.addChild(this);
 
-		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + (18 * TANKS), Y_OFFSET), 53, this));
-		this.scrollBar.smallKnob = true;
-		
-		this.addChild(new ScrollListener(screenArea.pos, screenArea.width, 118, this));
-		
-		this.inputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(33, WIDGET_OFFSET + 9), this.getInputSettings()::get, this.getInputSettings().ignoreSides, this::ToggleInputSide, this::addChild);
-		this.outputSettings = new DirectionalSettingsWidget(screenArea.pos.offset(116, WIDGET_OFFSET + 9), this.getOutputSettings()::get, this.getOutputSettings().ignoreSides, this::ToggleOutputSide, this::addChild);
-		
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(screenArea.pos.offset(X_OFFSET + (18 * TANKS),53))
+				.scrollable(this)
+				.smallKnob()
+				.build());
+
+		this.addChild(ScrollListener.builder()
+				.position(screenArea.pos)
+				.size(screenArea.width, 118)
+				.listener(this)
+				.build());
+
+		this.inputSettings = this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(33,WIDGET_OFFSET + 9))
+				.currentValue(this.getInputSettings()::get)
+				.handler(this::ToggleInputSide)
+				.build());
+		this.outputSettings = this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(116,WIDGET_OFFSET + 9))
+				.currentValue(this.getOutputSettings()::get)
+				.handler(this::ToggleOutputSide)
+				.build());
+
 	}
 	
 	@Override
@@ -227,5 +245,28 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	private void ToggleOutputSide(Direction side) {
 		this.commonTab.toggleOutputSlot(side);
 	}
-	
+
+	@Nullable
+	@Override
+	public Pair<FluidStack, ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) {
+		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
+		int topEdge = this.screen.getGuiTop() + Y_OFFSET;
+		if(mousePos.y < topEdge || mousePos.y >= topEdge + 53)
+			return null;
+		int tankIndex = -1;
+		for(int x = 0; x < TANKS; ++x)
+		{
+			if(mousePos.x >= leftEdge + x * 18 && mousePos.x < leftEdge + (x * 18) + 18)
+				tankIndex = x;
+		}
+		if(tankIndex >= 0 && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
+		{
+			FluidStack contents = be.getFluidBuffer().getFluidInTank(tankIndex + this.scroll);
+			if(contents.isEmpty())
+				return null;
+			return Pair.of(contents,ScreenArea.of(leftEdge + (tankIndex * 18),topEdge, 18,53));
+		}
+		return super.getHoveredFluid(mousePos);
+	}
+
 }

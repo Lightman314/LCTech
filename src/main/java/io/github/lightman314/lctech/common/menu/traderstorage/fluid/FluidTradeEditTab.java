@@ -18,13 +18,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
 
+import javax.annotation.Nonnull;
+
 public class FluidTradeEditTab extends TraderStorageTab {
 
 	public FluidTradeEditTab(ITraderStorageMenu menu) { super(menu); }
 
+	@Nonnull
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public Object createClientTab(Object screen) { return new FluidTradeEditClientTab(screen, this); }
+	public Object createClientTab(@Nonnull Object screen) { return new FluidTradeEditClientTab(screen, this); }
 	
 	@Override
 	public boolean canOpen(Player player) { return this.menu.getTrader().hasPermission(player, Permissions.EDIT_TRADES); }
@@ -36,8 +39,7 @@ public class FluidTradeEditTab extends TraderStorageTab {
 		{
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)
 			{
-				this.menu.changeTab(TraderStorageTab.TAB_TRADE_BASIC);
-				this.menu.SendMessage(this.menu.createTabChangeMessage(TraderStorageTab.TAB_TRADE_BASIC));
+				this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return null;
 			}
 			return trader.getTrade(this.tradeIndex);
@@ -106,14 +108,18 @@ public class FluidTradeEditTab extends TraderStorageTab {
 				this.menu.SendMessage(LazyPacketData.simpleTag("NewFluid", fluid.writeToNBT(new CompoundTag())));
 		}
 	}
-	
+
 	@Override
-	public void receiveMessage(LazyPacketData message) {
+	public void OpenMessage(@Nonnull LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 		{
 			this.tradeIndex = message.getInt("TradeIndex");
 		}
-		else if(message.contains("NewFluid"))
+	}
+
+	@Override
+	public void receiveMessage(LazyPacketData message) {
+		if(message.contains("NewFluid"))
 		{
 			this.setFluid(FluidStack.loadFluidStackFromNBT(message.getNBT("NewFluid")));
 		}

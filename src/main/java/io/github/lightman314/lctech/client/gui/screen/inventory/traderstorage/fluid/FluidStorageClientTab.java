@@ -34,8 +34,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTab> implements IScrollable, IMouseListener {
 	
@@ -59,9 +61,6 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_STORAGE.get(); }
 	
 	@Override
-	public boolean tabButtonVisible() { return true; }
-	
-	@Override
 	public boolean blockInventoryClosing() { return false; }
 
 	@Override
@@ -69,10 +68,18 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 
 		this.addChild(this);
 
-		this.scrollBar = this.addChild(new ScrollBarWidget(screenArea.pos.offset(X_OFFSET + (18 * TANKS), Y_OFFSET), 90, this));
-		
-		this.addChild(new ScrollListener(this.screen.getGuiLeft(), this.screen.getGuiTop(), this.screen.getXSize(), 118, this));
-		
+		this.scrollBar = this.addChild(ScrollBarWidget.builder()
+				.position(screenArea.pos.offset(X_OFFSET + (18 * TANKS),Y_OFFSET))
+				.height(90)
+				.scrollable(this)
+				.build());
+
+		this.addChild(ScrollListener.builder()
+				.position(screenArea.pos)
+				.size(screenArea.width,118)
+				.listener(this)
+				.build());
+
 	}
 
 	@Override
@@ -201,10 +208,8 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	}
 	
 	private int totalTankSlots() {
-		if(this.menu.getTrader() instanceof FluidTraderData)
-		{
-			return ((FluidTraderData)this.menu.getTrader()).getStorage().getTanks();
-		}
+		if(this.menu.getTrader() instanceof FluidTraderData trader)
+			return trader.getStorage().getTanks();
 		return 0;
 	}
 
@@ -252,6 +257,29 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	public void setScroll(int newScroll) {
 		this.scroll = newScroll;
 		this.validateScroll();
+	}
+
+	@Nullable
+	@Override
+	public Pair<FluidStack, ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) {
+		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
+		int topEdge = this.screen.getGuiTop() + Y_OFFSET + 24;
+		if(mousePos.y < topEdge || mousePos.y >= topEdge + 66)
+			return null;
+		int tankIndex = -1;
+		for(int x = 0; x < TANKS; ++x)
+		{
+			if(mousePos.x >= leftEdge + x * 18 && mousePos.x < leftEdge + (x * 18) + 18)
+				tankIndex = x;
+		}
+		if(tankIndex >= 0 && this.menu.getTrader() instanceof FluidTraderData trader)
+		{
+			FluidStack contents = trader.getStorage().getFluidInTank(tankIndex + this.scroll);
+			if(contents.isEmpty())
+				return null;
+			return Pair.of(contents,ScreenArea.of(leftEdge + (tankIndex * 18),topEdge, 18,66));
+		}
+		return super.getHoveredFluid(mousePos);
 	}
 
 }

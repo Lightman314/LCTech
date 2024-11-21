@@ -32,7 +32,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -383,8 +382,5 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				contents.add(FluidShardItem.GetFluidShard(entry.getTankContents()));
 		});
 	}
-
-	@Override
-	public MutableComponent getName() { return this.getBlockState().getBlock().getName(); }
 	
 }
