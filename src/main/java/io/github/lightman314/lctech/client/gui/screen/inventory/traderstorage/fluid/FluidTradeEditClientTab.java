@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -63,7 +62,6 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	EasyButton buttonRemoveBucket;
 
 	FluidEditWidget fluidEdit;
-	ScrollBarWidget fluidEditScroll;
 
 	EasyButton buttonToggleTradeType;
 
@@ -163,7 +161,7 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 	private void validateRenderables() {
 
 		this.priceSelection.visible = this.selection < 0;
-		this.fluidEdit.visible = this.fluidEditScroll.visible = this.selection >= 0;
+		this.fluidEdit.visible = this.selection >= 0;
 
 		this.buttonAddBucket.visible = this.buttonRemoveBucket.visible = this.selection >= 0;
 		if(this.buttonAddBucket.visible)
