@@ -31,8 +31,6 @@ public class TechRecipeProvider extends RecipeProvider {
 
     public TechRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookup) { super(output,lookup); }
 
-    private static final String ADV_PREFIX = "recipes/misc/";
-
     @Override
     protected void buildRecipes(@Nonnull RecipeOutput output) {
 
@@ -116,7 +114,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', ModBlocks.IRON_TANK.get())
-                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NetworkTrader.INSTANCE),ID("traders/network/fluid_network_trader_1"));
+                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NETWORK_TRADER),ID("traders/network/fluid_network_trader_1"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_2.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -126,7 +124,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_1.get())
-                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NetworkTrader.INSTANCE),ID("traders/network/fluid_network_trader_2"));
+                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NETWORK_TRADER),ID("traders/network/fluid_network_trader_2"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_3.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -136,7 +134,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_2.get())
-                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NetworkTrader.INSTANCE),ID("traders/network/fluid_network_trader_3"));
+                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NETWORK_TRADER),ID("traders/network/fluid_network_trader_3"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_4.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -146,7 +144,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_3.get())
-                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NetworkTrader.INSTANCE),ID("traders/network/fluid_network_trader_4"));
+                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE,LCCraftingConditions.NETWORK_TRADER),ID("traders/network/fluid_network_trader_4"));
 
         //Energy Traders
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.BATTERY_SHOP.get())
@@ -170,7 +168,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('b', ModItems.BATTERY.get())
-                .save(output.withConditions(TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.NetworkTrader.INSTANCE),ID("traders/network/energy_network_trader"));
+                .save(output.withConditions(TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER),ID("traders/network/energy_network_trader"));
 
         //Trader Interfaces
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_TRADER_INTERFACE.get())
@@ -182,7 +180,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', ModBlocks.IRON_TANK.get())
-                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.TraderInterface.INSTANCE),ItemID(ModBlocks.FLUID_TRADER_INTERFACE));
+                .save(output.withConditions(TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.TRADER_INTERFACE),ItemID(ModBlocks.FLUID_TRADER_INTERFACE));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ENERGY_TRADER_INTERFACE.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -193,7 +191,7 @@ public class TechRecipeProvider extends RecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', ModItems.BATTERY.get())
-                .save(output.withConditions(TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.TraderInterface.INSTANCE),ItemID(ModBlocks.ENERGY_TRADER_INTERFACE));
+                .save(output.withConditions(TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.TRADER_INTERFACE),ItemID(ModBlocks.ENERGY_TRADER_INTERFACE));
 
         //Fluid Capacity Upgrades
         SmithingTransformRecipeBuilder.smithing(

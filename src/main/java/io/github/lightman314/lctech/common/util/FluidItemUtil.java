@@ -17,8 +17,22 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class FluidItemUtil {
+
+	public static void addFluidToRelevanceList(@Nonnull List<FluidStack> list, @Nonnull FluidStack fluid)
+	{
+		if(list.stream().anyMatch(f -> FluidStack.isSameFluidSameComponents(f,fluid)))
+			return;
+		list.add(fluid);
+	}
+
+	public static void addFluidsToRelevanceList(@Nonnull List<FluidStack> list, @Nonnull List<FluidStack> fluids)
+	{
+		for(FluidStack f : fluids)
+			addFluidToRelevanceList(list,f);
+	}
 
 	public static ItemStack getFluidDisplayItem(FluidStack fluidStack)
 	{

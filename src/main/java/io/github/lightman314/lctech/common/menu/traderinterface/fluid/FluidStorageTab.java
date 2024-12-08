@@ -49,9 +49,9 @@ public class FluidStorageTab extends TraderInterfaceTab {
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
-		for(int i = 0; i < this.menu.getBE().getUpgradeInventory().getContainerSize(); ++i)
+		for(int i = 0; i < this.menu.getBE().getUpgrades().getContainerSize(); ++i)
 		{
-			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgradeInventory(), i, 176, 18 + 18 * i, this.menu.getBE());
+			EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgrades(), i, 176, 18 + 18 * i, this.menu.getBE());
 			upgradeSlot.active = false;
 			upgradeSlot.setListener(this::onUpgradeModified);
 			addSlot.apply(upgradeSlot);

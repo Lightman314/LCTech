@@ -14,6 +14,7 @@ import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergySto
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -50,9 +51,9 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		int defaultCapacity = EnergyTraderData.getDefaultMaxEnergy();
 		int capacity = defaultCapacity;
 		boolean baseStorageCompensation = false;
-		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
+		for(int i = 0; i < this.getUpgrades().getContainerSize(); i++)
 		{
-			ItemStack stack = this.getUpgradeInventory().getItem(i);
+			ItemStack stack = this.getUpgrades().getItem(i);
 			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
 				if(this.allowUpgrade(upgradeItem))
@@ -87,7 +88,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	protected TradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return EnergyTradeData.loadData(compound, false, lookup); }
+	public TradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return EnergyTradeData.loadData(compound, false, lookup); }
 	
 	@Override
 	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
@@ -116,17 +117,9 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	@Override
 	public boolean validTraderType(TraderData trader) { return trader instanceof EnergyTraderData; }
 	
-	protected final EnergyTraderData getEnergyTrader() {
-		TraderData trader = this.getTrader();
-		if(trader instanceof EnergyTraderData)
-			return (EnergyTraderData)trader;
-		return null;
-	}
-	
 	@Override
-	protected void drainTick() {
-		EnergyTraderData trader = this.getEnergyTrader();
-		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
+	protected void drainTick(@Nonnull TraderData t) {
+		if(t instanceof EnergyTraderData trader && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			int drainableAmount = Math.min(this.getMaxEnergy() - this.getStoredEnergy(), trader.getAvailableEnergy());
 			if(drainableAmount > 0)
@@ -140,9 +133,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	protected void restockTick() {
-		EnergyTraderData trader = this.getEnergyTrader();
-		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
+	protected void restockTick(@Nonnull TraderData t) {
+		if(t instanceof EnergyTraderData trader && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			int restockableAmount = Math.min(this.getStoredEnergy(), trader.getMaxEnergy() - trader.getTotalEnergy());
 			if(restockableAmount > 0)
@@ -156,8 +148,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 	}
 	
 	@Override
-	protected void tradeTick() {
-		TradeData t = this.getTrueTrade();
+	protected void tradeTick(@Nonnull TradeReference tr) {
+		TradeData t = tr.getTrueTrade();
 		if(t instanceof EnergyTradeData trade)
 		{
 			if(trade != null && trade.isValid())
@@ -167,8 +159,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 					//Confirm that we have enough space to store the purchased energy
 					if(this.getMaxEnergy() - this.energyStorage >= trade.getAmount())
 					{
-						this.interactWithTrader();
-						this.setEnergyBufferDirty();
+						if(this.TryExecuteTrade(tr).isSuccess())
+							this.setEnergyBufferDirty();
 					}
 				}
 				else if(trade.isPurchase())
@@ -176,8 +168,8 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 					//Confirm that we have enough of the energy in storage to sell the energy
 					if(this.energyStorage >= trade.getAmount())
 					{
-						this.interactWithTrader();
-						this.setEnergyBufferDirty();
+						if(this.TryExecuteTrade(tr).isSuccess())
+							this.setEnergyBufferDirty();
 					}
 				}
 			}

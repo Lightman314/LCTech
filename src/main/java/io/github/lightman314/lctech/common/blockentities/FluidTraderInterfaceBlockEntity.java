@@ -17,8 +17,10 @@ import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.menu.traderinterface.fluid.FluidStorageTab;
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
+import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -66,10 +68,10 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		if(this.fluidBuffer.refactorTanks())
 			this.setFluidBufferDirty();
 	}
-	
+
 	@Override
-	public void setTradeReferenceDirty() {
-		super.setTradeReferenceDirty();
+	public void setTargetsDirty() {
+		super.setTargetsDirty();
 		//Refactor the fluid buffers tanks whenever the selected trade/trader is updated.
 		if(this.fluidBuffer.refactorTanks())
 			this.setFluidBufferDirty();
@@ -81,25 +83,30 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	public boolean allowInput(FluidStack fluid) {
-		if(this.getInteractionType().trades)
+		if(this.getInteractionType().trades())
 		{
 			//Check trade for purchase fluid to restock
-			TradeData t = this.getReferencedTrade();
-			if(t instanceof FluidTradeData trade)
-				return trade.isPurchase() && FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid);
+			for(TradeReference tr : this.targets.getTradeReferences())
+			{
+				TradeData t = tr.getLocalTrade();
+				if(t instanceof FluidTradeData trade && trade.isPurchase() && FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid))
+					return true;
+			}
 		}
 		else
 		{
 			//Scan all trades for sell fluids to restock
-			TraderData trader = this.getTrader();
-			if(trader instanceof FluidTraderData ft)
+			for(TraderData trader : this.targets.getTraders())
 			{
-				for(FluidTradeData trade : ft.getTradeData())
+				if(trader instanceof FluidTraderData ft)
 				{
-					if(trade.isSale())
+					for(FluidTradeData trade : ft.getTradeData())
 					{
-						if(FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid))
-							return true;
+						if(trade.isSale())
+						{
+							if(FluidStack.isSameFluidSameComponents(trade.getProduct(),fluid))
+								return true;
+						}
 					}
 				}
 			}
@@ -111,24 +118,30 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 
 	@Override
 	public List<FluidStack> getRelevantFluids() {
-		if(this.getInteractionType().trades)
+		if(this.getInteractionType().trades())
 		{
-			TradeData t = this.getReferencedTrade();
 			List<FluidStack> result = new ArrayList<>();
-			if(t instanceof FluidTradeData trade)
+			for(TradeReference tr : this.targets.getTradeReferences())
 			{
-				if(!trade.getProduct().isEmpty())
-					result.add(trade.getProduct());
+				TradeData t = tr.getLocalTrade();
+				if(t instanceof FluidTradeData trade)
+				{
+					if(!trade.getProduct().isEmpty())
+						FluidItemUtil.addFluidToRelevanceList(result,trade.getProduct());
+				}
 			}
 			return result;
 		}
 		else
 		{
-			TraderData trader = this.getTrader();
-			if(trader instanceof FluidTraderData fluidTrader)
-				return fluidTrader.getRelevantFluids();
+			List<FluidStack> result = new ArrayList<>();
+			for(TraderData t : this.targets.getTraders())
+			{
+				if(t instanceof FluidTraderData trader)
+					FluidItemUtil.addFluidsToRelevanceList(result,trader.getRelevantFluids());
+			}
+			return result;
 		}
-		return new ArrayList<>();
 	}
 	
 	@Override
@@ -136,14 +149,14 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		int defaultCapacity = FluidTraderData.getDefaultTankCapacity();
 		int tankCapacity = defaultCapacity;
 		boolean baseStorageCompensation = false;
-		for(int i = 0; i < this.getUpgradeInventory().getContainerSize(); i++)
+		for(int i = 0; i < this.getUpgrades().getContainerSize(); i++)
 		{
-			ItemStack stack = this.getUpgradeInventory().getItem(i);
+			ItemStack stack = this.getUpgrades().getItem(i);
 			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
 				if(this.allowUpgrade(upgradeItem))
 				{
-					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+					if(upgradeItem.getUpgradeType() == TechUpgradeTypes.FLUID_CAPACITY)
 					{
 						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)
@@ -160,7 +173,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	protected FluidTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return FluidTradeData.loadData(compound, false, lookup); }
+	public FluidTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return FluidTradeData.loadData(compound, false, lookup); }
 	
 	@Override
 	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
@@ -189,13 +202,6 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	@Override
 	public boolean validTraderType(TraderData trader) { return trader instanceof FluidTraderData; }
 	
-	protected final FluidTraderData getFluidTrader() {
-		TraderData trader = this.getTrader();
-		if(trader instanceof FluidTraderData)
-			return (FluidTraderData)trader;
-		return null;
-	}
-	
 	@Override
 	public void serverTick() { 
 		this.refactorTimer--;
@@ -209,9 +215,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	protected void drainTick() {
-		FluidTraderData trader = this.getFluidTrader();
-		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
+	protected void drainTick(@Nonnull TraderData t) {
+		if(t instanceof FluidTraderData trader && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
@@ -242,9 +247,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	protected void restockTick() {
-		FluidTraderData trader = this.getFluidTrader();
-		if(trader != null && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
+	protected void restockTick(@Nonnull TraderData t) {
+		if(t instanceof FluidTraderData trader && trader.hasPermission(this.getReferencedPlayer(), Permissions.INTERACTION_LINK))
 		{
 			TraderFluidStorage storage = trader.getStorage();
 			boolean setChanged = false;
@@ -275,8 +279,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 	}
 	
 	@Override
-	protected void tradeTick() {
-		TradeData t = this.getTrueTrade();
+	protected void tradeTick(@Nonnull TradeReference tr) {
+		TradeData t = tr.getTrueTrade();
 		if(t instanceof FluidTradeData trade)
 		{
 			if(trade != null && trade.isValid())
@@ -286,8 +290,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 					//Confirm that we have enough space to store the purchased fluid
 					if(this.fluidBuffer.getFillableAmount(trade.getProduct()) >= trade.getQuantity())
 					{
-						this.interactWithTrader();
-						this.setFluidBufferDirty();
+						if(this.TryExecuteTrade(tr).isSuccess())
+							this.setFluidBufferDirty();
 					}
 				}
 				else if(trade.isPurchase())
@@ -295,8 +299,8 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 					//Confirm that we have enough of the fluid in storage to buy the fluid
 					if(this.fluidBuffer.getActualFluidCount(trade.getProduct()) >= trade.getQuantity())
 					{
-						this.interactWithTrader();
-						this.setFluidBufferDirty();
+						if(this.TryExecuteTrade(tr).isSuccess())
+							this.setFluidBufferDirty();
 					}
 				}
 			}

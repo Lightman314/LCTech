@@ -45,7 +45,7 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
     @Override
     public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isSale())
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() : null));
+            return this.lazyPriceDisplayList(context);
         if(this.trade.isPurchase())
             return this.getFluidEntry(context);
         return null;
@@ -61,7 +61,7 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
         if(this.trade.isSale())
             return this.getFluidEntry(context);
         if(this.trade.isPurchase())
-            return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context), context.isStorageMode ? LCText.TOOLTIP_TRADE_EDIT_PRICE.getAsList() : null));
+            return this.lazyPriceDisplayList(context);
         return null;
     }
 
