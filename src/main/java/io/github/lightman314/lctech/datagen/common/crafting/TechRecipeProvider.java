@@ -19,7 +19,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -119,7 +118,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', ModBlocks.IRON_TANK.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_1"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NetworkTrader.INSTANCE));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_1"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_2.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -129,7 +128,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_1.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_2"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NetworkTrader.INSTANCE));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_2"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_3.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -139,7 +138,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_2.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_3"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NetworkTrader.INSTANCE));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_3"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_4.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -149,7 +148,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_3.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_4"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NetworkTrader.INSTANCE));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_4"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
 
         //Energy Traders
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.BATTERY_SHOP.get())
@@ -173,7 +172,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('b', ModItems.BATTERY.get())
-                .save(makeConditional(ID("traders/network/energy_network_trader"), consumer, TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.NetworkTrader.INSTANCE));
+                .save(makeConditional(ID("traders/network/energy_network_trader"), consumer, TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
 
         //Trader Interfaces
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_TRADER_INTERFACE.get())
@@ -185,7 +184,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', ModBlocks.IRON_TANK.get())
-                .save(makeConditional(ItemID(ModBlocks.FLUID_TRADER_INTERFACE), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.TraderInterface.INSTANCE));
+                .save(makeConditional(ItemID(ModBlocks.FLUID_TRADER_INTERFACE), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.TRADER_INTERFACE));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ENERGY_TRADER_INTERFACE.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -196,7 +195,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', ModItems.BATTERY.get())
-                .save(makeConditional(ItemID(ModBlocks.ENERGY_TRADER_INTERFACE), consumer, TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.TraderInterface.INSTANCE));
+                .save(makeConditional(ItemID(ModBlocks.ENERGY_TRADER_INTERFACE), consumer, TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.TRADER_INTERFACE));
 
         //Fluid Capacity Upgrades
         SmithingTransformRecipeBuilder.smithing(
@@ -312,11 +311,6 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('m', ingredient)
                 .define('g', Tags.Items.GLASS_COLORLESS)
                 .save(makeConditional(ItemID("fluid_tanks/", result), consumer, TechCraftingConditions.FluidTank.INSTANCE));
-    }
-
-    private static void buildConditional(@Nonnull ConditionalRecipe.Builder builder, @Nonnull Consumer<FinishedRecipe> consumer, @Nonnull RegistryObject<? extends ItemLike> item)
-    {
-        builder.generateAdvancement(ItemID(ADV_PREFIX,item)).build(consumer, ItemID(item));
     }
 
     private static String ItemPath(ItemLike item) { return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath(); }

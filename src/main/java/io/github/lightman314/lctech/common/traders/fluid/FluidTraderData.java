@@ -210,22 +210,10 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		for(FluidTradeData trade : this.getTradeData())
 		{
 			FluidStack product = trade.getProduct();
-			if(!product.isEmpty() && !this.isInList(result, product))
-				result.add(product);
+			if(!product.isEmpty())
+				FluidItemUtil.addFluidToRelevanceList(result,product);
 		}
 		return result;
-	}
-
-	private boolean isInList(List<FluidStack> list, FluidStack fluid)
-	{
-		if(fluid.isEmpty())
-			return true;
-		for(FluidStack query : list)
-		{
-			if(query.isFluidEqual(fluid))
-				return true;
-		}
-		return false;
 	}
 
 	public static int getDefaultTankCapacity() { return TechConfig.SERVER.fluidTraderDefaultStorage.get() * FluidType.BUCKET_VOLUME; }
@@ -242,7 +230,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			{
 				if(this.allowUpgrade(upgradeItem))
 				{
-					if(upgradeItem.getUpgradeType() instanceof CapacityUpgrade)
+					if(upgradeItem.getUpgradeType() == TechUpgradeTypes.FLUID_CAPACITY)
 					{
 						int addAmount = UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
 						if(addAmount > defaultCapacity && !baseStorageCompensation)

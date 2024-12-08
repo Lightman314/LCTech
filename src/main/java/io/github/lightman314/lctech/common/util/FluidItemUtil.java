@@ -21,7 +21,22 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
 public class FluidItemUtil {
+
+	public static void addFluidToRelevanceList(@Nonnull List<FluidStack> list, @Nonnull FluidStack fluid)
+	{
+		if(list.stream().anyMatch(f -> f.isFluidEqual(fluid)))
+			return;
+		list.add(fluid);
+	}
+	public static void addFluidsToRelevanceList(@Nonnull List<FluidStack> list, @Nonnull List<FluidStack> fluids)
+	{
+		for(FluidStack f : fluids)
+			addFluidToRelevanceList(list,f);
+	}
 
 	public static ItemStack getFluidDisplayItem(FluidStack fluidStack)
 	{

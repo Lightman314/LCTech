@@ -65,7 +65,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
     @Override
     public List<DisplayEntry> getInputDisplays(TradeContext context) {
         if(this.trade.isSale())
-            return this.getCostEntry(context);
+            return this.lazyPriceDisplayList(context);
         else
             return this.getProductEntry();
     }
@@ -83,11 +83,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
         if(this.trade.isSale())
             return this.getProductEntry();
         else
-            return this.getCostEntry(context);
-    }
-
-    private List<DisplayEntry> getCostEntry(TradeContext context) {
-        return Lists.newArrayList(DisplayEntry.of(this.trade.getCost(context)));
+            return this.lazyPriceDisplayList(context);
     }
 
     private List<DisplayEntry> getProductEntry() { return Lists.newArrayList(DisplayEntry.of(EasyText.literal(EnergyUtil.formatEnergyAmount(this.trade.getAmount())), TextRenderUtil.TextFormatting.create().centered().middle())); }
