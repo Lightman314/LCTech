@@ -85,7 +85,6 @@ public class FluidTradeEditClientTab extends TraderStorageClientTab<FluidTradeEd
 				.startingValue(trade)
 				.valueHandler(this::onValueChanged)
 				.build());
-		this.priceSelection.drawBG = false;
 
 		this.fluidEdit = this.addChild(FluidEditWidget.builder()
 				.position(screenArea.pos.offset(X_OFFSET,Y_OFFSET))
