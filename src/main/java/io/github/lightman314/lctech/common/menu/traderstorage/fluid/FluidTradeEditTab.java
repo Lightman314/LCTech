@@ -108,14 +108,16 @@ public class FluidTradeEditTab extends TraderStorageTab {
 				this.menu.SendMessage(this.builder().setCompound("NewFluid", (CompoundTag)fluid.saveOptional(this.registryAccess())));
 		}
 	}
-	
+
+	@Override
+	public void OpenMessage(@Nonnull LazyPacketData message) {
+		if(message.contains("TradeIndex"))
+			this.tradeIndex = message.getInt("TradeIndex");
+	}
+
 	@Override
 	public void receiveMessage(LazyPacketData message) {
-		if(message.contains("TradeIndex"))
-		{
-			this.tradeIndex = message.getInt("TradeIndex");
-		}
-		else if(message.contains("NewFluid"))
+		if(message.contains("NewFluid"))
 		{
 			this.setFluid(FluidStack.parseOptional(message.lookup,message.getNBT("NewFluid")));
 		}

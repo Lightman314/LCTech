@@ -3,34 +3,40 @@ package io.github.lightman314.lctech.common.traders.terminal.filters;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.IBasicTraderFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Predicate;
 
+@ParametersAreNonnullByDefault
 public class FluidTraderSearchFilter implements IBasicTraderFilter {
 
+	public static final String FLUID = "fluid";
+
 	@Override
-	public boolean filterTrade(@Nonnull TradeData tradeData, @Nonnull String searchString, @Nonnull HolderLookup.Provider lookup) {
-		if(tradeData instanceof FluidTradeData trade)
-		{
-			if(trade.isValid())
-                return filterFluid(trade.getProduct(),searchString);
-		}
-		return false;
+	public void filterTrade(TradeData data, PendingSearch search, HolderLookup.Provider lookup) {
+		if(data instanceof FluidTradeData trade && trade.isValid())
+			search.processFilter(FLUID,filterFluid(trade.getProduct()));
 	}
 
-	public static boolean filterFluid(@Nonnull FluidStack fluid, @Nonnull String searchString)
+	public static Predicate<String> filterFluid(@Nonnull FluidStack fluid)
 	{
-		if(fluid.isEmpty())
+		return (input) -> {
+			if(input.isBlank())
+				return false;
+			if(fluid.isEmpty())
+				return "empty".contains(input);
+			if(FluidFormatUtil.getFluidName(fluid).getString().toLowerCase().contains(input))
+				return true;
+			if(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString().toLowerCase().contains(input))
+				return true;
 			return false;
-		if(FluidFormatUtil.getFluidName(fluid).getString().toLowerCase().contains(searchString))
-			return true;
-		if(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString().toLowerCase().contains(searchString))
-			return true;
-		return false;
+		};
 	}
 
 }
