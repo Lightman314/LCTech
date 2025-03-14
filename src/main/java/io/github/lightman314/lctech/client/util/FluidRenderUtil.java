@@ -286,9 +286,10 @@ public class FluidRenderUtil {
 		int lightMapValue = LightTexture.pack(BLOCK_LIGHT, SKY_LIGHT);
 
 		final float minU = 0f;
-		final float maxU = Math.max(data.width,data.depth);
+		final float maxU = 1f;
 		final float minV = 0f;
-		final float maxV = data.getHeight();
+		//If top/bottom, max V should be 1, otherwise limit by fill percent
+		final float maxV = face.getAxis() == Direction.Axis.Y ? 1f : data.getFillPercent();
 		QuadBakingVertexConsumer consumer = new QuadBakingVertexConsumer();
 		consumer.addVertex(x1,y1,z1).setColor(fluidColor).setUv(texture.getU(maxU),texture.getV(maxV)).setLight(lightMapValue).setNormal(normal.x,normal.y,normal.z);
 		consumer.addVertex(x2,y2,z2).setColor(fluidColor).setUv(texture.getU(maxU),texture.getV(minV)).setLight(lightMapValue).setNormal(normal.x,normal.y,normal.z);

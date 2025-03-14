@@ -18,6 +18,7 @@ public class FluidRenderData
 	public final FluidSides sides;
 	
 	private float fillPercent = 1f;
+	public float getFillPercent() { return this.fillPercent; }
 	public void setFillPercent(float fillPercent) { this.fillPercent = MathUtil.clamp(fillPercent, 0f, 1f); }
 	
 	private FluidRenderData(float x, float y, float z, float width, float height, float depth, FluidSides sides)
