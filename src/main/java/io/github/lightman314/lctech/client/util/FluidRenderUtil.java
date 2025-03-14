@@ -301,7 +301,7 @@ public class FluidRenderUtil {
 		final int minU = 0;
 		final int maxU = 16;
 		final int minV = 0;
-		final int maxV = 16;
+		final int maxV = Math.round(16 * data.getFillPercent());
 		int [] vertexData1 = vertexToInts(x1, y1, z1, fluidColor, texture, maxU, maxV, lightMapValue, packednormal);
 		int [] vertexData2 = vertexToInts(x2, y2, z2, fluidColor, texture, maxU, minV, lightMapValue, packednormal);
 	    int [] vertexData3 = vertexToInts(x3, y3, z3, fluidColor, texture, minU, minV, lightMapValue, packednormal);
