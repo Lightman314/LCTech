@@ -197,13 +197,6 @@ public class FluidRenderUtil {
 		TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidRenderProperties.getStillTexture(tank));
 		//Get color
 		int fluidColor = fluidRenderProperties.getTintColor(tank);
-		if(fluidColor != 0xFFFFFFFF)
-		{
-			int red = fluidColor >> 16 & 255;
-			int green = fluidColor >> 8 & 255;
-			int blue = fluidColor & 255;
-			fluidColor = 0xFF000000 | red | green << 8 | blue << 16;
-		}
 		
 		float fillPercent = MathUtil.clamp((float)tank.getAmount() / (float)capacity, 0f, 1f);
 		renderData.setFillPercent(fillPercent);
