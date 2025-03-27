@@ -184,7 +184,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		{
 			for(Direction direction : Direction.values())
 			{
-				if(this.energyHandler.getOutputSides().get(direction) && this.energyStorage > 0)
+				if(this.energyHandler.allowOutputSide(direction) && this.energyStorage > 0)
 				{
 					Direction trueSide = this.getBlockState().getBlock() instanceof IRotatableBlock ? IRotatableBlock.getActualSide(((IRotatableBlock)this.getBlockState().getBlock()).getFacing(this.getBlockState()), direction) : direction;
 					IEnergyStorage energyHandler = this.level.getCapability(Capabilities.EnergyStorage.BLOCK, this.worldPosition.relative(trueSide), trueSide.getOpposite());
@@ -204,7 +204,7 @@ public class EnergyTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity
 		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
 		for(Direction relativeSide : Direction.values())
 		{
-			if(this.energyHandler.getInputSides().get(relativeSide))
+			if(this.energyHandler.allowInputSide(relativeSide))
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)

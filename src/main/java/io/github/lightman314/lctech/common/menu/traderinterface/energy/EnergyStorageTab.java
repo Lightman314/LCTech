@@ -9,6 +9,7 @@ import io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.
 import io.github.lightman314.lctech.common.menu.slots.BatteryInputSlot;
 import io.github.lightman314.lctech.common.menu.util.MenuUtil;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
@@ -135,17 +136,11 @@ public class EnergyStorageTab extends TraderInterfaceTab {
 			}
 		}
 	}
-	
-	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be) {
-			be.getEnergyHandler().toggleInputSide(side);
-			be.setHandlerDirty(be.getEnergyHandler());
-		}
-	}
-	
-	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be) {
-			be.getEnergyHandler().toggleOutputSide(side);
+
+	public void toggleSide(Direction side, DirectionalSettingsState state)
+	{
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be) {
+			be.getEnergyHandler().toggleSide(side,state);
 			be.setHandlerDirty(be.getEnergyHandler());
 		}
 	}

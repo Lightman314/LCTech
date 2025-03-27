@@ -32,13 +32,9 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 	public IEnergyStorage getHandler(Direction side) {
 		if(side == null)
 			return null;
-		if(this.inputSides.get(side) || this.outputSides.get(side))
-		{
-			if(!this.handlers.containsKey(side))
-				this.handlers.put(side, new Handler(this, side));
-			return this.handlers.get(side);
-		}
-		return null;
+		if(!this.handlers.containsKey(side))
+			this.handlers.put(side, new Handler(this, side));
+		return this.handlers.get(side);
 	}
 	
 	private static class Handler implements IEnergyStorage
@@ -50,10 +46,10 @@ public class EnergyInterfaceHandler extends ConfigurableSidedHandler<IEnergyStor
 		Handler(EnergyInterfaceHandler handler, Direction side) { this.handler = handler; this.side = side; }
 
 		@Override
-		public boolean canExtract() { return this.side == null || this.handler.outputSides.get(this.side); }
+		public boolean canExtract() { return this.side == null || this.handler.allowOutputSide(this.side); }
 
 		@Override
-		public boolean canReceive() { return this.side == null || this.handler.inputSides.get(this.side); }
+		public boolean canReceive() { return this.side == null || this.handler.allowInputSide(this.side); }
 		
 		@Override
 		public int receiveEnergy(int maxReceive, boolean simulate) {

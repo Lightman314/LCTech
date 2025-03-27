@@ -2,20 +2,21 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface
 
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.blockentities.EnergyTraderInterfaceBlockEntity;
+import io.github.lightman314.lctech.common.blockentities.handler.EnergyInterfaceHandler;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.menu.traderinterface.energy.EnergyStorageTab;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.client.widget.DirectionalSettingsWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -39,9 +40,6 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	
 	private static final int WIDGET_OFFSET = 43;
 	
-	DirectionalSettingsWidget inputSettings;
-	DirectionalSettingsWidget outputSettings;
-	
 	public EnergyStorageClientTab(Object screen, EnergyStorageTab commonTab) { super(screen, commonTab); }
 
 	@Nonnull
@@ -50,36 +48,23 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
-	
+
+	private EnergyInterfaceHandler getEnergyData() {
+		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity be)
+			return be.getEnergyHandler();
+		return null;
+	}
+
 	@Override
 	public boolean blockInventoryClosing() { return false; }
-	
-	private DirectionalSettings getInputSettings() {
-		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity)
-			return ((EnergyTraderInterfaceBlockEntity)this.menu.getBE()).getEnergyHandler().getInputSides();
-		return new DirectionalSettings();
-	}
-	
-	private DirectionalSettings getOutputSettings() { 
-		if(this.menu.getBE() instanceof EnergyTraderInterfaceBlockEntity)
-			return ((EnergyTraderInterfaceBlockEntity)this.menu.getBE()).getEnergyHandler().getOutputSides();
-		return new DirectionalSettings();
-	}
 	
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
-		this.inputSettings = this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(33,WIDGET_OFFSET + 9))
-				.currentValue(this.getInputSettings()::get)
-				.ignore(this.getInputSettings().ignoreSides)
-				.handler(this::ToggleInputSide)
-				.build());
-		this.outputSettings = this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(116,WIDGET_OFFSET + 9))
-				.currentValue(this.getOutputSettings()::get)
-				.ignore(this.getOutputSettings().ignoreSides)
-				.handler(this::ToggleOutputSide)
+		this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(screen.width / 2,WIDGET_OFFSET + 9))
+				.object(this::getEnergyData)
+				.handlers(this::ToggleSide)
 				.build());
 		
 	}
@@ -134,12 +119,18 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 		return mousePos.x >= leftEdge && mousePos.x < leftEdge + 18 && mousePos.y >= topEdge && mousePos.y < topEdge + FRAME_HEIGHT;
 	}
 	
-	private void ToggleInputSide(Direction side) {
-		this.commonTab.toggleInputSlot(side);
-	}
-	
-	private void ToggleOutputSide(Direction side) {
-		this.commonTab.toggleOutputSlot(side);
+	private void ToggleSide(Direction side, boolean inverse)
+	{
+		EnergyInterfaceHandler data = this.getEnergyData();
+		if(data != null)
+		{
+			DirectionalSettingsState state = data.getSidedState(side);
+			if(inverse)
+				state = state.getPrevious(data);
+			else
+				state = state.getNext(data);
+			this.commonTab.toggleSide(side,state);
+		}
 	}
 	
 }

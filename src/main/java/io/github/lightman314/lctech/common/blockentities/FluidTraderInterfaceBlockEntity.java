@@ -312,7 +312,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 		AtomicBoolean markBufferDirty = new AtomicBoolean(false);
 		for(Direction relativeSide : Direction.values())
 		{
-			if(this.fluidHandler.getInputSides().get(relativeSide) || this.fluidHandler.getOutputSides().get(relativeSide))
+			if(this.fluidHandler.allowInputSide(relativeSide) || this.fluidHandler.allowOutputSide(relativeSide))
 			{
 				Direction actualSide = relativeSide;
 				if(this.getBlockState().getBlock() instanceof IRotatableBlock b)
@@ -323,7 +323,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 				if(fluidHandler != null)
 				{
 					//Collect fluids from neighboring blocks
-					if(this.fluidHandler.getInputSides().get(relativeSide))
+					if(this.fluidHandler.allowInputSide(relativeSide))
 					{
 						boolean query = true;
 						for(int i = 0; query && i < fluidHandler.getTanks(); ++i)
@@ -342,7 +342,7 @@ public class FluidTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity 
 						}
 					}
 					//Output fluids to neighboring blocks
-					if(this.fluidHandler.getOutputSides().get(relativeSide))
+					if(this.fluidHandler.allowOutputSide(relativeSide))
 					{
 						List<FluidEntry> entries = this.fluidBuffer.getContents();
 						boolean query = true;

@@ -8,6 +8,7 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
+import io.github.lightman314.lctech.common.blockentities.handler.FluidInterfaceHandler;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.core.ModBlocks;
@@ -16,17 +17,17 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.client.widget.DirectionalSettingsWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,9 +53,6 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	
 	ScrollBarWidget scrollBar;
 	
-	DirectionalSettingsWidget inputSettings;
-	DirectionalSettingsWidget outputSettings;
-	
 	public FluidStorageClientTab(Object screen, FluidStorageTab commonTab) { super(screen, commonTab); }
 
 	int scroll = 0;
@@ -65,21 +63,15 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
+
+	private FluidInterfaceHandler getFluidData() {
+		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
+			return be.getFluidHandler();
+		return null;
+	}
 	
 	@Override
 	public boolean blockInventoryClosing() { return false; }
-	
-	private DirectionalSettings getInputSettings() {
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
-			return ((FluidTraderInterfaceBlockEntity)this.menu.getBE()).getFluidHandler().getInputSides();
-		return new DirectionalSettings();
-	}
-	
-	private DirectionalSettings getOutputSettings() { 
-		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity)
-			return ((FluidTraderInterfaceBlockEntity)this.menu.getBE()).getFluidHandler().getOutputSides();
-		return new DirectionalSettings();
-	}
 	
 	@Override
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -97,18 +89,13 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				.size(screenArea.width, 118)
 				.listener(this)
 				.build());
-		
-		this.inputSettings = this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(33,WIDGET_OFFSET + 9))
-				.currentValue(this.getInputSettings()::get)
-				.handler(this::ToggleInputSide)
+
+		this.addChild(DirectionalSettingsWidget.builder()
+				.position(screenArea.pos.offset(screenArea.width / 2,Y_OFFSET + 9))
+				.object(this::getFluidData)
+				.handlers(this::ToggleSide)
 				.build());
-		this.outputSettings = this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(116,WIDGET_OFFSET + 9))
-				.currentValue(this.getOutputSettings()::get)
-				.handler(this::ToggleOutputSide)
-				.build());
-		
+
 	}
 	
 	@Override
@@ -238,12 +225,18 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 		this.validateScroll();
 	}
 	
-	private void ToggleInputSide(Direction side) {
-		this.commonTab.toggleInputSlot(side);
-	}
-	
-	private void ToggleOutputSide(Direction side) {
-		this.commonTab.toggleOutputSlot(side);
+	private void ToggleSide(Direction side, boolean inverse)
+	{
+		FluidInterfaceHandler data = this.getFluidData();
+		if(data != null)
+		{
+			DirectionalSettingsState state = data.getSidedState(side);
+			if(inverse)
+				state = state.getPrevious(data);
+			else
+				state = state.getNext(data);
+			this.commonTab.toggleSide(side,state);
+		}
 	}
 
 	@Nullable
