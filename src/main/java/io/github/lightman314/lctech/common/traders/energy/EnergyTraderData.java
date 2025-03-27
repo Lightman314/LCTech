@@ -290,7 +290,7 @@ public class EnergyTraderData extends InputTraderData {
 	@Override
 	public IconData inputSettingsTabIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY)); }
 	@Override
-	public MutableComponent inputSettingsTabTooltip() { return Component.translatable("tooltip.lctech.settings.energyinput"); }
+	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_ENERGY.get(); }
 	@Override @OnlyIn(Dist.CLIENT)
 	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(EnergyInputAddon.INSTANCE); }
 
