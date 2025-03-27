@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -32,6 +33,7 @@ public class EnergyInputAddon extends InputTabAddon {
 				.width(screenArea.width - 40)
 				.text(this.getOutputModeTextSource(settingsSubTab))
 				.pressAction(() -> this.ToggleDrainMode(settingsSubTab))
+				.addon(EasyAddonHelper.visibleCheck(this.drainable(settingsSubTab)))
 				.build());
 
 		this.tick(settingsSubTab);
@@ -43,14 +45,15 @@ public class EnergyInputAddon extends InputTabAddon {
 	@Override
 	public void renderAfterWidgets(@Nonnull SettingsSubTab settingsSubTab, @Nonnull EasyGuiGraphics easyGuiGraphics) { }
 
-	@Override
-	public void tick(SettingsSubTab settingsSubTab) {
-		TraderData trader = settingsSubTab.menu.getTrader();
-		if(trader instanceof EnergyTraderData e)
-			this.buttonDrainMode.visible = e.drainCapable();
-		else
-			this.buttonDrainMode.visible = false;
+	private Supplier<Boolean> drainable(SettingsSubTab settingsSubTab) {
+		return () -> {
+			TraderData trader = settingsSubTab.menu.getTrader();
+			return trader instanceof EnergyTraderData e && e.drainCapable();
+		};
 	}
+
+	@Override
+	public void tick(@Nonnull SettingsSubTab settingsSubTab) { }
 
 	@Override
 	public void onClose(@Nonnull SettingsSubTab settingsSubTab) { }

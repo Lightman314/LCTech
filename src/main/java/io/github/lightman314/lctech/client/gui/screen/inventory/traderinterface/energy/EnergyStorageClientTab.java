@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -63,7 +64,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 	public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
 		this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(screen.width / 2,WIDGET_OFFSET + 9))
+				.position(screenArea.pos.offset(screenArea.width / 2,WIDGET_OFFSET + 9))
 				.object(this::getEnergyData)
 				.handlers(this::ToggleSide)
 				.build());
@@ -98,10 +99,7 @@ public class EnergyStorageClientTab extends TraderInterfaceClientTab<EnergyStora
 			gui.blit(GUI_TEXTURE, X_OFFSET, Y_OFFSET + yOffset, 18, yOffset, 18, fillHeight);
 
 			//Render the input/output labels
-			gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 33, WIDGET_OFFSET, 0x404040);
-			Component text = LCText.GUI_SETTINGS_OUTPUT_SIDE.get();
-			int textWidth = gui.font.width(text);
-			gui.drawString(text, 173 - textWidth, WIDGET_OFFSET, 0x404040);
+			TextRenderUtil.drawCenteredText(gui,LCText.GUI_SETTINGS_INPUT_SIDE.get(),this.screen.getXSize() / 2, WIDGET_OFFSET, 0x404040);
 
 		}
 

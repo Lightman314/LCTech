@@ -28,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
@@ -92,7 +93,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				.build());
 
 		this.addChild(DirectionalSettingsWidget.builder()
-				.position(screenArea.pos.offset(screenArea.width / 2,Y_OFFSET + 9))
+				.position(screenArea.pos.offset(screenArea.width / 2,WIDGET_OFFSET + 9))
 				.object(this::getFluidData)
 				.handlers(this::ToggleSide)
 				.build());
@@ -136,10 +137,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
 
 			//Render the input/output labels
-			gui.drawString(LCText.GUI_SETTINGS_INPUT_SIDE.get(), 33, WIDGET_OFFSET, 0x404040);
-			Component text = LCText.GUI_SETTINGS_OUTPUT_SIDE.get();
-			int textWidth = gui.font.width(text);
-			gui.drawString(text, 173 - textWidth, WIDGET_OFFSET, 0x404040);
+			TextRenderUtil.drawCenteredText(gui,LCText.GUI_SETTINGS_INPUT_SIDE.get(),this.screen.getXSize() / 2, WIDGET_OFFSET, 0x404040);
 
 		}
 
