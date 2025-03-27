@@ -35,13 +35,9 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 	
 	@Override
 	public IFluidHandler getHandler(Direction side) {
-		if(this.inputSides.get(side) || this.outputSides.get(side))
-		{
-			if(!this.handlers.containsKey(side))
-				this.handlers.put(side, new Handler(this, side));
-			return this.handlers.get(side);
-		}
-		return null;
+		if(!this.handlers.containsKey(side))
+			this.handlers.put(side, new Handler(this, side));
+		return this.handlers.get(side);
 	}
 	
 	private static class Handler implements IFluidHandler {
@@ -51,8 +47,8 @@ public class FluidInterfaceHandler extends ConfigurableSidedHandler<IFluidHandle
 		
 		Handler(FluidInterfaceHandler handler, Direction side) { this.handler = handler; this.side = side; }
 		
-		protected final boolean allowInputs() { return this.handler.inputSides.get(this.side); }
-		protected final boolean allowOutputs() { return this.handler.outputSides.get(this.side); }
+		protected final boolean allowInputs() { return this.handler.allowInputSide(this.side); }
+		protected final boolean allowOutputs() { return this.handler.allowOutputSide(this.side); }
 
 		@Override
 		public int getTanks() { return this.handler.getFluidBuffer().getTanks(); }

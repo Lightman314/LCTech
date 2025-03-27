@@ -7,6 +7,7 @@ import java.util.function.Function;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.gui.screen.inventory.traderinterface.fluid.FluidStorageClientTab;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
@@ -152,17 +153,10 @@ public class FluidStorageTab extends TraderInterfaceTab {
 			}
 		}
 	}
-	
-	public void toggleInputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
-			be.getFluidHandler().toggleInputSide(side);
-			be.setHandlerDirty(be.getFluidHandler());
-		}
-	}
-	
-	public void toggleOutputSlot(Direction side) {
-		if(this.menu.getBE().isOwner(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
-			be.getFluidHandler().toggleOutputSide(side);
+
+	public void toggleSide(Direction side, DirectionalSettingsState state) {
+		if(this.menu.getBE().canAccess(this.menu.player) && this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be) {
+			be.getFluidHandler().toggleSide(side,state);
 			be.setHandlerDirty(be.getFluidHandler());
 		}
 	}

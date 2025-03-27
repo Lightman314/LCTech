@@ -8,9 +8,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -21,7 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class FluidTradeNotification extends TaxableNotification {
+public class FluidTradeNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<FluidTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LCTech.MODID, "fluid_trade"),FluidTradeNotification::new);
 	

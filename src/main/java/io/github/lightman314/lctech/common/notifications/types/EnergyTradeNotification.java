@@ -9,9 +9,9 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.TaxableNotification;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
-public class EnergyTradeNotification extends TaxableNotification {
+public class EnergyTradeNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<EnergyTradeNotification> TYPE = new NotificationType<>(new ResourceLocation(LCTech.MODID, "energy_trade"),EnergyTradeNotification::new);
 	
