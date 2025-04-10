@@ -2,7 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
-		"particle": "lctech:block/energy_trader_interface",
+		"particle": "#main",
 		"main": "lctech:block/energy_trader_interface",
 		"front": "lctech:block/energy_trader_interface_front"
 	},

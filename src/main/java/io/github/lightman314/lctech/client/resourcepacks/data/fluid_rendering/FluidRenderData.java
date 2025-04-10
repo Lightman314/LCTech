@@ -1,12 +1,18 @@
 package io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.util.FluidSides;
+import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FluidRenderData
 {
@@ -60,7 +66,25 @@ public class FluidRenderData
 		float width = GsonHelper.getAsFloat(json,"width");
 		float height = GsonHelper.getAsFloat(json,"height");
 		float depth = GsonHelper.getAsFloat(json,"depth");
-		return new FluidRenderData(x,y,z,width,height,depth,FluidSides.ALL);
+		FluidSides sides = FluidSides.ALL;
+		if(json.has("sides"))
+		{
+			JsonArray sidesList = GsonHelper.getAsJsonArray(json,"sides");
+			List<Direction> result = new ArrayList<>();
+			for(int i = 0; i < sidesList.size(); ++i)
+			{
+				String entry = GsonHelper.convertToString(sidesList.get(i),"sides[" + i + "]");
+				Direction entryValue = EnumUtil.enumFromString(entry,Direction.values(),null);
+				if(entryValue == null)
+					LCTech.LOGGER.warn("Could not parse {} as a Direction",entry);
+				else if(result.contains(entryValue))
+					LCTech.LOGGER.warn("Diplicate side {}",entry);
+				else
+					result.add(entryValue);
+			}
+			sides = FluidSides.Create(result::contains);
+		}
+		return new FluidRenderData(x,y,z,width,height,depth,sides);
 	}
 
 	public JsonObject write()
@@ -72,6 +96,16 @@ public class FluidRenderData
 		json.addProperty("width",this.width);
 		json.addProperty("height",this.height);
 		json.addProperty("depth",this.depth);
+		if(!this.sides.equals(FluidSides.ALL))
+		{
+			JsonArray sideList = new JsonArray();
+			for(Direction side : Direction.values())
+			{
+				if(this.sides.test(side))
+					sideList.add(side.toString());
+			}
+			json.add("sides",sideList);
+		}
 		return json;
 	}
 	

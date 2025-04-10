@@ -6,18 +6,18 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidSides;
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.core.ModDataComponents;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.items.data.FluidData;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,9 +29,9 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 public class FluidShardItem extends Item{
-	
-	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(5f, 2f, 7.51f, 7f, 12f, 0.98f, FluidSides.Create(Direction.SOUTH, Direction.NORTH));
-	
+
+	public static final ResourceLocation DATA = VersionUtil.modResource(LCTech.MODID,"fluid_shard");
+
 	private static final List<FluidShardItem> SHARD_ITEMS = Lists.newArrayList();
 	@OnlyIn(Dist.CLIENT)
 	public static List<ModelResourceLocation> getShardModelList(){
@@ -43,11 +43,11 @@ public class FluidShardItem extends Item{
 		return list;
 	}
 	
-	public final FluidRenderData renderData;
+	public final ResourceLocation renderData;
 	
-	public FluidShardItem(Properties properties) { this(properties,RENDER_DATA); }
+	public FluidShardItem(Properties properties) { this(properties,DATA); }
 	
-	public FluidShardItem(Properties properties, FluidRenderData renderData)
+	public FluidShardItem(Properties properties, ResourceLocation renderData)
 	{
 		super(properties.stacksTo(1));
 		this.renderData = renderData;

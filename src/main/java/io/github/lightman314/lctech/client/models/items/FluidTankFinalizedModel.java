@@ -23,9 +23,9 @@ public class FluidTankFinalizedModel implements BakedModel{
 	private final BakedModel parentModel;
 	private final FluidStack tank;
 	private final Supplier<Integer> capacity;
-	private final FluidRenderData renderData;
+	private final Supplier<FluidRenderData> renderData;
 	
-	public FluidTankFinalizedModel(BakedModel parentModel, FluidStack tank, Supplier<Integer> capacity, FluidRenderData renderData)
+	public FluidTankFinalizedModel(BakedModel parentModel, FluidStack tank, Supplier<Integer> capacity, Supplier<FluidRenderData> renderData)
 	{
 		this.parentModel = parentModel;
 		this.tank = tank;
@@ -41,7 +41,7 @@ public class FluidTankFinalizedModel implements BakedModel{
 			return parentModel.getQuads(state, side, rand);
 		
 		List<BakedQuad> combinedQuadsList = new ArrayList<>(parentModel.getQuads(state, side, rand));
-		combinedQuadsList.addAll(FluidRenderUtil.getBakedFluidQuads(this.tank, this.capacity.get(), this.renderData));
+		combinedQuadsList.addAll(FluidRenderUtil.getBakedFluidQuads(this.tank, this.capacity.get(), this.renderData.get()));
 		return combinedQuadsList;
 	}
 

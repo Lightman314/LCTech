@@ -40,5 +40,11 @@ public class FluidSides
 				consumer.accept(side);
 		}
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof FluidSides other)
+			return other.map.equals(this.map);
+		return false;
+	}
 }

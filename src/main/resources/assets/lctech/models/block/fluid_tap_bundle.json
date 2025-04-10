@@ -3,7 +3,7 @@
 	"parent": "lightmanscurrency:block/block",
 	"render_type": "cutout",
 	"textures": {
-		"particle": "lctech:block/fluid_tap_bundle",
+		"particle": "#main",
 		"main": "lctech:block/fluid_tap_bundle",
 		"tap": "lctech:block/tap"
 	},

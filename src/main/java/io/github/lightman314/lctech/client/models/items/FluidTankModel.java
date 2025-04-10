@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,13 +78,13 @@ public class FluidTankModel implements BakedModel {
 		@Override
 		public BakedModel resolve(@Nonnull BakedModel model, @Nonnull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
-			FluidRenderData renderData = FluidRenderDataManager.getDataOrEmpty(FluidTankBlock.DATA_SOLO);
+			Supplier<FluidRenderData> renderData = () -> FluidRenderDataManager.getDataOrEmpty(FluidTankBlock.DATA_SOLO);
 			FluidStack tank = FluidTankItem.GetFluid(stack);
 			if(stack.getItem() instanceof BlockItem blockItem)
 			{
 				Block block = blockItem.getBlock();
 				if(block instanceof IFluidTankBlock tankBlock)
-					renderData = tankBlock.getItemRenderData();
+					renderData = tankBlock::getItemRenderData;
 			}
 			return new FluidTankFinalizedModel(model, tank, () -> FluidTankItem.GetCapacity(stack), renderData);
 		}
