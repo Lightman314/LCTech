@@ -40,6 +40,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -59,9 +60,11 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluidTraderData extends InputTraderData implements ITraderFluidFilter, IFlexibleOfferTrader {
 
 	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(ResourceLocation.fromNamespaceAndPath(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
@@ -90,7 +93,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		super.loadAdditional(compound,lookup);
 
 		if(compound.contains(TradeData.DEFAULT_KEY, Tag.TAG_LIST))
@@ -107,7 +110,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		super.saveAdditional(compound,lookup);
 
 		this.saveTrades(compound,lookup);
@@ -115,13 +118,13 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 	}
 
-	protected final void saveTrades(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	protected final void saveTrades(CompoundTag compound, HolderLookup.Provider lookup)
 	{
 		compound.putInt("BaseTradeCount", this.baseTradeCount);
 		FluidTradeData.WriteNBTList(this.trades, compound,lookup);
 	}
 
-	protected final void saveStorage(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	protected final void saveStorage(CompoundTag compound, HolderLookup.Provider lookup)
 	{
 		this.storage.save(compound, "FluidStorage",lookup);
 	}
@@ -195,7 +198,6 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	@Override
 	public int getTradeStock(int index) { return this.getTrade(index).getStock(this); }
 
-	@Nonnull
 	@Override
 	public List<FluidTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 
@@ -421,7 +423,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+	protected void loadAdditionalFromJson(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
 		if(!json.has("Trades"))
 			throw new JsonSyntaxException("Fluid Trader must have a trade list.");
@@ -463,7 +465,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditionalToJson(JsonObject json, HolderLookup.Provider lookup) {
 		JsonArray trades = new JsonArray();
 		for(FluidTradeData trade : this.trades)
 		{
@@ -486,7 +488,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditionalPersistentData(CompoundTag compound, HolderLookup.Provider lookup) {
 		ListTag tradePersistentData = new ListTag();
 		boolean tradesAreRelevant = false;
 		for (FluidTradeData trade : this.trades) {
@@ -500,7 +502,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void loadAdditionalPersistentData(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditionalPersistentData(CompoundTag compound, HolderLookup.Provider lookup) {
 		if(compound.contains("PersistentTradeData"))
 		{
 			ListTag tradePersistentData = compound.getList("PersistentTradeData", Tag.TAG_COMPOUND);
@@ -514,7 +516,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+	protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
 		int tradeCount = 0;
 		int outOfStock = 0;
 		for(FluidTradeData trade : this.trades)
@@ -531,9 +533,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
 	}
 
-	@Nonnull
+	
 	@Override
-	public IconData getIconForItem(@Nonnull ItemStack stack) {
+	public IconData getIconForItem(ItemStack stack) {
 
 		FluidStack fluid = findFluid(stack.getCapability(Capabilities.FluidHandler.ITEM));
 		if(fluid != null && !fluid.isEmpty())
@@ -541,7 +543,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			fluid.setAmount(FluidType.BUCKET_VOLUME);
 			FluidIcon newIcon = FluidIcon.of(fluid);
 			//If already a fluid icon, and we attempt to set the icon as the same fluid, use the default icon instead
-			if(this.getCustomIcon() instanceof FluidIcon fi && newIcon.matches(fi))
+			if(this.customIcon.get() instanceof FluidIcon fi && newIcon.matches(fi))
 				return super.getIconForItem(stack);
 			return newIcon;
 		}

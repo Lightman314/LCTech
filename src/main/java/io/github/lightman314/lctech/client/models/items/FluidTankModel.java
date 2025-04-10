@@ -5,9 +5,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -76,7 +77,7 @@ public class FluidTankModel implements BakedModel {
 		@Override
 		public BakedModel resolve(@Nonnull BakedModel model, @Nonnull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
-			FluidRenderData renderData = FluidTankBlock.RENDER_DATA;
+			FluidRenderData renderData = FluidRenderDataManager.getDataOrEmpty(FluidTankBlock.DATA_SOLO);
 			FluidStack tank = FluidTankItem.GetFluid(stack);
 			if(stack.getItem() instanceof BlockItem blockItem)
 			{

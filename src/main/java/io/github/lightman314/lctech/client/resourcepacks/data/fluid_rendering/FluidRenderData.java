@@ -1,6 +1,12 @@
-package io.github.lightman314.lctech.client.util;
+package io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.util.GsonHelper;
+
+import javax.annotation.Nonnull;
 
 public class FluidRenderData
 {
@@ -44,6 +50,29 @@ public class FluidRenderData
 	public static FluidRenderData CreateFluidRender(float x, float y, float z, float width, float height, float depth, FluidSides sides)
 	{
 		return new FluidRenderData(x/16f, y/16f, z/16f, width/16f, height/16f, depth/16f, sides);
+	}
+
+	public static FluidRenderData parse(@Nonnull JsonObject json) throws JsonSyntaxException, IllegalArgumentException
+	{
+		float x = GsonHelper.getAsFloat(json,"x");
+		float y = GsonHelper.getAsFloat(json,"y");
+		float z = GsonHelper.getAsFloat(json,"z");
+		float width = GsonHelper.getAsFloat(json,"width");
+		float height = GsonHelper.getAsFloat(json,"height");
+		float depth = GsonHelper.getAsFloat(json,"depth");
+		return new FluidRenderData(x,y,z,width,height,depth,FluidSides.ALL);
+	}
+
+	public JsonObject write()
+	{
+		JsonObject json = new JsonObject();
+		json.addProperty("x",this.x);
+		json.addProperty("y",this.y);
+		json.addProperty("z",this.z);
+		json.addProperty("width",this.width);
+		json.addProperty("height",this.height);
+		json.addProperty("depth",this.depth);
+		return json;
 	}
 	
 }

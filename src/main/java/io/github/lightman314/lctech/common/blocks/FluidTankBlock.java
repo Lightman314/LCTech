@@ -4,17 +4,21 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackState;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -42,10 +46,10 @@ import javax.annotation.Nullable;
 public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFluidTankBlock{
 
 	public static final VoxelShape SHAPE = LazyShapes.BOX;
-	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 14f, 15.98f);
-	public static final FluidRenderData RENDER_DATA_BOTTOM = FluidRenderData.CreateFluidRender(0.01f, 1f, 0.01f, 15.98f, 15f, 15.98f);
-	public static final FluidRenderData RENDER_DATA_TOP = FluidRenderData.CreateFluidRender(0.01f, 0f, 0.01f, 15.98f, 15f, 15.98f);
-	public static final FluidRenderData RENDER_DATA_MIDDLE = FluidRenderData.CreateFluidRender(0.01f, 0f, 0.01f, 15.98f, 16f, 15.98f);
+	public static final ResourceLocation DATA_SOLO = VersionUtil.modResource(LCTech.MODID,"fluid_tank/solo");
+	public static final ResourceLocation DATA_TOP = VersionUtil.modResource(LCTech.MODID,"fluid_tank/top");
+	public static final ResourceLocation DATA_MIDDLE = VersionUtil.modResource(LCTech.MODID,"fluid_tank/middle");
+	public static final ResourceLocation DATA_BOTTOM = VersionUtil.modResource(LCTech.MODID,"fluid_tank/bottom");
 
 	private final VoxelShape shape;
 	
@@ -123,26 +127,29 @@ public class FluidTankBlock extends EasyBlock implements IEasyEntityBlock, IFlui
 	}
 
 	@Override
-	public FluidRenderData getItemRenderData() { return RENDER_DATA; }
+	public FluidRenderData getItemRenderData() { return FluidRenderDataManager.getDataOrEmpty(DATA_SOLO); }
 
 	@Override
 	public FluidRenderData getRenderData(BlockState state, boolean lighterThanAir, FluidTankBlockEntity tank, @Nullable FluidTankBlockEntity nextTank) {
 		switch (this.getTankState(tank.getBlockState())) {
 			case BOTTOM -> {
+				FluidRenderData data = FluidRenderDataManager.getDataOrEmpty(DATA_BOTTOM);
 				if(lighterThanAir)
-					return RENDER_DATA_BOTTOM.withSides(FluidSides.NO_TOP);
-				return RENDER_DATA_BOTTOM.withSides(tank.getTankFillPercent() >= 1d && nextTank != null && nextTank.getTankFillPercent() > 0d ? FluidSides.NO_TOP : FluidSides.ALL);
+					return data.withSides(FluidSides.NO_TOP);
+				return data.withSides(this.hideNextFace(tank,nextTank) ? FluidSides.NO_TOP : FluidSides.ALL);
 			}
 			case TOP -> {
-				return RENDER_DATA_TOP.withSides(!lighterThanAir || this.hideNextFace(tank, nextTank), FluidSides.NO_BOTTOM);
+				FluidRenderData data = FluidRenderDataManager.getDataOrEmpty(DATA_TOP);
+				return data.withSides(!lighterThanAir || this.hideNextFace(tank, nextTank), FluidSides.NO_BOTTOM);
 			}
 			case MIDDLE -> {
+				FluidRenderData data = FluidRenderDataManager.getDataOrEmpty(DATA_MIDDLE);
 				if(lighterThanAir)
-					return RENDER_DATA_MIDDLE.withSides(this.hideNextFace(tank, nextTank), FluidSides.NO_TOP_OR_BOTTOM, FluidSides.NO_TOP);
+					return data.withSides(this.hideNextFace(tank, nextTank), FluidSides.NO_TOP_OR_BOTTOM, FluidSides.NO_TOP);
 				else
-					return RENDER_DATA_MIDDLE.withSides(this.hideNextFace(tank, nextTank), FluidSides.NO_TOP_OR_BOTTOM, FluidSides.NO_BOTTOM);
+					return data.withSides(this.hideNextFace(tank, nextTank), FluidSides.NO_TOP_OR_BOTTOM, FluidSides.NO_BOTTOM);
 			}
-			default -> { return RENDER_DATA; }
+			default -> { return FluidRenderDataManager.getDataOrEmpty(DATA_SOLO); }
 		}
 	}
 

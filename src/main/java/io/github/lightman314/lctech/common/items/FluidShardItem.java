@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModDataComponents;
 import io.github.lightman314.lctech.common.core.ModItems;

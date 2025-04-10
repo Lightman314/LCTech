@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.datagen;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.datagen.client.TechFluidRenderDataProvider;
 import io.github.lightman314.lctech.datagen.client.language.TechEnglishProvider;
 import io.github.lightman314.lctech.datagen.common.crafting.TechRecipeProvider;
 import io.github.lightman314.lctech.datagen.common.tags.TechBlockTagProvider;
@@ -36,6 +37,9 @@ public class LCTechDataEventListener {
 
         //Language
         generator.addProvider(event.includeClient(), new TechEnglishProvider(output));
+
+        //Fluid Render Data
+        generator.addProvider(event.includeClient(), new TechFluidRenderDataProvider(output));
 
     }
 }

@@ -1,7 +1,7 @@
 {
 	"credit": "Made with Blockbench",
-    "render_type": "cutout",
 	"parent": "lightmanscurrency:block/block",
+	"render_type": "cutout",
 	"textures": {
 		"particle": "lctech:block/fluid_tap_bundle",
 		"main": "lctech:block/fluid_tap_bundle",
@@ -11,7 +11,7 @@
 		{
 			"name": "TankBottom",
 			"from": [0, 0, 0],
-			"to": [16, 0.1, 16],
+			"to": [16, 0.01, 16],
 			"faces": {
 				"up": {"uv": [8, 8, 16, 16], "texture": "#main"},
 				"down": {"uv": [8, 8, 16, 16], "texture": "#main"}
@@ -19,7 +19,7 @@
 		},
 		{
 			"name": "TankTop",
-			"from": [0, 15.9, 0],
+			"from": [0, 15.99, 0],
 			"to": [16, 16, 16],
 			"faces": {
 				"up": {"uv": [0, 8, 8, 16], "texture": "#main"},
@@ -28,7 +28,7 @@
 		},
 		{
 			"name": "TankSouth",
-			"from": [0, 0, 15.9],
+			"from": [0, 0, 15.99],
 			"to": [16, 16, 16],
 			"faces": {
 				"north": {"uv": [0, 0, 8, 8], "texture": "#main"},
@@ -47,7 +47,7 @@
 		{
 			"name": "TankWest",
 			"from": [0, 0, 0],
-			"to": [0.1, 16, 16],
+			"to": [0.01, 16, 16],
 			"faces": {
 				"east": {"uv": [8, 0, 16, 8], "texture": "#main"},
 				"west": {"uv": [8, 0, 16, 8], "texture": "#main"}
@@ -55,7 +55,7 @@
 		},
 		{
 			"name": "TankEast",
-			"from": [15.9, 0, 0],
+			"from": [15.99, 0, 0],
 			"to": [16, 16, 16],
 			"faces": {
 				"east": {"uv": [8, 0, 16, 8], "texture": "#main"},
@@ -156,5 +156,11 @@
 				"down": {"uv": [3, 7, 6, 8], "texture": "#tap"}
 			}
 		}
-	]
+	],
+	"display": {
+		"head": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 14, 0]
+		}
+	}
 }

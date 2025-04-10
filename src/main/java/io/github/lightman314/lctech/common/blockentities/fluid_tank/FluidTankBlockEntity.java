@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lctech.network.message.fluid_tank.CMessageRequestTankStackSync;

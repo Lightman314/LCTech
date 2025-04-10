@@ -3,7 +3,7 @@ package io.github.lightman314.lctech.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
