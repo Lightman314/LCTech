@@ -12,6 +12,8 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
+import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -113,9 +115,7 @@ public class FluidRenderUtil {
 		float green = (float)(waterColor >> 8 & 255) / 255.0f;
 		float blue = (float)(waterColor & 255) / 255.0f;
 		float minU = sprite.getU0();
-		float maxU = Math.min(minU + (sprite.getU1() - minU) * depth, sprite.getU1());
 		float minV = sprite.getV0();
-		float maxV = Math.min(minV + (sprite.getV1() - minV) * height, sprite.getV1());
 		
 		float x2 = x + width;
 		float y2 = y + height;
@@ -130,63 +130,66 @@ public class FluidRenderUtil {
 		
 		VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.translucent());
 		Matrix4f matrix = matrixStack.last().pose();
+		UVCalculator uvCalculator = new UVCalculator(sprite,width,height,depth);
 		
 		//left side
 		if(sides.test(Direction.WEST))
 		{
-			buffer.vertex(matrix, x2, y, z).color(red, green, blue, 1f).uv(maxU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			Pair<Float,Float> maxUV = uvCalculator.getMaxUV(Direction.WEST);
+			buffer.vertex(matrix, x2, y, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), minV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x, y, z).color(red, green, blue, 1f).uv(minU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(minU, maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		//right side
 		if(sides.test(Direction.EAST))
 		{
-			buffer.vertex(matrix, x, y, z2).color(red, green, blue, 1f).uv(maxU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			Pair<Float,Float> maxUV = uvCalculator.getMaxUV(Direction.EAST);
+			buffer.vertex(matrix, x, y, z2).color(red, green, blue, 1f).uv(maxUV.getFirst(), minV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x2, y, z2).color(red, green, blue, 1f).uv(minU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(minU, maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(maxUV.getFirst(), maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
-		maxU = Math.min(minU + (sprite.getU1() - minU), sprite.getU1());
 		
 		//south side
 		if(sides.test(Direction.SOUTH))
 		{
-			buffer.vertex(matrix, x2, y, z2).color(red, green, blue, 1f).uv(maxU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			Pair<Float,Float> maxUV = uvCalculator.getMaxUV(Direction.SOUTH);
+			buffer.vertex(matrix, x2, y, z2).color(red, green, blue, 1f).uv(maxUV.getFirst(), minV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x2, y, z).color(red, green, blue, 1f).uv(minU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(minU, maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(maxUV.getFirst(), maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		//north side
 		if(sides.test(Direction.NORTH))
 		{
-			buffer.vertex(matrix, x, y, z).color(red, green, blue, 1f).uv(maxU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			Pair<Float,Float> maxUV = uvCalculator.getMaxUV(Direction.NORTH);
+			buffer.vertex(matrix, x, y, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), minV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x, y, z2).color(red, green, blue, 1f).uv(minU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(minU, maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
-		
-		maxV = Math.min(minV + (sprite.getV1() - minV), sprite.getV1());
 		
 		//top side
 		if(sides.test(Direction.UP))
 		{
-			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(maxU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			Pair<Float,Float> maxUV = uvCalculator.getMaxUV(Direction.UP);
+			buffer.vertex(matrix, x, y2, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), minV).uv2(light).normal(0f, 1f, 0f).endVertex();
 			buffer.vertex(matrix, x, y2, z2).color(red, green, blue, 1f).uv(minU, minV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
-			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x2, y2, z2).color(red, green, blue, 1f).uv(minU, maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
+			buffer.vertex(matrix, x2, y2, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), maxUV.getSecond()).uv2(light).normal(0f, 1f, 0f).endVertex();
 		}
 		
 		//top side
 		if(sides.test(Direction.DOWN))
 		{
-			buffer.vertex(matrix, x2, y, z).color(red, green, blue, 1f).uv(maxU, minV).uv2(light).normal(0f, -1f, 0f).endVertex();
+			Pair<Float,Float> maxUV = uvCalculator.getMaxUV(Direction.DOWN);
+			buffer.vertex(matrix, x2, y, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), minV).uv2(light).normal(0f, -1f, 0f).endVertex();
 			buffer.vertex(matrix, x2, y, z2).color(red, green, blue, 1f).uv(minU, minV).uv2(light).normal(0f, -1f, 0f).endVertex();
-			buffer.vertex(matrix, x, y, z2).color(red, green, blue, 1f).uv(minU, maxV).uv2(light).normal(0f, -1f, 0f).endVertex();
-			buffer.vertex(matrix, x, y, z).color(red, green, blue, 1f).uv(maxU, maxV).uv2(light).normal(0f, -1f, 0f).endVertex();
+			buffer.vertex(matrix, x, y, z2).color(red, green, blue, 1f).uv(minU, maxUV.getSecond()).uv2(light).normal(0f, -1f, 0f).endVertex();
+			buffer.vertex(matrix, x, y, z).color(red, green, blue, 1f).uv(maxUV.getFirst(), maxUV.getSecond()).uv2(light).normal(0f, -1f, 0f).endVertex();
 		}
 		
 	}
@@ -298,15 +301,15 @@ public class FluidRenderUtil {
 		final int SKY_LIGHT = 15;
 		int lightMapValue = LightTexture.pack(BLOCK_LIGHT, SKY_LIGHT);
 		
-		final int minU = 0;
-		final int maxU = 16;
-		final int minV = 0;
+		final float minU = texture.getU0();
+		final float minV = texture.getV0();
+		UVCalculator calculator = new UVCalculator(texture,data.width,data.getHeight(),data.depth);
+		Pair<Float,Float> maxUV = calculator.getMaxUV(face);
 		//If top/bottom max V should be 16, otherwise limit by fill percent
-		final int maxV = face.getAxis() == Direction.Axis.Y ? 16 : Math.round(16 * data.getFillPercent());
-		int [] vertexData1 = vertexToInts(x1, y1, z1, fluidColor, texture, maxU, maxV, lightMapValue, packednormal);
-		int [] vertexData2 = vertexToInts(x2, y2, z2, fluidColor, texture, maxU, minV, lightMapValue, packednormal);
-	    int [] vertexData3 = vertexToInts(x3, y3, z3, fluidColor, texture, minU, minV, lightMapValue, packednormal);
-	    int [] vertexData4 = vertexToInts(x4, y4, z4, fluidColor, texture, minU, maxV, lightMapValue, packednormal);
+		int [] vertexData1 = vertexToInts(x1, y1, z1, fluidColor, maxUV.getFirst(), maxUV.getSecond(), lightMapValue, packednormal);
+		int [] vertexData2 = vertexToInts(x2, y2, z2, fluidColor, maxUV.getFirst(), minV, lightMapValue, packednormal);
+	    int [] vertexData3 = vertexToInts(x3, y3, z3, fluidColor, minU, minV, lightMapValue, packednormal);
+	    int [] vertexData4 = vertexToInts(x4, y4, z4, fluidColor, minU, maxUV.getSecond(), lightMapValue, packednormal);
 		int [] vertexDataAll = Ints.concat(vertexData1, vertexData2, vertexData3, vertexData4);
 		final boolean APPLY_DIFFUSE_LIGHTING = true;
 		return new BakedQuad(vertexDataAll, itemRenderLayer, face, texture, APPLY_DIFFUSE_LIGHTING);
@@ -343,7 +346,7 @@ public class FluidRenderUtil {
 		return x | (y << 0x08) | (z << 0x10);
 	}
 	
-	private static int[] vertexToInts(float x, float y, float z, int color, TextureAtlasSprite texture, float u, float v, int lightmapvalue, int normal)
+	private static int[] vertexToInts(float x, float y, float z, int color, float u, float v, int lightmapvalue, int normal)
 	{
 		
 		return new int[] {
@@ -351,16 +354,24 @@ public class FluidRenderUtil {
 				Float.floatToRawIntBits(y),
 				Float.floatToRawIntBits(z),
 				color,
-				Float.floatToRawIntBits(texture.getU(u)),
-				Float.floatToRawIntBits(texture.getV(v)),
+				Float.floatToRawIntBits(u),
+				Float.floatToRawIntBits(v),
 				lightmapvalue,
 				normal
 		};
 		
 	}
-	
-	
 
-	
-	
+	private record UVCalculator(TextureAtlasSprite sprite, float width, float height, float depth)
+	{
+		private Pair<Float,Float> getMaxUV(Direction side)
+		{
+			return switch (side.getAxis()) {
+				case X -> Pair.of(sprite.getU(depth * 16),sprite.getV(height * 16));
+				case Y -> Pair.of(sprite.getU(width * 16),sprite.getV(depth * 16));
+				case Z -> Pair.of(sprite.getU(width * 16),sprite.getV(height * 16));
+			};
+		}
+	}
+
 }

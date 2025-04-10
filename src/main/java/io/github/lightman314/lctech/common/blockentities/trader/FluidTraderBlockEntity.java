@@ -1,7 +1,7 @@
 package io.github.lightman314.lctech.common.blockentities.trader;
 
 import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;

@@ -7,6 +7,7 @@ import com.google.common.base.Function;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.models.items.FluidShardModel;
 import io.github.lightman314.lctech.client.models.items.FluidTankModel;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import net.minecraft.client.resources.model.BakedModel;
@@ -14,6 +15,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -39,6 +41,11 @@ public class ClientModEvents {
 			BakedModel customModel = modelGenerator.apply(existingModel);
 			modelRegistry.put(itemModelResourceLocation, customModel);
 		}
+	}
+
+	@SubscribeEvent
+	public static void registerResourceListener(RegisterClientReloadListenersEvent event) {
+		event.registerReloadListener(FluidRenderDataManager.INSTANCE);
 	}
 	
 }

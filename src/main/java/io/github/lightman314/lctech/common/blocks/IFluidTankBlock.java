@@ -1,6 +1,6 @@
 package io.github.lightman314.lctech.common.blocks;
 
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackState;
 import net.minecraft.world.level.block.state.BlockState;

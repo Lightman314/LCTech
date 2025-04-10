@@ -7,17 +7,18 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lctech.client.util.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidSides;
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,8 +35,8 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class FluidShardItem extends Item{
-	
-	public static final FluidRenderData RENDER_DATA = FluidRenderData.CreateFluidRender(5f, 2f, 7.51f, 7f, 12f, 0.98f, FluidSides.Create(Direction.SOUTH, Direction.NORTH));
+
+	public static final ResourceLocation DATA = VersionUtil.modResource(LCTech.MODID,"fluid_shard");
 	
 	private static final List<FluidShardItem> SHARD_ITEMS = Lists.newArrayList();
 	@OnlyIn(Dist.CLIENT)
@@ -48,16 +49,16 @@ public class FluidShardItem extends Item{
 		return list;
 	}
 	
-	public final FluidRenderData renderData;
+	public final ResourceLocation renderData;
 	
 	public FluidShardItem(Properties properties)
 	{
 		super(properties.stacksTo(1));
-		this.renderData = RENDER_DATA;
+		this.renderData = DATA;
 		SHARD_ITEMS.add(this);
 	}
 	
-	public FluidShardItem(Properties properties, FluidRenderData renderData)
+	public FluidShardItem(Properties properties, ResourceLocation renderData)
 	{
 		super(properties);
 		this.renderData = renderData;

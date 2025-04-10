@@ -1,6 +1,5 @@
 package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy;
 
-import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTradeEditTab;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
@@ -21,7 +20,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Tr
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.client.gui.components.EditBox;
@@ -77,8 +77,13 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 				.valueHandler(this::onValueChanged)
 				.build());
 
-		this.quantityInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 75, this.screen.getXSize() - 42 - this.getFont().width(EnergyUtil.ENERGY_UNIT), 20, EasyText.empty()));
-		this.quantityInput.setValue(trade != null ? String.valueOf(trade.getAmount()): "");
+		this.quantityInput = this.addChild(TextInputUtil.intBuilder()
+				.position(screenArea.pos.offset(20,75))
+				.width(screenArea.width - 42 - this.getFont().width(EnergyUtil.ENERGY_UNIT))
+				.handler(this.commonTab::setQuantity)
+				.apply(IntParser.builder().min(0).consumer())
+				.startingValue(trade != null ? trade.getAmount() : 0)
+				.build());
 
 		this.buttonToggleTradeType = this.addChild(EasyTextButton.builder()
 				.position(screenArea.pos.offset(20,120))
@@ -131,16 +136,6 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 
 		this.priceSelection.visible = this.selection < 0;
 		this.quantityInput.visible = this.selection >= 0;
-		if(this.quantityInput.visible)
-		{
-			int maxSellAmount = Integer.MAX_VALUE;
-			if(this.menu.getTrader() instanceof EnergyTraderData)
-				maxSellAmount = ((EnergyTraderData)this.menu.getTrader()).getMaxEnergy();
-			TextInputUtil.whitelistInteger(this.quantityInput, 0, maxSellAmount);
-			int currentAmount = TextInputUtil.getIntegerValue(this.quantityInput);
-			if(currentAmount != this.getTrade().getAmount())
-				this.commonTab.setQuantity(currentAmount);
-		}
 
 	}
 

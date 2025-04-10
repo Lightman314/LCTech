@@ -41,6 +41,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -62,9 +63,11 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluidTraderData extends InputTraderData implements ITraderFluidFilter, IFlexibleOfferTrader {
 
 	public final static TraderType<FluidTraderData> TYPE = new TraderType<>(new ResourceLocation(LCTech.MODID,"fluid_trader"),FluidTraderData::new);
@@ -198,7 +201,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	@Override
 	public int getTradeStock(int index) { return this.getTrade(index).getStock(this); }
 
-	@Nonnull
+	
 	@Override
 	public List<FluidTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 
@@ -247,8 +250,8 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	@Nonnull
-	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction relativeSide) {
+	
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction relativeSide) {
 		return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
 
@@ -524,7 +527,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+	protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
 		int tradeCount = 0;
 		int outOfStock = 0;
 		for(FluidTradeData trade : this.trades)
@@ -541,9 +544,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
 	}
 
-	@Nonnull
+	
 	@Override
-	public IconData getIconForItem(@Nonnull ItemStack stack) {
+	public IconData getIconForItem(ItemStack stack) {
 
 		FluidStack fluid;
 		fluid = findFluid(stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM));
@@ -554,7 +557,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			fluid.setAmount(FluidType.BUCKET_VOLUME);
 			FluidIcon newIcon = FluidIcon.of(fluid);
 			//If already a fluid icon, and we attempt to set the icon as the same fluid, use the default icon instead
-			if(this.getCustomIcon() instanceof FluidIcon fi && newIcon.matches(fi))
+			if(this.customIcon.get() instanceof FluidIcon fi && newIcon.matches(fi))
 				return super.getIconForItem(stack);
 			return newIcon;
 		}
@@ -563,7 +566,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Nullable
-	private static FluidStack findFluid(@Nonnull LazyOptional<? extends IFluidHandler> optional)
+	private static FluidStack findFluid(LazyOptional<? extends IFluidHandler> optional)
 	{
 		AtomicReference<FluidStack> result = new AtomicReference<>(null);
 		optional.ifPresent(handler -> {

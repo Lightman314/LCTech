@@ -4,7 +4,7 @@
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
 		"void": "block/nether_portal",
-		"particle": "lctech:block/tank_void_side",
+		"particle": "#side",
 		"side": "lctech:block/tank_void_side",
 		"top": "lctech:block/tank_void_top"
 	},

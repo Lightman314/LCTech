@@ -3,15 +3,19 @@ package io.github.lightman314.lctech.common.blocks.traderblocks;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechText;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,8 +23,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderBlock {
 
-	public static final FluidRenderData FLUID_RENDER = FluidRenderData.CreateFluidRender(4.01f, 0.01f, 4.01f, 7.98f, 15.98f, 7.98f, FluidSides.ALL);
-	
+	public static final ResourceLocation DATA = VersionUtil.modResource(LCTech.MODID,"fluid_tap");
+
 	public FluidTapBlock(Properties properties) { super(properties); }
 	
 	public FluidTapBlock(Properties properties, VoxelShape shape) { super(properties, shape); }
@@ -29,7 +33,7 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 	public int getTradeRenderLimit() { return 1; }
 	
 	@Override
-	public FluidRenderData getRenderPosition(BlockState state, int index){ return FLUID_RENDER; }
+	public FluidRenderData getRenderPosition(BlockState state, int index) { return FluidRenderDataManager.getDataOrEmpty(DATA); }
 
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {

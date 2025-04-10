@@ -76,7 +76,8 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
-        url = "https://www.cursemaven.com"
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
     }
 }
 
@@ -86,12 +87,12 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf('curse.maven:lightmanscurrency-472521:6356930')
+    implementation fg.deobf("maven.modrinth:lightmans-currency:${lightmanscurrency_version}")
 
-    compileOnly fg.deobf('curse.maven:lightmans-discord-integration-545459:4660940')
+    compileOnly fg.deobf('maven.modrinth:ldi:1.20-0.2.0.3')
 
-    runtimeOnly fg.deobf("curse.maven:jei-238222:4595492")
-    runtimeOnly fg.deobf("curse.maven:pipez-443900:4916633")
+    runtimeOnly fg.deobf("maven.modrinth:jei:15.20.0.106")
+    runtimeOnly fg.deobf("maven.modrinth:pipez:forge-1.20.1-1.2.21")
 
 }
 

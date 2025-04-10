@@ -4,7 +4,7 @@
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
 		"tap": "lctech:block/tap",
-		"particle": "lctech:block/fluid_tap",
+		"particle": "#main",
 		"main": "lctech:block/fluid_tap"
 	},
 	"elements": [

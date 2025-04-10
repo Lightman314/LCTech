@@ -3,7 +3,7 @@
 	"parent": "lightmanscurrency:block/block",
 	"textures": {
 		"main": "lctech:block/energy_trader_server",
-		"particle": "lctech:block/energy_trader_server"
+		"particle": "#main"
 	},
 	"elements": [
 		{

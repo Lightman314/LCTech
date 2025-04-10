@@ -1,12 +1,14 @@
 package io.github.lightman314.lctech.client.models.items;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.common.blocks.FluidTankBlock;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -72,14 +74,14 @@ public class FluidTankModel implements BakedModel {
 		@Override
 		public BakedModel resolve(@NotNull BakedModel model, @NotNull ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int light)
 		{
-			FluidRenderData renderData = FluidTankBlock.RENDER_DATA;
+			Supplier<FluidRenderData> renderData = () -> FluidRenderDataManager.getDataOrEmpty(FluidTankBlock.DATA_SOLO);
 			FluidStack tank = FluidTankItem.GetFluid(stack);
 			int capacity = FluidTankItem.GetCapacity(stack);
 			if(stack.getItem() instanceof BlockItem)
 			{
 				Block block = ((BlockItem)stack.getItem()).getBlock();
 				if(block instanceof IFluidTankBlock tankBlock)
-					renderData = tankBlock.getItemRenderData();
+					renderData = tankBlock::getItemRenderData;
 			}
 			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
 		}

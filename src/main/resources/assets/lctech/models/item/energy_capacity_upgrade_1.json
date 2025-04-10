@@ -1,6 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "lctech:item/energy_capacity_upgrade_1"
+    "layer0": "lctech:item/battery",
+    "layer1": "lightmanscurrency:item/upgrade_tier/iron"
   }
 }

@@ -8,6 +8,7 @@ import io.github.lightman314.lctech.common.blocks.*;
 import io.github.lightman314.lctech.common.blocks.traderblocks.*;
 import io.github.lightman314.lctech.common.blocks.traderinterface.*;
 import io.github.lightman314.lctech.common.items.*;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -124,7 +125,8 @@ public class ModBlocks {
 				Block.Properties.of()
 						.mapColor(MapColor.COLOR_GRAY)
 						.strength(3.0f, Float.POSITIVE_INFINITY)
-						.sound(SoundType.METAL)
+						.sound(SoundType.METAL),
+				LazyShapes.BOX_T
 				));
 		
 		ENERGY_NETWORK_TRADER = register("energy_trader_server", () -> new NetworkEnergyTraderBlock(

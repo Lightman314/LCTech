@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import io.github.lightman314.lctech.client.util.FluidRenderData;
+import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -88,14 +89,18 @@ public class FluidShardModel implements BakedModel {
 		{
 			FluidStack tank = FluidStack.EMPTY;
 			int capacity = FluidType.BUCKET_VOLUME;
-			FluidRenderData renderData = FluidShardItem.RENDER_DATA;
+			final ResourceLocation renderData;
 			if(stack != null)
 			{
 				tank = FluidShardItem.GetFluid(stack);
-				if(stack.getItem() instanceof FluidShardItem)
-					renderData = ((FluidShardItem)stack.getItem()).renderData;
+				if(stack.getItem() instanceof FluidShardItem shard)
+					renderData = shard.renderData;
+				else
+					renderData = FluidShardItem.DATA;
 			}
-			return new FluidTankFinalizedModel(model, tank, capacity, renderData);
+			else
+				renderData = FluidShardItem.DATA;
+			return new FluidTankFinalizedModel(model, tank, capacity, () -> FluidRenderDataManager.getDataOrEmpty(renderData));
 		}
 		
 	}
