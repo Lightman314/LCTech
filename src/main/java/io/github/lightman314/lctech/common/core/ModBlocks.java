@@ -33,6 +33,9 @@ public class ModBlocks {
 	private static Function<Block,Item> getNetheriteTankGenerator() {
 		return (block) -> new FluidTankItem(block, new Item.Properties().fireResistant());
 	}
+	private static Function<Block,Item> getVoidTankGenerator() {
+		return (block) -> new VoidTankItem(block, new Item.Properties());
+	}
 	
 	static {
 		
@@ -65,7 +68,7 @@ public class ModBlocks {
 						.sound(SoundType.GLASS)
 		));
 
-		VOID_TANK = register("void_tank", () -> new VoidTankBlock(
+		VOID_TANK = register("void_tank", getVoidTankGenerator(), () -> new VoidTankBlock(
 				BlockBehaviour.Properties.of()
 						.mapColor(MapColor.COLOR_BLACK)
 						.strength(25f, 600f)

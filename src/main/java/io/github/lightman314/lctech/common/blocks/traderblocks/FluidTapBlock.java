@@ -12,6 +12,7 @@ import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.Fl
 import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -21,7 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderBlock {
+public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderBlock, IVariantBlock {
 
 	public static final ResourceLocation DATA = VersionUtil.modResource(LCTech.MODID,"fluid_tap");
 	
@@ -34,6 +35,9 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 	
 	@Override
 	public FluidRenderData getRenderPosition(BlockState state, int index){ return FluidRenderDataManager.getDataOrEmpty(DATA); }
+
+	@Override
+	public int getRenderPositionIndex(BlockState state, int index) { return 0; }
 
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {

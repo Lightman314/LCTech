@@ -9,6 +9,7 @@ import io.github.lightman314.lctech.common.core.util.TechBlockEntityBlockHelper;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
+import io.github.lightman314.lctech.common.items.VoidTankItem;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
@@ -45,6 +46,8 @@ public class ModEventHandler {
 
         //Register Fluid Handler for the Fluid Tank Item
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack,c) -> FluidTankItem.createHandler(stack), ModBlocks.IRON_TANK.get(), ModBlocks.GOLD_TANK.get(), ModBlocks.DIAMOND_TANK.get(), ModBlocks.NETHERITE_TANK.get());
+        //Register Fluid Handler for the Void Tank Item
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack,c) -> VoidTankItem.getVoidHandler(stack), ModBlocks.VOID_TANK.get());
         //Register Fluid Handler for the Fluid Shard Item
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack,c) -> FluidShardItem.createHandler(stack), ModItems.FLUID_SHARD.get());
 

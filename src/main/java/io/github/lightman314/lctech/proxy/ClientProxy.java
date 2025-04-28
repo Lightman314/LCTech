@@ -1,13 +1,17 @@
 package io.github.lightman314.lctech.proxy;
 
+import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.renderer.blockentity.FluidTankBlockEntityRenderer;
 import io.github.lightman314.lctech.client.renderer.blockentity.FluidTraderBlockEntityRenderer;
+import io.github.lightman314.lctech.client.resourcepacks.data.model_variants.TechProperties;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlockEntity;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperty;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.BlockPos;
@@ -32,6 +36,10 @@ public class ClientProxy extends CommonProxy{
 
 		//Setup custom item renderers
 		LCItemRenderer.registerBlockEntitySource(this::checkForFluidTanks);
+
+		//Register custom properties
+		VariantProperty.register(VersionUtil.modResource(LCTech.MODID,"fluid_render_data"),TechProperties.FLUID_RENDER_DATA);
+
 	}
 
 	private BlockEntity checkForFluidTanks(Block block)

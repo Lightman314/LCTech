@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -15,6 +16,7 @@ import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,7 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidTraderBlock {
+public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidTraderBlock, IVariantBlock {
 
 	public static final ResourceLocation DATA_NW = VersionUtil.modResource(LCTech.MODID,"fluid_tap_bundle/nw");
 	public static final ResourceLocation DATA_NE = VersionUtil.modResource(LCTech.MODID,"fluid_tap_bundle/ne");
@@ -66,34 +68,39 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 		}
 		return null;
 	}
-	
+
+	@Override
+	public int getRenderPositionIndex(BlockState state, int index) {
+		List<Integer> order = getRenderOrder(this.getFacing(state));
+		if(index < 0 || index >= order.size())
+			return -1;
+		return order.get(index);
+	}
+
 	private static void initRenderMap(Direction direction)
 	{
 		if(IGNORELIST.contains(direction))
 			return;
 		List<ResourceLocation> list = Lists.newArrayList();
-		switch(direction) {
-		case NORTH:
-			list = createList(0,1,2,3);
-			break;
-		case EAST:
-			list = createList(1,3,0,2);
-			break;
-		case SOUTH:
-			list = createList(3,2,1,0);
-			break;
-		case WEST:
-			list = createList(2,0,3,1);
-			break;
-		default:
-		}
+		list = createList(getRenderOrder(direction));
 		if(!list.isEmpty())
 			RENDERMAP.put(direction, list);
 		else //No results, so return nothing
 			IGNORELIST.add(direction);
 	}
+
+	private static List<Integer> getRenderOrder(Direction facing)
+	{
+		return switch(facing) {
+			case NORTH -> ImmutableList.of(0,1,2,3);
+			case EAST-> ImmutableList.of(1,3,0,2);
+			case SOUTH-> ImmutableList.of(3,2,1,0);
+			case WEST -> ImmutableList.of(2,0,3,1);
+			default -> ImmutableList.of();
+		};
+	}
 	
-	private static List<ResourceLocation> createList(int... indexes)
+	private static List<ResourceLocation> createList(List<Integer> indexes)
 	{
 		List<ResourceLocation> list = Lists.newArrayList();
 		for(int index : indexes)

@@ -533,22 +533,20 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			list.add(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
 	}
 
-	
 	@Override
-	public IconData getIconForItem(ItemStack stack) {
-
+	protected IconData getIconForItem(ItemStack stack, IconData originalIcon) {
 		FluidStack fluid = findFluid(stack.getCapability(Capabilities.FluidHandler.ITEM));
 		if(fluid != null && !fluid.isEmpty())
 		{
 			fluid.setAmount(FluidType.BUCKET_VOLUME);
 			FluidIcon newIcon = FluidIcon.of(fluid);
 			//If already a fluid icon, and we attempt to set the icon as the same fluid, use the default icon instead
-			if(this.customIcon.get() instanceof FluidIcon fi && newIcon.matches(fi))
-				return super.getIconForItem(stack);
+			if(originalIcon instanceof FluidIcon fi && newIcon.matches(fi))
+				return super.getIconForItem(stack,originalIcon);
 			return newIcon;
 		}
 
-		return super.getIconForItem(stack);
+		return super.getIconForItem(stack,originalIcon);
 	}
 
 	@Nullable
