@@ -20,11 +20,11 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class TechRecipeProvider extends EasyRecipeProvider {
 
@@ -299,7 +299,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
 
     }
 
-    private static void GenerateTankRecipe(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull TagKey<Item> ingredient, @Nonnull RegistryObject<? extends ItemLike> result)
+    private static void GenerateTankRecipe(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull TagKey<Item> ingredient, @Nonnull Supplier<? extends ItemLike> result)
     {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, result.get())
                 .pattern("mgm")
@@ -314,10 +314,10 @@ public class TechRecipeProvider extends EasyRecipeProvider {
     }
 
     private static String ItemPath(ItemLike item) { return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath(); }
-    private static String ItemPath(RegistryObject<? extends ItemLike> item) { return ItemPath(item.get()); }
+    private static String ItemPath(Supplier<? extends ItemLike> item) { return ItemPath(item.get()); }
     private static ResourceLocation ItemID(String prefix, ItemLike item) { return ID(prefix + ItemPath(item)); }
-    private static ResourceLocation ItemID(RegistryObject<? extends ItemLike> item) { return ID(ItemPath(item)); }
-    private static ResourceLocation ItemID(String prefix, RegistryObject<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
+    private static ResourceLocation ItemID(Supplier<? extends ItemLike> item) { return ID(ItemPath(item)); }
+    private static ResourceLocation ItemID(String prefix, Supplier<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
     private static ResourceLocation ID(String path) { return new ResourceLocation(LCTech.MODID, path); }
 
 
@@ -329,7 +329,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
 
     private static CriterionTriggerInstance LazyTrigger(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(item).build()); }
     private static CriterionTriggerInstance LazyTrigger(List<? extends ItemLike> items) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items.toArray(new ItemLike[0])).build()); }
-    private static CriterionTriggerInstance LazyTrigger(RegistryObject<? extends ItemLike> item) { return LazyTrigger(item.get()); }
+    private static CriterionTriggerInstance LazyTrigger(Supplier<? extends ItemLike> item) { return LazyTrigger(item.get()); }
     private static CriterionTriggerInstance LazyTrigger(TagKey<Item> tag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(tag).build()); }
 
 }

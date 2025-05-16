@@ -13,4 +13,8 @@ public interface IFluidTraderBlock extends ITraderBlock {
 	
 	@OnlyIn(Dist.CLIENT)
 	FluidRenderData getRenderPosition(BlockState state, int index);
+
+	@OnlyIn(Dist.CLIENT)
+	int getRenderPositionIndex(BlockState state, int index);
+
 }

@@ -9,7 +9,8 @@ import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlock
 import io.github.lightman314.lctech.common.core.util.TechBlockEntityBlockHelper;
 import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 @SuppressWarnings("deprecation")
 public class ModBlockEntities {
@@ -35,19 +36,19 @@ public class ModBlockEntities {
 	}
 	
 	//Fluid Tank
-	public static final RegistryObject<BlockEntityType<FluidTankBlockEntity>> FLUID_TANK;
-	public static final RegistryObject<BlockEntityType<VoidTankBlockEntity>> VOID_TANK;
+	public static final Supplier<BlockEntityType<FluidTankBlockEntity>> FLUID_TANK;
+	public static final Supplier<BlockEntityType<VoidTankBlockEntity>> VOID_TANK;
 
 	//Fluid Trader
-	public static final RegistryObject<BlockEntityType<FluidTraderBlockEntity>> FLUID_TRADER;
+	public static final Supplier<BlockEntityType<FluidTraderBlockEntity>> FLUID_TRADER;
 	
 	//Energy Trader
-	public static final RegistryObject<BlockEntityType<EnergyTraderBlockEntity>> ENERGY_TRADER;
+	public static final Supplier<BlockEntityType<EnergyTraderBlockEntity>> ENERGY_TRADER;
 
 	//Fluid Trader Interface
-	public static final RegistryObject<BlockEntityType<FluidTraderInterfaceBlockEntity>> TRADER_INTERFACE_FLUID;
+	public static final Supplier<BlockEntityType<FluidTraderInterfaceBlockEntity>> TRADER_INTERFACE_FLUID;
 	
 	//Energy Trader Interface
-	public static final RegistryObject<BlockEntityType<EnergyTraderInterfaceBlockEntity>> TRADER_INTERFACE_ENERGY;	
+	public static final Supplier<BlockEntityType<EnergyTraderInterfaceBlockEntity>> TRADER_INTERFACE_ENERGY;	
 	
 }

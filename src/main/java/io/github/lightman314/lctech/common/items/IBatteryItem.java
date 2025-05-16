@@ -11,8 +11,9 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.NotNull;
+
+import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public interface IBatteryItem {
 
@@ -46,7 +47,7 @@ public interface IBatteryItem {
 		return newStack;
 	}
 
-	static ItemStack HideEnergyBar(RegistryObject<? extends ItemLike> item) { return HideEnergyBar(new ItemStack(item.get())); }
+	static ItemStack HideEnergyBar(Supplier<? extends ItemLike> item) { return HideEnergyBar(new ItemStack(item.get())); }
 	static ItemStack HideEnergyBar(ItemLike item) { return HideEnergyBar(new ItemStack(item)); }
 	static ItemStack HideEnergyBar(ItemStack stack) {
 		CompoundTag tag = stack.getOrCreateTag();
@@ -121,8 +122,9 @@ public interface IBatteryItem {
 		@Override
 		public boolean canReceive() { return true; }
 
+		@Nonnull
 		@Override
-		public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction side) {
+		public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, Direction side) {
 			return ForgeCapabilities.ENERGY.orEmpty(cap, this.optional);
 		}
 		

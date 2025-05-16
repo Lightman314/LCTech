@@ -15,11 +15,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
-import org.jetbrains.annotations.Nullable;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class TechBlockTagProvider extends BlockTagsProvider {
     public TechBlockTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
@@ -81,13 +82,13 @@ public class TechBlockTagProvider extends BlockTagsProvider {
             return this;
         }
 
-        public CustomTagAppender add(RegistryObject<? extends Block> block) {
+        public CustomTagAppender add(Supplier<? extends Block> block) {
             this.appender.add((Block)block.get());
             return this;
         }
 
-        public CustomTagAppender addOptional(RegistryObject<? extends Block> block) {
-            this.appender.addOptional(block.getId());
+        public CustomTagAppender addOptional(Supplier<? extends Block> block) {
+            this.appender.addOptional(ForgeRegistries.BLOCKS.getKey(block.get()));
             return this;
         }
 

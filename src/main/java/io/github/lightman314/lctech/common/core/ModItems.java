@@ -6,7 +6,8 @@ import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lightmanscurrency.common.items.CapacityUpgradeItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Supplier;
 
 public class ModItems {
 	
@@ -35,22 +36,22 @@ public class ModItems {
 	}
 	
 	//Fluid Shard
-	public static final RegistryObject<Item> FLUID_SHARD;
+	public static final Supplier<Item> FLUID_SHARD;
 	
 	//Fluid Upgrades
-	public static final RegistryObject<Item> FLUID_CAPACITY_UPGRADE_1;
-	public static final RegistryObject<Item> FLUID_CAPACITY_UPGRADE_2;
-	public static final RegistryObject<Item> FLUID_CAPACITY_UPGRADE_3;
-	public static final RegistryObject<Item> FLUID_CAPACITY_UPGRADE_4;
+	public static final Supplier<Item> FLUID_CAPACITY_UPGRADE_1;
+	public static final Supplier<Item> FLUID_CAPACITY_UPGRADE_2;
+	public static final Supplier<Item> FLUID_CAPACITY_UPGRADE_3;
+	public static final Supplier<Item> FLUID_CAPACITY_UPGRADE_4;
 
 	//Battery Item
-	public static final RegistryObject<BatteryItem> BATTERY;
-	public static final RegistryObject<BatteryItem> BATTERY_LARGE;
+	public static final Supplier<BatteryItem> BATTERY;
+	public static final Supplier<BatteryItem> BATTERY_LARGE;
 	
 	//Energy Upgrades
-	public static final RegistryObject<Item> ENERGY_CAPACITY_UPGRADE_1;
-	public static final RegistryObject<Item> ENERGY_CAPACITY_UPGRADE_2;
-	public static final RegistryObject<Item> ENERGY_CAPACITY_UPGRADE_3;
-	public static final RegistryObject<Item> ENERGY_CAPACITY_UPGRADE_4;
+	public static final Supplier<Item> ENERGY_CAPACITY_UPGRADE_1;
+	public static final Supplier<Item> ENERGY_CAPACITY_UPGRADE_2;
+	public static final Supplier<Item> ENERGY_CAPACITY_UPGRADE_3;
+	public static final Supplier<Item> ENERGY_CAPACITY_UPGRADE_4;
 
 }

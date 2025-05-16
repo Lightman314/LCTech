@@ -546,7 +546,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 
 	
 	@Override
-	public IconData getIconForItem(ItemStack stack) {
+	public IconData getIconForItem(ItemStack stack,IconData originalIcon) {
 
 		FluidStack fluid;
 		fluid = findFluid(stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM));
@@ -557,12 +557,12 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 			fluid.setAmount(FluidType.BUCKET_VOLUME);
 			FluidIcon newIcon = FluidIcon.of(fluid);
 			//If already a fluid icon, and we attempt to set the icon as the same fluid, use the default icon instead
-			if(this.customIcon.get() instanceof FluidIcon fi && newIcon.matches(fi))
-				return super.getIconForItem(stack);
+			if(originalIcon instanceof FluidIcon fi && newIcon.matches(fi))
+				return super.getIconForItem(stack,originalIcon);
 			return newIcon;
 		}
 
-		return super.getIconForItem(stack);
+		return super.getIconForItem(stack,originalIcon);
 	}
 
 	@Nullable

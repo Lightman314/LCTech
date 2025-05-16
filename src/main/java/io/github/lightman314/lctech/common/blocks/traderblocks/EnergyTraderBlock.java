@@ -7,6 +7,7 @@ import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.blockentities.trader.EnergyTraderBlockEntity;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class EnergyTraderBlock extends TraderBlockRotatable {
+public class EnergyTraderBlock extends TraderBlockRotatable implements IVariantBlock {
 	
 	public EnergyTraderBlock(Properties properties) { super(properties); }
 	
