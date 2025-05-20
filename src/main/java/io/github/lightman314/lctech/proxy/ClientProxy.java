@@ -7,15 +7,24 @@ import io.github.lightman314.lctech.client.renderer.blockentity.FluidTraderBlock
 import io.github.lightman314.lctech.client.resourcepacks.data.model_variants.TechProperties;
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperties;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperty;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public class ClientProxy extends CommonProxy{
+
+	@Override
+	public void init() {
+		//Setup Register Variant Properties event
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerVariantProperties);
+		//Register normal event listeners
+		MinecraftForge.EVENT_BUS.register(this);
+	}
 
 	@Override
 	public void setupClient()
@@ -23,10 +32,11 @@ public class ClientProxy extends CommonProxy{
 		//Register Tile Entity Renderers
 		BlockEntityRenderers.register(ModBlockEntities.FLUID_TRADER.get(), FluidTraderBlockEntityRenderer::new);
 		BlockEntityRenderers.register(ModBlockEntities.FLUID_TANK.get(), FluidTankBlockEntityRenderer::new);
+	}
 
-		//Register custom properties
-		VariantProperty.register(VersionUtil.modResource(LCTech.MODID,"fluid_render_data"), TechProperties.FLUID_RENDER_DATA);
-
+	private void registerVariantProperties(RegisterVariantPropertiesEvent event)
+	{
+		event.register(VersionUtil.modResource(LCTech.MODID,"fluid_render_data"),TechProperties.FLUID_RENDER_DATA);
 	}
 	
 	@SubscribeEvent

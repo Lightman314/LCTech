@@ -4,6 +4,8 @@ import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCac
 
 public class CommonProxy {
 
+	public void init() {}
+
 	public void setupClient() {}
 
 	public void handleTankStackPacket(TankStackCache.PacketBuilder data) { }

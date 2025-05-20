@@ -53,7 +53,7 @@ public class LCTech
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         //Register the proxy so that it can run custom events
-        MinecraftForge.EVENT_BUS.register(PROXY);
+        PROXY.init();
 
         IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", TechDiscord::setup, "Error setting up Tech Discord Integration");
         
