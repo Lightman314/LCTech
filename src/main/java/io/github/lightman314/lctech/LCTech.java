@@ -11,7 +11,6 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.event.lifecycle.ParallelDispatchEvent;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.common.NeoForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,8 +56,7 @@ public class LCTech
         ModRegistries.register(bus);
 
         //Register the proxy so that it can run custom events
-        if(PROXY.isClient())
-            NeoForge.EVENT_BUS.register(PROXY);
+        PROXY.init(bus);
 
     }
 

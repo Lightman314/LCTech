@@ -9,23 +9,31 @@ import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlo
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperty;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-
-import java.util.function.Supplier;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class ClientProxy extends CommonProxy{
 
 	@Override
 	public boolean isClient() { return true; }
+
+	@Override
+	public void init(IEventBus eventBus) {
+		//Setup Register Variant Properties event
+		eventBus.addListener(this::registerVariantProperties);
+		//Register normal event listeners
+		NeoForge.EVENT_BUS.register(this);
+	}
 
 	@Override
 	public void setupClient()
@@ -37,18 +45,20 @@ public class ClientProxy extends CommonProxy{
 		//Setup custom item renderers
 		LCItemRenderer.registerBlockEntitySource(this::checkForFluidTanks);
 
-		//Register custom properties
-		VariantProperty.register(VersionUtil.modResource(LCTech.MODID,"fluid_render_data"),TechProperties.FLUID_RENDER_DATA);
+	}
 
+	private void registerVariantProperties(RegisterVariantPropertiesEvent event)
+	{
+		event.register(VersionUtil.modResource(LCTech.MODID,"fluid_render_data"),TechProperties.FLUID_RENDER_DATA);
 	}
 
 	private BlockEntity checkForFluidTanks(Block block)
 	{
-		if(block instanceof IFluidTankBlock tankBlock)
+		if(block instanceof IFluidTankBlock)
 			return new FluidTankBlockEntity(BlockPos.ZERO,block.defaultBlockState());
 		return null;
 	}
-	
+
 	@SubscribeEvent
 	public void onLogin(ClientPlayerNetworkEvent.LoggingIn event)
 	{
