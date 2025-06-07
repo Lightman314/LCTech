@@ -36,9 +36,6 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 	public FluidRenderData getRenderPosition(BlockState state, int index) { return FluidRenderDataManager.getDataOrEmpty(DATA); }
 
 	@Override
-	public int getRenderPositionIndex(BlockState state, int index) { return 0; }
-
-	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {
 		return new FluidTraderBlockEntity(pos, state, 1);
 	}

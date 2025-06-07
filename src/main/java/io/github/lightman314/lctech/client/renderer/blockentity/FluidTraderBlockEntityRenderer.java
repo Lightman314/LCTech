@@ -9,11 +9,13 @@ import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.Fl
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -28,6 +30,9 @@ public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<Fluid
 		FluidTraderData fluidTrader = blockEntity.getTraderData();
 		if(fluidTrader != null)
 		{
+			Direction facing = Direction.NORTH;
+			if(blockEntity.getBlockState().getBlock() instanceof IRotatableBlock rb)
+				facing = rb.getFacing(blockEntity.getBlockState());
 			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
 			FluidRenderDataList renderDataOverrides = null;
 			if(variant != null && variant.has(TechProperties.FLUID_RENDER_DATA))
@@ -42,7 +47,7 @@ public class FluidTraderBlockEntityRenderer implements BlockEntityRenderer<Fluid
 					FluidRenderData renderData = blockEntity.getRenderPosition(tradeSlot);
 					if(renderDataOverrides != null)
 					{
-						FluidRenderData newData = renderDataOverrides.get(blockEntity.getRenderPositionIndex(tradeSlot));
+						FluidRenderData newData = renderDataOverrides.getSided(facing,tradeSlot);
 						if(newData != null)
 							renderData = newData;
 					}

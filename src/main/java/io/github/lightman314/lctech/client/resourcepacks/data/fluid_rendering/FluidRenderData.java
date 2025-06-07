@@ -109,4 +109,11 @@ public class FluidRenderData
 		return json;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof FluidRenderData other)
+			return this.x == other.x && this.y == other.y && this.z == other.z && this.width == other.width && this.height == other.height && this.depth == other.depth && other.sides.equals(this.sides);
+		return false;
+	}
+
 }

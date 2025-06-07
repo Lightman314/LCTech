@@ -87,13 +87,5 @@ public class FluidTraderBlockEntity extends TraderBlockEntity<FluidTraderData> {
 		}
 		return null;
 	}
-
-	@OnlyIn(Dist.CLIENT)
-	public int getRenderPositionIndex(int index)
-	{
-		if(this.getBlockState().getBlock() instanceof IFluidTraderBlock b)
-			return b.getRenderPositionIndex(this.getBlockState(),index);
-		return -1;
-	}
 	
 }

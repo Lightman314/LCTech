@@ -1,5 +1,6 @@
 package io.github.lightman314.lctech.common.blocks.traderblocks;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -68,14 +69,6 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 		return null;
 	}
 
-	@Override
-	public int getRenderPositionIndex(BlockState state, int index) {
-		List<Integer> order = getRenderOrder(this.getFacing(state));
-		if(index < 0 || index >= order.size())
-			return -1;
-		return order.get(index);
-	}
-
 	private static void initRenderMap(Direction direction)
 	{
 		if(IGNORELIST.contains(direction))
@@ -85,6 +78,13 @@ public class FluidTapBundleBlock extends TraderBlockRotatable implements IFluidT
 			RENDERMAP.put(direction, list);
 		else //No results, so return nothing
 			IGNORELIST.add(direction);
+	}
+
+	public static List<ResourceLocation> getRenderID(Direction facing)
+	{
+		if(!RENDERMAP.containsKey(facing))
+			initRenderMap(facing);
+		return RENDERMAP.getOrDefault(facing,new ArrayList<>());
 	}
 
 	private static List<Integer> getRenderOrder(Direction facing)
