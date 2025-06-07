@@ -9,7 +9,6 @@ import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.Fl
 import io.github.lightman314.lctech.common.blockentities.trader.FluidTraderBlockEntity;
 import io.github.lightman314.lctech.common.blocks.IFluidTraderBlock;
 import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderData;
-import io.github.lightman314.lctech.client.util.FluidSides;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
@@ -35,9 +34,6 @@ public class FluidTapBlock extends TraderBlockRotatable implements IFluidTraderB
 	
 	@Override
 	public FluidRenderData getRenderPosition(BlockState state, int index){ return FluidRenderDataManager.getDataOrEmpty(DATA); }
-
-	@Override
-	public int getRenderPositionIndex(BlockState state, int index) { return 0; }
 
 	@Override
 	protected BlockEntity makeTrader(BlockPos pos, BlockState state) {
