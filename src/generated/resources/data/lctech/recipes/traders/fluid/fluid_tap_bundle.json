@@ -1,0 +1,36 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lctech:fluid_trader_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "i": {
+            "tag": "forge:ingots/iron"
+          },
+          "t": {
+            "item": "lctech:iron_tank"
+          },
+          "x": {
+            "item": "lctech:fluid_tap"
+          }
+        },
+        "pattern": [
+          " t ",
+          "txt",
+          " i "
+        ],
+        "result": {
+          "item": "lctech:fluid_tap_bundle"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lctech:batteries_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "c": {
+            "tag": "forge:ingots/copper"
+          },
+          "i": {
+            "tag": "forge:ingots/iron"
+          },
+          "r": {
+            "tag": "forge:storage_blocks/redstone"
+          }
+        },
+        "pattern": [
+          " i ",
+          "crc",
+          "crc"
+        ],
+        "result": {
+          "item": "lctech:battery_large"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "advancements": [
+    {
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "criteria": {
+          "bucket": {
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "minecraft:bucket"
+                  ]
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "glass": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "forge:glass/colorless"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "has_the_recipe": {
+            "conditions": {
+              "recipe": "lctech:void_tank"
+            },
+            "trigger": "minecraft:recipe_unlocked"
+          },
+          "material": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "forge:obsidian"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "pearl": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "forge:ender_pearls"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          }
+        },
+        "requirements": [
+          [
+            "material",
+            "glass",
+            "bucket",
+            "pearl",
+            "has_the_recipe"
+          ]
+        ],
+        "rewards": {
+          "recipes": [
+            "lctech:void_tank"
+          ]
+        },
+        "sends_telemetry_event": false
+      },
+      "conditions": [
+        {
+          "type": "lctech:void_tank_craftable"
+        }
+      ]
+    }
+  ]
+}

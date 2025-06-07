@@ -1,0 +1,36 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lctech:void_tank_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "e": {
+            "tag": "forge:ender_pearls"
+          },
+          "g": {
+            "tag": "forge:glass/colorless"
+          },
+          "m": {
+            "tag": "forge:obsidian"
+          }
+        },
+        "pattern": [
+          "mgm",
+          "geg",
+          "mgm"
+        ],
+        "result": {
+          "item": "lctech:void_tank"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

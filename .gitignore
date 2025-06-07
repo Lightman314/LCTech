@@ -26,6 +26,6 @@ runs
 forge*changelog.txt
 
 #custom
-generated
+.cache
 hs_err_pid_*
 Build Backups

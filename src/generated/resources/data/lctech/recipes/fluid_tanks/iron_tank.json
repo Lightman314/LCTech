@@ -1,0 +1,33 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lctech:fluid_tank_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "g": {
+            "tag": "forge:glass/colorless"
+          },
+          "m": {
+            "tag": "forge:ingots/iron"
+          }
+        },
+        "pattern": [
+          "mgm",
+          "g g",
+          "mgm"
+        ],
+        "result": {
+          "item": "lctech:iron_tank"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

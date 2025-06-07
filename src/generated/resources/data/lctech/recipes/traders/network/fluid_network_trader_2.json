@@ -1,0 +1,37 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lctech:fluid_trader_craftable"
+        },
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftNetworkTrader"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "fluid_network_trader",
+        "key": {
+          "t": {
+            "item": "lctech:iron_tank"
+          },
+          "x": {
+            "item": "lctech:fluid_trader_server_sml"
+          }
+        },
+        "pattern": [
+          "txt"
+        ],
+        "result": {
+          "item": "lctech:fluid_trader_server_med"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

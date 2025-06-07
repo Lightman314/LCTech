@@ -1,0 +1,66 @@
+{
+  "advancements": [
+    {
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "criteria": {
+          "batteries": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lctech:batteries"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "energy_trader": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader_energy"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "has_the_recipe": {
+            "conditions": {
+              "recipe": "lctech:battery"
+            },
+            "trigger": "minecraft:recipe_unlocked"
+          },
+          "redstone": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "forge:dusts/redstone"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          }
+        },
+        "requirements": [
+          [
+            "redstone",
+            "batteries",
+            "energy_trader",
+            "has_the_recipe"
+          ]
+        ],
+        "rewards": {
+          "recipes": [
+            "lctech:battery"
+          ]
+        },
+        "sends_telemetry_event": false
+      },
+      "conditions": [
+        {
+          "type": "lctech:batteries_craftable"
+        }
+      ]
+    }
+  ]
+}

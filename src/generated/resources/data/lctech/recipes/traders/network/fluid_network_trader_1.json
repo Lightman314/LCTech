@@ -1,0 +1,45 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lctech:fluid_trader_craftable"
+        },
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftNetworkTrader"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "fluid_network_trader",
+        "key": {
+          "e": {
+            "item": "minecraft:ender_eye"
+          },
+          "i": {
+            "tag": "forge:ingots/iron"
+          },
+          "t": {
+            "item": "lctech:iron_tank"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "iii",
+          "txt",
+          "iei"
+        ],
+        "result": {
+          "item": "lctech:fluid_trader_server_sml"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}
