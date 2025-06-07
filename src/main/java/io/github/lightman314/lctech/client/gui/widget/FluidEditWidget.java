@@ -89,13 +89,6 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 				allFluids.add(fluid);
 		});
 
-		//Add extra fluids for debug purposes
-		/*for(int i = 0; i < 30; ++i)
-		{
-			allFluids.add(Fluids.WATER);
-			allFluids.add(Fluids.LAVA);
-		}//*/
-
 	}
 
 	public int getMaxScroll() { return Math.max(((this.searchResultFluids.size() - 1) / this.columns) - this.rows + 1, 0); }
@@ -216,6 +209,9 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		//Do nothing if not active/visible
+		if(!this.isActive())
+			return false;
 		int hoveredSlot = this.isMouseOverSlot(mouseX, mouseY);
 		if(hoveredSlot >= 0)
 		{
