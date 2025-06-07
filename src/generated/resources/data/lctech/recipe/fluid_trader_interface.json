@@ -1,0 +1,34 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:fluid_trader_craftable"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftTraderInterface"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": {
+      "item": "lctech:iron_tank"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "t": {
+      "tag": "lightmanscurrency:network_terminal"
+    }
+  },
+  "pattern": [
+    "ici",
+    "iti",
+    "ici"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lctech:fluid_trader_interface"
+  }
+}

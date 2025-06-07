@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:fluid_trader_craftable"
+    }
+  ],
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/gold"
+  },
+  "base": {
+    "item": "lctech:fluid_capacity_upgrade_1"
+  },
+  "result": {
+    "count": 1,
+    "id": "lctech:fluid_capacity_upgrade_2"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

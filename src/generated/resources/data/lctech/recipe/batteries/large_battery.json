@@ -1,0 +1,29 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:batteries_craftable"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": {
+      "tag": "c:ingots/copper"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "tag": "c:storage_blocks/redstone"
+    }
+  },
+  "pattern": [
+    " i ",
+    "crc",
+    "crc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lctech:battery_large"
+  }
+}

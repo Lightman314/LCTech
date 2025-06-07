@@ -1,0 +1,29 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:void_tank_craftable"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "e": {
+      "tag": "c:ender_pearls"
+    },
+    "g": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "m": {
+      "tag": "c:obsidians"
+    }
+  },
+  "pattern": [
+    "mgm",
+    "geg",
+    "mgm"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lctech:void_tank"
+  }
+}

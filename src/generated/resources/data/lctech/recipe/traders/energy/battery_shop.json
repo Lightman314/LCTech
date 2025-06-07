@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:energy_trader_craftable"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "item": "lctech:battery"
+    },
+    "c": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    "ibi",
+    "ici"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lctech:battery_shop"
+  }
+}

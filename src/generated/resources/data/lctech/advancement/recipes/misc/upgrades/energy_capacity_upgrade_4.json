@@ -1,0 +1,59 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:energy_trader_craftable"
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "battery": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lctech:batteries"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lctech:upgrades/energy_capacity_upgrade_4"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "previous": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lctech:energy_capacity_upgrade_3"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "trader",
+      "battery",
+      "previous"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lctech:upgrades/energy_capacity_upgrade_4"
+    ]
+  }
+}

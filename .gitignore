@@ -26,8 +26,6 @@ runs
 forge*changelog.txt
 
 #custom
-/src/generated/resources/.cache
-/src/generated/resources/data
-/src/generated/resources/assets/*/*
-!/src/generated/resources/assets/*/lang
+.cache
+he_err_pid_*
 Build Backups

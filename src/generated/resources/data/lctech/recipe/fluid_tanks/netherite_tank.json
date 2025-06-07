@@ -1,0 +1,26 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:fluid_tank_craftable"
+    }
+  ],
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/netherite"
+  },
+  "base": {
+    "item": "lctech:diamond_tank"
+  },
+  "result": {
+    "components": {
+      "lctech:fluid_data": {
+        "Fluid": {}
+      }
+    },
+    "count": 1,
+    "id": "lctech:netherite_tank"
+  },
+  "template": {
+    "item": "minecraft:netherite_upgrade_smithing_template"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:fluid_tank_craftable"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "m": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    "mgm",
+    "g g",
+    "mgm"
+  ],
+  "result": {
+    "components": {
+      "lctech:fluid_data": {
+        "Fluid": {}
+      }
+    },
+    "count": 1,
+    "id": "lctech:iron_tank"
+  }
+}

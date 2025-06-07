@@ -1,0 +1,29 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:fluid_trader_craftable"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "n": {
+      "tag": "c:nuggets/iron"
+    },
+    "t": {
+      "item": "lctech:iron_tank"
+    }
+  },
+  "pattern": [
+    "c",
+    "t",
+    "n"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lctech:fluid_tap"
+  }
+}

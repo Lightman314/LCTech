@@ -1,0 +1,53 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lctech:energy_trader_craftable"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftTraderInterface"
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lctech:energy_trader_interface"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "terminal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:network_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "trader",
+      "terminal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lctech:energy_trader_interface"
+    ]
+  }
+}
