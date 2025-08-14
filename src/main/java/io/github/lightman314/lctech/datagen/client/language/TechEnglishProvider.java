@@ -98,5 +98,9 @@ public class TechEnglishProvider extends TranslationProvider {
         this.translate(TechText.NOTIFICATION_TRADE_FLUID,"%1$s %2$s %3$s for %4$s");
         this.translate(TechText.NOTIFICATION_TRADE_ENERGY,"%1$s %2$s %3$s for %4$s");
 
+        //Data
+        this.translate(TechText.DATA_ENTRY_TRADER_TRADE_FLUID,"Fluid: %2$sB of %1$s");
+        this.translate(TechText.DATA_ENTRY_TRADER_TRADE_ENERGY,"Energy");
+
     }
 }

@@ -172,13 +172,17 @@ public class FluidTankItem extends BlockItem{
 
 		@Override
 		public int fill(FluidStack resource, FluidAction action) {
-			if(isFluidValid(0, resource))
+			if(this.isFluidValid(0, resource))
 			{
 				int fillAmount = MathUtil.clamp(resource.getAmount(), 0, this.getTankSpace());
-				if(action.execute())
+				if(action.execute() && fillAmount > 0)
 				{
 					if(this.tank().isEmpty())
-						this.setTank(resource.copy());
+					{
+						FluidStack copy = resource.copy();
+						copy.setAmount(fillAmount);
+						this.setTank(copy);
+					}
 					else
 					{
 						FluidStack tank = this.tank();

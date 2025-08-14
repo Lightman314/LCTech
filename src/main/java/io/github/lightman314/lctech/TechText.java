@@ -5,6 +5,7 @@ import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.notifications.types.*;
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 
 public class TechText {
@@ -97,8 +98,12 @@ public class TechText {
 
 
     //Notifications
-    public static final TextEntry NOTIFICATION_FLUID_FORMAT = TextEntry.notification(new ResourceLocation(MODID,"fluids"),"format");
+    public static final TextEntry NOTIFICATION_FLUID_FORMAT = TextEntry.notification(VersionUtil.modResource(MODID,"fluids"),"format");
     public static final TextEntry NOTIFICATION_TRADE_FLUID = TextEntry.notification(FluidTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_ENERGY = TextEntry.notification(EnergyTradeNotification.TYPE);
+
+    //Data
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_FLUID = TextEntry.dataName(MODID,"trader.trades.fluid");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_ENERGY = TextEntry.dataName(MODID,"trader.trades.energy");
 
 }

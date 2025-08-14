@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.traders.energy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -15,6 +16,7 @@ import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.client.gui.settings.energy.EnergyInputAddon;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
+import io.github.lightman314.lctech.common.traders.energy.settings.EnergyTradeSettings;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.core.ModItems;
 import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyStorageTab;
@@ -24,6 +26,7 @@ import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -40,6 +43,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.Ca
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -58,11 +62,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class EnergyTraderData extends InputTraderData {
 
 	public static final int DEFAULT_TRADE_LIMIT = 8;
@@ -116,8 +121,14 @@ public class EnergyTraderData extends InputTraderData {
 	int pendingDrain = 0;
 	
 	private EnergyTraderData() { super(TYPE);}
-	public EnergyTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
-	
+	public EnergyTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
+
+	@Override
+	protected void registerNodes(Consumer<SettingsNode> builder) {
+		super.registerNodes(builder);
+		builder.accept(new EnergyTradeSettings(this));
+	}
+
 	@Override
 	public void saveAdditional(CompoundTag compound) {
 		super.saveAdditional(compound);
@@ -163,8 +174,7 @@ public class EnergyTraderData extends InputTraderData {
 			return this.trades.get(tradeIndex);
 		return new EnergyTradeData(false);
 	}
-	
-	@Nonnull
+
 	@Override
 	public List<EnergyTradeData> getTradeData() { return new ArrayList<>(this.trades); }
 	
@@ -291,7 +301,7 @@ public class EnergyTraderData extends InputTraderData {
 	public void markEnergyStorageDirty() { this.markDirty(this::saveEnergyStorage); }
 	
 	@Override
-	public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> cap, Direction relativeSide) {
+	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction relativeSide) {
 		return ForgeCapabilities.ENERGY.orEmpty(cap, LazyOptional.of(() -> this.getEnergyHandler().getExternalHandler(relativeSide)));
 	}
 
@@ -304,7 +314,7 @@ public class EnergyTraderData extends InputTraderData {
 
 
 	@Override
-	public void handleSettingsChange(@Nonnull Player player, @Nonnull LazyPacketData message) {
+	public void handleSettingsChange(Player player, LazyPacketData message) {
 		super.handleSettingsChange(player, message);
 		if(message.contains("NewEnergyDrainMode"))
 		{
@@ -467,7 +477,7 @@ public class EnergyTraderData extends InputTraderData {
 	}
 	
 	@Override
-	public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+	public void initStorageTabs(ITraderStorageMenu menu) {
 		//Storage tab
 		menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE, new EnergyStorageTab(menu));
 		//Energy Trade interaction tab
@@ -572,7 +582,7 @@ public class EnergyTraderData extends InputTraderData {
 	public final boolean canDrainExternally() { return this.drainCapable() && this.hasOutputSide(); }
 
 	@Override
-	protected void appendTerminalInfo(@Nonnull List<Component> list, @Nullable Player player) {
+	protected void appendTerminalInfo(List<Component> list, @Nullable Player player) {
 		int tradeCount = 0;
 		int outOfStock = 0;
 		for(EnergyTradeData trade : this.trades)
