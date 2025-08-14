@@ -2,6 +2,7 @@ package io.github.lightman314.lctech.common.traders.fluid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
@@ -14,6 +15,7 @@ import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
+import io.github.lightman314.lctech.common.traders.fluid.settings.FluidTradeSettings;
 import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.menu.traderstorage.fluid.FluidStorageTab;
@@ -24,6 +26,7 @@ import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -90,6 +93,12 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		super(TYPE, level, pos);
 		this.trades = FluidTradeData.listOfSize(tradeCount, true);
 		this.baseTradeCount = tradeCount;
+	}
+
+	@Override
+	protected void registerNodes(Consumer<SettingsNode> builder) {
+		super.registerNodes(builder);
+		builder.accept(new FluidTradeSettings(this));
 	}
 
 	@Override

@@ -14,6 +14,8 @@
   "block.lctech.iron_tank": "Iron Tank",
   "block.lctech.netherite_tank": "Netherite Tank",
   "block.lctech.void_tank": "Void Tank",
+  "data.lctech.name.trader.trades.energy": "Energy",
+  "data.lctech.name.trader.trades.fluid": "Fluid: %2$sB of %1$s",
   "gui.lctech.interface.difference.product.purchase": "expecting",
   "gui.lctech.interface.difference.product.sale": "selling",
   "gui.lctech.interface.energy.difference.quantity.less": "Trade is %1$s %2$s less",
