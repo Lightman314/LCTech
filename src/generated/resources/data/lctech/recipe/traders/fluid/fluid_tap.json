@@ -1,7 +1,9 @@
 {
   "neoforge:conditions": [
     {
-      "type": "lctech:fluid_trader_craftable"
+      "type": "lightmanscurrency:configured",
+      "fileID": "lctech:common",
+      "option": "crafting.allowFluidTraderCrafting"
     }
   ],
   "type": "minecraft:crafting_shaped",

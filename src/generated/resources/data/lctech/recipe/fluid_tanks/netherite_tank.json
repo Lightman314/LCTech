@@ -1,7 +1,9 @@
 {
   "neoforge:conditions": [
     {
-      "type": "lctech:fluid_tank_craftable"
+      "type": "lightmanscurrency:configured",
+      "fileID": "lctech:common",
+      "option": "crafting.allowFluidTankCrafting"
     }
   ],
   "type": "minecraft:smithing_transform",
@@ -12,11 +14,6 @@
     "item": "lctech:diamond_tank"
   },
   "result": {
-    "components": {
-      "lctech:fluid_data": {
-        "Fluid": {}
-      }
-    },
     "count": 1,
     "id": "lctech:netherite_tank"
   },

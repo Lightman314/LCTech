@@ -46,13 +46,6 @@ public class FluidTankItem extends BlockItem {
 	}
 
 	@Override
-	public void verifyComponentsAfterLoad(@Nonnull ItemStack stack) {
-		if(!stack.has(ModDataComponents.FLUID_DATA))
-			stack.set(ModDataComponents.FLUID_DATA,FluidData.EMPTY);
-		super.verifyComponentsAfterLoad(stack);
-	}
-
-	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
 		super.appendHoverText(stack,  context,  tooltip,  flagIn);

@@ -36,6 +36,8 @@ public class ModBlocks {
 	private static Function<Block,Item> getVoidTankGenerator() {
 		return (block) -> new VoidTankItem(block, new Item.Properties());
 	}
+
+    private static Block getVoidTankDrop() { return VOID_TANK.get(); }
 	
 	static {
 		

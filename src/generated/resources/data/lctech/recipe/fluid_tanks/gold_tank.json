@@ -1,7 +1,9 @@
 {
   "neoforge:conditions": [
     {
-      "type": "lctech:fluid_tank_craftable"
+      "type": "lightmanscurrency:configured",
+      "fileID": "lctech:common",
+      "option": "crafting.allowFluidTankCrafting"
     }
   ],
   "type": "minecraft:crafting_shaped",
@@ -20,11 +22,6 @@
     "mgm"
   ],
   "result": {
-    "components": {
-      "lctech:fluid_data": {
-        "Fluid": {}
-      }
-    },
     "count": 1,
     "id": "lctech:gold_tank"
   }

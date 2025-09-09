@@ -1,7 +1,9 @@
 {
   "neoforge:conditions": [
     {
-      "type": "lctech:void_tank_craftable"
+      "type": "lightmanscurrency:configured",
+      "fileID": "lctech:common",
+      "option": "crafting.allowVoidTankCrafting"
     }
   ],
   "parent": "minecraft:recipes/root",
