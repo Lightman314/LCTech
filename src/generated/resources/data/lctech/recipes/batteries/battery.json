@@ -4,7 +4,9 @@
     {
       "conditions": [
         {
-          "type": "lctech:batteries_craftable"
+          "type": "lightmanscurrency:configured",
+          "fileID": "lctech:common",
+          "option": "crafting.allowBatteryCrafting"
         }
       ],
       "recipe": {

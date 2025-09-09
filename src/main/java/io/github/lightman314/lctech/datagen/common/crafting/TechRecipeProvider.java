@@ -34,8 +34,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
 
     @Override
     protected void buildRecipes(@Nonnull Consumer<FinishedRecipe> consumer) {
-
-        TechCraftingConditions.register();
+        
         LCCraftingConditions.register();
 
         //Battery Recipes
@@ -49,7 +48,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.INGOTS_COPPER)
                 .define('r', Tags.Items.DUSTS_REDSTONE)
-                .save(makeConditional(ID("batteries/battery"), consumer, TechCraftingConditions.Batteries.INSTANCE));
+                .save(makeConditional(ID("batteries/battery"), consumer, TechCraftingConditions.BATTERIES));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.BATTERY_LARGE.get())
                 .unlockedBy("redstone", LazyTrigger(Tags.Items.DUSTS_REDSTONE))
@@ -61,7 +60,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('c', Tags.Items.INGOTS_COPPER)
                 .define('r', Tags.Items.STORAGE_BLOCKS_REDSTONE)
-                .save(makeConditional(ID("batteries/large_battery"), consumer, TechCraftingConditions.Batteries.INSTANCE));
+                .save(makeConditional(ID("batteries/large_battery"), consumer, TechCraftingConditions.BATTERIES));
 
         //Fluid Tanks
         GenerateTankRecipe(consumer, Tags.Items.INGOTS_IRON, ModBlocks.IRON_TANK);
@@ -77,7 +76,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("glass", LazyTrigger(Tags.Items.GLASS_COLORLESS))
                 .unlocks("bucket", LazyTrigger(Items.BUCKET))
                 .unlocks("previous", LazyTrigger(ModBlocks.DIAMOND_TANK))
-                .save(makeConditional(ItemID("fluid_tanks/", ModBlocks.NETHERITE_TANK), consumer, TechCraftingConditions.FluidTank.INSTANCE), ItemID("fluid_tanks/", ModBlocks.NETHERITE_TANK));
+                .save(makeConditional(ItemID("fluid_tanks/", ModBlocks.NETHERITE_TANK), consumer, TechCraftingConditions.FLUID_TANK), ItemID("fluid_tanks/", ModBlocks.NETHERITE_TANK));
 
         //Fluid traders
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_TAP.get())
@@ -90,7 +89,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('c', TradingCore())
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('n', Tags.Items.NUGGETS_IRON)
-                .save(makeConditional(ID("traders/fluid/fluid_tap"), consumer, TechCraftingConditions.FluidTrader.INSTANCE));
+                .save(makeConditional(ID("traders/fluid/fluid_tap"), consumer, TechCraftingConditions.FLUID_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_TAP_BUNDLE.get())
                 .unlockedBy("bucket", LazyTrigger(Items.BUCKET))
@@ -103,7 +102,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('x', ModBlocks.FLUID_TAP.get())
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('i', Tags.Items.INGOTS_IRON)
-                .save(makeConditional(ID("traders/fluid/fluid_tap_bundle"), consumer, TechCraftingConditions.FluidTrader.INSTANCE));
+                .save(makeConditional(ID("traders/fluid/fluid_tap_bundle"), consumer, TechCraftingConditions.FLUID_TRADER));
 
         //Fluid Network Traders
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_1.get())
@@ -118,7 +117,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', ModBlocks.IRON_TANK.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_1"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_1"), consumer, TechCraftingConditions.FLUID_TRADER, LCCraftingConditions.NETWORK_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_2.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -128,7 +127,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_1.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_2"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_2"), consumer, TechCraftingConditions.FLUID_TRADER, LCCraftingConditions.NETWORK_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_3.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -138,7 +137,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_2.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_3"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_3"), consumer, TechCraftingConditions.FLUID_TRADER, LCCraftingConditions.NETWORK_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_NETWORK_TRADER_4.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -148,7 +147,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .pattern("txt")
                 .define('t', ModBlocks.IRON_TANK.get())
                 .define('x', ModBlocks.FLUID_NETWORK_TRADER_3.get())
-                .save(makeConditional(ID("traders/network/fluid_network_trader_4"), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
+                .save(makeConditional(ID("traders/network/fluid_network_trader_4"), consumer, TechCraftingConditions.FLUID_TRADER, LCCraftingConditions.NETWORK_TRADER));
 
         //Energy Traders
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.BATTERY_SHOP.get())
@@ -159,7 +158,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('c', TradingCore())
                 .define('b', ModItems.BATTERY.get())
                 .define('i', Tags.Items.INGOTS_IRON)
-                .save(makeConditional(ID("traders/energy/battery_shop"), consumer, TechCraftingConditions.EnergyTrader.INSTANCE));
+                .save(makeConditional(ID("traders/energy/battery_shop"), consumer, TechCraftingConditions.ENERGY_TRADER));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ENERGY_NETWORK_TRADER.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -172,7 +171,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('e', Items.ENDER_EYE)
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('b', ModItems.BATTERY.get())
-                .save(makeConditional(ID("traders/network/energy_network_trader"), consumer, TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.NETWORK_TRADER));
+                .save(makeConditional(ID("traders/network/energy_network_trader"), consumer, TechCraftingConditions.ENERGY_TRADER, LCCraftingConditions.NETWORK_TRADER));
 
         //Trader Interfaces
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FLUID_TRADER_INTERFACE.get())
@@ -184,7 +183,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', ModBlocks.IRON_TANK.get())
-                .save(makeConditional(ItemID(ModBlocks.FLUID_TRADER_INTERFACE), consumer, TechCraftingConditions.FluidTrader.INSTANCE, LCCraftingConditions.TRADER_INTERFACE));
+                .save(makeConditional(ItemID(ModBlocks.FLUID_TRADER_INTERFACE), consumer, TechCraftingConditions.FLUID_TRADER, LCCraftingConditions.TRADER_INTERFACE));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.ENERGY_TRADER_INTERFACE.get())
                 .unlockedBy("trader", TraderKnowledge())
@@ -195,7 +194,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('i', Tags.Items.INGOTS_IRON)
                 .define('t', LCTags.Items.NETWORK_TERMINAL)
                 .define('c', ModItems.BATTERY.get())
-                .save(makeConditional(ItemID(ModBlocks.ENERGY_TRADER_INTERFACE), consumer, TechCraftingConditions.EnergyTrader.INSTANCE, LCCraftingConditions.TRADER_INTERFACE));
+                .save(makeConditional(ItemID(ModBlocks.ENERGY_TRADER_INTERFACE), consumer, TechCraftingConditions.ENERGY_TRADER, LCCraftingConditions.TRADER_INTERFACE));
 
         //Fluid Capacity Upgrades
         SmithingTransformRecipeBuilder.smithing(
@@ -206,7 +205,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 ModItems.FLUID_CAPACITY_UPGRADE_1.get())
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("bucket", LazyTrigger(Items.BUCKET))
-                .save(makeConditional(ItemID("upgrades/",ModItems.FLUID_CAPACITY_UPGRADE_1),consumer, TechCraftingConditions.FluidTrader.INSTANCE),"fcu1");
+                .save(makeConditional(ItemID("upgrades/",ModItems.FLUID_CAPACITY_UPGRADE_1),consumer, TechCraftingConditions.FLUID_TRADER),"fcu1");
         SmithingTransformRecipeBuilder.smithing(
                 SmithingTemplate(),
                 Ingredient.of(ModItems.FLUID_CAPACITY_UPGRADE_1.get()),
@@ -216,7 +215,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("bucket", LazyTrigger(Items.BUCKET))
                 .unlocks("previous", LazyTrigger(ModItems.FLUID_CAPACITY_UPGRADE_1))
-                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_2), consumer, TechCraftingConditions.FluidTrader.INSTANCE),"fcu2");
+                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_2), consumer, TechCraftingConditions.FLUID_TRADER),"fcu2");
         SmithingTransformRecipeBuilder.smithing(
                 SmithingTemplate(),
                 Ingredient.of(ModItems.FLUID_CAPACITY_UPGRADE_2.get()),
@@ -226,7 +225,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("bucket", LazyTrigger(Items.BUCKET))
                 .unlocks("previous", LazyTrigger(ModItems.FLUID_CAPACITY_UPGRADE_2))
-                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.FluidTrader.INSTANCE),"fcu3");
+                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.FLUID_TRADER),"fcu3");
         SmithingTransformRecipeBuilder.smithing(
                         SmithingTemplate(),
                         Ingredient.of(ModItems.FLUID_CAPACITY_UPGRADE_3.get()),
@@ -236,7 +235,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("bucket", LazyTrigger(Items.BUCKET))
                 .unlocks("previous", LazyTrigger(ModItems.FLUID_CAPACITY_UPGRADE_3))
-                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_4), consumer, TechCraftingConditions.FluidTrader.INSTANCE),"fcu4");
+                .save(makeConditional(ItemID("upgrades/", ModItems.FLUID_CAPACITY_UPGRADE_4), consumer, TechCraftingConditions.FLUID_TRADER),"fcu4");
 
         //Energy Capacity Upgrades
         SmithingTransformRecipeBuilder.smithing(
@@ -247,7 +246,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 ModItems.ENERGY_CAPACITY_UPGRADE_1.get())
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("battery", LazyTrigger(TechTags.Items.BATTERIES))
-                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_1), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu1");
+                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_1), consumer, TechCraftingConditions.ENERGY_TRADER),"ecu1");
 
         SmithingTransformRecipeBuilder.smithing(
                 SmithingTemplate(),
@@ -258,7 +257,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("battery", LazyTrigger(TechTags.Items.BATTERIES))
                 .unlocks("previous", LazyTrigger(ModItems.ENERGY_CAPACITY_UPGRADE_1))
-                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_2), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu2");
+                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_2), consumer, TechCraftingConditions.ENERGY_TRADER),"ecu2");
 
         SmithingTransformRecipeBuilder.smithing(
                         SmithingTemplate(),
@@ -269,7 +268,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("battery", LazyTrigger(TechTags.Items.BATTERIES))
                 .unlocks("previous", LazyTrigger(ModItems.ENERGY_CAPACITY_UPGRADE_2))
-                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu3");
+                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_3), consumer, TechCraftingConditions.ENERGY_TRADER),"ecu3");
 
         SmithingTransformRecipeBuilder.smithing(
                         SmithingTemplate(),
@@ -280,7 +279,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlocks("trader", TraderKnowledge())
                 .unlocks("battery", LazyTrigger(TechTags.Items.BATTERIES))
                 .unlocks("previous", LazyTrigger(ModItems.ENERGY_CAPACITY_UPGRADE_3))
-                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_4), consumer, TechCraftingConditions.EnergyTrader.INSTANCE),"ecu4");
+                .save(makeConditional(ItemID("upgrades/",ModItems.ENERGY_CAPACITY_UPGRADE_4), consumer, TechCraftingConditions.ENERGY_TRADER),"ecu4");
 
 
         //0.2.1.3
@@ -295,7 +294,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .define('m', Tags.Items.OBSIDIAN)
                 .define('g', Tags.Items.GLASS_COLORLESS)
                 .define('e', Tags.Items.ENDER_PEARLS)
-                .save(makeConditional(ID("fluid_tanks/void_tank"), consumer, TechCraftingConditions.VoidTank.INSTANCE));
+                .save(makeConditional(ID("fluid_tanks/void_tank"), consumer, TechCraftingConditions.VOID_TANK));
 
     }
 
@@ -310,7 +309,7 @@ public class TechRecipeProvider extends EasyRecipeProvider {
                 .unlockedBy("bucket", LazyTrigger(Items.BUCKET))
                 .define('m', ingredient)
                 .define('g', Tags.Items.GLASS_COLORLESS)
-                .save(makeConditional(ItemID("fluid_tanks/", result), consumer, TechCraftingConditions.FluidTank.INSTANCE));
+                .save(makeConditional(ItemID("fluid_tanks/", result), consumer, TechCraftingConditions.FLUID_TANK));
     }
 
     private static String ItemPath(ItemLike item) { return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath(); }

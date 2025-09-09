@@ -60,7 +60,9 @@
       },
       "conditions": [
         {
-          "type": "lctech:fluid_tank_craftable"
+          "type": "lightmanscurrency:configured",
+          "fileID": "lctech:common",
+          "option": "crafting.allowFluidTankCrafting"
         }
       ]
     }

@@ -4,7 +4,9 @@
     {
       "conditions": [
         {
-          "type": "lctech:energy_trader_craftable"
+          "type": "lightmanscurrency:configured",
+          "fileID": "lctech:common",
+          "option": "crafting.allowEnergyTraderCrafting"
         },
         {
           "type": "lightmanscurrency:configured",

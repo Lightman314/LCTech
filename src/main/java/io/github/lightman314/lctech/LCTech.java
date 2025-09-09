@@ -22,7 +22,6 @@ import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.terminal.filters.FluidTraderSearchFilter;
 import io.github.lightman314.lctech.common.core.ModRegistries;
-import io.github.lightman314.lctech.common.crafting.condition.TechCraftingConditions;
 import io.github.lightman314.lctech.network.LCTechPacketHandler;
 import io.github.lightman314.lctech.proxy.*;
 
@@ -75,9 +74,6 @@ public class LCTech
         //Register custom notification types
         NotificationAPI.registerNotification(FluidTradeNotification.TYPE);
         NotificationAPI.registerNotification(EnergyTradeNotification.TYPE);
-
-        //Register Crafting Conditions
-        TechCraftingConditions.register();
 
         //Register Custom Upgrade Targets
         Upgrades.TRADE_OFFERS.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());
