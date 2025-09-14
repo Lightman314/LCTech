@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -33,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -97,6 +99,9 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		this.trades = FluidTradeData.listOfSize(tradeCount, true);
 		this.baseTradeCount = tradeCount;
 	}
+
+    @Override
+    public List<TradeDirection> validDirectionOptions() { return ImmutableList.of(TradeDirection.SALE,TradeDirection.PURCHASE); }
 
 	@Override
 	protected void registerNodes(Consumer<SettingsNode> builder) {
