@@ -39,7 +39,11 @@ public class EnergyTradeData extends TradeData {
 	
 	TradeDirection tradeDirection = TradeDirection.SALE;
 	public TradeDirection getTradeDirection() { return this.tradeDirection; }
-	public void setTradeDirection(TradeDirection direction) { this.tradeDirection = direction; }
+    @Override
+    public void setTradeDirection(TradeDirection type) {
+        if(type == TradeDirection.SALE || type == TradeDirection.PURCHASE)
+            this.tradeDirection = type;
+    }
 	public boolean isSale() { return this.tradeDirection == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeDirection == TradeDirection.PURCHASE; }
 	

@@ -32,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -120,6 +121,9 @@ public class EnergyTraderData extends InputTraderData {
 	
 	private EnergyTraderData() { super(TYPE);}
 	public EnergyTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
+
+    @Override
+    public List<TradeDirection> validDirectionOptions() { return ImmutableList.of(TradeDirection.SALE,TradeDirection.PURCHASE); }
 
 	@Override
 	protected void registerNodes(Consumer<SettingsNode> builder) {

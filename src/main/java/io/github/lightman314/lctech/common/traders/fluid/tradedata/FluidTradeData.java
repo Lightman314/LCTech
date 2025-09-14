@@ -64,7 +64,11 @@ public class FluidTradeData extends TradeData {
 
 	TradeDirection tradeDirection = TradeDirection.SALE;
 	public TradeDirection getTradeDirection() { return this.tradeDirection; }
-	public void setTradeDirection(TradeDirection type) { this.tradeDirection = type; }
+    @Override
+	public void setTradeDirection(TradeDirection type) {
+        if(type == TradeDirection.SALE || type == TradeDirection.PURCHASE)
+            this.tradeDirection = type;
+    }
 	public boolean isSale() { return this.tradeDirection == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeDirection == TradeDirection.PURCHASE; }
 
