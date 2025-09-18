@@ -69,7 +69,7 @@ public class TechEnglishProvider extends TranslationProvider {
         this.translate(TechText.TOOLTIP_FLUID_SETTINGS_FILL_DISABLED,"External Filling is DISABLED");
         this.translate(TechText.TOOLTIP_SETTINGS_INPUT_FLUID,"External Fluid Input & Output");
         this.translate(TechText.TOOLTIP_TRADER_FLUID_EDIT,"Click to Set Fluid");
-        this.translate(TechText.TOOLTIP_TRADE_INFO_FLUID_QUANTITY,"%1$s Bucket(s) (%1$smB)");
+        this.translate(TechText.TOOLTIP_TRADE_INFO_FLUID_QUANTITY,"%1$s Bucket(s) (%2$smB)");
 
         //Energy Menu Text
         this.translate(TechText.GUI_SETTINGS_ENERGY_DRAINMODE,"Allow Output: %s");
