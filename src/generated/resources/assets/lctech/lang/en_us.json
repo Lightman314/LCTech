@@ -45,7 +45,7 @@
   "tooltip.lctech.fluid.interact": "Click with fluid container to fill/empty",
   "tooltip.lctech.fluid.pending_drain": "Waiting to drain %smB of fluid",
   "tooltip.lctech.fluid_tank.capacity": "Holds up to %smB",
-  "tooltip.lctech.fluid_trade.info.quantity": "%1$s Bucket(s) (%1$smB)",
+  "tooltip.lctech.fluid_trade.info.quantity": "%1$s Bucket(s) (%2$smB)",
   "tooltip.lctech.interface.energy.1": "Energy Trader Interface Terminal:",
   "tooltip.lctech.interface.energy.2": "Trades: 1-4",
   "tooltip.lctech.interface.energy.3": "Can be used to automatically purchase or sell energy from any network energy trader",
