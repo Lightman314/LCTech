@@ -5,6 +5,9 @@ import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTrade
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -15,27 +18,26 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTradeEditTab> implements TradeInteractionHandler, IMouseListener {
 
 	public EnergyTradeEditClientTab(Object screen, EnergyTradeEditTab commonTab) { super(screen, commonTab); }
 
-	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModItems.TRADING_CORE); }
+	public IconData getIcon() { return IconUtil.ICON_TRADER; }
 
 	@Override
 	public MutableComponent getTooltip() { return EasyText.empty(); }
@@ -98,7 +100,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	protected void closeAction() { this.selection = -1; }
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 
 		if(this.getTrade() == null)
 			return;
@@ -107,8 +109,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 
 		//Render an arrow to the left of the selected position
 		gui.resetColor();
-		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
-
+        SpriteUtil.SMALL_ARROW_DOWN.render(gui,this.getArrowPosition(),10);
 		if(this.selection >= 0)
 			gui.drawShadowed(EnergyUtil.ENERGY_UNIT, this.screen.getXSize() - 20 - gui.font.width(EnergyUtil.ENERGY_UNIT), 78, 0xFFFFFF);
 
@@ -140,7 +141,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	protected void OpenMessage(@Nonnull LazyPacketData message) {
+	protected void OpenMessage(LazyPacketData message) {
 		if(message.contains("TradeIndex"))
 			this.commonTab.setTradeIndex(message.getInt("TradeIndex"));
 		if(message.contains("StartingSlot"))
@@ -148,7 +149,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void HandleTradeInputInteraction(@Nonnull TraderData traderData, @Nonnull TradeData trade, @Nonnull TradeInteractionData tradeInteractionData, int i) {
+	public void HandleTradeInputInteraction(TraderData traderData, TradeData trade, TradeInteractionData tradeInteractionData, int i) {
 		if(trade instanceof EnergyTradeData t)
 		{
 			if(t.isSale())
@@ -159,7 +160,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void HandleTradeOutputInteraction(@Nonnull TraderData traderData, @Nonnull TradeData trade, @Nonnull TradeInteractionData tradeInteractionData, int i) {
+	public void HandleTradeOutputInteraction(TraderData traderData, TradeData trade, TradeInteractionData tradeInteractionData, int i) {
 		if(trade instanceof EnergyTradeData t)
 		{
 			if(t.isSale())
@@ -170,7 +171,7 @@ public class EnergyTradeEditClientTab extends TraderStorageClientTab<EnergyTrade
 	}
 
 	@Override
-	public void HandleOtherTradeInteraction(@Nonnull TraderData traderData, @Nonnull TradeData tradeData, @Nonnull TradeInteractionData tradeInteractionData) {
+	public void HandleOtherTradeInteraction(TraderData traderData, TradeData tradeData, TradeInteractionData tradeInteractionData) {
 
 	}
 

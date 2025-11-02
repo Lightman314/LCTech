@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechText;
+import io.github.lightman314.lctech.client.gui.TechSprites;
 import io.github.lightman314.lctech.common.blockentities.FluidTraderInterfaceBlockEntity;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.blockentities.handler.FluidInterfaceHandler;
@@ -17,6 +17,8 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.client.widget.DirectionalSettingsWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
@@ -29,23 +31,22 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorageTab> implements IScrollable, IMouseListener {
-	
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "textures/gui/fluid_trade_extras.png");
-	
+
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
 	private static final int TANKS = 8;
@@ -57,10 +58,9 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	public FluidStorageClientTab(Object screen, FluidStorageTab commonTab) { super(screen, commonTab); }
 
 	int scroll = 0;
-	
-	@Nonnull
+
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
+	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.IRON_TANK); }
 	
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_STORAGE.get(); }
@@ -100,7 +100,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	}
 	
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 
 		gui.drawString(LCText.TOOLTIP_INTERFACE_STORAGE.get(), 8, 6, 0x404040);
 		
@@ -120,12 +120,12 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 				//ItemRenderUtil.drawItemStack(this.screen, this.font, FluidItemUtil.getFluidDisplayItem(entry.filter), xPos + 1, yPos);
 				//Render the tank bg
 				gui.resetColor();
-				gui.blit(GUI_TEXTURE, xPos, yPos, 36, 16, 18, 53);
+                TechSprites.TANK_BACKGROUND.render(gui,xPos,yPos,53);
 				//Render the fluid in the tank
 				FluidRenderUtil.drawFluidTankInGUI(entry.filter, this.screen.getCorner(), xPos + 1, yPos + 1, 16, 51, (float)entry.getStoredAmount() / (float)storage.getTankCapacity());
 				//Render the tank overlay (glass)
 				gui.resetColor();
-				gui.blit(GUI_TEXTURE, xPos, yPos, 54, 16, 18, 53);
+                TechSprites.TANK_FOREGROUND.render(gui,xPos,yPos,53);
 				
 				index++;
 			}
@@ -133,8 +133,8 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 			//Render the slot bg for the upgrade slots
 			gui.resetColor();
 			for(Slot slot : this.commonTab.getSlots())
-				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
-			
+                gui.renderSlot(this.screen,slot);
+
 			//Render the input/output labels
 			TextRenderUtil.drawCenteredText(gui,LCText.GUI_SETTINGS_INPUT_SIDE.get(),this.screen.getXSize() / 2, WIDGET_OFFSET, 0x404040);
 			
@@ -143,7 +143,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 	}
 	
 	@Override
-	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+	public void renderAfterWidgets(EasyGuiGraphics gui) {
 		
 		if(this.menu.getBE() instanceof FluidTraderInterfaceBlockEntity be)
 		{
@@ -239,7 +239,7 @@ public class FluidStorageClientTab extends TraderInterfaceClientTab<FluidStorage
 
 	@Nullable
 	@Override
-	public Pair<FluidStack, ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) {
+	public Pair<FluidStack, ScreenArea> getHoveredFluid(ScreenPosition mousePos) {
 
 		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
 		int topEdge = this.screen.getGuiTop() + Y_OFFSET;

@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.proxy;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.client.gui.widget.FluidEditWidget;
 import io.github.lightman314.lctech.client.renderer.blockentity.FluidTankBlockEntityRenderer;
 import io.github.lightman314.lctech.client.renderer.blockentity.FluidTraderBlockEntityRenderer;
@@ -9,6 +10,7 @@ import io.github.lightman314.lctech.common.blockentities.fluid_tank.FluidTankBlo
 import io.github.lightman314.lctech.common.blockentities.fluid_tank.TankStackCache;
 import io.github.lightman314.lctech.common.blocks.IFluidTankBlock;
 import io.github.lightman314.lctech.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -19,7 +21,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
 public class ClientProxy extends CommonProxy{
@@ -28,11 +32,14 @@ public class ClientProxy extends CommonProxy{
 	public boolean isClient() { return true; }
 
 	@Override
-	public void init(IEventBus eventBus) {
+	public void init(IEventBus eventBus, ModContainer container) {
 		//Setup Register Variant Properties event
 		eventBus.addListener(this::registerVariantProperties);
 		//Register normal event listeners
 		NeoForge.EVENT_BUS.register(this);
+
+        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigSelectionScreen.createFactory(TechConfig.COMMON,TechConfig.SERVER));
+
 	}
 
 	@Override

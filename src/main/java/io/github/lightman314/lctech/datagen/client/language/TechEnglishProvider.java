@@ -1,6 +1,7 @@
 package io.github.lightman314.lctech.datagen.client.language;
 
 import io.github.lightman314.lctech.LCTech;
+import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lightmanscurrency.datagen.client.language.TranslationProvider;
 import net.minecraft.data.PackOutput;
@@ -10,7 +11,7 @@ public class TechEnglishProvider extends TranslationProvider {
     public TechEnglishProvider(PackOutput output) { super(output, LCTech.MODID, "en_us"); }
 
     @Override
-    protected void addTranslations() {
+    protected void createTranslations() {
 
         //Items
         this.translate(TechText.ITEM_FLUID_SHARD,"Fluid Shard");
@@ -101,6 +102,50 @@ public class TechEnglishProvider extends TranslationProvider {
         //Data
         this.translate(TechText.DATA_ENTRY_TRADER_TRADE_FLUID,"Fluid: %2$sB of %1$s");
         this.translate(TechText.DATA_ENTRY_TRADER_TRADE_ENERGY,"Energy");
+
+
+        //Config Options
+        //Common Config
+        this.translateConfigName(TechConfig.COMMON,"Common Config");
+        this.translateConfigSection(TechConfig.COMMON,"crafting","Crafting Settings","/reload required for any changes made here to take effect.", "Disabling will not remove any existing items/blocks from the world, nor prevent their use.");
+        this.translateConfigOption(TechConfig.COMMON.canCraftFluidTraders,"Fluid Traders","Whether Fluid Traders can be crafted.","Also affects crafting of fluid trader accessories (Fluid Trader Interface, Fluid Capacity Upgrades, etc.)");
+        this.translateConfigOption(TechConfig.COMMON.canCraftFluidTanks,"Fluid Tanks","Whether Fluid Tanks can be crafted.");
+        this.translateConfigOption(TechConfig.COMMON.canCraftVoidTanks,"Void Tank","Whether the Void Tank can be crafted.");
+        this.translateConfigOption(TechConfig.COMMON.canCraftEnergyTraders,"Energy Traders","Whether Energy Traders can be crafted.","Also affects crafting of energy trader accessories (Energy Trader Interface, Energy Capacity Upgrades, etc.)");
+        this.translateConfigOption(TechConfig.COMMON.canCraftBatteries,"Batteries","Whether Batteries can be crafted.");
+
+        //Server Config
+        this.translateConfigName(TechConfig.SERVER,"Server Config");
+        this.translateConfigSection(TechConfig.SERVER,"fluid","Fluid Settings");
+        this.translateConfigSection(TechConfig.SERVER,"fluid.trader","Fluid Trader Settings");
+        this.translateConfigOption(TechConfig.SERVER.fluidTraderDefaultStorage,"Default Fluid Storage","The amount of fluid storage a fluid trade has by default in Buckets (1,000mB).");
+        this.translateConfigOption(TechConfig.SERVER.fluidTradeMaxQuantity,"Trade Fluid Limit","The maximum quantity of fluids allowed to be sold or purchased in a single trade in Buckets (1,000mB).", "Regardless of the input, it will always be enforced to be less than or equal to the fluid trades current maximum capacity.");
+        this.translateConfigSection(TechConfig.SERVER,"fluid.tank","Fluid Tank Settings");
+        this.translateConfigOption(TechConfig.SERVER.ironTankCapacity,"Iron Tank Capacity","The amount of fluid storage the Iron Tank can hold in Buckets (1,000mB)");
+        this.translateConfigOption(TechConfig.SERVER.goldTankCapacity,"Gold Tank Capacity","The amount of fluid storage the Gold Tank can hold in Buckets (1,000mB)");
+        this.translateConfigOption(TechConfig.SERVER.diamondTankCapacity,"Diamond Tank Capacity","The amount of fluid storage the Diamond Tank can hold in Buckets (1,000mB)");
+        this.translateConfigOption(TechConfig.SERVER.netheriteTankCapacity,"Netherite Tank Capacity","The amount of fluid storage the Netherite Tank can hold in Buckets (1,000mB)");
+        this.translateConfigSection(TechConfig.SERVER,"fluid.upgrades","Fluid Upgrade Settings");
+        this.translateConfigOption(TechConfig.SERVER.fluidUpgradeCapacity1,"T1 Capacity","The amount of fluid storage added by the Fluid Capacity upgrade (Iron) in Buckets (1,000mB)");
+        this.translateConfigOption(TechConfig.SERVER.fluidUpgradeCapacity2,"T2 Capacity","The amount of fluid storage added by the Fluid Capacity upgrade (Gold) in Buckets (1,000mB)");
+        this.translateConfigOption(TechConfig.SERVER.fluidUpgradeCapacity3,"T3 Capacity","The amount of fluid storage added by the Fluid Capacity upgrade (Diamond) in Buckets (1,000mB)");
+        this.translateConfigOption(TechConfig.SERVER.fluidUpgradeCapacity4,"T4 Capacity","The amount of fluid storage added by the Fluid Capacity upgrade (Netherite) in Buckets (1,000mB)");
+        this.translateConfigSection(TechConfig.SERVER,"fluid.interface","Fluid Trader Interface Settings");
+        this.translateConfigOption(TechConfig.SERVER.fluidRestockSpeed,"Restock Rate","The amount of fluid in mB that can be drained or restocked in a single drain tick (once per second).");
+        this.translateConfigSection(TechConfig.SERVER,"energy","Energy Settings");
+        this.translateConfigSection(TechConfig.SERVER,"energy.trader","Energy Trader Settings");
+        this.translateConfigOption(TechConfig.SERVER.energyTraderDefaultStorage,"Default Energy Storage","The amount of FE an energy trader can store by default.");
+        this.translateConfigOption(TechConfig.SERVER.energyTradeMaxQuantity,"Trade Energy Limit","The maximum amount of FE an energy trader can sell or purchase in a single trade.",  "Regardless of the input, it will always be enforced to be less than or equal to the energy traders current maximum capacity");
+        this.translateConfigSection(TechConfig.SERVER,"energy.battery","Battery Settings");
+        this.translateConfigOption(TechConfig.SERVER.batteryCapacity,"Battery Capacity","The amount of FE a Battery can hold.");
+        this.translateConfigOption(TechConfig.SERVER.largeBatteryCapacity,"Large Battery Capacity","The amount of FE a Large Battery can hold.");
+        this.translateConfigSection(TechConfig.SERVER,"energy.upgrades","Energy Upgrade Settings");
+        this.translateConfigOption(TechConfig.SERVER.energyUpgradeCapacity1,"T1 Capacity","The amount of energy storage added by the Energy Capacity Upgrade (Iron).");
+        this.translateConfigOption(TechConfig.SERVER.energyUpgradeCapacity2,"T2 Capacity","The amount of energy storage added by the Energy Capacity Upgrade (Gold).");
+        this.translateConfigOption(TechConfig.SERVER.energyUpgradeCapacity3,"T3 Capacity","The amount of energy storage added by the Energy Capacity Upgrade (Diamond).");
+        this.translateConfigOption(TechConfig.SERVER.energyUpgradeCapacity4,"T4 Capacity","The amount of energy storage added by the Energy Capacity Upgrade (Netherite).");
+        this.translateConfigSection(TechConfig.SERVER,"energy.interface","Energy Interface Settings");
+        this.translateConfigOption(TechConfig.SERVER.energyRestockSpeed,"Restock Rate","The amount of FE that can be drained or restocked in a single drain tick (once per second).");
 
     }
 }

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -21,8 +22,6 @@ import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.terminal.filters.FluidTraderSearchFilter;
 import io.github.lightman314.lctech.common.core.ModRegistries;
 import io.github.lightman314.lctech.proxy.*;
-
-import javax.annotation.Nonnull;
 
 @Mod("lctech")
 public class LCTech
@@ -42,7 +41,7 @@ public class LCTech
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public LCTech(@Nonnull IEventBus bus) {
+    public LCTech(ModContainer container, IEventBus bus) {
     	
         // Register the setup method for modloading
         bus.addListener(this::doCommonStuff);
@@ -56,7 +55,7 @@ public class LCTech
         ModRegistries.register(bus);
 
         //Register the proxy so that it can run custom events
-        PROXY.init(bus);
+        PROXY.init(bus,container);
 
     }
 
@@ -65,15 +64,15 @@ public class LCTech
     private void commonSetupWork() {
 
         //Register Trader Search Filters
-        TraderAPI.API.RegisterSearchFilter(new FluidTraderSearchFilter());
+        TraderAPI.getApi().RegisterSearchFilter(new FluidTraderSearchFilter());
 
         //Register the universal data deserializer
-        TraderAPI.API.RegisterTrader(FluidTraderData.TYPE);
-        TraderAPI.API.RegisterTrader(EnergyTraderData.TYPE);
+        TraderAPI.getApi().RegisterTrader(FluidTraderData.TYPE);
+        TraderAPI.getApi().RegisterTrader(EnergyTraderData.TYPE);
 
         //Register custom notification types
-        NotificationAPI.registerNotification(FluidTradeNotification.TYPE);
-        NotificationAPI.registerNotification(EnergyTradeNotification.TYPE);
+        NotificationAPI.getApi().RegisterNotification(FluidTradeNotification.TYPE);
+        NotificationAPI.getApi().RegisterNotification(EnergyTradeNotification.TYPE);
 
         //Register Custom Upgrade Targets
         Upgrades.TRADE_OFFERS.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());

@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.common.traders.fluid.tradedata.client;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.TechText;
-import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.fluid.FluidStorageClientTab;
+import io.github.lightman314.lctech.client.gui.TechSprites;
 import io.github.lightman314.lctech.client.gui.widget.button.trade.SpriteDisplayEntry;
 import io.github.lightman314.lctech.common.menu.slots.FluidInputSlot;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
@@ -16,12 +16,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData> {
 
     public FluidTradeButtonRenderer(FluidTradeData trade) { super(trade); }
@@ -91,7 +95,7 @@ public class FluidTradeButtonRenderer extends TradeRenderManager<FluidTradeData>
             entries.add(DisplayEntry.of(FluidInputSlot.BACKGROUND, TechText.TOOLTIP_TRADER_FLUID_EDIT.getAsList()));
         //Add drainage entry if draining is allowed
         if(this.allowsDrainage(context))
-            entries.add(SpriteDisplayEntry.of(FluidStorageClientTab.GUI_TEXTURE, 0, 0, 8, 8, TechText.TOOLTIP_TRADE_DRAINABLE.getAsList()));
+            entries.add(SpriteDisplayEntry.of(TechSprites.DRAINABLE_ACTIVE, TechText.TOOLTIP_TRADE_DRAINABLE.getAsList()));
         return entries;
     }
 

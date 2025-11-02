@@ -2,7 +2,7 @@ package io.github.lightman314.lctech.common.traders.energy.tradedata.client;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lctech.TechText;
-import io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.energy.EnergyStorageClientTab;
+import io.github.lightman314.lctech.client.gui.TechSprites;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
 import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
@@ -17,12 +17,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeData> {
 
     public EnergyTradeButtonRenderer(EnergyTradeData trade) { super(trade); }
@@ -48,7 +52,7 @@ public class EnergyTradeButtonRenderer extends TradeRenderManager<EnergyTradeDat
             Optional<ScreenPosition> arrowPosOptional = this.arrowPosition(context);
             arrowPosOptional.ifPresent(arrowPos -> {
                 gui.pushOffsetZero();
-                gui.blit(EnergyStorageClientTab.GUI_TEXTURE, button.getX() + arrowPos.x, button.getY() + arrowPos.y + 9, 36, 18, 8, 7);
+                TechSprites.DRAINABLE_ACTIVE.render(gui,button.getX() + arrowPos.x,button.getY() + arrowPos.y + 9);
                 gui.popOffset();
             });
         }

@@ -3,11 +3,10 @@ package io.github.lightman314.lctech.client.gui.screen.inventory.traderstorage.f
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechText;
+import io.github.lightman314.lctech.client.gui.TechSprites;
 import io.github.lightman314.lctech.client.util.FluidRenderUtil;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
@@ -18,31 +17,32 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTab> implements IScrollable, IMouseListener {
-	
-	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(LCTech.MODID, "textures/gui/fluid_trade_extras.png");
-	
+
 	private static final int X_OFFSET = 13;
 	private static final int Y_OFFSET = 17;
 	private static final int TANKS = 8;
@@ -52,10 +52,9 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	int scroll = 0;
 	
 	ScrollBarWidget scrollBar;
-	
-	@Nonnull
+
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.IRON_TANK); }
+	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.IRON_TANK); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_STORAGE.get(); }
@@ -81,7 +80,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 
 		gui.drawString(LCText.TOOLTIP_TRADER_STORAGE.get(), 8, 6, 0x404040);
 		
@@ -103,32 +102,32 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 				gui.resetColor();
 				if(trader.drainCapable())
 				{
-					gui.blit(GUI_TEXTURE, xPos + 1, yPos + 16, entry.drainable ? 0 : 8, 0, 8, 8);
-					gui.blit(GUI_TEXTURE, xPos + 9, yPos + 16, entry.fillable ? 16 : 24, 0, 8, 8);
+                    FixedSizeSprite drainSprite = entry.drainable ? TechSprites.DRAINABLE_ACTIVE : TechSprites.DRAINABLE_INACTIVE;
+                    drainSprite.render(gui,xPos + 1, yPos + 16);
+                    FixedSizeSprite fillSprite = entry.fillable ? TechSprites.FILLABLE_ACTIVE : TechSprites.FILLABLE_INACTIVE;
+                    fillSprite.render(gui, xPos + 9, yPos + 16);
 				}
 				//Render the tank bg
-				gui.blit(GUI_TEXTURE, xPos, yPos + 24, 0, 16, 18, 66);
+                TechSprites.TANK_BACKGROUND.render(gui,xPos,yPos + 24,66);
 				//Render the fluid in the tank
 				FluidRenderUtil.drawFluidTankInGUI(entry.filter, this.screen.getCorner(), xPos + 1, yPos + 25, 16, 64, (float)entry.getStoredAmount() / (float)storage.getTankCapacity());
 				//Render the tank overlay (glass)
 				gui.resetColor();
-				gui.blit(GUI_TEXTURE, xPos, yPos + 24, 18, 16, 18, 66);
+                TechSprites.TANK_FOREGROUND.render(gui,xPos,yPos + 24, 66);
 				
 				index++;
 			}
 			
 			//Render the slot bg for the upgrade slots
-			RenderSystem.setShaderTexture(0, TraderScreen.GUI_TEXTURE);
-			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			gui.resetColor();
 			for(Slot slot : this.commonTab.getSlots())
-				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
+                gui.renderSlot(this.screen,slot);
 		}
 		
 	}
 
 	@Override
-	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+	public void renderAfterWidgets(EasyGuiGraphics gui) {
 		if(this.menu.getTrader() instanceof FluidTraderData)
 		{
 			TraderFluidStorage storage = ((FluidTraderData)this.menu.getTrader()).getStorage();
@@ -261,7 +260,7 @@ public class FluidStorageClientTab extends TraderStorageClientTab<FluidStorageTa
 
 	@Nullable
 	@Override
-	public Pair<FluidStack, ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) {
+	public Pair<FluidStack, ScreenArea> getHoveredFluid(ScreenPosition mousePos) {
 
 		int leftEdge = this.screen.getGuiLeft() + X_OFFSET;
 		int topEdge = this.screen.getGuiTop() + Y_OFFSET + 24;
