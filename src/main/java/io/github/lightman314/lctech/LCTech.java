@@ -65,15 +65,15 @@ public class LCTech
         LCTechPacketHandler.init();
 
         //Register Trader Search Filters
-        TraderAPI.API.RegisterSearchFilter(new FluidTraderSearchFilter());
+        TraderAPI.getApi().RegisterSearchFilter(new FluidTraderSearchFilter());
 
         //Register the universal data deserializer
-        TraderAPI.API.RegisterTrader(FluidTraderData.TYPE);
-        TraderAPI.API.RegisterTrader(EnergyTraderData.TYPE);
+        TraderAPI.getApi().RegisterTrader(FluidTraderData.TYPE);
+        TraderAPI.getApi().RegisterTrader(EnergyTraderData.TYPE);
 
         //Register custom notification types
-        NotificationAPI.registerNotification(FluidTradeNotification.TYPE);
-        NotificationAPI.registerNotification(EnergyTradeNotification.TYPE);
+        NotificationAPI.getApi().RegisterNotification(FluidTradeNotification.TYPE);
+        NotificationAPI.getApi().RegisterNotification(EnergyTradeNotification.TYPE);
 
         //Register Custom Upgrade Targets
         Upgrades.TRADE_OFFERS.addTarget(TechText.TOOLTIP_UPGRADE_TARGET_TRADER_FLUID.get());

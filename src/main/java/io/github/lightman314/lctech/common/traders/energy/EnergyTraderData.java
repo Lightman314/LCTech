@@ -24,6 +24,8 @@ import io.github.lightman314.lctech.common.menu.traderstorage.energy.EnergyTrade
 import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
@@ -41,7 +43,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -310,7 +311,7 @@ public class EnergyTraderData extends InputTraderData {
 	}
 
 	@Override
-	public IconData inputSettingsTabIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY)); }
+	public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(IBatteryItem.HideEnergyBar(ModItems.BATTERY)); }
 	@Override
 	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_ENERGY.get(); }
 	@Override @OnlyIn(Dist.CLIENT)
@@ -468,7 +469,7 @@ public class EnergyTraderData extends InputTraderData {
 	protected void getAdditionalContents(List<ItemStack> contents) { }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(IBatteryItem.HideEnergyBar(ModItems.BATTERY.get())); }
+	public IconData getIcon() { return ItemIcon.ofItem(IBatteryItem.HideEnergyBar(ModItems.BATTERY.get())); }
 	
 	@Override
 	public boolean hasValidTrade() {

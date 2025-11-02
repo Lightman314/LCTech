@@ -46,7 +46,7 @@ public class TechConfig {
 							"/reload required for changes to take effect.")
 					.add("allowFluidTankCrafting", this.canCraftFluidTanks);
 
-			configBuilder.comment("Wheter the Void Tank can be crafted.",
+			configBuilder.comment("Whether the Void Tank can be crafted.",
 							"Disabling will not remove any existing fluid tanks from the world, nor prevent their use.",
 							"/reload required for changes to take effect.")
 					.add("allowVoidTankCrafting", this.canCraftVoidTanks);
@@ -144,16 +144,16 @@ public class TechConfig {
 
 			configBuilder.comment("Fluid Upgrade Settings").push("upgrades");
 
-			configBuilder.comment("The amount of fluid storage added by the first Fluid Capacity upgrade (Iron) in Buckets (1,000mB)")
+			configBuilder.comment("The amount of fluid storage added by the Fluid Capacity upgrade (Iron) in Buckets (1,000mB)")
 					.add("upgradeCapacity1", this.fluidUpgradeCapacity1);
 
-			configBuilder.comment("The amount of fluid storage added by the second Fluid Capacity upgrade (Gold) in Buckets (1,000mB)")
+			configBuilder.comment("The amount of fluid storage added by the Fluid Capacity upgrade (Gold) in Buckets (1,000mB)")
 					.add("upgradeCapacity2", this.fluidUpgradeCapacity2);
 
-			configBuilder.comment("The amount of fluid storage added by the third Fluid Capacity upgrade (Diamond) in Buckets (1,000mB)")
+			configBuilder.comment("The amount of fluid storage added by the Fluid Capacity upgrade (Diamond) in Buckets (1,000mB)")
 					.add("upgradeCapacity3", this.fluidUpgradeCapacity3);
 
-			configBuilder.comment("The amount of fluid storage added by the fourth Fluid Capacity upgrade (Netherite) in Buckets (1,000mB)")
+			configBuilder.comment("The amount of fluid storage added by the Fluid Capacity upgrade (Netherite) in Buckets (1,000mB)")
 					.add("upgradeCapacity4", this.fluidUpgradeCapacity4);
 
 			configBuilder.pop();
@@ -169,7 +169,7 @@ public class TechConfig {
 
 			configBuilder.comment("Energy Trader Settings").push("trader");
 
-			configBuilder.comment("The amount of FE an energy trader has by default.")
+			configBuilder.comment("The amount of FE an energy trader can store by default.")
 					.add("traderStorage", this.energyTraderDefaultStorage);
 			configBuilder.comment("The maximum amount of FE an energy trader can sell or purchase in a single trade.",
 							"Regardless of the input, it will always be enforced to be less than or equal to the energy traders current maximum capacity")
@@ -189,16 +189,16 @@ public class TechConfig {
 
 			configBuilder.comment("Energy Upgrade Settings").push("upgrades");
 
-			configBuilder.comment("The amount of energy storage added by the first Energy Capacity Upgrade (Iron).")
+			configBuilder.comment("The amount of energy storage added by the Energy Capacity Upgrade (Iron).")
 					.add("upgradeCapacity1", this.energyUpgradeCapacity1);
 
-			configBuilder.comment("The amount of energy storage added by the second Energy Capacity Upgrade (Gold).")
+			configBuilder.comment("The amount of energy storage added by the Energy Capacity Upgrade (Gold).")
 					.add("upgradeCapacity2", this.energyUpgradeCapacity2);
 
-			configBuilder.comment("The amount of energy storage added by the third Energy Capacity Upgrade (Diamond).")
+			configBuilder.comment("The amount of energy storage added by the Energy Capacity Upgrade (Diamond).")
 					.add("upgradeCapacity3", this.energyUpgradeCapacity3);
 
-			configBuilder.comment("The amount of energy storage added by the fourth Energy Capacity Upgrade (Netherite).")
+			configBuilder.comment("The amount of energy storage added by the Energy Capacity Upgrade (Netherite).")
 					.add("upgradeCapacity4", this.energyUpgradeCapacity4);
 
 			configBuilder.pop();

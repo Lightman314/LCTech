@@ -26,6 +26,8 @@ import io.github.lightman314.lctech.common.upgrades.TechUpgradeTypes;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lctech.common.util.icons.FluidIcon;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
@@ -44,7 +46,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
@@ -270,7 +271,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	public IconData inputSettingsTabIcon() { return IconData.of(Items.WATER_BUCKET); }
+	public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.WATER_BUCKET); }
 	@Override
 	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_FLUID.get(); }
 
@@ -427,7 +428,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	}
 
 	@Override
-	public IconData getIcon() { return IconData.of(Items.WATER_BUCKET); }
+	public IconData getIcon() { return ItemIcon.ofItem(Items.WATER_BUCKET); }
 
 	@Override
 	public boolean hasValidTrade() {
@@ -569,7 +570,7 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 		if(fluid != null && !fluid.isEmpty())
 		{
 			fluid.setAmount(FluidType.BUCKET_VOLUME);
-			FluidIcon newIcon = FluidIcon.of(fluid);
+			FluidIcon newIcon = FluidIcon.ofFluid(fluid);
 			//If already a fluid icon, and we attempt to set the icon as the same fluid, use the default icon instead
 			if(originalIcon instanceof FluidIcon fi && newIcon.matches(fi))
 				return super.getIconForItem(stack,originalIcon);

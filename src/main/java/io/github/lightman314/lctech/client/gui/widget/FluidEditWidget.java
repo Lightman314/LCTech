@@ -11,8 +11,8 @@ import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
@@ -160,7 +160,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 				int xPos = x * 18;
 				//Render the slot background
 				gui.resetColor();
-				gui.blit(ItemEditWidget.GUI_TEXTURE, xPos, yPos, 0, 0, 18, 18);
+                SpriteUtil.EMPTY_SLOT_NORMAL.render(gui,xPos,yPos);
 				//Render the slots item
 				gui.renderItem(FluidItemUtil.getFluidDispayItem(this.searchResultFluids.get(index)), xPos + 1, yPos + 1);
 				index++;
@@ -169,7 +169,7 @@ public class FluidEditWidget extends EasyWidgetWithChildren implements IScrollab
 
 		//Render the search field
 		gui.resetColor();
-		gui.blit(ItemEditWidget.GUI_TEXTURE, this.searchOffset, 18, 0, 90, 12);
+        SpriteUtil.SEARCH_FIELD.render(gui,this.searchOffset,90);
 
 	}
 
