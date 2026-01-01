@@ -193,7 +193,6 @@ public class TraderFluidStorage implements IFluidHandler {
 	
 	@Override
 	public int getTanks() { return this.tanks.size(); }
-
 	
 	@Nonnull
 	@Override

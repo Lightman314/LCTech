@@ -9,7 +9,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
 
@@ -24,7 +23,7 @@ public class FluidTraderSearchFilter implements IBasicTraderFilter {
 			search.processFilter(FLUID,filterFluid(trade.getProduct()));
 	}
 
-	public static Predicate<String> filterFluid(@Nonnull FluidStack fluid)
+	public static Predicate<String> filterFluid(FluidStack fluid)
 	{
 		return (input) -> {
 			if(input.isBlank())

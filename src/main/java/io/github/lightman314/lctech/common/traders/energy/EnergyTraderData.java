@@ -13,7 +13,6 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.TechText;
-import io.github.lightman314.lctech.client.gui.settings.energy.EnergyInputAddon;
 import io.github.lightman314.lctech.common.items.IBatteryItem;
 import io.github.lightman314.lctech.common.notifications.types.EnergyTradeNotification;
 import io.github.lightman314.lctech.common.traders.energy.settings.EnergyTradeSettings;
@@ -36,7 +35,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.input.InputTabAddon;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.*;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -54,14 +52,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -302,14 +297,6 @@ public class EnergyTraderData extends InputTraderData {
 	public void addEnergy(int amount) { this.energyStorage += amount; }
 	
 	public void markEnergyStorageDirty() { this.markDirty(this::saveEnergyStorage); }
-
-	@Override
-	public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(IBatteryItem.HideEnergyBar(ModItems.BATTERY)); }
-	@Override
-	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_ENERGY.get(); }
-	@Override @OnlyIn(Dist.CLIENT)
-	public List<InputTabAddon> inputSettingsAddons() { return ImmutableList.of(EnergyInputAddon.INSTANCE); }
-
 
 	@Override
 	public void handleSettingsChange(Player player, LazyPacketData message) {

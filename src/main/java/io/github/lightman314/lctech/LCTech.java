@@ -1,9 +1,11 @@
 package io.github.lightman314.lctech;
 
 import io.github.lightman314.lctech.common.util.icons.FluidIcon;
+import io.github.lightman314.lctech.integration.computercraft.TechComputerLauncher;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -56,6 +58,8 @@ public class LCTech
 
         //Register the proxy so that it can run custom events
         PROXY.init(bus,container);
+
+        IntegrationUtil.SafeRunIfLoaded("computercraft",() -> TechComputerLauncher.setup(bus),"Error setting up ComputerCraft Integration");
 
     }
 

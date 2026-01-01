@@ -1,0 +1,10 @@
+// 1.21.1	2026-01-01T16:30:43.3556847	Tags for minecraft:item mod id lctech
+8b63fb3cc7c4ee908f5a78e6d31a7f627f81df07 data/lctech/tags/item/batteries.json
+f46251cd766fab5f018b16b90ca99b28e5a1b2dc data/lctech/tags/item/fluid_tanks.json
+43433addf58cb3f3a857ef70547b0b7ce024d095 data/lightmanscurrency/tags/item/trader.json
+49fff03b84f359597b8a3d28c91b2a374ed31dba data/lightmanscurrency/tags/item/traders/network/energy.json
+7de9adf558db300c73f68e0fa2b3283a2065fd92 data/lightmanscurrency/tags/item/traders/network/fluid.json
+80cf1de59163250a4d90ed4859faf6a2407ca466 data/lightmanscurrency/tags/item/trader_energy.json
+fcd629eb4788c51316ac3cc31d4d5f7eaa224be8 data/lightmanscurrency/tags/item/trader_fluid.json
+5ee8d4752ce39382155d99f34ddc33724d5b71f2 data/lightmanscurrency/tags/item/trader_interface.json
+3decbf88f9117e3796a4e64fc1e04e5930224b75 data/lightmanscurrency/tags/item/trader_network.json

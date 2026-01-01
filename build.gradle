@@ -129,6 +129,8 @@ dependencies {
     //Lightman's Currency (obviously)
     implementation "maven.modrinth:lightmans-currency:${lightmanscurrency_version}"
 
+    //ComputerCraft
+    implementation "maven.modrinth:cc-tweaked:${computercraft_version}"
 
 }
 

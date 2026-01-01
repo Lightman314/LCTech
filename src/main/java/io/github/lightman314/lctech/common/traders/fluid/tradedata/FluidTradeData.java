@@ -7,7 +7,6 @@ import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
-import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.FluidFormatUtil;
 import io.github.lightman314.lctech.common.util.FluidItemUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -17,13 +16,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -31,14 +30,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class FluidTradeData extends TradeData {
 
 	FluidStack product = FluidStack.EMPTY;
@@ -59,8 +58,8 @@ public class FluidTradeData extends TradeData {
 	int bucketQuantity = 1;
 	public int getQuantity() { return this.bucketQuantity * FluidType.BUCKET_VOLUME; }
 	public int getBucketQuantity() { return this.bucketQuantity; }
-	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, this.getMaxBucketQuantity()); }
-	public int getMaxBucketQuantity() { return Math.max(1, TechConfig.SERVER.fluidTradeMaxQuantity.get()); }
+	public void setBucketQuantity(int value) { this.bucketQuantity = MathUtil.clamp(value, 1, getMaxBucketQuantity()); }
+	public static int getMaxBucketQuantity() { return Math.max(1, TechConfig.SERVER.fluidTradeMaxQuantity.get()); }
 
 	TradeDirection tradeDirection = TradeDirection.SALE;
 	public TradeDirection getTradeDirection() { return this.tradeDirection; }
@@ -77,7 +76,7 @@ public class FluidTradeData extends TradeData {
 	public FluidTradeData(boolean validateRules) { super(validateRules); }
 
 	public boolean hasStock(FluidTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(@Nonnull TradeContext context) { return this.getStock(context) > 0; }
+	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
 	public int getStock(FluidTraderData trader)
 	{
 		if(this.product.isEmpty())
@@ -95,7 +94,7 @@ public class FluidTradeData extends TradeData {
 		return 0;
 	}
 
-	public int getStock(@Nonnull TradeContext context) {
+	public int getStock(TradeContext context) {
 		if(this.product.isEmpty())
 			return 0;
 
@@ -136,7 +135,7 @@ public class FluidTradeData extends TradeData {
 	public boolean isValid() { return super.isValid() && !this.product.isEmpty(); }
 
 	@Override
-	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup)
+	public CompoundTag getAsNBT(HolderLookup.Provider lookup)
 	{
 		CompoundTag compound = super.getAsNBT(lookup);
 
@@ -149,7 +148,7 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void loadFromNBT(CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	public void loadFromNBT(CompoundTag compound, HolderLookup.Provider lookup)
 	{
 		super.loadFromNBT(compound,lookup);
 		//Load the product
@@ -182,12 +181,12 @@ public class FluidTradeData extends TradeData {
 		return list;
 	}
 
-	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, HolderLookup.Provider lookup)
 	{
 		WriteNBTList(tradeList, compound, TradeData.DEFAULT_KEY, lookup);
 	}
 
-	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, String tag, @Nonnull HolderLookup.Provider lookup)
+	public static void WriteNBTList(List<FluidTradeData> tradeList, CompoundTag compound, String tag, HolderLookup.Provider lookup)
 	{
 		ListTag list = new ListTag();
 		for (FluidTradeData fluidTradeData : tradeList) {
@@ -197,12 +196,12 @@ public class FluidTradeData extends TradeData {
 		compound.put(tag, list);
 	}
 
-	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
+	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, boolean validateRules, HolderLookup.Provider lookup)
 	{
 		return LoadNBTList(compound, TradeData.DEFAULT_KEY, validateRules, lookup);
 	}
 
-	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules, @Nonnull HolderLookup.Provider lookup)
+	public static List<FluidTradeData> LoadNBTList(CompoundTag compound, String tag, boolean validateRules, HolderLookup.Provider lookup)
 	{
 
 		if(!compound.contains(tag))
@@ -220,7 +219,7 @@ public class FluidTradeData extends TradeData {
 		return tradeData;
 	}
 
-	public static FluidTradeData loadData(CompoundTag compound, boolean validateRules, @Nonnull HolderLookup.Provider lookup) {
+	public static FluidTradeData loadData(CompoundTag compound, boolean validateRules, HolderLookup.Provider lookup) {
 		FluidTradeData trade = new FluidTradeData(validateRules);
 		trade.loadFromNBT(compound, lookup);
 		return trade;
@@ -313,7 +312,7 @@ public class FluidTradeData extends TradeData {
 					ChatFormatting lessColor = this.isSale() ? ChatFormatting.RED : ChatFormatting.GOLD;
 					if(quantityDifference > 0) //More fluids
 						list.add(TechText.GUI_TRADE_DIFFERENCE_FLUID_MORE.get(directionName, FluidFormatUtil.formatFluidAmount(quantityDifference)).withStyle(moreColor));
-					else //Less items
+					else //Fewer items
 						list.add(TechText.GUI_TRADE_DIFFERENCE_FLUID_LESS.get(directionName, FluidFormatUtil.formatFluidAmount(-quantityDifference)).withStyle(lessColor));
 				}
 			}
@@ -322,13 +321,8 @@ public class FluidTradeData extends TradeData {
 		return list;
 	}
 
-	@Nonnull
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRenderManager<?> getButtonRenderer() { return new FluidTradeButtonRenderer(this); }
-
-	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -348,7 +342,7 @@ public class FluidTradeData extends TradeData {
 
 
 	@Override
-	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof FluidTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -366,7 +360,7 @@ public class FluidTradeData extends TradeData {
 		}
 	}
 
-	private boolean onProductInteraction(@Nonnull BasicTradeEditTab tab, int tradeIndex, @Nonnull FluidTraderData trader, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem)
+	private boolean onProductInteraction(BasicTradeEditTab tab, int tradeIndex, FluidTraderData trader, TradeInteractionData data, ItemStack heldItem)
 	{
 		//Set the fluid to the held fluid
 		if(data.shiftHeld() || (heldItem.isEmpty() && this.product.isEmpty()))
@@ -402,6 +396,6 @@ public class FluidTradeData extends TradeData {
 	}
 
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { }
+	public void OnInteraction(BasicTradeEditTab tab, TradeInteractionData data, ItemStack heldItem) { }
 
 }
