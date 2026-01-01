@@ -1,12 +1,14 @@
 package io.github.lightman314.lctech;
 
 import io.github.lightman314.lctech.common.util.icons.FluidIcon;
+import io.github.lightman314.lctech.integration.computercraft.TechComputerLauncher;
 import io.github.lightman314.lctech.integration.lcdiscord.TechDiscord;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -37,17 +39,18 @@ public class LCTech
     public static final Logger LOGGER = LogManager.getLogger();
 
     public LCTech() {
-    	
+
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         // Register the setup method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doCommonStuff);
+        bus.addListener(this::doCommonStuff);
         // Register the doClientStuff method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        bus.addListener(this::doClientStuff);
 
         //Force config class loading
         TechConfig.init();
         
         //.Setup Deferred Registries
-        ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ModRegistries.register(bus);
         
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -55,7 +58,9 @@ public class LCTech
         PROXY.init();
 
         IntegrationUtil.SafeRunIfLoaded("lightmansdiscord", TechDiscord::setup, "Error setting up Tech Discord Integration");
-        
+
+        IntegrationUtil.SafeRunIfLoaded("computercraft", TechComputerLauncher::setup,"Error setting up ComputerCraft Integration");
+
     }
 
     private void doCommonStuff(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }

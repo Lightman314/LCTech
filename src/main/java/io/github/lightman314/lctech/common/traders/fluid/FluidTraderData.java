@@ -13,7 +13,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lctech.LCTech;
 import io.github.lightman314.lctech.TechConfig;
-import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.notifications.types.FluidTradeNotification;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.ITraderFluidFilter;
@@ -55,7 +54,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
@@ -269,11 +267,6 @@ public class FluidTraderData extends InputTraderData implements ITraderFluidFilt
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction relativeSide) {
 		return ForgeCapabilities.FLUID_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getFluidHandler().getExternalHandler(relativeSide)));
 	}
-
-	@Override
-	public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.WATER_BUCKET); }
-	@Override
-	public MutableComponent inputSettingsTabTooltip() { return TechText.TOOLTIP_SETTINGS_INPUT_FLUID.get(); }
 
 	@Override
 	public TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {

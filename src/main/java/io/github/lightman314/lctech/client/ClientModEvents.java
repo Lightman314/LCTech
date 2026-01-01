@@ -10,6 +10,11 @@ import io.github.lightman314.lctech.client.models.items.FluidTankModel;
 import io.github.lightman314.lctech.client.resourcepacks.data.fluid_rendering.FluidRenderDataManager;
 import io.github.lightman314.lctech.common.items.FluidShardItem;
 import io.github.lightman314.lctech.common.items.FluidTankItem;
+import io.github.lightman314.lctech.common.traders.energy.tradedata.EnergyTradeData;
+import io.github.lightman314.lctech.common.traders.energy.tradedata.client.EnergyTradeButtonRenderer;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.FluidTradeData;
+import io.github.lightman314.lctech.common.traders.fluid.tradedata.client.FluidTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
@@ -47,5 +52,12 @@ public class ClientModEvents {
 	public static void registerResourceListener(RegisterClientReloadListenersEvent event) {
 		event.registerReloadListener(FluidRenderDataManager.INSTANCE);
 	}
+
+    @SubscribeEvent
+    public static void registerTradeRenderManagers(RegisterTradeRenderManagersEvent event)
+    {
+        event.register(EnergyTradeButtonRenderer::new,EnergyTradeData.class);
+        event.register(FluidTradeButtonRenderer::new, FluidTradeData.class);
+    }
 	
 }

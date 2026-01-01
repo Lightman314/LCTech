@@ -5,7 +5,6 @@ import java.util.List;
 
 import io.github.lightman314.lctech.TechText;
 import io.github.lightman314.lctech.common.traders.energy.EnergyTraderData;
-import io.github.lightman314.lctech.common.traders.energy.tradedata.client.EnergyTradeButtonRenderer;
 import io.github.lightman314.lctech.common.util.EnergyUtil;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -16,21 +15,21 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class EnergyTradeData extends TradeData {
 	
 	int amount = 0;
@@ -50,7 +49,7 @@ public class EnergyTradeData extends TradeData {
 	public EnergyTradeData(boolean validateRules) { super(validateRules); }
 	
 	public boolean hasStock(EnergyTraderData trader) { return this.getStock(trader) > 0; }
-	public boolean hasStock(@Nonnull TradeContext context) { return this.getStock(context) > 0; }
+	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
 	public int getStock(EnergyTraderData trader) {
 		if(this.amount <= 0)
 			return 0;
@@ -65,7 +64,7 @@ public class EnergyTradeData extends TradeData {
 		}
 		return 0;
 	}
-	public int getStock(@Nonnull TradeContext context) {
+	public int getStock(TradeContext context) {
 		if(this.amount <= 0)
 			return 0;
 		
@@ -276,13 +275,8 @@ public class EnergyTradeData extends TradeData {
 		return list;
 	}
 
-	@Nonnull
 	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRenderManager<?> getButtonRenderer() { return new EnergyTradeButtonRenderer(this); }
-
-	@Override
-	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -294,7 +288,7 @@ public class EnergyTradeData extends TradeData {
 	}
 	
 	@Override
-	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof EnergyTraderData trader)
 		{
 			int tradeIndex = trader.getTradeData().indexOf(this);
@@ -306,7 +300,7 @@ public class EnergyTradeData extends TradeData {
 	}
 	
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(BasicTradeEditTab tab, TradeInteractionData data, ItemStack heldItem) {
 		
 	}
 
