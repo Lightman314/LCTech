@@ -5,11 +5,11 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import io.github.lightman314.lctech.common.traders.fluid.FluidTraderData;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage;
 import io.github.lightman314.lctech.common.traders.fluid.TraderFluidStorage.FluidEntry;
-import io.github.lightman314.lctech.integration.computercraft.peripherals.FluidHandlerPeripheral;
+import io.github.lightman314.lctech.integration.computercraft.peripherals.FluidHandlerHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -28,11 +28,13 @@ public class FluidEntryWrapper extends AccessTrackingPeripheral {
     private final Supplier<Boolean> hasAccess;
     private final Supplier<TraderFluidStorage> source;
     private final int index;
-    public FluidEntryWrapper(Supplier<Boolean> hasAccess,Supplier<TraderFluidStorage> source,int index)
+    private final Supplier<FluidTraderData> parent;
+    public FluidEntryWrapper(Supplier<Boolean> hasAccess,Supplier<TraderFluidStorage> source,int index,Supplier<FluidTraderData> parent)
     {
         this.hasAccess = hasAccess;
         this.source = source;
         this.index = index;
+        this.parent = parent;
     }
 
     protected TraderFluidStorage getStorage() throws LuaException
@@ -79,7 +81,7 @@ public class FluidEntryWrapper extends AccessTrackingPeripheral {
             throw new LuaException("Target '" + toName + "' does not exist");
         else
         {
-            IFluidHandler to = FluidHandlerPeripheral.extractHandler(location);
+            IFluidHandler to = FluidHandlerHelper.extractHandler(location);
             if(to == null)
                 throw new LuaException("Target '" + toName + "' is not an tank");
             else
@@ -90,7 +92,7 @@ public class FluidEntryWrapper extends AccessTrackingPeripheral {
                 else
                 {
                     fluid.setAmount(actualLimit);
-                    return FluidHandlerPeripheral.moveFluid(from,fluid,to);
+                    return this.flagAsChanged(FluidHandlerHelper.moveFluid(from,fluid,to));
                 }
             }
         }
@@ -113,7 +115,7 @@ public class FluidEntryWrapper extends AccessTrackingPeripheral {
             throw new LuaException("Target '" + fromName + "' does not exist");
         else
         {
-            IFluidHandler from = FluidHandlerPeripheral.extractHandler(location);
+            IFluidHandler from = FluidHandlerHelper.extractHandler(location);
             if(from == null)
                 throw new LuaException("Target '" + fromName + "' is not an tank");
             else
@@ -124,10 +126,21 @@ public class FluidEntryWrapper extends AccessTrackingPeripheral {
                 else
                 {
                     fluid.setAmount(actualLimit);
-                    return FluidHandlerPeripheral.moveFluid(from,fluid,to);
+                    return this.flagAsChanged(FluidHandlerHelper.moveFluid(from,fluid,to));
                 }
             }
         }
+    }
+
+    private int flagAsChanged(int change)
+    {
+        if(change > 0)
+        {
+            FluidTraderData trader = this.parent.get();
+            if(trader != null)
+                trader.markStorageDirty();
+        }
+        return change;
     }
 
     @Override

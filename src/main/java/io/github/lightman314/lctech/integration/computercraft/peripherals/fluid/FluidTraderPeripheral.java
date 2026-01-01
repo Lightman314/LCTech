@@ -36,7 +36,7 @@ public class FluidTraderPeripheral extends InputTraderPeripheral<FluidTraderBloc
         int slot = args.getInt(0);
         TraderFluidStorage storage = this.getTrader().getStorage();
         ArgumentHelpers.assertBetween(slot,1,storage.getTanks(),"Tank Slot is out of bounds (%s)");
-        FluidEntryWrapper wrapper = new FluidEntryWrapper(() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetStorage,slot - 1);
+        FluidEntryWrapper wrapper = new FluidEntryWrapper(() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetStorage,slot - 1,this::safeGetTrader);
         wrapper.setParent(this);
         return wrapper.asTable(computer);
     }
